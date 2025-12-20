@@ -1,0 +1,26 @@
+{
+  "name": "orangehrm",
+  "version": "1.0.0",
+  "description": "End-to-End test automation",
+  "main": "index.js",
+  "scripts": {
+    "install:browsers": "npx playwright install --with-deps",
+    "test:playwright": "cross-env NODE_OPTIONS=--require ts-node/register --require tsconfig-paths/register npx playwright test",
+    "test:playwright:api": "cross-env NODE_OPTIONS=--require ts-node/register --require tsconfig-paths/register npx playwright test tests/API"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.21",
+    "cross-env": "^7.0.3",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^3.14.0"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^10.1.0",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.5.0"
+  }
+}

@@ -1,0 +1,133 @@
+name: Playwright Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment name (used to pick env vars)'
+        required: false
+        default: 'qa'
+      browser:
+        description: 'Browser to run (all|chromium|firefox|webkit)'
+        required: false
+        default: 'all'
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      # Optional: override with repository secrets or workflow inputs
+      API_BASE_URL: ${{ secrets.API_BASE_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npm run install:browsers
+
+      - name: Run Playwright tests
+        # Use the npm script that preloads ts-node and tsconfig-paths
+        run: npm run test:playwright
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+name: Playwright Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'The environment to execute (e.g., qa, uat, staging)'
+        required: true
+        type: choice
+        options:
+          - qa
+          - uat
+          - staging
+      browser:
+        description: 'The browser to execute tests on (e.g., chromium, firefox, webkit)'
+        required: true
+        type: choice
+        options:
+          - all
+          - chromium
+          - firefox
+          - webkit
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+
+    - name: Set environment variables
+      env:
+        BASE_URL: ${{ vars.BASE_URL }}
+        ADMIN_USERNAME: ${{ vars.ADMIN_USERNAME }}
+        ADMIN_PASSWORD: ${{ vars.ADMIN_PASSWORD }}
+      run: |
+        echo "Execute Environment: ${{ github.event.inputs.environment }}"
+        echo "BASE_URL=${BASE_URL}"
+        echo "ADMIN_USERNAME=${ADMIN_USERNAME}"
+        echo "ADMIN_PASSWORD=${ADMIN_PASSWORD}"
+        echo "BASE_URL=${BASE_URL}" >> $GITHUB_ENV
+        echo "ADMIN_USERNAME=${ADMIN_USERNAME}" >> $GITHUB_ENV
+        echo "ADMIN_PASSWORD=${ADMIN_PASSWORD}" >> $GITHUB_ENV
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps
+
+    - name: Run Playwright tests
+      env:
+        BASE_URL: ${{ env.BASE_URL }}
+        ADMIN_USERNAME: ${{ env.ADMIN_USERNAME }}
+        ADMIN_PASSWORD: ${{ env.ADMIN_PASSWORD }}
+      run: |
+        echo "Running Playwright tests for environment: ${{ github.event.inputs.environment }}"
+        echo "Selected browser: ${{ github.event.inputs.browser }}"
+
+        if [ "${{ github.event.inputs.browser }}" == "chromium" ]; then
+          npx playwright test --project=chromium
+        elif [ "${{ github.event.inputs.browser }}" == "firefox" ]; then
+          npx playwright test --project=firefox
+        elif [ "${{ github.event.inputs.browser }}" == "webkit" ]; then
+          npx playwright test --project=webkit
+        else
+          echo "Invalid browser option selected"
+          exit 1
+        fi
+
+    - name: Upload Playwright report
+      if: ${{ success() && !cancelled() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
