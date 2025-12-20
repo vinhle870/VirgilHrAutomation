@@ -1,7 +1,7 @@
 import { test, expect } from 'src/fixtures';
 import { DataFactory } from 'src/data-factory';
 import { AdminPortalService } from 'src/api/services/admin-portal.services';
-import { validCardInfo } from 'src/constant/plans';
+import { validCardInfo } from 'src/constant/static-data';
 
 test.describe('MemberPortalService - signUpConsumer', () => {
   test('creates a new consumer successfully', async ({ apiClient, memberPortalService, authenticationService, planPage }, testInfo) => {
