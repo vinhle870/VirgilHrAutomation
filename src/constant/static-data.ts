@@ -21,6 +21,16 @@ const inValidCardInfo = {
     billingCity: "Test City"
 };
 
-export { plans };
-export { validCardInfo };
-export { inValidCardInfo };
+const validIndustry = {
+    code: "ACCOMMODATION",
+    value: "Accommodation"
+};
+
+const validCountry = {
+        "key": "US",
+        "value": "United States"
+}
+
+export { plans,validCardInfo,
+            inValidCardInfo, validIndustry, validCountry,
+};

@@ -6,21 +6,9 @@ export default interface UserInfo {
     firstName: string;
     lastName: string;
     jobTitle: string;
-    companyName: string;
-    companySize: string;
     phoneNumber: string;
-    partnerId?: string;
-    source: string;
-    departmentId: string;
-    ssoProvider?: string;
-    ssoToken?: string;
 
-    /**
-     * Get Dealer Login Account
-     * @param user
-     * @returns
-     */
-
-    generateCustomerPayload: (partnerId?: string, departmentId?: string) => Promise<object>;
+    //info to be added on Admin Portal
+    userType?: number;
 
 }

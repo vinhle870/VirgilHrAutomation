@@ -4,35 +4,20 @@ import { Constants } from '../utilities/constants';
 import { DataGenerate } from '../utilities/data-generate';
 import { plans } from 'src/constant/static-data';
 import { format } from 'date-fns';
+import { ICompany } from './icompany';
+import { Company } from './company';
 
-export class Customer {
+export class MembPortalCustomer implements ICompany {
 	public accountInfo: UserInfo;
-	public userType: number;
 	public plan: string;
-	public useCredit: boolean;
-	public statesEmployee: string[];
-	public industry: string|null;
-	public type: string;
-	public country: Country;
-	public totalEmployees: number;
-	public isSso: boolean;
+	public company: Company;
+
 
 
 	constructor() {
 		this.accountInfo = {} as UserInfo;
-		this.userType = 0;
 		this.plan = plans[0]; // Default plan
-		this.useCredit=false;
-		this.statesEmployee=[];
-		this.industry = null;
-		this.type = '1';
-		this.country = {
-			key: "US",
-			value: "United States"
-		};
-		this.totalEmployees = 0;
-		this.isSso = false;
-
+		this.company = {} as Company;
 	}
 
 	public getAccountInfo(): UserInfo {
@@ -47,9 +32,17 @@ export class Customer {
 		this.plan = plan;
 	}
 
-		public setAccountInfo(account:UserInfo): void {
+	public setAccountInfo(account:UserInfo): void {
 		this.accountInfo = account;
 	}
+
+	public setCompany(company:Company): void {
+		this.company = company;
+	}
+
+	public getCompany = (): Company => {
+    return this.company;
+};
 
 
 }

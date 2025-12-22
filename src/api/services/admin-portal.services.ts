@@ -1,6 +1,7 @@
 import { ApiClient } from 'src/utilities';
 import { CREATE_CUSTOMER, SEARCH_PARTNER_BY_TEXT } from 'src/api/endpoints/admin-portal.endpoints';
 import { Authentication } from 'src/api/services/authentication.service';
+import { MembPortalCustomer } from 'src/objects/customer';
 
 
 export class AdminPortalService{
@@ -96,16 +97,16 @@ export class AdminPortalService{
         return {};
     }
 
-    async createCustomer(customerInfo: any): Promise<any> {
+    async createCustomer(customerInfo: MembPortalCustomer): Promise<any> {
         const path = CREATE_CUSTOMER.replace(/^\/+/, '');
         const url = `${this.baseUrl}/${path}`;
-
+        const requestBody = {...customerInfo.getAccountInfo(),...customerInfo.getCompany()};
         const headers = this.authToken ? { Authorization: `Bearer ${this.authToken}` } : undefined;
 
         const response = await this.apiClient.sendRequest<any>(
             'POST',
             url,
-            customerInfo,
+            requestBody,
             201,
             headers,
         );

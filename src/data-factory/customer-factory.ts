@@ -1,13 +1,14 @@
-import { Customer } from "src/objects/customer";
+import { MembPortalCustomer } from "src/objects/customer";
 import { format } from 'date-fns';
 import { DataGenerate } from "src/utilities";
+import { validCountry, validIndustry } from "src/constant/static-data";
 
 
 export class CustomerFactory {
 
-    static async createCustomer(overrides?: Partial<Record<string, any>>, plan?: string): Promise<Customer> {
+    static async createCustomer(portal:string,overrides?: Partial<Record<string, any>>, plan?: string): Promise<MembPortalCustomer> {
 
-        const customer = new Customer();
+        const customer = new MembPortalCustomer();
 
         const ts = format(new Date(), 'yyyyMMddHHmmss');
         const seq = DataGenerate.getRandomInt(1, 9999);
@@ -26,25 +27,53 @@ export class CustomerFactory {
         const ssoProvider = overrides?.ssoProvider ?? null;
         const ssoToken = overrides?.ssoToken ?? null;
 
+        //Admin Portal specific info
+    const userType = overrides?.userType ?? '0' // Default to '0' - Admin;
+    const useCredit = overrides?.useCredit ?? false;
+	const statesEmployee = overrides?.statesEmployee ?? [];
+    const country = overrides?.country ?? validCountry;
+    const totalEmployees = overrides?.totalEmployees ?? 0;
+	const isSso = overrides?.isSso ?? false;
+    const type = overrides?.type ?? 1;
+    const partnerConsultantId = overrides?.partnerConsultantId ?? '';
+    const industry = overrides?.industry ?? [validIndustry];
+
         customer.setAccountInfo({
             email,
-            password,
+        ...(portal === 'member' && { password }),
             firstName,
             lastName,
             jobTitle,
-            companyName,
-            companySize,
             phoneNumber,
-            ...(partnerId && { partnerId }),
-            source,
-            departmentId,
-            ssoProvider,
-            ssoToken,
+            ...(portal === 'admin' && { userType }),
            // ...overrides,
         });
+
         if (plan) {
             customer.setPlan(plan);
         }
+
+        customer.setCompany({
+
+            companyName,
+            companySize,
+            departmentId,
+            ...(partnerId && { partnerId }),
+            //Set Member Portal specific info
+            ...(portal === 'member' && {  source,
+            ssoProvider,
+            ssoToken, }),
+            //Set Admin Portal specific info
+            ...(portal === 'admin' && {  useCredit,
+            statesEmployee,
+            country,
+            totalEmployees,
+            isSso,
+            type,
+            partnerConsultantId,
+            industry, }),
+
+        });
 
         return customer;
     }

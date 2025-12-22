@@ -1,6 +1,7 @@
 import { ApiClient } from 'src/utilities';
 import { GET_AUTH_TOKEN } from 'src/api/endpoints';
 import { CHECK_OUT_PLAN, GET_CURRENT_SUBSCRIBED_PLAN, GET_PAYMENTSTATUS, GET_PLANS, SIGN_UP_CONSUMER } from 'src/api/endpoints/member-portal.endpoints';
+import { MembPortalCustomer } from 'src/objects/customer';
 
 export class MemberPortalService {
     private apiClient: ApiClient;
@@ -14,14 +15,15 @@ export class MemberPortalService {
     /***
      * Sign up a new user on Member Portal with the provided data
      */
-    async signUpConsumer(consumerData: object): Promise<object> {
+    async signUpConsumer(consumerData: MembPortalCustomer): Promise<object> {
 
         const baseurl = this.baseUrl;
         const url = `${baseurl}${SIGN_UP_CONSUMER}`;
+        const requestBody = { ...consumerData.getAccountInfo(), ...consumerData.getCompany()};
         const response = await this.apiClient.sendRequest<object>(
             'POST',
             url,
-            consumerData,
+            requestBody,
             201 // Assuming 201 Created is the expected status code
         );
         return response; // Return the created consumer ID. E.g: 692bf9ec8600289c1af50f91
