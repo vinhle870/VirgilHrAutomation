@@ -1,27 +1,34 @@
-import { test, expect } from 'src/fixtures';
-import { DataFactory } from 'src/data-factory';
-import { AdminPortalService } from 'src/api/services/admin-portal.services';
-import { validCardInfo } from 'src/constant/static-data';
+import { test, expect } from "src/fixtures";
+import { DataFactory } from "src/data-factory";
+import { AdminPortalService } from "src/api/services/admin-portal.services";
 
-test.describe('MemberPortalService - signUpConsumer', () => {
-
-
-    test('TC017_API Verify that new member portal user can be signed up with PartnerID return 201-Created and correct Response', async ({ apiClient, memberPortalService, authenticationService, planPage }, testInfo) => {
+test.describe("MemberPortalService - signUpConsumer", () => {
+  test("TC017_API Verify that new member portal user can be signed up with PartnerID return 201-Created and correct Response", async ({
+    apiClient,
+    authenticationService,
+  }, testInfo) => {
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
     const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
     const password = process.env.API_PASSWORD ?? process.env.ADMIN_PASSWORD;
-    testInfo.skip(!base, 'API_BASE_URL is not configured');
+    testInfo.skip(!base, "API_BASE_URL is not configured");
 
     //*****-----Optionally discover partnerId/departmentId from the system to use in the-----*****
     // generated consumer. If search finds nothing, generator will use defaults.
-    const partnerName = 'VinhPartner002';
+    const partnerName = "VinhPartner002";
 
-    const adminService = await AdminPortalService.create(apiClient, authenticationService);
+    const adminService = await AdminPortalService.create(
+      apiClient,
+      authenticationService
+    );
 
     const partnerInfo = await adminService.searchPartner(partnerName);
 
     // Generate consumer payload with discovered IDs (if any)
-    const consumerData = await DataFactory.generateCustomerInfo("admin",partnerInfo.partnerId, partnerInfo.departmentId);
+    const consumerData = await DataFactory.generateCustomerInfo(
+      "admin",
+      partnerInfo.partnerId,
+      partnerInfo.departmentId
+    );
     const customerAccountInfo = consumerData.getAccountInfo();
     //*****---------------------------------------------------*****
 
@@ -29,9 +36,8 @@ test.describe('MemberPortalService - signUpConsumer', () => {
     // Call the service (the fixture `memberPortalService` wraps ApiClient)
     const resp = await adminService.createCustomer(consumerData);
 
-
     expect(resp).toBeDefined();
-    expect(typeof resp).toBe('string');
+    expect(typeof resp).toBe("string");
     // Basic sanity: response should contain at least one property (e.g., id)
     expect(Object.keys(resp as any).length).toBeGreaterThan(0);
 

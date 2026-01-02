@@ -1,48 +1,44 @@
-import UserInfo from './user-info';
-import { DataHandling } from '../data-handling/data-handling';
-import { Constants } from '../utilities/constants';
-import { DataGenerate } from '../utilities/data-generate';
-import { plans } from 'src/constant/static-data';
-import { format } from 'date-fns';
-import { ICompany } from './icompany';
-import { Company } from './company';
+import UserInfo from "./user-info";
+import { DataHandling } from "../data-handling/data-handling";
+import { Constants } from "../utilities/constants";
+import { DataGenerate } from "../utilities/data-generate";
+import { plans } from "src/constant/static-data";
+import { format } from "date-fns";
+import { ICompany } from "./icompany";
+import { Company } from "./company";
 
 export class MembPortalCustomer implements ICompany {
-	public accountInfo: UserInfo;
-	public plan: string;
-	public company: Company;
+  public accountInfo: UserInfo;
+  public plan: string;
+  public company: Company;
 
+  constructor() {
+    this.accountInfo = {} as UserInfo;
+    this.plan = plans[0]; // Default plan
+    this.company = {} as Company;
+  }
 
+  public getAccountInfo(): UserInfo {
+    return this.accountInfo;
+  }
 
-	constructor() {
-		this.accountInfo = {} as UserInfo;
-		this.plan = plans[0]; // Default plan
-		this.company = {} as Company;
-	}
+  public getPlan(): string {
+    return this.plan;
+  }
 
-	public getAccountInfo(): UserInfo {
-		return this.accountInfo;
-	}
+  public setPlan(plan: string): void {
+    this.plan = plan;
+  }
 
-	public getPlan(): string {
-		return this.plan;
-	}
+  public setAccountInfo(account: UserInfo): void {
+    this.accountInfo = account;
+  }
 
-	public setPlan(plan:string): void {
-		this.plan = plan;
-	}
+  public setCompany(company: Company): void {
+    this.company = company;
+  }
 
-	public setAccountInfo(account:UserInfo): void {
-		this.accountInfo = account;
-	}
-
-	public setCompany(company:Company): void {
-		this.company = company;
-	}
-
-	public getCompany = (): Company => {
+  public getCompany = (): Company => {
     return this.company;
-};
-
-
+  };
 }

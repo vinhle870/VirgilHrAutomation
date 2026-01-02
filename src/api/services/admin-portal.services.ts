@@ -1,120 +1,203 @@
-import { ApiClient } from 'src/utilities';
-import { CREATE_CUSTOMER, SEARCH_PARTNER_BY_TEXT } from 'src/api/endpoints/admin-portal.endpoints';
-import { Authentication } from 'src/api/services/authentication.service';
-import { MembPortalCustomer } from 'src/objects/customer';
+import { ApiClient } from "src/utilities";
+import {
+  CREATE_CUSTOMER,
+  CREATE_PARTNER,
+  SEARCH_PARTNER_BY_TEXT,
+  SEARCH_PARTNER_HAVING_PEO,
+} from "src/api/endpoints/admin-portal.endpoints";
+import { Authentication } from "src/api/services/authentication.service";
+import { MembPortalCustomer } from "src/objects/customer";
+import IPartner from "src/objects/partner";
+import { DataFactory } from "../../data-factory";
+import { PartnerWithConsultants } from "src/objects/responseOfPEOInPartner";
 
+export class AdminPortalService {
+  private apiClient: ApiClient;
+  private baseUrl: string;
+  private authToken: string | undefined;
+  private authentication?: Authentication;
 
-export class AdminPortalService{
-    private apiClient: ApiClient;
-    private baseUrl: string;
-    private authToken: string | undefined;
-    private authentication?: Authentication;
+  constructor(apiClient: ApiClient, authentication?: Authentication) {
+    const apiVersion = process.env.API_VERSION ?? "v1";
+    this.apiClient = apiClient;
+    this.baseUrl =
+      this.apiClient.baseURL.replace(/\/+$/, "") + `/${apiVersion}`;
+    this.authentication = authentication;
+  }
 
-    constructor(apiClient: ApiClient, authentication?: Authentication){
-        const apiVersion = process.env.API_VERSION ?? 'v1';
-        this.apiClient = apiClient;
-        this.baseUrl = this.apiClient.baseURL.replace(/\/+$/,'') + `/${apiVersion}`;
-        this.authentication = authentication;
-    }
-
-    /**
-     * Async factory to create an AdminPortalService and optionally prefetch an auth token.
-     */
-    public static async create(apiClient: ApiClient, authentication?: Authentication): Promise<AdminPortalService> {
-        const svc = new AdminPortalService(apiClient, authentication);
-        if (authentication) {
-            const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
-            const password = process.env.API_PASSWORD ?? process.env.ADMIN_PASSWORD;
-            if (username && password) {
-                try {
-                    const t = await authentication.getAuthToken(username, password);
-                    svc.authToken = t;
-                } catch (err) {
-                    // don't crash on token fetch failure; log for debugging
-                    // eslint-disable-next-line no-console
-                    console.warn('AdminPortalService: failed to prefetch auth token', err);
-                }
-            }
+  /**
+   * Async factory to create an AdminPortalService and optionally prefetch an auth token.
+   */
+  public static async create(
+    apiClient: ApiClient,
+    authentication?: Authentication
+  ): Promise<AdminPortalService> {
+    const svc = new AdminPortalService(apiClient, authentication);
+    if (authentication) {
+      const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
+      const password = process.env.API_PASSWORD ?? process.env.ADMIN_PASSWORD;
+      if (username && password) {
+        try {
+          const t = await authentication.getAuthToken(username, password);
+          svc.authToken = t;
+        } catch (err) {
+          // don't crash on token fetch failure; log for debugging
+          // eslint-disable-next-line no-console
+          console.warn(
+            "AdminPortalService: failed to prefetch auth token",
+            err
+          );
         }
-        return svc;
+      }
+    }
+    return svc;
+  }
+
+  /**
+   * Search partners by arbitrary query string. If `token` is provided it will
+   * be used; otherwise the service will use the stored token (possibly obtained
+   * from the `Authentication` service or previously set).
+   */
+  async searchPartnerByText(
+    partnername: string
+  ): Promise<{ total: number; entities: Array<Record<string, any>> }> {
+    const query = `SearchString=${encodeURIComponent(partnername)}`;
+    const path = SEARCH_PARTNER_BY_TEXT.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}?${query}`;
+
+    let tokenToUse = this.authToken ?? this.apiClient.getAuthToken();
+
+    const headers = tokenToUse
+      ? { Authorization: `Bearer ${tokenToUse}` }
+      : undefined;
+
+    const response = await this.apiClient.sendRequest<{
+      total: number;
+      entities: Array<Record<string, any>>;
+    }>("GET", url, undefined, 200, headers);
+
+    return response; // Return the partner data
+  }
+
+  /**
+   * Convenience helper: search by text and return the partnerId and departmentId
+   * from the first matched entity (if any).
+   */
+  async searchPartner(
+    partnername: string,
+    token?: string
+  ): Promise<{
+    partnerId?: string;
+    departmentId?: string;
+    subDomain?: string;
+  }> {
+    const path = SEARCH_PARTNER_BY_TEXT.replace(/^\/+/, "");
+    const query = `SearchString=${encodeURIComponent(partnername)}`;
+    const url = `${this.baseUrl}/${path}?${query}`;
+
+    // Determine token to use: parameter > stored > apiClient
+    const tokenToUse = token ?? this.authToken ?? this.apiClient.getAuthToken();
+    const headers = tokenToUse
+      ? { Authorization: `Bearer ${tokenToUse}` }
+      : undefined;
+
+    const resp = await this.apiClient.sendRequest<{
+      total: number;
+      entities: Array<Record<string, any>>;
+    }>("GET", url, undefined, 200, headers);
+
+    if (resp && Array.isArray(resp.entities) && resp.entities.length > 0) {
+      const first = resp.entities[0];
+      return {
+        partnerId: first["id"] ?? undefined,
+        departmentId: first["departmentId"] ?? undefined,
+        subDomain: first["subDomain"] ?? undefined,
+      };
     }
 
-    /**
-     * Search partners by arbitrary query string. If `token` is provided it will
-     * be used; otherwise the service will use the stored token (possibly obtained
-     * from the `Authentication` service or previously set).
-     */
-    async searchPartnerByText(partnername: string): Promise<{ total: number; entities: Array<Record<string, any>> }> {
-        const query = `SearchString=${encodeURIComponent(partnername)}`;
-        const path = SEARCH_PARTNER_BY_TEXT.replace(/^\/+/, '');
-        const url = `${this.baseUrl}/${path}?${query}`;
+    return {};
+  }
 
-        let tokenToUse = this.authToken ?? this.apiClient.getAuthToken();
+  async searchPartnerHavingPEO(
+    token?: string
+  ): Promise<{ consultants: any[] }> {
+    const path = SEARCH_PARTNER_HAVING_PEO.replace(/^\/+/, "");
+    console.log("searchPartnerHavingPEO called, baseURL:", this.baseUrl);
+    const url =
+      "https://api.qa.virgilhr.com/v1/Manage/Organization/Partner/6956a500ab0640dcfc435f02/Childs";
 
-         const headers = tokenToUse ? { Authorization: `Bearer ${tokenToUse}` } : undefined;
+    const tokenToUse = token ?? this.authToken ?? this.apiClient.getAuthToken();
+    const headers = tokenToUse
+      ? { Authorization: `Bearer ${tokenToUse}` }
+      : undefined;
 
-        const response = await this.apiClient.sendRequest<{ total: number; entities: Array<Record<string, any>> }>(
-            'GET',
-            url,
-            undefined,
-            200,
-            headers,
-        );
+    const resp = await this.apiClient.sendRequest<PartnerWithConsultants>(
+      "GET",
+      url,
+      undefined,
+      200,
+      headers
+    );
 
-        return response; // Return the partner data
+    if (
+      resp &&
+      Array.isArray(resp.consultants) &&
+      resp.consultants.length > 0
+    ) {
+      const consultants = resp.consultants.map((e) => ({
+        id: e.id,
+        level: e.level,
+        departmentId: e.departmentId,
+        subDomain: e.subDomain,
+      }));
+      return { consultants };
     }
 
-    /**
-     * Convenience helper: search by text and return the partnerId and departmentId
-     * from the first matched entity (if any).
-     */
-    async searchPartner(partnername: string, token?: string): Promise<{ partnerId?: string; departmentId?: string,subDomain?:string }> {
-        const path = SEARCH_PARTNER_BY_TEXT.replace(/^\/+/, '');
-        const query = `SearchString=${encodeURIComponent(partnername)}`;
-        const url = `${this.baseUrl}/${path}?${query}`;
+    return { consultants: [] };
+  }
 
-        // Determine token to use: parameter > stored > apiClient
-        const tokenToUse = token ?? this.authToken ?? this.apiClient.getAuthToken();
-        const headers = tokenToUse ? { Authorization: `Bearer ${tokenToUse}` } : undefined;
+  async createCustomer(customerInfo: MembPortalCustomer): Promise<any> {
+    const path = CREATE_CUSTOMER.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}`;
+    const requestBody = {
+      ...customerInfo.getAccountInfo(),
+      ...customerInfo.getCompany(),
+    };
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
 
-        const resp = await this.apiClient.sendRequest<{ total: number; entities: Array<Record<string, any>> }>(
-            'GET',
-            url,
-            undefined,
-            200,
-            headers,
-        );
+    const response = await this.apiClient.sendRequest<any>(
+      "POST",
+      url,
+      requestBody,
+      201,
+      headers
+    );
 
-        if (resp && Array.isArray(resp.entities) && resp.entities.length > 0) {
-            const first = resp.entities[0];
-            return {
-                partnerId: first['id'] ?? undefined,
-                departmentId: first['departmentId'] ?? undefined,
-                subDomain: first['subDomain'] ?? undefined,
-            };
-        }
+    return response;
+  }
+  async createPartner(): Promise<any> {
+    const path = CREATE_PARTNER.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}`;
 
-        return {};
-    }
+    const requestBody: IPartner = DataFactory.createUniquePartner("Vinh", "Le");
 
-    async createCustomer(customerInfo: MembPortalCustomer): Promise<any> {
-        const path = CREATE_CUSTOMER.replace(/^\/+/, '');
-        const url = `${this.baseUrl}/${path}`;
-        const requestBody = {...customerInfo.getAccountInfo(),...customerInfo.getCompany()};
-        const headers = this.authToken ? { Authorization: `Bearer ${this.authToken}` } : undefined;
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
 
-        const response = await this.apiClient.sendRequest<any>(
-            'POST',
-            url,
-            requestBody,
-            201,
-            headers,
-        );
+    const response = await this.apiClient.sendPartnerRequest<any>(
+      "POST",
+      url,
+      requestBody,
+      200,
+      headers
+    );
 
-        return response;
-    }
+    return response;
+  }
 }
-
 
 /***
  * SAMPLE API RESPONSE

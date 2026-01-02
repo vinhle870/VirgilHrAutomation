@@ -1,20 +1,11 @@
-import UserInfo from './user-info';
-import { DataHandling } from '../data-handling/data-handling';
-import { Constants } from '../utilities/constants';
-import { DataGenerate } from '../utilities/data-generate';
-import { plans } from 'src/constant/static-data';
-import { format } from 'date-fns';
+import UserInfo from "./user-info";
 
 export interface ICompany {
+  getAccountInfo: () => UserInfo;
 
-	getAccountInfo:() => UserInfo;
+  getPlan: () => string;
 
-	getPlan:() => string ;
+  setPlan: (plan: string) => void;
 
-	setPlan:(plan:string) => void;
-
-	setAccountInfo:(account:UserInfo) => void;
-
-
-
+  setAccountInfo: (account: UserInfo) => void;
 }
