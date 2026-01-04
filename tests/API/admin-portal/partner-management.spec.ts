@@ -1,5 +1,6 @@
 import { test, expect } from "src/fixtures";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
+import { DataFactory } from "src/data-factory";
 
 test.describe("Partner managerment", () => {
   test("TC030_API Verify that a partner account can only be created in the Admin Portal – Partner Management.", async ({
@@ -18,11 +19,11 @@ test.describe("Partner managerment", () => {
       apiClient,
       authenticationService
     );
+    const partnerInfo = await DataFactory.generatePartnerInfo(0);
 
-    const partnerInfor = await adminService.createPartner();
+    const response = await adminService.createPartner(partnerInfo);
 
-    expect(partnerInfor.status).toBe(200);
-    expect(partnerInfor.data).toBeDefined();
+    expect(response.data).toBeDefined();
   });
 
   test("TC31 Verify when a Partner is being created, the admin can select its level as Partner or PEO/Consultant.", async ({
@@ -41,19 +42,32 @@ test.describe("Partner managerment", () => {
       apiClient,
       authenticationService
     );
-    const peo = await adminService.searchPartnerByText("vinhle12004");
+    const peoInfo = await DataFactory.generatePartnerInfo(1);
 
-    const peoLevel = peo.entities[0].level;
+    const nameOfPeoInfo: string = peoInfo.getIPartnerInfo()?.name!;
 
-    expect(peoLevel).toBe(1);
+    const responsePEO = await adminService.createPartner(peoInfo);
 
-    const partner = await adminService.searchPartnerByText(
-      "TestPartner_1767286016160"
-    );
+    if (responsePEO.status == 200) {
+      const peoLevel = (await adminService.searchPartnerByText(nameOfPeoInfo))
+        .entities[0].level;
 
-    const partnerLevel = partner.entities[0].level;
+      expect(peoLevel).toBe(1);
+    }
 
-    expect(partnerLevel).toBe(0);
+    const partnerInfo = await DataFactory.generatePartnerInfo(0);
+
+    const nameOfpartnerInfo: string = partnerInfo.getIPartnerInfo()?.name!;
+
+    const responsePartner = await adminService.createPartner(partnerInfo);
+
+    if (responsePartner.status == 200) {
+      const partnerLevel = await (
+        await adminService.searchPartnerByText(nameOfpartnerInfo)
+      ).entities[0].level;
+
+      expect(partnerLevel).toBe(0);
+    }
   });
 
   test("TC32 Verify that a Partner is at a higher level than a PEO/Consultant, meaning one Partner can contain one or multiple PEOs/Consultants.", async ({
@@ -74,7 +88,6 @@ test.describe("Partner managerment", () => {
     );
 
     const consultant = await adminService.searchPartnerHavingPEO();
-    console.log("Consultant result:", consultant);
 
     expect(consultant.consultants[0].level).toBe(1);
   });

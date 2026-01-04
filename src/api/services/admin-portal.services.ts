@@ -7,8 +7,7 @@ import {
 } from "src/api/endpoints/admin-portal.endpoints";
 import { Authentication } from "src/api/services/authentication.service";
 import { MembPortalCustomer } from "src/objects/customer";
-import IPartner from "src/objects/partner";
-import { DataFactory } from "../../data-factory";
+import { Partner } from "src/objects/ipartner";
 import { PartnerWithConsultants } from "src/objects/responseOfPEOInPartner";
 
 export class AdminPortalService {
@@ -122,7 +121,6 @@ export class AdminPortalService {
     token?: string
   ): Promise<{ consultants: any[] }> {
     const path = SEARCH_PARTNER_HAVING_PEO.replace(/^\/+/, "");
-    console.log("searchPartnerHavingPEO called, baseURL:", this.baseUrl);
     const url =
       "https://api.qa.virgilhr.com/v1/Manage/Organization/Partner/6956a500ab0640dcfc435f02/Childs";
 
@@ -177,11 +175,14 @@ export class AdminPortalService {
 
     return response;
   }
-  async createPartner(): Promise<any> {
+  async createPartner(partnerInfo: Partner): Promise<any> {
     const path = CREATE_PARTNER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
 
-    const requestBody: IPartner = DataFactory.createUniquePartner("Vinh", "Le");
+    const requestBody = {
+      ...partnerInfo.getIPartnerInfo(),
+      ...partnerInfo.getAccountInfo(),
+    };
 
     const headers = this.authToken
       ? { Authorization: `Bearer ${this.authToken}` }

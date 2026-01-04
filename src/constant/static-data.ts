@@ -1,4 +1,4 @@
-import IPartner from "src/objects/partner";
+import IPartner from "src/objects/ipartner";
 
 const plans = [
   "Under 50 Employees",

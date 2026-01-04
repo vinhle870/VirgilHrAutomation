@@ -1,6 +1,7 @@
 import { MembPortalCustomer } from "../objects/customer";
 import { CustomerFactory } from "./customer-factory";
-import IPartner from "../objects/partner";
+import { Partner } from "../objects/ipartner";
+import { PartnerFactory } from "./partner-factory";
 
 export class DataFactory {
   static async generateCustomerInfo(
@@ -15,24 +16,9 @@ export class DataFactory {
     });
     return customer;
   }
-  static createUniquePartner(firstName: string, lastName: string): IPartner {
-    const uniqueSuffix = Date.now();
+  static async generatePartnerInfo(level: number): Promise<Partner> {
+    const partner = await PartnerFactory.createPartner(level);
 
-    return {
-      bankTransfer: false,
-      canCustomUpdatePlan: false,
-      companyType: 1,
-      email: `partner_${uniqueSuffix}@yopmail.com`,
-      firstName,
-      lastName,
-      isPublic: true,
-      jobTitle: "Partner",
-      level: 0,
-      name: `TestPartner_${uniqueSuffix}`,
-      partnerType: 1,
-      paymentEnable: true,
-      phoneNumber: `090${uniqueSuffix.toString().slice(-7)}`,
-      subDomain: `partner${uniqueSuffix}`,
-    };
+    return partner;
   }
 }

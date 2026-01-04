@@ -1,9 +1,5 @@
 import UserInfo from "./user-info";
-import { DataHandling } from "../data-handling/data-handling";
-import { Constants } from "../utilities/constants";
-import { DataGenerate } from "../utilities/data-generate";
 import { plans } from "src/constant/static-data";
-import { format } from "date-fns";
 import { ICompany } from "./icompany";
 import { Company } from "./company";
 
@@ -20,7 +16,7 @@ export class MembPortalCustomer implements ICompany {
 
   public getAccountInfo(): UserInfo {
     return this.accountInfo;
-  }
+  } //copy
 
   public getPlan(): string {
     return this.plan;
@@ -32,7 +28,7 @@ export class MembPortalCustomer implements ICompany {
 
   public setAccountInfo(account: UserInfo): void {
     this.accountInfo = account;
-  }
+  } //copy
 
   public setCompany(company: Company): void {
     this.company = company;
