@@ -35,6 +35,7 @@ export class PartnerFactory {
     const name: string = overrides?.name ?? `${firstName}${seq}`;
     const partnerType: number =
       overrides?.partnerType ?? DataGenerate.generateDecimal();
+    //Payment options
     const paymentEnable: boolean =
       overrides?.paymentEnable ?? DataGenerate.generateBoolean();
     const subDomain: string = overrides?.subDomain ?? name;

@@ -3,7 +3,7 @@ import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { DataFactory } from "src/data-factory";
 
 test.describe("Partner managerment", () => {
-  test("TC030_API Verify that a partner account can only be created in the Admin Portal – Partner Management.", async ({
+  test("TC034_API For Payment Options, the admin can select either Partner/Consultant Owner or Member Portal Consumer.", async ({
     apiClient,
     authenticationService,
   }, testInfo) => {
@@ -19,11 +19,47 @@ test.describe("Partner managerment", () => {
       apiClient,
       authenticationService
     );
-    const partnerInfo = await DataFactory.generatePartnerInfo(0);
+    const partnerInfoWithMemberPortalConsumer =
+      await DataFactory.generatePartnerInfo(0, {
+        paymentEnable: 0,
+      });
 
-    const response = await adminService.createPartner(partnerInfo);
+    const nameOfPartnerInfoWithMemberPortalConsumer =
+      partnerInfoWithMemberPortalConsumer.getIPartnerInfo()?.name!;
 
-    expect(response.data).toBeDefined();
+    const responseOfPartnerInfoWithMemberPortalConsumer =
+      await adminService.createPartner(partnerInfoWithMemberPortalConsumer);
+
+    if (responseOfPartnerInfoWithMemberPortalConsumer.status == 200) {
+      const searchResponseWithMemberPortalConsumer = (
+        await adminService.searchPartnerByText(
+          nameOfPartnerInfoWithMemberPortalConsumer
+        )
+      ).entities[0].paymentEnable;
+
+      expect(searchResponseWithMemberPortalConsumer).toBe(false);
+    }
+
+    const partnerInfoWithPartnerConsultantOwner =
+      await DataFactory.generatePartnerInfo(0, {
+        paymentEnable: 1,
+      });
+
+    const nameOfPartnerInfoWithPartnerConsultantOwner =
+      partnerInfoWithPartnerConsultantOwner.getIPartnerInfo()?.name!;
+
+    const responseOfPartnerInfoWithPartnerConsultantOwner =
+      await adminService.createPartner(partnerInfoWithPartnerConsultantOwner);
+
+    if (responseOfPartnerInfoWithPartnerConsultantOwner.status == 200) {
+      const searchResponseWithPartnerConsultantOwner = (
+        await adminService.searchPartnerByText(
+          nameOfPartnerInfoWithPartnerConsultantOwner
+        )
+      ).entities[0].paymentEnable;
+
+      expect(searchResponseWithPartnerConsultantOwner).toBe(true);
+    }
   });
 
   test("TC31 Verify when a Partner is being created, the admin can select its level as Partner or PEO/Consultant.", async ({
@@ -68,27 +104,5 @@ test.describe("Partner managerment", () => {
 
       expect(partnerLevel).toBe(0);
     }
-  });
-
-  test("TC32 Verify that a Partner is at a higher level than a PEO/Consultant, meaning one Partner can contain one or multiple PEOs/Consultants.", async ({
-    apiClient,
-    authenticationService,
-  }, testInfo) => {
-    testInfo.skip(
-      !process.env.API_BASE_URL && !process.env.BASE_URL,
-      "API_BASE_URL is not configured"
-    );
-    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-    testInfo.skip(!base, "API_BASE_URL is not configured");
-
-    const adminService = await AdminPortalService.create(
-      apiClient,
-      authenticationService
-    );
-
-    const consultant = await adminService.searchPartnerHavingPEO();
-
-    expect(consultant.consultants[0].level).toBe(1);
   });
 });

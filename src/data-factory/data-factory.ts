@@ -16,8 +16,11 @@ export class DataFactory {
     });
     return customer;
   }
-  static async generatePartnerInfo(level: number): Promise<Partner> {
-    const partner = await PartnerFactory.createPartner(level);
+  static async generatePartnerInfo(
+    level: number,
+    overrides?: Partial<Record<string, any>>
+  ): Promise<Partner> {
+    const partner = await PartnerFactory.createPartner(level, overrides);
 
     return partner;
   }

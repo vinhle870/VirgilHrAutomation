@@ -118,13 +118,12 @@ export class AdminPortalService {
   }
 
   async searchPartnerHavingPEO(
-    token?: string
+    partnerId: string
   ): Promise<{ consultants: any[] }> {
     const path = SEARCH_PARTNER_HAVING_PEO.replace(/^\/+/, "");
-    const url =
-      "https://api.qa.virgilhr.com/v1/Manage/Organization/Partner/6956a500ab0640dcfc435f02/Childs";
+    const url = `https://api.qa.virgilhr.com/v1/Manage/Organization/Partner/${partnerId}/Childs`;
 
-    const tokenToUse = token ?? this.authToken ?? this.apiClient.getAuthToken();
+    const tokenToUse = this.apiClient.getAuthToken();
     const headers = tokenToUse
       ? { Authorization: `Bearer ${tokenToUse}` }
       : undefined;
