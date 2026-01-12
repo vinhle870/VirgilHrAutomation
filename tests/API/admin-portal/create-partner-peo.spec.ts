@@ -1,6 +1,7 @@
 import { test, expect } from "src/fixtures";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { DataFactory } from "src/data-factory";
+import { PartnerFactory } from "src/data-factory/partner-factory";
 
 test.describe("Partner managerment", () => {
   test("TC030_API Verify that a partner account can only be created in the Admin Portal – Partner Management.", async ({
@@ -19,7 +20,8 @@ test.describe("Partner managerment", () => {
       apiClient,
       authenticationService
     );
-    const partnerInfo = await DataFactory.generatePartnerInfo(0);
+
+    const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService);
 
     const response = await adminService.createPartner(partnerInfo);
 
@@ -42,7 +44,8 @@ test.describe("Partner managerment", () => {
       apiClient,
       authenticationService
     );
-    const peoInfo = await DataFactory.generatePartnerInfo(1);
+
+    const peoInfo = await DataFactory.generatePartnerInfo(1, adminService);
 
     const nameOfPeoInfo: string = peoInfo.getIPartnerInfo()?.name!;
 
@@ -55,7 +58,7 @@ test.describe("Partner managerment", () => {
       expect(peoLevel).toBe(1);
     }
 
-    const partnerInfo = await DataFactory.generatePartnerInfo(0);
+    const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService);
 
     const nameOfpartnerInfo: string = partnerInfo.getIPartnerInfo()?.name!;
 

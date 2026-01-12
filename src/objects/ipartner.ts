@@ -18,6 +18,12 @@ export default interface IPartnerInfo {
   userInfo: UserInfo;
   billingCycle?: number;
 }
+
+export interface IPartnerInfoWithDepartmentAndProductTypes {
+  productTypes: number[];
+  departmentIds: string[];
+}
+
 export class Partner {
   private iPartnerInfo: IPartnerInfo | undefined;
   private accountInfo: UserInfo | undefined;

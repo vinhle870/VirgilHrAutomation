@@ -1,6 +1,7 @@
 import { test, expect } from "src/fixtures";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { DataFactory } from "src/data-factory";
+import { paymentOptions } from "src/constant/static-data";
 
 test.describe("Partner managerment", () => {
   test("TC034_API For Payment Options, the admin can select either Partner/Consultant Owner or Member Portal Consumer.", async ({
@@ -19,50 +20,32 @@ test.describe("Partner managerment", () => {
       apiClient,
       authenticationService
     );
-    const partnerInfoWithMemberPortalConsumer =
-      await DataFactory.generatePartnerInfo(0, {
-        paymentEnable: 0,
-      });
 
-    const nameOfPartnerInfoWithMemberPortalConsumer =
-      partnerInfoWithMemberPortalConsumer.getIPartnerInfo()?.name!;
+    for (let i = 0; i < paymentOptions.length; i++) {
+      const partnerInfo = await DataFactory.generatePartnerInfo(
+        0,
+        adminService,
+        {
+          paymentEnable: i,
+        }
+      );
 
-    const responseOfPartnerInfoWithMemberPortalConsumer =
-      await adminService.createPartner(partnerInfoWithMemberPortalConsumer);
+      const nameOfPartnerInfo = partnerInfo.getIPartnerInfo()?.name!;
 
-    if (responseOfPartnerInfoWithMemberPortalConsumer.status == 200) {
-      const searchResponseWithMemberPortalConsumer = (
-        await adminService.searchPartnerByText(
-          nameOfPartnerInfoWithMemberPortalConsumer
-        )
-      ).entities[0].paymentEnable;
+      const responseOfPartner = await adminService.createPartner(partnerInfo);
 
-      expect(searchResponseWithMemberPortalConsumer).toBe(false);
-    }
+      if (responseOfPartner.status == 200) {
+        const searchResponse = (
+          await adminService.searchPartnerByText(nameOfPartnerInfo)
+        ).entities[0].paymentEnable;
 
-    const partnerInfoWithPartnerConsultantOwner =
-      await DataFactory.generatePartnerInfo(0, {
-        paymentEnable: 1,
-      });
-
-    const nameOfPartnerInfoWithPartnerConsultantOwner =
-      partnerInfoWithPartnerConsultantOwner.getIPartnerInfo()?.name!;
-
-    const responseOfPartnerInfoWithPartnerConsultantOwner =
-      await adminService.createPartner(partnerInfoWithPartnerConsultantOwner);
-
-    if (responseOfPartnerInfoWithPartnerConsultantOwner.status == 200) {
-      const searchResponseWithPartnerConsultantOwner = (
-        await adminService.searchPartnerByText(
-          nameOfPartnerInfoWithPartnerConsultantOwner
-        )
-      ).entities[0].paymentEnable;
-
-      expect(searchResponseWithPartnerConsultantOwner).toBe(true);
+        if (i == 0) expect(searchResponse).toBe(false);
+        else if (i == 1) expect(searchResponse).toBe(true);
+      }
     }
   });
 
-  test("TC31 Verify when a Partner is being created, the admin can select its level as Partner or PEO/Consultant.", async ({
+  test("TC35 With Payment Options = Partner/Consultant Owner, the user will make payments in the Partner Portal, and the Partner account will be the owner of all Businesses.", async ({
     apiClient,
     authenticationService,
   }, testInfo) => {
@@ -78,31 +61,39 @@ test.describe("Partner managerment", () => {
       apiClient,
       authenticationService
     );
-    const peoInfo = await DataFactory.generatePartnerInfo(1);
 
-    const nameOfPeoInfo: string = peoInfo.getIPartnerInfo()?.name!;
+    const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
+      bankTransfer: false,
+      isPublic: true,
+      paymentEnable: 1,
+    });
 
-    const responsePEO = await adminService.createPartner(peoInfo);
+    const partnerResponse = await adminService.createPartner(partnerInfo);
 
-    if (responsePEO.status == 200) {
-      const peoLevel = (await adminService.searchPartnerByText(nameOfPeoInfo))
-        .entities[0].level;
+    if (partnerResponse.status == 200) {
+      const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-      expect(peoLevel).toBe(1);
-    }
+      const email = partnerInfo.getAccountInfo()?.email;
 
-    const partnerInfo = await DataFactory.generatePartnerInfo(0);
+      if (!email) {
+        throw new Error(
+          "Generated partnerInfo does not contain accountInfo.email"
+        );
+      }
 
-    const nameOfpartnerInfo: string = partnerInfo.getIPartnerInfo()?.name!;
+      const resetResp = await authenticationService.resetPasswordWithoutToken(
+        { username: email, password: tempPassword },
+        undefined,
+        "5"
+      );
 
-    const responsePartner = await adminService.createPartner(partnerInfo);
-
-    if (responsePartner.status == 200) {
-      const partnerLevel = await (
-        await adminService.searchPartnerByText(nameOfpartnerInfo)
-      ).entities[0].level;
-
-      expect(partnerLevel).toBe(0);
+      if (resetResp) {
+        await authenticationService.confirmEmailWithoutToken(
+          email,
+          undefined,
+          "5"
+        );
+      }
     }
   });
 });

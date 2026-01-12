@@ -36,4 +36,16 @@ const validCountry = {
   value: "United States",
 };
 
-export { plans, validCardInfo, inValidCardInfo, validIndustry, validCountry };
+const paymentOptions = [
+  { key: "PartnerConsultantOwner", value: 0 },
+  { key: "MemberPortalConsumer", value: 1 },
+];
+
+export {
+  plans,
+  validCardInfo,
+  inValidCardInfo,
+  validIndustry,
+  validCountry,
+  paymentOptions,
+};

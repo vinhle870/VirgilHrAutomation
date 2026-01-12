@@ -3,12 +3,10 @@ import {
   CREATE_CUSTOMER,
   CREATE_PARTNER,
   SEARCH_PARTNER_BY_TEXT,
-  SEARCH_PARTNER_HAVING_PEO,
 } from "src/api/endpoints/admin-portal.endpoints";
 import { Authentication } from "src/api/services/authentication.service";
 import { MembPortalCustomer } from "src/objects/customer";
 import { Partner } from "src/objects/ipartner";
-import { PartnerWithConsultants } from "src/objects/responseOfPEOInPartner";
 
 export class AdminPortalService {
   private apiClient: ApiClient;
@@ -117,42 +115,6 @@ export class AdminPortalService {
     return {};
   }
 
-  async searchPartnerHavingPEO(
-    partnerId: string
-  ): Promise<{ consultants: any[] }> {
-    const path = SEARCH_PARTNER_HAVING_PEO.replace(/^\/+/, "");
-    const url = `https://api.qa.virgilhr.com/v1/Manage/Organization/Partner/${partnerId}/Childs`;
-
-    const tokenToUse = this.apiClient.getAuthToken();
-    const headers = tokenToUse
-      ? { Authorization: `Bearer ${tokenToUse}` }
-      : undefined;
-
-    const resp = await this.apiClient.sendRequest<PartnerWithConsultants>(
-      "GET",
-      url,
-      undefined,
-      200,
-      headers
-    );
-
-    if (
-      resp &&
-      Array.isArray(resp.consultants) &&
-      resp.consultants.length > 0
-    ) {
-      const consultants = resp.consultants.map((e) => ({
-        id: e.id,
-        level: e.level,
-        departmentId: e.departmentId,
-        subDomain: e.subDomain,
-      }));
-      return { consultants };
-    }
-
-    return { consultants: [] };
-  }
-
   async createCustomer(customerInfo: MembPortalCustomer): Promise<any> {
     const path = CREATE_CUSTOMER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
@@ -191,6 +153,40 @@ export class AdminPortalService {
       "POST",
       url,
       requestBody,
+      200,
+      headers
+    );
+
+    return response;
+  }
+
+  async getDepartmentIds(): Promise<any> {
+    const url = "https://api.qa.virgilhr.com/v1/Manage/Payment/products";
+
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
+
+    const response = await this.apiClient.sendToGetDepartmentIds<any>(
+      "GET",
+      url,
+      200,
+      headers
+    );
+
+    return response;
+  }
+
+  async getProductTypes(): Promise<any> {
+    const url = "https://api.qa.virgilhr.com/v1/Partner/All/Public";
+
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
+
+    const response = await this.apiClient.sendToGetProductTypes<any>(
+      "GET",
+      url,
       200,
       headers
     );

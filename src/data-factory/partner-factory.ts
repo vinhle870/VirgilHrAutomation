@@ -1,11 +1,16 @@
-import { format } from "date-fns";
 import { DataGenerate } from "src/utilities";
-import { Partner } from "src/objects/ipartner";
+import {
+  IPartnerInfoWithDepartmentAndProductTypes,
+  Partner,
+} from "src/objects/ipartner";
 import UserInfo from "src/objects/user-info";
+import { AdminPortalService } from "src/api/services/admin-portal.services";
+import IDepartment from "src/objects/department";
 
 export class PartnerFactory {
   static async createPartner(
     levelOfPartner: number,
+    adminService: AdminPortalService,
     overrides?: Partial<Record<string, any>>
   ): Promise<Partner> {
     const partner = new Partner();
@@ -22,7 +27,10 @@ export class PartnerFactory {
     const phoneNumber =
       overrides?.phoneNumber ?? (await DataGenerate.generatePhoneNumber());
     const departmentId: string =
-      overrides?.departmentId ?? DataGenerate.generateDepartmentId();
+      overrides?.departmentId ??
+      DataGenerate.generateDepartmentId(
+        (await PartnerFactory.generatePartnerInfor(adminService)).departmentIds
+      );
     const bankTransfer: boolean =
       overrides?.bankTransfer ?? DataGenerate.generateBoolean();
     const canCustomUpdatePlan: boolean =
@@ -49,7 +57,10 @@ export class PartnerFactory {
     const billingCycle: number = 1;
     const apiEnable: boolean = false;
     const feFilterProductTypes: number[] =
-      overrides?.feFilterProductTypes ?? DataGenerate.generateProductType();
+      overrides?.feFilterProductTypes ??
+      DataGenerate.generateProductType(
+        (await PartnerFactory.generatePartnerInfor(adminService)).productTypes
+      );
     const whoPay: number = overrides?.whoPay ?? DataGenerate.generateDecimal();
 
     partner.setAccountInfo({
@@ -79,5 +90,20 @@ export class PartnerFactory {
     });
 
     return partner;
+  }
+
+  static async generatePartnerInfor(
+    adminService: AdminPortalService
+  ): Promise<IPartnerInfoWithDepartmentAndProductTypes> {
+    const departmentIdResponse = await adminService.getDepartmentIds();
+    const departmentIds: string[] = departmentIdResponse.body.map(
+      (item: IDepartment) => item.departmentId
+    );
+
+    const productTypesResponse = await adminService.getProductTypes();
+    const productTypes: number[] =
+      productTypesResponse.body[0].restriction.productTypes;
+
+    return { productTypes, departmentIds };
   }
 }

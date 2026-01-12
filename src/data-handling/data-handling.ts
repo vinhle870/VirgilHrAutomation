@@ -14,4 +14,6 @@ export class DataHandling {
       Constants.BUSINESS_ENTITY_FOLDER + filename
     );
   }
+
+  // static async getDepartment
 }

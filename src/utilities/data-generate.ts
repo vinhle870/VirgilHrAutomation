@@ -98,16 +98,16 @@ export class DataGenerate {
 
     return randomValue;
   }
-
-  public static generateDepartmentId(): string {
-    const departmentIds = [
-      "688897d5eb52b4af5573def4",
-      "68908f542e20001e47f5394f",
-      "68f09ac3500b0efa8a365bef",
-      "6928522dc95cab35e8188e2e",
-      "6928522dc95cab35e8188e2f",
-      "6891c8c2b34bb84b18eae816",
-    ];
+  //select randomly DepartmentId
+  public static generateDepartmentId(departmentIds: string[]): string {
+    // const departmentIds = [
+    //   "688897d5eb52b4af5573def4",
+    //   "68908f542e20001e47f5394f",
+    //   "68f09ac3500b0efa8a365bef",
+    //   "6928522dc95cab35e8188e2e",
+    //   "6928522dc95cab35e8188e2f",
+    //   "6891c8c2b34bb84b18eae816",
+    // ];
 
     const randomValue =
       departmentIds[Math.floor(Math.random() * departmentIds.length)];
@@ -115,8 +115,8 @@ export class DataGenerate {
     return randomValue;
   }
 
-  public static generateProductType(): number[] {
-    const values: number[] = [1, 2, 3, 4, 5, 6, 15, 16, 17, 19];
+  public static generateProductType(values: number[]): number[] {
+    //const values: number[] = [1, 2, 3, 4, 5, 6, 15, 16, 17, 19];
 
     const length = Math.floor(Math.random() * values.length) + 1;
 

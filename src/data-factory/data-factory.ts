@@ -2,6 +2,7 @@ import { MembPortalCustomer } from "../objects/customer";
 import { CustomerFactory } from "./customer-factory";
 import { Partner } from "../objects/ipartner";
 import { PartnerFactory } from "./partner-factory";
+import { AdminPortalService } from "src/api/services/admin-portal.services";
 
 export class DataFactory {
   static async generateCustomerInfo(
@@ -16,11 +17,17 @@ export class DataFactory {
     });
     return customer;
   }
+
   static async generatePartnerInfo(
     level: number,
+    adminService: AdminPortalService,
     overrides?: Partial<Record<string, any>>
   ): Promise<Partner> {
-    const partner = await PartnerFactory.createPartner(level, overrides);
+    const partner = await PartnerFactory.createPartner(
+      level,
+      adminService,
+      overrides
+    );
 
     return partner;
   }

@@ -232,4 +232,137 @@ export class ApiClient {
 
     return { status, data: dataResult as T };
   }
+  public async sendToGetDepartmentIds<T>(
+    method: HTTPMethod,
+    url: string,
+    expectedStatus = 200,
+    headers?: Record<string, string>
+  ): Promise<{ status: number; body: any }> {
+    let response: APIResponse;
+
+    const fullUrl = url.startsWith("http") ? url : `${this.baseURL}/${url}`;
+
+    try {
+      const requestOptions: any = {};
+
+      const mergedHeaders: Record<string, string> = {
+        ...(this.authToken
+          ? { Authorization: `Bearer ${this.authToken}` }
+          : {}),
+        ...(headers || {}),
+      };
+      if (Object.keys(mergedHeaders).length) {
+        requestOptions.headers = mergedHeaders;
+      }
+
+      switch (method) {
+        case "GET":
+          response = await this.apiContext.get(fullUrl, requestOptions);
+          break;
+        case "POST":
+          response = await this.apiContext.post(fullUrl, requestOptions);
+          break;
+        case "PUT":
+          response = await this.apiContext.put(fullUrl, requestOptions);
+          break;
+        case "DELETE":
+          response = await this.apiContext.delete(fullUrl, requestOptions);
+          break;
+        default:
+          throw new Error(`Unsupported HTTP method: ${method}`);
+      }
+    } catch (error) {
+      console.error(`Request to ${fullUrl} failed:`, error);
+      throw error;
+    }
+
+    const status = response.status();
+
+    if (status !== expectedStatus) {
+      const errorBody = await response.text();
+      throw new Error(
+        `API call failed for ${method} ${fullUrl}. ` +
+          `Expected status: ${expectedStatus}, Actual status: ${status}. ` +
+          `Response body: ${errorBody}`
+      );
+    }
+
+    const contentType = response.headers()["content-type"] || "";
+    let body: any;
+
+    if (contentType.includes("application/json") && status !== 204) {
+      body = await response.json();
+    } else {
+      body = await response.text();
+    }
+
+    return { status, body };
+  }
+
+  public async sendToGetProductTypes<T>(
+    method: HTTPMethod,
+    url: string,
+    expectedStatus = 200,
+    headers?: Record<string, string>
+  ): Promise<{ status: number; body: any }> {
+    let response: APIResponse;
+
+    const fullUrl = url.startsWith("http") ? url : `${this.baseURL}/${url}`;
+
+    try {
+      const requestOptions: any = {};
+
+      const mergedHeaders: Record<string, string> = {
+        ...(this.authToken
+          ? { Authorization: `Bearer ${this.authToken}` }
+          : {}),
+        ...(headers || {}),
+      };
+      if (Object.keys(mergedHeaders).length) {
+        requestOptions.headers = mergedHeaders;
+      }
+
+      switch (method) {
+        case "GET":
+          response = await this.apiContext.get(fullUrl, requestOptions);
+          break;
+        case "POST":
+          response = await this.apiContext.post(fullUrl, requestOptions);
+          break;
+        case "PUT":
+          response = await this.apiContext.put(fullUrl, requestOptions);
+          break;
+        case "DELETE":
+          response = await this.apiContext.delete(fullUrl, requestOptions);
+          break;
+        default:
+          throw new Error(`Unsupported HTTP method: ${method}`);
+      }
+    } catch (error) {
+      console.error(`Request to ${fullUrl} failed:`, error);
+      throw error;
+    }
+
+    const status = response.status();
+
+    if (status !== expectedStatus) {
+      const errorBody = await response.text();
+      throw new Error(
+        `API call failed for ${method} ${fullUrl}. ` +
+          `Expected status: ${expectedStatus}, Actual status: ${status}. ` +
+          `Response body: ${errorBody}`
+      );
+    }
+
+    const contentType = response.headers()["content-type"] || "";
+    let body: any;
+
+    if (contentType.includes("application/json") && status !== 204) {
+      body = await response.json();
+    } else {
+      body = await response.text();
+    }
+
+    return { status, body };
+  }
 }
