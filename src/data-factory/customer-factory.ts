@@ -21,7 +21,7 @@ export class CustomerFactory {
         const companyName = overrides?.companyName ?? await DataGenerate.generateCompanyName();
         const companySize = overrides?.companySize ?? '';
         const phoneNumber = overrides?.phoneNumber ?? await DataGenerate.generatePhoneNumber();
-        const partnerId = overrides?.partnerId;
+        const partnerId = overrides?.partnerId?? null;
         const source = overrides?.source ?? 'member';
         const departmentId = overrides?.departmentId ?? '688897d5eb52b4af5573def4';
         const ssoProvider = overrides?.ssoProvider ?? null;
@@ -37,6 +37,10 @@ export class CustomerFactory {
     const type = overrides?.type ?? 1;
     const partnerConsultantId = overrides?.partnerConsultantId ?? '';
     const industry = overrides?.industry ?? [validIndustry];
+    const productType = overrides?.productType ?? '';
+    const billingcycle = overrides?.billingcycle;
+    const trialDays = overrides?.trialDays;
+
 
         customer.setAccountInfo({
             email,
@@ -58,20 +62,25 @@ export class CustomerFactory {
             companyName,
             companySize,
             departmentId,
-            ...(partnerId && { partnerId }),
+            ...(portal === 'member' && partnerId && { partnerId }),
             //Set Member Portal specific info
             ...(portal === 'member' && {  source,
             ssoProvider,
             ssoToken, }),
             //Set Admin Portal specific info
             ...(portal === 'admin' && {  useCredit,
-            statesEmployee,
-            country,
-            totalEmployees,
-            isSso,
-            type,
-            partnerConsultantId,
-            industry, }),
+                                        partnerId,
+                                        statesEmployee,
+                                        country,
+                                        totalEmployees,
+                                        isSso,
+                                        type,
+                                        partnerConsultantId,
+                                        industry,
+                                        productType,
+                                        billingcycle,
+                                        trialDays, }
+                    ),
 
         });
 

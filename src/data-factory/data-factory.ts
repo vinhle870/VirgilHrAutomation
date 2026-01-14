@@ -6,12 +6,9 @@ import { CustomerFactory } from "./customer-factory";
 
 export class DataFactory{
 
-static async generateCustomerInfo(portal:string,partnerId?: string, departmentId?: string): Promise<MembPortalCustomer> {
+static async generateCustomerInfo(portal:string,fields?:Partial<Record<string,any>>): Promise<MembPortalCustomer> {
   // Delegate to CustomerUser which handles user data generation logic
-  const customer = await CustomerFactory.createCustomer(portal, {
-    partnerId: partnerId,
-    departmentId: departmentId
-  } );
+  const customer = await CustomerFactory.createCustomer(portal,fields);
   return customer;
 
 }

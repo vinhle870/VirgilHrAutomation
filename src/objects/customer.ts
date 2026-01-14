@@ -4,10 +4,10 @@ import { Constants } from '../utilities/constants';
 import { DataGenerate } from '../utilities/data-generate';
 import { plans } from 'src/constant/static-data';
 import { format } from 'date-fns';
-import { ICompany } from './icompany';
+import { ICustomer } from './icustomer';
 import { Company } from './company';
 
-export class MembPortalCustomer implements ICompany {
+export class MembPortalCustomer implements ICustomer {
 	public accountInfo: UserInfo;
 	public plan: string;
 	public company: Company;
