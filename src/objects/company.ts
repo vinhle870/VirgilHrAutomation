@@ -21,4 +21,9 @@ export interface Company {
      type?: string;
      partnerConsultantId?:string;
      industry?: Industry[] | null;
+     trialDays?: number;
+     productType?: number;
+     state?: State;
+     billingcycle?:number
+
 }

@@ -5,7 +5,7 @@ import { DataGenerate } from '../utilities/data-generate';
 import { plans } from 'src/constant/static-data';
 import { format } from 'date-fns';
 
-export interface ICompany {
+export interface ICustomer {
 
 	getAccountInfo:() => UserInfo;
 
