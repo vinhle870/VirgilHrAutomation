@@ -63,7 +63,8 @@ test.describe("Partner managerment", () => {
     );
 
     const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
-      bankTransfer: false,
+      feFilterProductTypes: [1, 2],
+      bankTransfer: true,
       isPublic: true,
       paymentEnable: 1,
     });
@@ -75,6 +76,10 @@ test.describe("Partner managerment", () => {
 
       const email = partnerInfo.getAccountInfo()?.email;
 
+      console.log(
+        "Product type:",
+        partnerInfo.getIPartnerInfo()?.feFilterProductTypes
+      );
       if (!email) {
         throw new Error(
           "Generated partnerInfo does not contain accountInfo.email"
