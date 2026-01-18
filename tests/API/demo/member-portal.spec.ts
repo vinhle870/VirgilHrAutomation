@@ -332,7 +332,7 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
     const partnerInfo = await adminService.searchPartner(partnerName);
 
     // Generate consumer payload with discovered IDs (if any)
-    const consumerData = await DataFactory.generateCustomerInfo("member", partnerInfo.partnerId, partnerInfo.departmentId);
+    const consumerData = await DataFactory.generateCustomerInfo("member", {partnerId:partnerInfo.partnerId, departmentId:partnerInfo.departmentId});
     const customerAccountInfo = consumerData.getAccountInfo();
     //*****---------------------------------------------------*****
 
