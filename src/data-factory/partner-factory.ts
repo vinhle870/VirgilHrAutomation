@@ -11,7 +11,7 @@ export class PartnerFactory {
   static async createPartner(
     levelOfPartner: number,
     adminService: AdminPortalService,
-    overrides?: Partial<Record<string, any>>
+    overrides?: Partial<Record<string, any>>,
   ): Promise<Partner> {
     const partner = new Partner();
 
@@ -29,7 +29,7 @@ export class PartnerFactory {
     const departmentId: string =
       overrides?.departmentId ??
       DataGenerate.generateDepartmentId(
-        (await PartnerFactory.generatePartnerInfor(adminService)).departmentIds
+        (await PartnerFactory.generatePartnerInfor(adminService)).departmentIds,
       );
     const bankTransfer: boolean =
       overrides?.bankTransfer ?? DataGenerate.generateBoolean();
@@ -59,7 +59,7 @@ export class PartnerFactory {
     const feFilterProductTypes: number[] =
       overrides?.feFilterProductTypes ??
       DataGenerate.generateProductType(
-        (await PartnerFactory.generatePartnerInfor(adminService)).productTypes
+        (await PartnerFactory.generatePartnerInfor(adminService)).productTypes,
       );
     const whoPay: number = overrides?.whoPay ?? DataGenerate.generateDecimal();
 
@@ -92,12 +92,12 @@ export class PartnerFactory {
     return partner;
   }
 
-  static async generatePartnerInfor(
-    adminService: AdminPortalService
+  private static async generatePartnerInfor(
+    adminService: AdminPortalService,
   ): Promise<IPartnerInfoWithDepartmentAndProductTypes> {
     const departmentIdResponse = await adminService.getDepartmentIds();
     const departmentIds: string[] = departmentIdResponse.body.map(
-      (item: IDepartment) => item.departmentId
+      (item: IDepartment) => item.departmentId,
     );
 
     const productTypesResponse = await adminService.getProductTypes();

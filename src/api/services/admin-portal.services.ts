@@ -27,7 +27,7 @@ export class AdminPortalService {
    */
   public static async create(
     apiClient: ApiClient,
-    authentication?: Authentication
+    authentication?: Authentication,
   ): Promise<AdminPortalService> {
     const svc = new AdminPortalService(apiClient, authentication);
     if (authentication) {
@@ -42,7 +42,7 @@ export class AdminPortalService {
           // eslint-disable-next-line no-console
           console.warn(
             "AdminPortalService: failed to prefetch auth token",
-            err
+            err,
           );
         }
       }
@@ -56,7 +56,7 @@ export class AdminPortalService {
    * from the `Authentication` service or previously set).
    */
   async searchPartnerByText(
-    partnername: string
+    partnername: string,
   ): Promise<{ total: number; entities: Array<Record<string, any>> }> {
     const query = `SearchString=${encodeURIComponent(partnername)}`;
     const path = SEARCH_PARTNER_BY_TEXT.replace(/^\/+/, "");
@@ -82,7 +82,7 @@ export class AdminPortalService {
    */
   async searchPartner(
     partnername: string,
-    token?: string
+    token?: string,
   ): Promise<{
     partnerId?: string;
     departmentId?: string;
@@ -131,11 +131,12 @@ export class AdminPortalService {
       url,
       requestBody,
       201,
-      headers
+      headers,
     );
 
     return response;
   }
+
   async createPartner(partnerInfo: Partner): Promise<any> {
     const path = CREATE_PARTNER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
@@ -154,7 +155,7 @@ export class AdminPortalService {
       url,
       requestBody,
       200,
-      headers
+      headers,
     );
 
     return response;
@@ -171,7 +172,7 @@ export class AdminPortalService {
       "GET",
       url,
       200,
-      headers
+      headers,
     );
 
     return response;
@@ -188,7 +189,7 @@ export class AdminPortalService {
       "GET",
       url,
       200,
-      headers
+      headers,
     );
 
     return response;

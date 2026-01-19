@@ -10,7 +10,7 @@ test.describe("Partner managerment", () => {
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
-      "API_BASE_URL is not configured"
+      "API_BASE_URL is not configured",
     );
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
@@ -18,7 +18,7 @@ test.describe("Partner managerment", () => {
 
     const adminService = await AdminPortalService.create(
       apiClient,
-      authenticationService
+      authenticationService,
     );
 
     for (let i = 0; i < paymentOptions.length; i++) {
@@ -27,7 +27,7 @@ test.describe("Partner managerment", () => {
         adminService,
         {
           paymentEnable: i,
-        }
+        },
       );
 
       const nameOfPartnerInfo = partnerInfo.getIPartnerInfo()?.name!;
@@ -51,7 +51,7 @@ test.describe("Partner managerment", () => {
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
-      "API_BASE_URL is not configured"
+      "API_BASE_URL is not configured",
     );
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
@@ -59,11 +59,10 @@ test.describe("Partner managerment", () => {
 
     const adminService = await AdminPortalService.create(
       apiClient,
-      authenticationService
+      authenticationService,
     );
 
     const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
-      feFilterProductTypes: [1, 2],
       bankTransfer: true,
       isPublic: true,
       paymentEnable: 1,
@@ -78,25 +77,26 @@ test.describe("Partner managerment", () => {
 
       console.log(
         "Product type:",
-        partnerInfo.getIPartnerInfo()?.feFilterProductTypes
+        partnerInfo.getIPartnerInfo()?.feFilterProductTypes,
       );
+
       if (!email) {
         throw new Error(
-          "Generated partnerInfo does not contain accountInfo.email"
+          "Generated partnerInfo does not contain accountInfo.email",
         );
       }
 
       const resetResp = await authenticationService.resetPasswordWithoutToken(
         { username: email, password: tempPassword },
         undefined,
-        "5"
+        "5",
       );
 
       if (resetResp) {
         await authenticationService.confirmEmailWithoutToken(
           email,
           undefined,
-          "5"
+          "5",
         );
       }
     }
