@@ -1,32 +1,30 @@
-import { MembPortalCustomer } from "../objects/customer";
-import { CustomerFactory } from "./customer-factory";
-import { Partner } from "../objects/ipartner";
-import { PartnerFactory } from "./partner-factory";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
+import { DataHandling } from "../data-handling/data-handling";
+import { MembPortalCustomer } from "../objects/customer";
+import { Constants } from "../utilities/constants";
+import { CustomerFactory } from "./customer-factory";
+import { Partner } from "src/objects/ipartner";
+import { PartnerFactory } from "./partner-factory";
 
 export class DataFactory {
   static async generateCustomerInfo(
     portal: string,
-    partnerId?: string,
-    departmentId?: string
+    fields?: Partial<Record<string, any>>,
   ): Promise<MembPortalCustomer> {
     // Delegate to CustomerUser which handles user data generation logic
-    const customer = await CustomerFactory.createCustomer(portal, {
-      partnerId: partnerId,
-      departmentId: departmentId,
-    });
+    const customer = await CustomerFactory.createCustomer(portal, fields);
     return customer;
   }
 
   static async generatePartnerInfo(
     level: number,
     adminService: AdminPortalService,
-    overrides?: Partial<Record<string, any>>
+    overrides?: Partial<Record<string, any>>,
   ): Promise<Partner> {
     const partner = await PartnerFactory.createPartner(
       level,
       adminService,
-      overrides
+      overrides,
     );
 
     return partner;

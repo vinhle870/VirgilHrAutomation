@@ -1,5 +1,3 @@
-import IPartner from "src/objects/ipartner";
-
 const plans = [
   "Under 50 Employees",
   "50 - 100 Employees",

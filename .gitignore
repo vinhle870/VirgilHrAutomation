@@ -1,2 +1,7 @@
 test-results/*
+<<<<<<< HEAD
 node_modules/
+=======
+playwright-report/*
+node_modules/*
+>>>>>>> 9b1f78f45779d4e0f62c2fe80cc9f7e5b377697e
