@@ -22,15 +22,19 @@ export class PartnerFactory {
     const email = overrides?.email ?? `${localPrefix}@yopmail.com`;
     const lastName =
       overrides?.lastName ?? (await DataGenerate.generateLastName());
+
     const jobTitle: string =
       overrides?.jobTitle ?? (await DataGenerate.generatejobTitle());
+
     const phoneNumber =
       overrides?.phoneNumber ?? (await DataGenerate.generatePhoneNumber());
+
     const departmentId: string =
       overrides?.departmentId ??
       DataGenerate.generateDepartmentId(
         (await PartnerFactory.generatePartnerInfor(adminService)).departmentIds,
       );
+
     const bankTransfer: boolean =
       overrides?.bankTransfer ?? DataGenerate.generateBoolean();
     const canCustomUpdatePlan: boolean =
@@ -46,6 +50,8 @@ export class PartnerFactory {
     //Payment options
     const paymentEnable: boolean =
       overrides?.paymentEnable ?? DataGenerate.generateBoolean();
+    console.log("PaymentEnable before send:", paymentEnable);
+
     const subDomain: string = overrides?.subDomain ?? name;
     const userInfo: UserInfo = {
       email,

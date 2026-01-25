@@ -2,7 +2,10 @@ import { ApiClient } from "src/utilities";
 import {
   CREATE_CUSTOMER,
   CREATE_PARTNER,
+  GET_CONSUMER_BY_ID,
+  GET_PRODUCTTYPEFILTERS,
   SEARCH_PARTNER_BY_TEXT,
+  SEARCH_CUSTOMER_BY_EMAIL,
 } from "src/api/endpoints/admin-portal.endpoints";
 import { Authentication } from "src/api/services/authentication.service";
 import { MembPortalCustomer } from "src/objects/customer";
@@ -137,6 +140,38 @@ export class AdminPortalService {
     return response;
   }
 
+  async getProductTypeFilters(): Promise<any> {
+    const path = GET_PRODUCTTYPEFILTERS.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}`;
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
+    const response = await this.apiClient.sendRequest<any>(
+      "GET",
+      url,
+      undefined,
+      200,
+      headers,
+    );
+    return response;
+  }
+
+  async getConsumerById(id: string): Promise<any> {
+    const path = GET_CONSUMER_BY_ID.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}/${id}`;
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
+    const response = await this.apiClient.sendRequest<any>(
+      "GET",
+      url,
+      undefined,
+      200,
+      headers,
+    );
+    return response;
+  }
+
   async createPartner(partnerInfo: Partner): Promise<any> {
     const path = CREATE_PARTNER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
@@ -186,6 +221,61 @@ export class AdminPortalService {
       : undefined;
 
     const response = await this.apiClient.sendToGetProductTypes<any>(
+      "GET",
+      url,
+      200,
+      headers,
+    );
+
+    return response;
+  }
+
+  async getCustomerIdByEmail(email: string): Promise<any> {
+    const path = SEARCH_CUSTOMER_BY_EMAIL.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}`;
+
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
+
+    const params = {
+      AccountStatus: "",
+      AccountType: "",
+      BillingCycle: "",
+      DepartmentId: "",
+      Length: 12,
+      OrderBy: "updatedAt desc",
+      PartnerId: "",
+      PartnerLevel: "",
+      PaymentStatus: "",
+      Search: email,
+      SearchString: "",
+      Source: "",
+      Start: 0,
+      StripeProductId: "",
+      UserType: "",
+    };
+
+    const response = await this.apiClient.sendRequestToGetCusomterId<any>(
+      "GET",
+      url,
+      200,
+      headers,
+      params,
+    );
+
+    return response;
+  }
+
+  async getRoleOfCustomer(id: string): Promise<any> {
+    const path = SEARCH_CUSTOMER_BY_EMAIL.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}/${id}`;
+
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
+
+    const response = await this.apiClient.sendRequestToGetCustomerRole<any>(
       "GET",
       url,
       200,
