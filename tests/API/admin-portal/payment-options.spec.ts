@@ -102,9 +102,9 @@ test.describe("Partner managerment", () => {
         const searchResponse =
           await adminService.getCustomerIdByEmail(emailOfPartner);
 
-        if (searchResponse.status == 200) {
-          const customerId = searchResponse.body.entities[0].consumerObjectId;
+        const customerId = searchResponse.body.entities[0].consumerObjectId;
 
+        if (customerId) {
           const customerRole = await adminService.getRoleOfCustomer(customerId);
 
           expect(customerRole.body.role).toBe(0);
