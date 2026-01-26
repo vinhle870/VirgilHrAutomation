@@ -50,7 +50,6 @@ export class PartnerFactory {
     //Payment options
     const paymentEnable: boolean =
       overrides?.paymentEnable ?? DataGenerate.generateBoolean();
-    console.log("PaymentEnable before send:", paymentEnable);
 
     const subDomain: string = overrides?.subDomain ?? name;
     const userInfo: UserInfo = {

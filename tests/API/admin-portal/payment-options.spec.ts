@@ -63,12 +63,8 @@ test.describe("Partner managerment", () => {
     );
 
     const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
-      apiEnable: false,
-      bankTransfer: false,
-      canCustomUpdatePlan: false,
       isPublic: true,
-      partnerType: 1,
-      paymentEnable: true,
+      whoPay: 0,
     });
 
     const partnerResponse = await adminService.createPartner(partnerInfo);
