@@ -99,4 +99,35 @@ test.describe("Partner managerment", () => {
       }
     }
   });
+  test("TC38 Verify that the admin can specify which plans a Partner can use for its Businesses via the Product Type field.", async ({
+    apiClient,
+    authenticationService,
+    adminPortalService,
+    memberPortalService,
+    planPage,
+  }, testInfo) => {
+    testInfo.skip(
+      !process.env.API_BASE_URL && !process.env.BASE_URL,
+      "API_BASE_URL is not configured",
+    );
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+    testInfo.skip(!base, "API_BASE_URL is not configured");
+
+    const adminService = await AdminPortalService.create(
+      apiClient,
+      authenticationService,
+    );
+
+    const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
+      isPublic: true,
+      departmentId: "688897d5eb52b4af5573def4",
+      whoPay: 0,
+    });
+
+    const partnerResponse = await adminService.createPartner(partnerInfo);
+
+    if (partnerResponse.status == 200) {
+    }
+  });
 });
