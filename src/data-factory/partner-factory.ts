@@ -1,13 +1,11 @@
 import { DataGenerate } from "src/utilities";
-import {
-  IPartnerInfoWithDepartmentAndProductTypes,
-  Partner,
-} from "src/objects/ipartner";
+import { Partner } from "src/objects/ipartner";
 import UserInfo from "src/objects/user-info";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
-import IDepartment from "src/objects/department";
 
 export class PartnerFactory {
+  public static partner: string;
+  private static productTypes: number[] = [];
   static async createPartner(
     levelOfPartner: number,
     adminService: AdminPortalService,
@@ -31,9 +29,7 @@ export class PartnerFactory {
 
     const departmentId: string =
       overrides?.departmentId ??
-      DataGenerate.generateDepartmentId(
-        (await PartnerFactory.generatePartnerInfor(adminService)).departmentIds,
-      );
+      (await PartnerFactory.generatePartnerInfor(adminService));
 
     const bankTransfer: boolean =
       overrides?.bankTransfer ?? DataGenerate.generateBoolean();
@@ -47,7 +43,7 @@ export class PartnerFactory {
     const name: string = overrides?.name ?? `${firstName}${seq}`;
     const partnerType: number =
       overrides?.partnerType ?? DataGenerate.generateDecimal();
-    //Payment options
+
     const paymentEnable: boolean =
       overrides?.paymentEnable ?? DataGenerate.generateBoolean();
 
@@ -61,11 +57,12 @@ export class PartnerFactory {
     };
     const billingCycle: number = 1;
     const apiEnable: boolean = false;
-    const feFilterProductTypes: number[] =
+
+    const feFilterProductTypes =
       overrides?.feFilterProductTypes ??
-      DataGenerate.generateProductType(
-        (await PartnerFactory.generatePartnerInfor(adminService)).productTypes,
-      );
+      DataGenerate.generateProductType(PartnerFactory.productTypes);
+
+    //Payment options
     const whoPay: number = overrides?.whoPay ?? DataGenerate.generateDecimal();
 
     partner.setAccountInfo({
@@ -97,18 +94,26 @@ export class PartnerFactory {
     return partner;
   }
 
-  private static async generatePartnerInfor(
+  public static async generatePartnerInfor(
     adminService: AdminPortalService,
-  ): Promise<IPartnerInfoWithDepartmentAndProductTypes> {
-    const departmentIdResponse = await adminService.getDepartmentIds();
-    const departmentIds: string[] = departmentIdResponse.body.map(
-      (item: IDepartment) => item.departmentId,
+  ): Promise<string> {
+    const departmentIdResponse = await adminService.getDepartmentInfor();
+
+    const ids = departmentIdResponse.body.map((dept: any) => dept.id);
+
+    const departmentID = DataGenerate.generateDepartmentIDS(ids);
+
+    const matchedDept = departmentIdResponse.body.find(
+      (dept: any) => dept.id === departmentID,
     );
 
-    const productTypesResponse = await adminService.getProductTypes();
-    const productTypes: number[] =
-      productTypesResponse.body[0].restriction.productTypes;
+    PartnerFactory.partner = matchedDept?.domain?.partner ?? null;
 
-    return { productTypes, departmentIds };
+    const productTypesResponse = await adminService.getProductTypes();
+
+    for (let i = 0; i < productTypesResponse.body.length; i++)
+      PartnerFactory.productTypes.push(i);
+
+    return await departmentID;
   }
 }

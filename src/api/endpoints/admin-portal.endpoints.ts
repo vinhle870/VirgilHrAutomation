@@ -9,3 +9,4 @@ export const GET_PRODUCTTYPEFILTERS = "/Manage/Plan/ProductTypeFilter";
 export const GET_CONSUMER_BY_ID = "/Manage/Consumers";
 export const CREATE_PARTNER = "/Manage/Organization/Partner";
 export const SEARCH_CUSTOMER_BY_EMAIL = "/Manage/CustomerManagement";
+export const ADMIN_GET_PLANS = "Manage/Plan?DepartmentId=";

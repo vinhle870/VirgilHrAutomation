@@ -14,7 +14,7 @@ export class Authentication {
   async getAuthToken(
     username: string,
     password: string,
-    systemId?: string
+    systemId?: string,
   ): Promise<string> {
     const data = {
       username,
@@ -29,7 +29,7 @@ export class Authentication {
     //const apiVersion = process.env.API_VERSION ?? 'v1';
     if (!base)
       throw new Error(
-        "API base URL not configured. Set API_BASE_URL or BASE_URL."
+        "API base URL not configured. Set API_BASE_URL or BASE_URL.",
       );
 
     // Build a clean absolute URL without duplicate slashes
@@ -43,7 +43,7 @@ export class Authentication {
       url,
       data,
       200,
-      headers
+      headers,
     );
 
     return response.access_token;
@@ -57,7 +57,7 @@ export class Authentication {
   async resetPasswordWithoutToken(
     credentials: { username: string; password: string },
     apiKey?: string,
-    systemId?: string
+    systemId?: string,
   ): Promise<object> {
     const apiVersion = process.env.API_VERSION ?? "v1";
     const baseUrl =
@@ -82,7 +82,7 @@ export class Authentication {
       url,
       payload,
       200,
-      headers
+      headers,
     );
 
     return response;
@@ -91,7 +91,7 @@ export class Authentication {
   async confirmEmailWithoutToken(
     username: string,
     apiKey?: string,
-    systemId?: string
+    systemId?: string,
   ): Promise<object> {
     const apiVersion = process.env.API_VERSION ?? "v1";
     const baseUrl =
@@ -115,7 +115,7 @@ export class Authentication {
       url,
       payload,
       200,
-      headers
+      headers,
     );
 
     return response;

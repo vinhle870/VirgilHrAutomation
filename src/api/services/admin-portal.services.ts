@@ -1,4 +1,4 @@
-import { ApiClient } from "src/utilities";
+import { ApiClient, HTTPMethod } from "src/utilities";
 import {
   CREATE_CUSTOMER,
   CREATE_PARTNER,
@@ -6,10 +6,12 @@ import {
   GET_PRODUCTTYPEFILTERS,
   SEARCH_PARTNER_BY_TEXT,
   SEARCH_CUSTOMER_BY_EMAIL,
+  ADMIN_GET_PLANS,
 } from "src/api/endpoints/admin-portal.endpoints";
 import { Authentication } from "src/api/services/authentication.service";
 import { MembPortalCustomer } from "src/objects/customer";
 import { Partner } from "src/objects/ipartner";
+import { APIResponse } from "@playwright/test";
 
 export class AdminPortalService {
   private apiClient: ApiClient;
@@ -196,14 +198,14 @@ export class AdminPortalService {
     return response;
   }
 
-  async getDepartmentIds(): Promise<any> {
-    const url = "https://api.qa.virgilhr.com/v1/Manage/Payment/products";
+  async getDepartmentInfor(): Promise<any> {
+    const url = "https://api.qa.virgilhr.com/v1/Configuration/Department";
 
     const headers = this.authToken
       ? { Authorization: `Bearer ${this.authToken}` }
       : undefined;
 
-    const response = await this.apiClient.sendToGetDepartmentIds<any>(
+    const response = await this.apiClient.sendToGetDepartmentInfor<any>(
       "GET",
       url,
       200,
@@ -214,7 +216,7 @@ export class AdminPortalService {
   }
 
   async getProductTypes(): Promise<any> {
-    const url = "https://api.qa.virgilhr.com/v1/Partner/All/Public";
+    const url = `https://api.qa.virgilhr.com/v1/Partner/All/Public`;
 
     const headers = this.authToken
       ? { Authorization: `Bearer ${this.authToken}` }
@@ -283,6 +285,72 @@ export class AdminPortalService {
     );
 
     return response;
+  }
+
+  async getPlan(
+    apiClient: ApiClient,
+    nameOfPlan: string,
+    departmentId?: string,
+  ): Promise<object> {
+    const path = ADMIN_GET_PLANS.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}${departmentId}`;
+
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
+
+    const response = await this.sendRequestToGetPlans<any>(
+      nameOfPlan,
+      url,
+      apiClient,
+      200,
+      headers,
+    );
+
+    return response;
+  }
+
+  private async sendRequestToGetPlans<T>(
+    nameOfPlan: string,
+    url: string,
+    apiClient: ApiClient,
+    expectedStatus = 200,
+    headers?: Record<string, string>,
+  ): Promise<{ status: number; body: T }> {
+    const fullUrl = url.startsWith("http") ? url : `${this.baseUrl}/${url}`;
+
+    const mergedHeaders: Record<string, string> = {
+      ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
+    };
+
+    const requestOptions: any = { headers: mergedHeaders };
+
+    const response: APIResponse = await apiClient
+      .getApiContext()
+      .get(fullUrl, requestOptions);
+
+    const status = response.status();
+    if (status !== expectedStatus) {
+      throw new Error(
+        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
+      );
+    }
+
+    const contentType = response.headers()["content-type"] || "";
+    const rawBody =
+      contentType.includes("application/json") && status !== 204
+        ? await response.json()
+        : await response.text();
+
+    let filteredBody: any = rawBody;
+    if (Array.isArray(rawBody)) {
+      filteredBody = rawBody.find((plan: any) => plan.name === nameOfPlan);
+      if (!filteredBody) {
+        throw new Error(`Plan with name "${nameOfPlan}" not found`);
+      }
+    }
+
+    return { status, body: filteredBody as T };
   }
 }
 

@@ -98,13 +98,11 @@ test.describe("Partner managerment", () => {
         const searchResponse =
           await adminService.getCustomerIdByEmail(emailOfPartner);
 
-        if (searchResponse.body.entities[0].consumerObjectId) {
-          const customerId = searchResponse.body.entities[0].consumerObjectId;
+        const customerId = searchResponse.body.entities[0].consumerObjectId;
 
-          const customerRole = await adminService.getRoleOfCustomer(customerId);
+        const customerRole = await adminService.getRoleOfCustomer(customerId);
 
-          expect(customerRole.body.role).toBe(0);
-        }
+        expect(customerRole.body.role).toBe(0);
       }
     }
   });
