@@ -131,8 +131,6 @@ test.describe("Partner managerment", () => {
     apiClient,
     authenticationService,
     adminPortalService,
-    memberPortalService,
-    planPage,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
@@ -147,15 +145,26 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
 
+    let departmentID =
+      await DataFactory.generateDepartmentID(adminPortalService);
+
+    const productTypeAndNames: ProductInfo[] =
+      await DataFactory.generateProductTypesAndNames(adminPortalService);
+
+    const productTypesAndNamesToSend: ProductInfo[] =
+      await DataGenerate.generateProductType(productTypeAndNames);
+
     const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
       isPublic: true,
-      departmentId: "688897d5eb52b4af5573def4",
+      departmentId: departmentID,
+      feFilterProductTypes: productTypesAndNamesToSend.map(
+        (p) => p.productType, //Send a lot of plans
+      ),
       whoPay: 0,
     });
 
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
-    if (partnerResponse.status == 200) {
-    }
+    expect(partnerResponse.status).toBe(200);
   });
 });
