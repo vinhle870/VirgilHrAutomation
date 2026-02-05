@@ -113,6 +113,8 @@ export class PlanPage {
     url: string,
     email: string,
     password: string,
+    productName: string,
+    domain: string,
   ): Promise<void> {
     await this.loginPage.loginWithValidAccount(url, email, password);
 
@@ -121,7 +123,7 @@ export class PlanPage {
 
     let div_firstPlan = await LocatorHandling.getLocator(
       this.page,
-      PlanPageLocators.div_firstPlan,
+      PlanPageLocators.generateDivFirstPlan(productName),
     );
     await div_firstPlan.click();
 
@@ -202,9 +204,7 @@ export class PlanPage {
     // }
 
     try {
-      const departmentName = new RegExp(
-        ".*partner-virgilhr-qa\\.bigin\\.top/home.*",
-      );
+      const departmentName = new RegExp(`.*${domain}.*`);
 
       await this.page.waitForURL(departmentName);
 

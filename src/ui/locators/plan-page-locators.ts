@@ -1,3 +1,5 @@
+import { Locator } from "@playwright/test";
+
 export class PlanPageLocators {
   // select the direct parent element of the paragraph containing the label text
   static div_firstPlan: string =
@@ -24,4 +26,8 @@ export class PlanPageLocators {
   static btn_Subscribe: string = "//*[text()='Subscribe']";
 
   static btn_ReadyDiveIn: string = "//*[text()='I’m ready to dive in']";
+
+  public static generateDivFirstPlan(planName: string): string {
+    return `//p[contains(text(),'${planName}')]/../../..`;
+  }
 }

@@ -216,7 +216,7 @@ export class AdminPortalService {
   }
 
   async getProductTypes(): Promise<any> {
-    const url = `https://api.qa.virgilhr.com/v1/Partner/All/Public`;
+    const url = `https://api.qa.virgilhr.com/v1/Manage/Plan/Departments`;
 
     const headers = this.authToken
       ? { Authorization: `Bearer ${this.authToken}` }

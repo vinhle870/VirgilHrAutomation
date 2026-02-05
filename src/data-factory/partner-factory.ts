@@ -2,10 +2,15 @@ import { DataGenerate } from "src/utilities";
 import { Partner } from "src/objects/ipartner";
 import UserInfo from "src/objects/user-info";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
+import { ProductInfo } from "src/objects/IProduct";
 
 export class PartnerFactory {
-  public static partner: string;
-  private static productTypes: number[] = [];
+  private static partnerDomain: string;
+  private static departmentID: string;
+
+  public static getPartnerDomain(): string {
+    return PartnerFactory.partnerDomain;
+  }
   static async createPartner(
     levelOfPartner: number,
     adminService: AdminPortalService,
@@ -58,9 +63,11 @@ export class PartnerFactory {
     const billingCycle: number = 1;
     const apiEnable: boolean = false;
 
-    const feFilterProductTypes =
+    const feFilterProductTypes: number[] =
       overrides?.feFilterProductTypes ??
-      DataGenerate.generateProductType(PartnerFactory.productTypes);
+      DataGenerate.generateProductType(
+        await PartnerFactory.getProductTypesAndNames(adminService),
+      );
 
     //Payment options
     const whoPay: number = overrides?.whoPay ?? DataGenerate.generateDecimal();
@@ -101,19 +108,36 @@ export class PartnerFactory {
 
     const ids = departmentIdResponse.body.map((dept: any) => dept.id);
 
-    const departmentID = DataGenerate.generateDepartmentIDS(ids);
+    PartnerFactory.departmentID = DataGenerate.generateDepartmentIDS(ids);
 
     const matchedDept = departmentIdResponse.body.find(
-      (dept: any) => dept.id === departmentID,
+      (dept: any) => dept.id === PartnerFactory.departmentID,
     );
 
-    PartnerFactory.partner = matchedDept?.domain?.partner ?? null;
+    PartnerFactory.partnerDomain = matchedDept?.domain?.partner ?? null;
 
+    return await PartnerFactory.departmentID;
+  }
+
+  public static async getProductTypesAndNames(
+    adminService: AdminPortalService,
+  ): Promise<ProductInfo[]> {
     const productTypesResponse = await adminService.getProductTypes();
-
-    for (let i = 0; i < productTypesResponse.body.length; i++)
-      PartnerFactory.productTypes.push(i);
-
-    return await departmentID;
+    if (!productTypesResponse?.body) {
+      return [];
+    }
+    const department = productTypesResponse.body.find(
+      (d: any) => d.departmentId === PartnerFactory.departmentID,
+    );
+    if (!department?.plans) {
+      return [];
+    }
+    const products: ProductInfo[] = department.plans.flatMap((plan: any) =>
+      plan.products.map((p: any) => ({
+        productType: p.productType,
+        productName: plan.name,
+      })),
+    );
+    return products;
   }
 }

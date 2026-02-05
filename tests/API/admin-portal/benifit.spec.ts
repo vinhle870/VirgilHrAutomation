@@ -1,9 +1,10 @@
 import { test, expect } from "src/fixtures";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { DataFactory } from "src/data-factory";
-import { DataGenerate } from "src/utilities";
-import { PartnerFactory } from "src/data-factory/partner-factory";
 import Comparison from "src/utilities/compare";
+import { localHR } from "src/constant/static-data";
+import { ProductInfo } from "src/objects/IProduct";
+import { DataGenerate } from "src/utilities";
 
 test.describe("Partner managerment", () => {
   test("TC37 Verify that when creating a new Partner, the admin can allow certain benefits to appear in the Member Portal.", async ({
@@ -25,10 +26,27 @@ test.describe("Partner managerment", () => {
       apiClient,
       authenticationService,
     );
+    let departmentID =
+      await DataFactory.generateDepartmentID(adminPortalService);
+
+    while (departmentID == localHR) {
+      departmentID = await DataFactory.generateDepartmentID(adminPortalService);
+    }
+
+    const partnerDomain = DataFactory.generatePartnerDomain();
+
+    const productTypeAndNames: ProductInfo[] =
+      await DataFactory.generateProductTypesAndNames(adminPortalService);
+
+    const productTypesAndNamesToSend: ProductInfo[] =
+      await DataGenerate.generateProductType(productTypeAndNames);
 
     const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
       isPublic: true,
-      departmentId: "688897d5eb52b4af5573def4",
+      departmentId: departmentID,
+      feFilterProductTypes: productTypesAndNamesToSend.map(
+        (p) => p.productType,
+      ),
       whoPay: 0,
     });
 
@@ -67,7 +85,7 @@ test.describe("Partner managerment", () => {
         "4",
       );
 
-      const partnerURL = `https://${email.split("@")[0]}.partner-virgilhr-qa.bigin.top/`;
+      const partnerURL = `https://${email.split("@")[0]}.${partnerDomain}`;
 
       if (resetPartner) {
         await authenticationService.confirmEmailWithoutToken(
@@ -76,7 +94,17 @@ test.describe("Partner managerment", () => {
           "5",
         );
 
-        await planPage.buyPlanWithoutDiving(partnerURL, email, tempPassword);
+        const selectedPlan: ProductInfo = DataGenerate.chooseAProductType(
+          productTypesAndNamesToSend,
+        );
+
+        await planPage.buyPlanWithoutDiving(
+          partnerURL,
+          email,
+          tempPassword,
+          selectedPlan.productName,
+          partnerDomain,
+        );
 
         if (resetCustomer) {
           await authenticationService.confirmEmailWithoutToken(

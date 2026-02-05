@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { ProductInfo } from "src/objects/IProduct";
 
 export class DataGenerate {
   /**
@@ -106,17 +107,22 @@ export class DataGenerate {
     return randomValue;
   }
 
-  public static generateProductType(values: number[]): number[] {
+  public static generateProductType(values: ProductInfo[]): ProductInfo[] {
     const length = Math.floor(Math.random() * values.length) + 1;
-
-    const result: number[] = [];
-
+    const result: ProductInfo[] = [];
     for (let i = 0; i < length; i++) {
       const randomValue = values[Math.floor(Math.random() * values.length)];
-      result.push(randomValue);
+      result.push({
+        productType: randomValue.productType,
+        productName: randomValue.productName,
+      });
     }
-
     return result;
+  }
+
+  public static chooseAProductType(values: ProductInfo[]): ProductInfo {
+    const randomIndex = Math.floor(Math.random() * values.length);
+    return values[randomIndex];
   }
 
   /**
