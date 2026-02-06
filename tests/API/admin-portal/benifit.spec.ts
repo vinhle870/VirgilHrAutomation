@@ -26,21 +26,22 @@ test.describe("Partner managerment", () => {
       apiClient,
       authenticationService,
     );
+    //Create department id to send
     let departmentID =
       await DataFactory.generateDepartmentID(adminPortalService);
-
+    //If departmentID is id of localhr, get another id which is not id of localhr
     while (departmentID == localHR) {
       departmentID = await DataFactory.generateDepartmentID(adminPortalService);
     }
-
+    //Get department domain
     const partnerDomain = DataFactory.generatePartnerDomain();
-
+    //Get all product types of a department (departmentID)
     const productTypeAndNames: ProductInfo[] =
       await DataFactory.generateProductTypesAndNames(adminPortalService);
-
+    //Filter some product types from productTypeAndNames to send
     const productTypesAndNamesToSend: ProductInfo[] =
       await DataGenerate.generateProductType(productTypeAndNames);
-
+    //Create partner info
     const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
       isPublic: true,
       departmentId: departmentID,
@@ -49,21 +50,13 @@ test.describe("Partner managerment", () => {
       ),
       whoPay: 0,
     });
-
+    //Create partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
-
-    const departmentId = partnerInfo.getIPartnerInfo()?.departmentId!;
 
     if (partnerResponse.status == 200) {
       const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-      const email = partnerInfo.getAccountInfo()?.email;
-
-      if (!email) {
-        throw new Error(
-          "Generated partnerInfo does not contain accountInfo.email",
-        );
-      }
+      const email = partnerInfo.getAccountInfo()?.email!;
 
       const resetPartner =
         await authenticationService.resetPasswordWithoutToken(
@@ -84,7 +77,7 @@ test.describe("Partner managerment", () => {
         tempPassword,
         "4",
       );
-
+      //Create partner domain
       const partnerURL = `https://${email.split("@")[0]}.${partnerDomain}`;
 
       if (resetPartner) {
@@ -93,11 +86,11 @@ test.describe("Partner managerment", () => {
           undefined,
           "5",
         );
-
+        //Choose a plan to buy among sent product types
         const selectedPlan: ProductInfo = DataGenerate.chooseAProductType(
           productTypesAndNamesToSend,
         );
-
+        //By a selected plan
         await planPage.buyPlanWithoutDiving(
           partnerURL,
           email,
@@ -113,14 +106,14 @@ test.describe("Partner managerment", () => {
             "4",
           );
         }
-
+        //Get benifits in member portal after partner bought the selected plan successfully
         const benifitResponse: any =
           await memberPortalService.getBenifit<object>(email, token);
-
+        //Get benifit imformation of selected plan in adminportal
         const boughtPlan: any = await adminPortalService.getPlan(
           apiClient,
           benifitResponse.main.name,
-          departmentId,
+          departmentID,
         );
 
         Comparison.comparePlan(benifitResponse, boughtPlan);
@@ -144,16 +137,16 @@ test.describe("Partner managerment", () => {
       apiClient,
       authenticationService,
     );
-
-    let departmentID =
+    //Create department id to send
+    const departmentID =
       await DataFactory.generateDepartmentID(adminPortalService);
-
+    //Get all product types of a department (departmentID)
     const productTypeAndNames: ProductInfo[] =
       await DataFactory.generateProductTypesAndNames(adminPortalService);
-
+    //Filter some product types from productTypeAndNames to send
     const productTypesAndNamesToSend: ProductInfo[] =
       await DataGenerate.generateProductType(productTypeAndNames);
-
+    //Create partner info
     const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
       isPublic: true,
       departmentId: departmentID,
@@ -162,7 +155,7 @@ test.describe("Partner managerment", () => {
       ),
       whoPay: 0,
     });
-
+    //Create a new partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
     expect(partnerResponse.status).toBe(200);
