@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { ProductInfo } from "src/objects/iProduct";
+import { ProductInfo } from "src/objects/IProduct";
 
 export class DataGenerate {
   /**

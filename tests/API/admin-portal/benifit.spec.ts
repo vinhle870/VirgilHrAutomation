@@ -3,7 +3,7 @@ import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { DataFactory } from "src/data-factory";
 import Comparison from "src/utilities/compare";
 import { localHR } from "src/constant/static-data";
-import { ProductInfo } from "src/objects/iProduct";
+import { ProductInfo } from "src/objects/IProduct";
 import { DataGenerate } from "src/utilities";
 
 test.describe("Partner managerment", () => {

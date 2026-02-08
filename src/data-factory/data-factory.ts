@@ -3,7 +3,7 @@ import { MembPortalCustomer } from "../objects/customer";
 import { CustomerFactory } from "./customer-factory";
 import { Partner } from "src/objects/ipartner";
 import { PartnerFactory } from "./partner-factory";
-import { ProductInfo } from "src/objects/iProduct";
+import { ProductInfo } from "src/objects/IProduct";
 
 export class DataFactory {
   static async generateCustomerInfo(

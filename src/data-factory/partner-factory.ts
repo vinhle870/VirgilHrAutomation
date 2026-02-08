@@ -2,7 +2,7 @@ import { DataGenerate } from "src/utilities";
 import { Partner } from "src/objects/ipartner";
 import UserInfo from "src/objects/user-info";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
-import { ProductInfo } from "src/objects/iProduct";
+import { ProductInfo } from "src/objects/IProduct";
 
 export class PartnerFactory {
   private static partnerDomain: string;
@@ -104,7 +104,7 @@ export class PartnerFactory {
   public static async generatePartnerInfor(
     adminService: AdminPortalService,
   ): Promise<string> {
-    const departmentIdResponse = await adminService.getDepartmentInfor();
+    const departmentIdResponse = await adminService.getDepartmentInfo();
 
     const ids = departmentIdResponse.body.map((dept: any) => dept.id);
 
