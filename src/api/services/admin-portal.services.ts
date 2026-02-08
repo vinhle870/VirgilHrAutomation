@@ -2,6 +2,8 @@ import { ApiClient } from "src/utilities";
 import {
   CREATE_CUSTOMER,
   CREATE_PARTNER,
+  GET_PRODUCTTYPEFILTERS,
+  GET_CONSUMER_BY_ID,
   SEARCH_PARTNER_BY_TEXT,
 } from "src/api/endpoints/admin-portal.endpoints";
 import { Authentication } from "src/api/services/authentication.service";
@@ -194,6 +196,34 @@ export class AdminPortalService {
 
     return response;
   }
+
+  async getProductTypeFilters(): Promise<any> {
+    const path = GET_PRODUCTTYPEFILTERS.replace(/^\/+/, '');
+    const url = `${this.baseUrl}/${path}`;
+    const headers = this.authToken ? { Authorization: `Bearer ${this.authToken}` } : undefined;
+    const response = await this.apiClient.sendRequest<any>(
+        'GET',
+        url,
+        undefined,
+        200,
+        headers,
+    );
+    return response;
+}
+
+async getConsumerById(id: string): Promise<any> {
+    const path = GET_CONSUMER_BY_ID.replace(/^\/+/, '');
+    const url = `${this.baseUrl}/${path}/${id}`;
+    const headers = this.authToken ? { Authorization: `Bearer ${this.authToken}` } : undefined;
+    const response = await this.apiClient.sendRequest<any>(
+        'GET',
+        url,
+        undefined,
+        200,
+        headers,
+    );
+    return response;
+}
 }
 
 /***
