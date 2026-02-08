@@ -1,14 +1,18 @@
-import { Page, expect } from "@playwright/test";
+import { Page } from "@playwright/test";
 import { PlanPageLocators } from "../locators/plan-page-locators";
 import { LocatorHandling } from "../../utilities/locator-handling";
 import { LoginPage } from "./login-page";
+import { HomePage } from "./home-page";
+import { HomePageLocators } from "../locators";
 
 export class PlanPage {
   page: Page;
   loginPage: LoginPage;
+  homePage: HomePage;
   constructor(page: Page) {
     this.page = page;
     this.loginPage = new LoginPage(page);
+    this.homePage = new HomePage(page);
   }
 
   /**
@@ -18,7 +22,7 @@ export class PlanPage {
     url: string,
     email: string,
     password: string,
-    cardinfo: object
+    cardinfo: object,
   ): Promise<void> {
     await this.loginPage.loginWithValidAccount(url, email, password);
 
@@ -27,81 +31,186 @@ export class PlanPage {
 
     let div_firstPlan = await LocatorHandling.getLocator(
       this.page,
-      PlanPageLocators.div_firstPlan
+      PlanPageLocators.div_firstPlan,
     );
     await div_firstPlan.click();
 
     let btn_BuyNow = await LocatorHandling.getLocator(
       this.page,
-      PlanPageLocators.btn_BuyNow
+      PlanPageLocators.btn_BuyNow,
     );
     await btn_BuyNow.click();
 
     let btn_Confirm = await LocatorHandling.getLocator(
       this.page,
-      PlanPageLocators.btn_Confirm
+      PlanPageLocators.btn_Confirm,
     );
     await btn_Confirm.click();
 
     let txt_CardNumb = await LocatorHandling.getLocatorInIframe(
       this.page,
       PlanPageLocators.iframe_Payment,
-      PlanPageLocators.txt_CardNumb
+      PlanPageLocators.txt_CardNumb,
     );
     await txt_CardNumb.fill("4242 4242 4242 4242");
 
     let txt_CardExp = await LocatorHandling.getLocatorInIframe(
       this.page,
       PlanPageLocators.iframe_Payment,
-      PlanPageLocators.txt_CardExp
+      PlanPageLocators.txt_CardExp,
     );
     await txt_CardExp.fill("12/34");
 
     let txt_CardCvc = await LocatorHandling.getLocatorInIframe(
       this.page,
       PlanPageLocators.iframe_Payment,
-      PlanPageLocators.txt_CardCvc
+      PlanPageLocators.txt_CardCvc,
     );
     await txt_CardCvc.fill("123");
 
     let txt_CardHolderName = await LocatorHandling.getLocatorInIframe(
       this.page,
       PlanPageLocators.iframe_Payment,
-      PlanPageLocators.txt_CardHolderName
+      PlanPageLocators.txt_CardHolderName,
     );
     await txt_CardHolderName.fill("Test User");
 
     let txt_billingAddressLine1 = await LocatorHandling.getLocatorInIframe(
       this.page,
       PlanPageLocators.iframe_Payment,
-      PlanPageLocators.txt_billingAddressLine1
+      PlanPageLocators.txt_billingAddressLine1,
     );
     await txt_billingAddressLine1.fill("123 Test St");
 
     let txt_BillingCity = await LocatorHandling.getLocatorInIframe(
       this.page,
       PlanPageLocators.iframe_Payment,
-      PlanPageLocators.txt_BillingCity
+      PlanPageLocators.txt_BillingCity,
     );
     await txt_BillingCity.fill("Test City");
 
     let btn_Subscribe = await LocatorHandling.getLocatorInIframe(
       this.page,
       PlanPageLocators.iframe_Payment,
-      PlanPageLocators.btn_Subscribe
+      PlanPageLocators.btn_Subscribe,
     );
     await btn_Subscribe.click();
 
     let btn_DiveIn = await LocatorHandling.getLocator(
       this.page,
       PlanPageLocators.btn_ReadyDiveIn,
-      60000
+      60000,
     );
     await btn_DiveIn.click();
 
     //await txt_BillingCity.first().waitFor({ state: 'hidden', timeout: 20000 });
-    const urlRegex = new RegExp(`.*member-virgilhr-qa.bigin.top/home$`);
+    const urlRegex = new RegExp(`.*-virgilhr-qa.bigin.top/home$`);
 
     await this.page.waitForURL(urlRegex);
+  }
+
+  async buyPlanWithoutDiving(
+    url: string,
+    email: string,
+    password: string,
+    productName: string,
+    domain: string,
+  ): Promise<void> {
+    await this.loginPage.loginWithValidAccount(url, email, password);
+
+    // Scrolls the page to the bottom
+    await this.page.waitForURL("**/register-success");
+
+    let div_firstPlan = await LocatorHandling.getLocator(
+      this.page,
+      PlanPageLocators.generateDivFirstPlan(productName),
+    );
+    await div_firstPlan.click();
+
+    let btn_BuyNow = await LocatorHandling.getLocator(
+      this.page,
+      PlanPageLocators.btn_BuyNow,
+    );
+    await btn_BuyNow.click();
+
+    let btn_Confirm = await LocatorHandling.getLocator(
+      this.page,
+      PlanPageLocators.btn_Confirm,
+    );
+    await btn_Confirm.click();
+
+    let txt_CardNumb = await LocatorHandling.getLocatorInIframe(
+      this.page,
+      PlanPageLocators.iframe_Payment,
+      PlanPageLocators.txt_CardNumb,
+    );
+    await txt_CardNumb.fill("4242 4242 4242 4242");
+
+    let txt_CardExp = await LocatorHandling.getLocatorInIframe(
+      this.page,
+      PlanPageLocators.iframe_Payment,
+      PlanPageLocators.txt_CardExp,
+    );
+    await txt_CardExp.fill("12/34");
+
+    let txt_CardCvc = await LocatorHandling.getLocatorInIframe(
+      this.page,
+      PlanPageLocators.iframe_Payment,
+      PlanPageLocators.txt_CardCvc,
+    );
+    await txt_CardCvc.fill("123");
+
+    let txt_CardHolderName = await LocatorHandling.getLocatorInIframe(
+      this.page,
+      PlanPageLocators.iframe_Payment,
+      PlanPageLocators.txt_CardHolderName,
+    );
+    await txt_CardHolderName.fill("Test User");
+
+    let txt_billingAddressLine1 = await LocatorHandling.getLocatorInIframe(
+      this.page,
+      PlanPageLocators.iframe_Payment,
+      PlanPageLocators.txt_billingAddressLine1,
+    );
+    await txt_billingAddressLine1.fill("123 Test St");
+
+    let txt_BillingCity = await LocatorHandling.getLocatorInIframe(
+      this.page,
+      PlanPageLocators.iframe_Payment,
+      PlanPageLocators.txt_BillingCity,
+    );
+    await txt_BillingCity.fill("Test City");
+
+    let btn_Subscribe = await LocatorHandling.getLocatorInIframe(
+      this.page,
+      PlanPageLocators.iframe_Payment,
+      PlanPageLocators.btn_Subscribe,
+    );
+    await btn_Subscribe.click();
+
+    //await txt_BillingCity.first().waitFor({ state: 'hidden', timeout: 20000 });
+    // let btn_DiveInLocator;
+    // try {
+    //   btn_DiveInLocator = await this.page.waitForSelector(
+    //     PlanPageLocators.btn_ReadyDiveIn,
+    //     { timeout: 5000 }, // timeout ngắn
+    //   );
+    // } catch {
+    //   btn_DiveInLocator = null;
+    // }
+
+    // if (btn_DiveInLocator) {
+    //   await btn_DiveInLocator.click();
+    // }
+
+    try {
+      const departmentName = new RegExp(`.*${domain}.*`);
+
+      await this.page.waitForURL(departmentName);
+
+      await LocatorHandling.getLocator(this.page, HomePageLocators.home);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

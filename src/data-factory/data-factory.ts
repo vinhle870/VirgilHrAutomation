@@ -1,10 +1,9 @@
 import { AdminPortalService } from "src/api/services/admin-portal.services";
-import { DataHandling } from "../data-handling/data-handling";
 import { MembPortalCustomer } from "../objects/customer";
-import { Constants } from "../utilities/constants";
 import { CustomerFactory } from "./customer-factory";
 import { Partner } from "src/objects/ipartner";
 import { PartnerFactory } from "./partner-factory";
+import { ProductInfo } from "src/objects/iProduct";
 
 export class DataFactory {
   static async generateCustomerInfo(
@@ -28,5 +27,24 @@ export class DataFactory {
     );
 
     return partner;
+  }
+
+  static async generateDepartmentID(
+    adminPortalService: AdminPortalService,
+  ): Promise<string> {
+    const departmentID: string =
+      await PartnerFactory.generatePartnerInfor(adminPortalService);
+
+    return departmentID;
+  }
+
+  public static generatePartnerDomain(): string {
+    return PartnerFactory.getPartnerDomain();
+  }
+
+  public static async generateProductTypesAndNames(
+    adminPortalService: AdminPortalService,
+  ): Promise<ProductInfo[]> {
+    return await PartnerFactory.getProductTypesAndNames(adminPortalService);
   }
 }

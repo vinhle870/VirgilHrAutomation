@@ -1,13 +1,16 @@
 import { DataGenerate } from "src/utilities";
-import {
-  IPartnerInfoWithDepartmentAndProductTypes,
-  Partner,
-} from "src/objects/ipartner";
+import { Partner } from "src/objects/ipartner";
 import UserInfo from "src/objects/user-info";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
-import IDepartment from "src/objects/department";
+import { ProductInfo } from "src/objects/iProduct";
 
 export class PartnerFactory {
+  private static partnerDomain: string;
+  private static departmentID: string;
+
+  public static getPartnerDomain(): string {
+    return PartnerFactory.partnerDomain;
+  }
   static async createPartner(
     levelOfPartner: number,
     adminService: AdminPortalService,
@@ -22,15 +25,17 @@ export class PartnerFactory {
     const email = overrides?.email ?? `${localPrefix}@yopmail.com`;
     const lastName =
       overrides?.lastName ?? (await DataGenerate.generateLastName());
+
     const jobTitle: string =
       overrides?.jobTitle ?? (await DataGenerate.generatejobTitle());
+
     const phoneNumber =
       overrides?.phoneNumber ?? (await DataGenerate.generatePhoneNumber());
+
     const departmentId: string =
       overrides?.departmentId ??
-      DataGenerate.generateDepartmentId(
-        (await PartnerFactory.generatePartnerInfor(adminService)).departmentIds,
-      );
+      (await PartnerFactory.generatePartnerInfor(adminService));
+
     const bankTransfer: boolean =
       overrides?.bankTransfer ?? DataGenerate.generateBoolean();
     const canCustomUpdatePlan: boolean =
@@ -43,9 +48,10 @@ export class PartnerFactory {
     const name: string = overrides?.name ?? `${firstName}${seq}`;
     const partnerType: number =
       overrides?.partnerType ?? DataGenerate.generateDecimal();
-    //Payment options
+
     const paymentEnable: boolean =
       overrides?.paymentEnable ?? DataGenerate.generateBoolean();
+
     const subDomain: string = overrides?.subDomain ?? name;
     const userInfo: UserInfo = {
       email,
@@ -56,11 +62,14 @@ export class PartnerFactory {
     };
     const billingCycle: number = 1;
     const apiEnable: boolean = false;
+
     const feFilterProductTypes: number[] =
       overrides?.feFilterProductTypes ??
       DataGenerate.generateProductType(
-        (await PartnerFactory.generatePartnerInfor(adminService)).productTypes,
+        await PartnerFactory.getProductTypesAndNames(adminService),
       );
+
+    //Payment options
     const whoPay: number = overrides?.whoPay ?? DataGenerate.generateDecimal();
 
     partner.setAccountInfo({
@@ -92,18 +101,43 @@ export class PartnerFactory {
     return partner;
   }
 
-  private static async generatePartnerInfor(
+  public static async generatePartnerInfor(
     adminService: AdminPortalService,
-  ): Promise<IPartnerInfoWithDepartmentAndProductTypes> {
-    const departmentIdResponse = await adminService.getDepartmentIds();
-    const departmentIds: string[] = departmentIdResponse.body.map(
-      (item: IDepartment) => item.departmentId,
+  ): Promise<string> {
+    const departmentIdResponse = await adminService.getDepartmentInfor();
+
+    const ids = departmentIdResponse.body.map((dept: any) => dept.id);
+
+    PartnerFactory.departmentID = DataGenerate.generateDepartmentIDS(ids);
+
+    const matchedDept = departmentIdResponse.body.find(
+      (dept: any) => dept.id === PartnerFactory.departmentID,
     );
 
-    const productTypesResponse = await adminService.getProductTypes();
-    const productTypes: number[] =
-      productTypesResponse.body[0].restriction.productTypes;
+    PartnerFactory.partnerDomain = matchedDept?.domain?.partner ?? null;
 
-    return { productTypes, departmentIds };
+    return await PartnerFactory.departmentID;
+  }
+
+  public static async getProductTypesAndNames(
+    adminService: AdminPortalService,
+  ): Promise<ProductInfo[]> {
+    const productTypesResponse = await adminService.getProductTypes();
+    if (!productTypesResponse?.body) {
+      return [];
+    }
+    const department = productTypesResponse.body.find(
+      (d: any) => d.departmentId === PartnerFactory.departmentID,
+    );
+    if (!department?.plans) {
+      return [];
+    }
+    const products: ProductInfo[] = department.plans.flatMap((plan: any) =>
+      plan.products.map((p: any) => ({
+        productType: p.productType,
+        productName: plan.name,
+      })),
+    );
+    return products;
   }
 }

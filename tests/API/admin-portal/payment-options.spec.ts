@@ -63,9 +63,8 @@ test.describe("Partner managerment", () => {
     );
 
     const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
-      bankTransfer: true,
       isPublic: true,
-      paymentEnable: 1,
+      whoPay: 0,
     });
 
     const partnerResponse = await adminService.createPartner(partnerInfo);
@@ -74,11 +73,6 @@ test.describe("Partner managerment", () => {
       const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
       const email = partnerInfo.getAccountInfo()?.email;
-
-      console.log(
-        "Product type:",
-        partnerInfo.getIPartnerInfo()?.feFilterProductTypes,
-      );
 
       if (!email) {
         throw new Error(
@@ -98,6 +92,17 @@ test.describe("Partner managerment", () => {
           undefined,
           "5",
         );
+
+        const emailOfPartner = partnerInfo.getAccountInfo()?.email!;
+
+        const searchResponse =
+          await adminService.getCustomerIdByEmail(emailOfPartner);
+
+        const customerId = searchResponse.body.entities[0].consumerObjectId;
+
+        const customerRole = await adminService.getRoleOfCustomer(customerId);
+
+        expect(customerRole.body.role).toBe(0);
       }
     }
   });

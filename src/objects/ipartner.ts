@@ -14,7 +14,6 @@ export default interface IPartnerInfo {
   partnerType: number;
   paymentEnable: boolean;
   subDomain: string;
-  //add user-infor
   userInfo: UserInfo;
   billingCycle?: number;
 }

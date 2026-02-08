@@ -1,7 +1,6 @@
 import { test, expect } from "src/fixtures";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { DataFactory } from "src/data-factory";
-import { PartnerFactory } from "src/data-factory/partner-factory";
 
 test.describe("Partner managerment", () => {
   test("TC030_API Verify that a partner account can only be created in the Admin Portal – Partner Management.", async ({
@@ -10,7 +9,7 @@ test.describe("Partner managerment", () => {
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
-      "API_BASE_URL is not configured"
+      "API_BASE_URL is not configured",
     );
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
@@ -18,7 +17,7 @@ test.describe("Partner managerment", () => {
 
     const adminService = await AdminPortalService.create(
       apiClient,
-      authenticationService
+      authenticationService,
     );
 
     const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService);
@@ -34,7 +33,7 @@ test.describe("Partner managerment", () => {
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
-      "API_BASE_URL is not configured"
+      "API_BASE_URL is not configured",
     );
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
@@ -42,7 +41,7 @@ test.describe("Partner managerment", () => {
 
     const adminService = await AdminPortalService.create(
       apiClient,
-      authenticationService
+      authenticationService,
     );
 
     const peoInfo = await DataFactory.generatePartnerInfo(1, adminService);

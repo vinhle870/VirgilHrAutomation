@@ -9,6 +9,7 @@ import { Authentication } from "../api/services/authentication.service";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { MemberPortalService } from "src/api/services";
 import { PlanPage } from "src/ui/pages/plan-page";
+import { PartnerPortalService } from "src/api/services/partner-portal.services";
 
 // Declare the types of your fixtures.
 type MyFixtures = {
@@ -23,6 +24,7 @@ type MyFixtures = {
   adminPortalService: AdminPortalService;
   memberPortalService: MemberPortalService;
   api_token: string;
+  partnerPortalService: PartnerPortalService;
 };
 
 export const test = base.extend<MyFixtures>({
@@ -40,7 +42,7 @@ export const test = base.extend<MyFixtures>({
     await loginPage.loginWithValidAccount(
       BASE_URL,
       ADMIN_USERNAME,
-      ADMIN_PASSWORD
+      ADMIN_PASSWORD,
     );
 
     await use(loginPage);
@@ -64,7 +66,7 @@ export const test = base.extend<MyFixtures>({
 
     if (!baseURL) {
       throw new Error(
-        "Missing API_BASE_URL or BASE_URL environment variable for API fixture"
+        "Missing API_BASE_URL or BASE_URL environment variable for API fixture",
       );
     }
 
@@ -79,7 +81,7 @@ export const test = base.extend<MyFixtures>({
 
   adminPortalService: async (
     { apiClient: api, authenticationService: auth },
-    use
+    use,
   ) => {
     const adminPortalService = await AdminPortalService.create(api, auth);
     await use(adminPortalService);
@@ -88,6 +90,11 @@ export const test = base.extend<MyFixtures>({
   memberPortalService: async ({ apiClient: api }, use) => {
     const memberPortalService = new MemberPortalService(api);
     await use(memberPortalService);
+  },
+
+  partnerPortalService: async ({ apiClient: api }, use) => {
+    const partnerPortalService = new PartnerPortalService(api);
+    await use(partnerPortalService);
   },
 });
 
