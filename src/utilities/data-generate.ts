@@ -1,94 +1,140 @@
-import { format } from 'date-fns';
+import { format } from "date-fns";
 
 export class DataGenerate {
-    /**
-     * select Randomly item from given list
-     * @param array
-     * @returns string
-     */
-    static selectRandomlyInList(array: any[]): string {
-        const length = array.length;
-        const index = this.getRandomInt(0, length - 1)
-        return array[index];
+  /**
+   * select Randomly item from given list
+   * @param array
+   * @returns string
+   */
+  static selectRandomlyInList(array: any[]): string {
+    const length = array.length;
+    const index = this.getRandomInt(0, length - 1);
+    return array[index];
+  }
+
+  /**
+   * generate randomly the nunber in range
+   * @param min
+   * @param max
+   * @returns
+   */
+  static getRandomInt(min: number, max: number): number {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  /**
+   * Generate Year from[20 year ago to current year]
+   * @returns number
+   */
+  static generateYear(fromcurrentyear: number): number {
+    const currentYear = new Date().getFullYear();
+    const year = this.getRandomInt(currentYear + fromcurrentyear, currentYear);
+    return year;
+  }
+
+  /**
+   * Generate Amount
+   * @returns number
+   */
+  static generateAmount(min: number, max: number): number {
+    const amount = parseFloat(this.getRandomInt(min, max).toFixed(2));
+    return amount;
+  }
+
+  /**
+   * Generate Date
+   * @param dateformat
+   * @returns string
+   */
+  static async generateDate(dateformat: string): Promise<string> {
+    const { faker } = await import("@faker-js/faker");
+    const futuredate = faker.date.future();
+    return format(futuredate, dateformat);
+  }
+
+  static async generateFirstName(): Promise<string> {
+    const { faker } = await import("@faker-js/faker");
+    return faker.person.firstName();
+  }
+
+  static async generateLastName(): Promise<string> {
+    const { faker } = await import("@faker-js/faker");
+    return faker.person.lastName();
+  }
+
+  static async generateEmail(): Promise<string> {
+    const { faker } = await import("@faker-js/faker");
+    return faker.internet.email();
+  }
+
+  static async generatePhoneNumber(): Promise<string> {
+    const { faker } = await import("@faker-js/faker");
+    return faker.helpers.replaceSymbols("+1##########");
+  }
+  static async generateCompanyName(): Promise<string> {
+    const { faker } = await import("@faker-js/faker");
+    return faker.company.name();
+  }
+
+  static async generatejobTitle(): Promise<string> {
+    const { faker } = await import("@faker-js/faker");
+    return faker.person.jobTitle();
+  }
+
+  static generateBoolean(): boolean {
+    const values: boolean[] = [true, false];
+
+    const randomValue = values[Math.floor(Math.random() * values.length)];
+
+    return randomValue;
+  }
+
+  static generateDecimal(): number {
+    const values: number[] = [0, 1];
+
+    const randomValue = values[Math.floor(Math.random() * values.length)];
+
+    return randomValue;
+  }
+  //select randomly DepartmentId
+  public static generateDepartmentId(departmentIds: string[]): string {
+    // const departmentIds = [
+    //   "688897d5eb52b4af5573def4",
+    //   "68908f542e20001e47f5394f",
+    //   "68f09ac3500b0efa8a365bef",
+    //   "6928522dc95cab35e8188e2e",
+    //   "6928522dc95cab35e8188e2f",
+    //   "6891c8c2b34bb84b18eae816",
+    // ];
+
+    const randomValue =
+      departmentIds[Math.floor(Math.random() * departmentIds.length)];
+
+    return randomValue;
+  }
+
+  public static generateProductType(values: number[]): number[] {
+    //const values: number[] = [1, 2, 3, 4, 5, 6, 15, 16, 17, 19];
+
+    const length = Math.floor(Math.random() * values.length) + 1;
+
+    const result: number[] = [];
+    for (let i = 0; i < length; i++) {
+      const randomValue = values[Math.floor(Math.random() * values.length)];
+      result.push(randomValue);
     }
 
-    /**
-     * generate randomly the nunber in range
-     * @param min
-     * @param max
-     * @returns
-     */
-    static getRandomInt(min: number, max: number): number {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+    return result;
+  }
 
-    /**
-     * Generate Year from[20 year ago to current year]
-     * @returns number
-     */
-    static generateYear(fromcurrentyear: number): number {
-        const currentYear = new Date().getFullYear();
-        const year = this.getRandomInt(currentYear + fromcurrentyear, currentYear);
-        return year;
-    }
+  /**
+   * Generate a dynamic user payload with sensible defaults.
+   * You can pass `overrides` to replace any generated field.
+   */
 
-    /**
-     * Generate Amount
-     * @returns number
-     */
-    static generateAmount(min: number, max: number): number {
-        const amount = parseFloat(this.getRandomInt(min, max).toFixed(2));
-        return amount;
-    }
-
-    /**
-     * Generate Date
-     * @param dateformat
-     * @returns string
-     */
-    static async generateDate(dateformat: string): Promise<string> {
-        const { faker } = await import('@faker-js/faker');
-        const futuredate = faker.date.future();
-        return format(futuredate, dateformat);
-    }
-
-    static async generateFirstName(): Promise<string> {
-        const { faker } = await import('@faker-js/faker');
-        return faker.person.firstName();
-    }
-
-    static async generateLastName(): Promise<string> {
-        const { faker } = await import('@faker-js/faker');
-        return faker.person.lastName();
-    }
-
-    static async generateEmail(): Promise<string> {
-        const { faker } = await import('@faker-js/faker');
-        return faker.internet.email();
-    }
-
-    static async generatePhoneNumber(): Promise<string> {
-        const { faker } = await import('@faker-js/faker');
-        return faker.helpers.replaceSymbols('+1##########');
-    }
-    static async generateCompanyName(): Promise<string> {
-        const { faker } = await import('@faker-js/faker');
-        return faker.company.name();
-    }
-
-    static async generatejobTitle(): Promise<string> {
-        const { faker } = await import('@faker-js/faker');
-        return faker.person.jobTitle();
-    }
-
-    /**
-     * Generate a dynamic user payload with sensible defaults.
-     * You can pass `overrides` to replace any generated field.
-     */
-
-    /*
+  /*
     static async generateUserData(overrides?: Partial<Record<string, any>>): Promise<Record<string, any>> {
         const { faker } = await import('@faker-js/faker');
         const ts = format(new Date(), 'yyyyMMddHHmmss');
@@ -126,6 +172,4 @@ export class DataGenerate {
         };
     }
     */
-
-
 }
