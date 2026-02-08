@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { ProductInfo } from "src/objects/iProduct";
 
 export class DataGenerate {
   /**
@@ -98,35 +99,30 @@ export class DataGenerate {
 
     return randomValue;
   }
-  //select randomly DepartmentId
-  public static generateDepartmentId(departmentIds: string[]): string {
-    // const departmentIds = [
-    //   "688897d5eb52b4af5573def4",
-    //   "68908f542e20001e47f5394f",
-    //   "68f09ac3500b0efa8a365bef",
-    //   "6928522dc95cab35e8188e2e",
-    //   "6928522dc95cab35e8188e2f",
-    //   "6891c8c2b34bb84b18eae816",
-    // ];
-
+  //select randomly Department
+  public static generateDepartmentIDS(departmentIDS: string[]): string {
     const randomValue =
-      departmentIds[Math.floor(Math.random() * departmentIds.length)];
+      departmentIDS[Math.floor(Math.random() * departmentIDS.length)];
 
     return randomValue;
   }
 
-  public static generateProductType(values: number[]): number[] {
-    //const values: number[] = [1, 2, 3, 4, 5, 6, 15, 16, 17, 19];
-
+  public static generateProductType(values: ProductInfo[]): ProductInfo[] {
     const length = Math.floor(Math.random() * values.length) + 1;
-
-    const result: number[] = [];
+    const result: ProductInfo[] = [];
     for (let i = 0; i < length; i++) {
       const randomValue = values[Math.floor(Math.random() * values.length)];
-      result.push(randomValue);
+      result.push({
+        productType: randomValue.productType,
+        productName: randomValue.productName,
+      });
     }
-
     return result;
+  }
+
+  public static chooseAProductType(values: ProductInfo[]): ProductInfo {
+    const randomIndex = Math.floor(Math.random() * values.length);
+    return values[randomIndex];
   }
 
   /**

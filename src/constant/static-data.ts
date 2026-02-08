@@ -39,6 +39,8 @@ const paymentOptions = [
   { key: "MemberPortalConsumer", value: 1 },
 ];
 
+const localHR = "6891c8c2b34bb84b18eae816";
+
 export {
   plans,
   validCardInfo,
@@ -46,4 +48,5 @@ export {
   validIndustry,
   validCountry,
   paymentOptions,
+  localHR,
 };

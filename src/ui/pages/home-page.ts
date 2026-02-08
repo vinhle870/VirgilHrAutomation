@@ -15,7 +15,7 @@ export class HomePage {
   async validateHeadingContainsText(value: string) {
     const heading = await LocatorHandling.getLocator(
       this.page,
-      HomePageLocators.heading_DashBoard
+      HomePageLocators.heading_DashBoard,
     );
     await expect(heading).toContainText(value);
   }
@@ -23,7 +23,7 @@ export class HomePage {
   async validateUserNameInfo(user: any) {
     const userImage = await LocatorHandling.getLocator(
       this.page,
-      HomePageLocators.img_ProfilePicture
+      HomePageLocators.img_ProfilePicture,
     );
 
     const src = await userImage.getAttribute("src");
@@ -32,7 +32,7 @@ export class HomePage {
 
     const UserName = await LocatorHandling.getLocator(
       this.page,
-      HomePageLocators.lbl_UserName
+      HomePageLocators.lbl_UserName,
     );
 
     await expect(UserName.textContent()).not.toBe("");
