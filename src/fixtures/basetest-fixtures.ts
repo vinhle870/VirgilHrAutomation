@@ -9,7 +9,6 @@ import { Authentication } from "../api/services/authentication.service";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { MemberPortalService } from "src/api/services";
 import { PlanPage } from "src/ui/pages/plan-page";
-import { PartnerPortalService } from "src/api/services/partner-portal.services";
 
 // Declare the types of your fixtures.
 type MyFixtures = {
@@ -24,7 +23,6 @@ type MyFixtures = {
   adminPortalService: AdminPortalService;
   memberPortalService: MemberPortalService;
   api_token: string;
-  partnerPortalService: PartnerPortalService;
 };
 
 export const test = base.extend<MyFixtures>({
@@ -90,11 +88,6 @@ export const test = base.extend<MyFixtures>({
   memberPortalService: async ({ apiClient: api }, use) => {
     const memberPortalService = new MemberPortalService(api);
     await use(memberPortalService);
-  },
-
-  partnerPortalService: async ({ apiClient: api }, use) => {
-    const partnerPortalService = new PartnerPortalService(api);
-    await use(partnerPortalService);
   },
 });
 
