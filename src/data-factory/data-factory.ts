@@ -45,6 +45,8 @@ export class DataFactory {
   public static async generateProductTypesAndNames(
     adminPortalService: AdminPortalService,
   ): Promise<ProductInfo[]> {
-    return await PartnerFactory.getProductTypesAndNames(adminPortalService);
+    return await PartnerFactory.getUniqueProductTypesAndNames(
+      adminPortalService,
+    );
   }
 }

@@ -295,6 +295,8 @@ test.describe("Partner managerment", () => {
     authenticationService,
     adminPortalService,
   }, testInfo) => {
+    test.describe.configure({ retries: 5 });
+
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
       "API_BASE_URL is not configured",

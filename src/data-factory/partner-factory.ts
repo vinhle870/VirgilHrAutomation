@@ -66,7 +66,7 @@ export class PartnerFactory {
     const feFilterProductTypes: number[] =
       overrides?.feFilterProductTypes ??
       DataGenerate.generateProductType(
-        await PartnerFactory.getProductTypesAndNames(adminService),
+        await PartnerFactory.getUniqueProductTypesAndNames(adminService),
       );
 
     //Payment options
@@ -119,25 +119,37 @@ export class PartnerFactory {
     return await PartnerFactory.departmentID;
   }
 
-  public static async getProductTypesAndNames(
+  public static async getUniqueProductTypesAndNames(
     adminService: AdminPortalService,
   ): Promise<ProductInfo[]> {
     const productTypesResponse = await adminService.getProductTypes();
     if (!productTypesResponse?.body) {
       return [];
     }
+
     const department = productTypesResponse.body.find(
       (d: any) => d.departmentId === PartnerFactory.departmentID,
     );
     if (!department?.plans) {
       return [];
     }
+
+    const seenProductTypes = new Set<number>();
+
     const products: ProductInfo[] = department.plans.flatMap((plan: any) =>
-      plan.products.map((p: any) => ({
-        productType: p.productType,
-        productName: plan.name,
-      })),
+      plan.products
+        .filter((p: any) => {
+          if (seenProductTypes.has(p.productType)) return false;
+
+          seenProductTypes.add(p.productType);
+          return true;
+        })
+        .map((p: any) => ({
+          productType: p.productType,
+          productName: plan.name,
+        })),
     );
+
     return products;
   }
 }
