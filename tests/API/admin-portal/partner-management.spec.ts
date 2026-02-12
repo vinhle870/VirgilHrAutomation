@@ -75,6 +75,44 @@ test.describe("Partner managerment", () => {
       expect(partnerLevel).toBe(0);
     }
   });
+  test("TC_33 When creating a new Partner, the admin can choose to assign a sub-domain to that Partner, or not.", async ({
+    apiClient,
+    authenticationService,
+  }, testInfo) => {
+    testInfo.skip(
+      !process.env.API_BASE_URL && !process.env.BASE_URL,
+      "API_BASE_URL is not configured",
+    );
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+    testInfo.skip(!base, "API_BASE_URL is not configured");
+
+    const adminService = await AdminPortalService.create(
+      apiClient,
+      authenticationService,
+    );
+
+    for (let i = 0; i < 2; i++) {
+      const seq = DataGenerate.getRandomInt(1, 9999);
+
+      let domain;
+
+      if (i == 0) domain = "";
+      else domain = `test${seq}`;
+
+      const partnerInfo = await DataFactory.generatePartnerInfo(
+        0,
+        adminService,
+        {
+          isPublic: true,
+          subDomain: domain,
+        },
+      );
+      const responseOfPartner = await adminService.createPartner(partnerInfo);
+
+      expect(responseOfPartner.status).toBe(200);
+    }
+  });
   test("TC034_API For Payment Options, the admin can select either Partner/Consultant Owner or Member Portal Consumer.", async ({
     apiClient,
     authenticationService,
