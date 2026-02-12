@@ -245,7 +245,10 @@ test.describe("Partner managerment", () => {
     const partnerDomain = DataFactory.generatePartnerDomain();
     //Get all product types of a department (departmentID)
     const productTypeAndNames: ProductInfo[] =
-      await DataFactory.generateProductTypesAndNames(adminPortalService);
+      await DataFactory.generateProductTypesAndNames(
+        adminPortalService,
+        departmentID,
+      );
     //Filter some product types from productTypeAndNames to send
     const productTypesAndNamesToSend: ProductInfo[] =
       await DataGenerate.generateProductType(productTypeAndNames);
@@ -352,7 +355,10 @@ test.describe("Partner managerment", () => {
       await DataFactory.generateDepartmentID(adminPortalService);
     //Get all product types of a department (departmentID)
     const productTypeAndNames: ProductInfo[] =
-      await DataFactory.generateProductTypesAndNames(adminPortalService);
+      await DataFactory.generateProductTypesAndNames(
+        adminPortalService,
+        departmentID,
+      );
     //Filter some product types from productTypeAndNames to send
     const productTypesAndNamesToSend: ProductInfo[] =
       await DataGenerate.generateProductType(productTypeAndNames);

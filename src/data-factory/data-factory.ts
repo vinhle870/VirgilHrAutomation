@@ -44,9 +44,15 @@ export class DataFactory {
 
   public static async generateProductTypesAndNames(
     adminPortalService: AdminPortalService,
+    departmentId: string,
   ): Promise<ProductInfo[]> {
     return await PartnerFactory.getUniqueProductTypesAndNames(
       adminPortalService,
+      departmentId,
     );
+  }
+
+  public static async createEmail(): Promise<string> {
+    return await PartnerFactory.createEmail();
   }
 }

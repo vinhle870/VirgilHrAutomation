@@ -115,6 +115,7 @@ export class DataGenerate {
       result.push({
         productType: randomValue.productType,
         productName: randomValue.productName,
+        planId: randomValue.planId,
       });
     }
     return result;

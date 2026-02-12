@@ -16,6 +16,7 @@ export default interface IPartnerInfo {
   subDomain: string;
   userInfo: UserInfo;
   billingCycle?: number;
+  planId?: string;
 }
 
 export interface IPartnerInfoWithDepartmentAndProductTypes {

@@ -352,6 +352,77 @@ export class AdminPortalService {
 
     return { status, body: filteredBody as T };
   }
+
+  public async createBussiness(
+    teamName: string,
+    partnerId: string,
+    planId: string,
+    token: string,
+  ): Promise<any> {
+    const url = `https://api.qa.virgilhr.com/v1/Partner/Manage/Partner/Business`;
+
+    const response = await this.sendRequestToCreateBusiness(
+      teamName,
+      partnerId,
+      planId,
+      url,
+      token,
+    );
+
+    return response;
+  }
+
+  private async sendRequestToCreateBusiness(
+    teamName: string,
+    partnerId: string,
+    planId: string,
+    url: string,
+    token: string,
+    expectedStatus = 200,
+  ): Promise<any> {
+    const fullUrl = url.startsWith("http") ? url : `${this.baseUrl}/${url}`;
+
+    const mergedHeaders: Record<string, string> = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    const requestOptions: any = { headers: mergedHeaders };
+    requestOptions.data = {
+      request: {},
+      teamName,
+      partnerId,
+      assignedIds: [],
+      recipients: [],
+      useCredit: true,
+    };
+
+    const response: APIResponse = await this.apiClient
+      .getApiContext()
+      .post(fullUrl, requestOptions);
+
+    const status = response.status();
+    if (status !== expectedStatus) {
+      throw new Error(
+        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
+      );
+    }
+
+    const contentType = response.headers()["content-type"] || "";
+    const rawBody =
+      contentType.includes("application/json") && status !== 204
+        ? await response.json()
+        : await response.text();
+
+    let filteredBody: any = rawBody;
+    if (Array.isArray(rawBody)) {
+      filteredBody = rawBody.find((plan: any) => plan.id === planId);
+      if (!filteredBody) {
+        throw new Error(`Plan with name "${planId}" not found`);
+      }
+    }
+
+    return { status, body: filteredBody };
+  }
 }
 
 /***

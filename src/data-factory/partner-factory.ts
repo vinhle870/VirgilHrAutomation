@@ -3,6 +3,7 @@ import { Partner } from "src/objects/ipartner";
 import UserInfo from "src/objects/user-info";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { ProductInfo } from "src/objects/IProduct";
+import { DataFactory } from "./data-factory";
 
 export class PartnerFactory {
   private static partnerDomain: string;
@@ -66,7 +67,10 @@ export class PartnerFactory {
     const feFilterProductTypes: number[] =
       overrides?.feFilterProductTypes ??
       DataGenerate.generateProductType(
-        await PartnerFactory.getUniqueProductTypesAndNames(adminService),
+        await PartnerFactory.getUniqueProductTypesAndNames(
+          adminService,
+          departmentId,
+        ),
       );
 
     //Payment options
@@ -121,6 +125,7 @@ export class PartnerFactory {
 
   public static async getUniqueProductTypesAndNames(
     adminService: AdminPortalService,
+    departmentId: string,
   ): Promise<ProductInfo[]> {
     const productTypesResponse = await adminService.getProductTypes();
     if (!productTypesResponse?.body) {
@@ -128,7 +133,7 @@ export class PartnerFactory {
     }
 
     const department = productTypesResponse.body.find(
-      (d: any) => d.departmentId === PartnerFactory.departmentID,
+      (d: any) => d.departmentId === departmentId,
     );
     if (!department?.plans) {
       return [];
@@ -147,9 +152,19 @@ export class PartnerFactory {
         .map((p: any) => ({
           productType: p.productType,
           productName: plan.name,
+          planId: plan.id,
         })),
     );
 
     return products;
+  }
+
+  public static async createEmail(): Promise<string> {
+    const seq = DataGenerate.getRandomInt(1, 9999);
+    const firstName = await DataGenerate.generateFirstName();
+    const localPrefix = `${firstName}${seq}`;
+    const email = `${localPrefix}@yopmail.com`;
+
+    return email;
   }
 }
