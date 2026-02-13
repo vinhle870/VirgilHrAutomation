@@ -1,119 +1,429 @@
-import { ApiClient } from 'src/utilities';
-import { CREATE_CUSTOMER, SEARCH_PARTNER_BY_TEXT } from 'src/api/endpoints/admin-portal.endpoints';
-import { Authentication } from 'src/api/services/authentication.service';
+import { ApiClient, HTTPMethod } from "src/utilities";
+import {
+  CREATE_CUSTOMER,
+  CREATE_PARTNER,
+  GET_CONSUMER_BY_ID,
+  GET_PRODUCTTYPEFILTERS,
+  SEARCH_PARTNER_BY_TEXT,
+  SEARCH_CUSTOMER_BY_EMAIL,
+  ADMIN_GET_PLANS,
+} from "src/api/endpoints/admin-portal.endpoints";
+import { Authentication } from "src/api/services/authentication.service";
+import { MembPortalCustomer } from "src/objects/customer";
+import { Partner } from "src/objects/ipartner";
+import { APIResponse } from "@playwright/test";
 
+export class AdminPortalService {
+  private apiClient: ApiClient;
+  private baseUrl: string;
+  private authToken: string | undefined;
+  private authentication?: Authentication;
 
-export class AdminPortalService{
-    private apiClient: ApiClient;
-    private baseUrl: string;
-    private authToken: string | undefined;
-    private authentication?: Authentication;
+  constructor(apiClient: ApiClient, authentication?: Authentication) {
+    const apiVersion = process.env.API_VERSION ?? "v1";
+    this.apiClient = apiClient;
+    this.baseUrl =
+      this.apiClient.baseURL.replace(/\/+$/, "") + `/${apiVersion}`;
+    this.authentication = authentication;
+  }
 
-    constructor(apiClient: ApiClient, authentication?: Authentication){
-        const apiVersion = process.env.API_VERSION ?? 'v1';
-        this.apiClient = apiClient;
-        this.baseUrl = this.apiClient.baseURL.replace(/\/+$/,'') + `/${apiVersion}`;
-        this.authentication = authentication;
-    }
-
-    /**
-     * Async factory to create an AdminPortalService and optionally prefetch an auth token.
-     */
-    public static async create(apiClient: ApiClient, authentication?: Authentication): Promise<AdminPortalService> {
-        const svc = new AdminPortalService(apiClient, authentication);
-        if (authentication) {
-            const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
-            const password = process.env.API_PASSWORD ?? process.env.ADMIN_PASSWORD;
-            if (username && password) {
-                try {
-                    const t = await authentication.getAuthToken(username, password);
-                    svc.authToken = t;
-                } catch (err) {
-                    // don't crash on token fetch failure; log for debugging
-                    // eslint-disable-next-line no-console
-                    console.warn('AdminPortalService: failed to prefetch auth token', err);
-                }
-            }
+  /**
+   * Async factory to create an AdminPortalService and optionally prefetch an auth token.
+   */
+  public static async create(
+    apiClient: ApiClient,
+    authentication?: Authentication,
+  ): Promise<AdminPortalService> {
+    const svc = new AdminPortalService(apiClient, authentication);
+    if (authentication) {
+      const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
+      const password = process.env.API_PASSWORD ?? process.env.ADMIN_PASSWORD;
+      if (username && password) {
+        try {
+          const t = await authentication.getAuthToken(username, password);
+          svc.authToken = t;
+        } catch (err) {
+          // don't crash on token fetch failure; log for debugging
+          // eslint-disable-next-line no-console
+          console.warn(
+            "AdminPortalService: failed to prefetch auth token",
+            err,
+          );
         }
-        return svc;
+      }
+    }
+    return svc;
+  }
+
+  /**
+   * Search partners by arbitrary query string. If `token` is provided it will
+   * be used; otherwise the service will use the stored token (possibly obtained
+   * from the `Authentication` service or previously set).
+   */
+  async searchPartnerByText(
+    partnername: string,
+  ): Promise<{ total: number; entities: Array<Record<string, any>> }> {
+    const query = `SearchString=${encodeURIComponent(partnername)}`;
+    const path = SEARCH_PARTNER_BY_TEXT.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}?${query}`;
+
+    let tokenToUse = this.authToken ?? this.apiClient.getAuthToken();
+
+    const headers = tokenToUse
+      ? { Authorization: `Bearer ${tokenToUse}` }
+      : undefined;
+
+    const response = await this.apiClient.sendRequest<{
+      total: number;
+      entities: Array<Record<string, any>>;
+    }>("GET", url, undefined, 200, headers);
+
+    return response; // Return the partner data
+  }
+
+  /**
+   * Convenience helper: search by text and return the partnerId and departmentId
+   * from the first matched entity (if any).
+   */
+  async searchPartner(
+    partnername: string,
+    token?: string,
+  ): Promise<{
+    partnerId?: string;
+    departmentId?: string;
+    subDomain?: string;
+  }> {
+    const path = SEARCH_PARTNER_BY_TEXT.replace(/^\/+/, "");
+    const query = `SearchString=${encodeURIComponent(partnername)}`;
+    const url = `${this.baseUrl}/${path}?${query}`;
+
+    // Determine token to use: parameter > stored > apiClient
+    const tokenToUse = token ?? this.authToken ?? this.apiClient.getAuthToken();
+    const headers = tokenToUse
+      ? { Authorization: `Bearer ${tokenToUse}` }
+      : undefined;
+
+    const resp = await this.apiClient.sendRequest<{
+      total: number;
+      entities: Array<Record<string, any>>;
+    }>("GET", url, undefined, 200, headers);
+
+    if (resp && Array.isArray(resp.entities) && resp.entities.length > 0) {
+      const first = resp.entities[0];
+      return {
+        partnerId: first["id"] ?? undefined,
+        departmentId: first["departmentId"] ?? undefined,
+        subDomain: first["subDomain"] ?? undefined,
+      };
     }
 
-    /**
-     * Search partners by arbitrary query string. If `token` is provided it will
-     * be used; otherwise the service will use the stored token (possibly obtained
-     * from the `Authentication` service or previously set).
-     */
-    async searchPartnerByText(partnername: string): Promise<{ total: number; entities: Array<Record<string, any>> }> {
-        const query = `SearchString=${encodeURIComponent(partnername)}`;
-        const path = SEARCH_PARTNER_BY_TEXT.replace(/^\/+/, '');
-        const url = `${this.baseUrl}/${path}?${query}`;
+    return {};
+  }
 
-        let tokenToUse = this.authToken ?? this.apiClient.getAuthToken();
+  async createCustomer(customerInfo: MembPortalCustomer): Promise<any> {
+    const path = CREATE_CUSTOMER.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}`;
+    const requestBody = {
+      ...customerInfo.getAccountInfo(),
+      ...customerInfo.getCompany(),
+    };
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
 
-         const headers = tokenToUse ? { Authorization: `Bearer ${tokenToUse}` } : undefined;
+    const response = await this.apiClient.sendRequest<any>(
+      "POST",
+      url,
+      requestBody,
+      201,
+      headers,
+    );
 
-        const response = await this.apiClient.sendRequest<{ total: number; entities: Array<Record<string, any>> }>(
-            'GET',
-            url,
-            undefined,
-            200,
-            headers,
-        );
+    return response;
+  }
 
-        return response; // Return the partner data
+  async getProductTypeFilters(): Promise<any> {
+    const path = GET_PRODUCTTYPEFILTERS.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}`;
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
+    const response = await this.apiClient.sendRequest<any>(
+      "GET",
+      url,
+      undefined,
+      200,
+      headers,
+    );
+    return response;
+  }
+
+  async getConsumerById(id: string): Promise<any> {
+    const path = GET_CONSUMER_BY_ID.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}/${id}`;
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
+    const response = await this.apiClient.sendRequest<any>(
+      "GET",
+      url,
+      undefined,
+      200,
+      headers,
+    );
+    return response;
+  }
+
+  async createPartner(partnerInfo: Partner): Promise<any> {
+    const path = CREATE_PARTNER.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}`;
+
+    const requestBody = {
+      ...partnerInfo.getIPartnerInfo(),
+      ...partnerInfo.getAccountInfo(),
+    };
+
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
+
+    const response = await this.apiClient.sendPartnerRequest<any>(
+      "POST",
+      url,
+      requestBody,
+      200,
+      headers,
+    );
+
+    return response;
+  }
+
+  async getDepartmentInfo(): Promise<any> {
+    const url = "https://api.qa.virgilhr.com/v1/Configuration/Department";
+
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
+
+    const response = await this.apiClient.sendToGetDepartmentInfor<any>(
+      "GET",
+      url,
+      200,
+      headers,
+    );
+
+    return response;
+  }
+
+  async getProductTypes(): Promise<any> {
+    const url = `https://api.qa.virgilhr.com/v1/Manage/Plan/Departments`;
+
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
+
+    const response = await this.apiClient.sendToGetProductTypes<any>(
+      "GET",
+      url,
+      200,
+      headers,
+    );
+
+    return response;
+  }
+
+  async getCustomerIdByEmail(email: string): Promise<any> {
+    const path = SEARCH_CUSTOMER_BY_EMAIL.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}`;
+
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
+
+    const params = {
+      AccountStatus: "",
+      AccountType: "",
+      BillingCycle: "",
+      DepartmentId: "",
+      Length: 12,
+      OrderBy: "updatedAt desc",
+      PartnerId: "",
+      PartnerLevel: "",
+      PaymentStatus: "",
+      Search: email,
+      SearchString: "",
+      Source: "",
+      Start: 0,
+      StripeProductId: "",
+      UserType: "",
+    };
+
+    const response = await this.apiClient.sendRequestToGetCusomterId<any>(
+      "GET",
+      url,
+      200,
+      headers,
+      params,
+    );
+
+    return response;
+  }
+
+  async getRoleOfCustomer(id: string): Promise<any> {
+    const path = SEARCH_CUSTOMER_BY_EMAIL.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}/${id}`;
+
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
+
+    const response = await this.apiClient.sendRequestToGetCustomerRole<any>(
+      "GET",
+      url,
+      200,
+      headers,
+    );
+
+    return response;
+  }
+
+  async getPlan(
+    apiClient: ApiClient,
+    nameOfPlan: string,
+    departmentId?: string,
+  ): Promise<object> {
+    const path = ADMIN_GET_PLANS.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}${departmentId}`;
+
+    const headers = this.authToken
+      ? { Authorization: `Bearer ${this.authToken}` }
+      : undefined;
+
+    const response = await this.sendRequestToGetPlans<any>(
+      nameOfPlan,
+      url,
+      apiClient,
+      200,
+      headers,
+    );
+
+    return response;
+  }
+
+  private async sendRequestToGetPlans<T>(
+    nameOfPlan: string,
+    url: string,
+    apiClient: ApiClient,
+    expectedStatus = 200,
+    headers?: Record<string, string>,
+  ): Promise<{ status: number; body: T }> {
+    const fullUrl = url.startsWith("http") ? url : `${this.baseUrl}/${url}`;
+
+    const mergedHeaders: Record<string, string> = {
+      ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
+    };
+
+    const requestOptions: any = { headers: mergedHeaders };
+
+    const response: APIResponse = await apiClient
+      .getApiContext()
+      .get(fullUrl, requestOptions);
+
+    const status = response.status();
+    if (status !== expectedStatus) {
+      throw new Error(
+        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
+      );
     }
 
-    /**
-     * Convenience helper: search by text and return the partnerId and departmentId
-     * from the first matched entity (if any).
-     */
-    async searchPartner(partnername: string, token?: string): Promise<{ partnerId?: string; departmentId?: string,subDomain?:string }> {
-        const path = SEARCH_PARTNER_BY_TEXT.replace(/^\/+/, '');
-        const query = `SearchString=${encodeURIComponent(partnername)}`;
-        const url = `${this.baseUrl}/${path}?${query}`;
+    const contentType = response.headers()["content-type"] || "";
+    const rawBody =
+      contentType.includes("application/json") && status !== 204
+        ? await response.json()
+        : await response.text();
 
-        // Determine token to use: parameter > stored > apiClient
-        const tokenToUse = token ?? this.authToken ?? this.apiClient.getAuthToken();
-        const headers = tokenToUse ? { Authorization: `Bearer ${tokenToUse}` } : undefined;
-
-        const resp = await this.apiClient.sendRequest<{ total: number; entities: Array<Record<string, any>> }>(
-            'GET',
-            url,
-            undefined,
-            200,
-            headers,
-        );
-
-        if (resp && Array.isArray(resp.entities) && resp.entities.length > 0) {
-            const first = resp.entities[0];
-            return {
-                partnerId: first['id'] ?? undefined,
-                departmentId: first['departmentId'] ?? undefined,
-                subDomain: first['subDomain'] ?? undefined,
-            };
-        }
-
-        return {};
+    let filteredBody: any = rawBody;
+    if (Array.isArray(rawBody)) {
+      filteredBody = rawBody.find((plan: any) => plan.name === nameOfPlan);
+      if (!filteredBody) {
+        throw new Error(`Plan with name "${nameOfPlan}" not found`);
+      }
     }
 
-    async createCustomer(customerInfo: any): Promise<any> {
-        const path = CREATE_CUSTOMER.replace(/^\/+/, '');
-        const url = `${this.baseUrl}/${path}`;
+    return { status, body: filteredBody as T };
+  }
 
-        const headers = this.authToken ? { Authorization: `Bearer ${this.authToken}` } : undefined;
+  public async createBussiness(
+    teamName: string,
+    partnerId: string,
+    planId: string,
+    token: string,
+  ): Promise<any> {
+    const url = `https://api.qa.virgilhr.com/v1/Partner/Manage/Partner/Business`;
 
-        const response = await this.apiClient.sendRequest<any>(
-            'POST',
-            url,
-            customerInfo,
-            201,
-            headers,
-        );
+    const response = await this.sendRequestToCreateBusiness(
+      teamName,
+      partnerId,
+      planId,
+      url,
+      token,
+    );
 
-        return response;
+    return response;
+  }
+
+  private async sendRequestToCreateBusiness(
+    teamName: string,
+    partnerId: string,
+    planId: string,
+    url: string,
+    token: string,
+    expectedStatus = 200,
+  ): Promise<any> {
+    const fullUrl = url.startsWith("http") ? url : `${this.baseUrl}/${url}`;
+
+    const mergedHeaders: Record<string, string> = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    const requestOptions: any = { headers: mergedHeaders };
+    requestOptions.data = {
+      request: {},
+      teamName,
+      partnerId,
+      assignedIds: [],
+      recipients: [],
+      useCredit: true,
+    };
+
+    const response: APIResponse = await this.apiClient
+      .getApiContext()
+      .post(fullUrl, requestOptions);
+
+    const status = response.status();
+    if (status !== expectedStatus) {
+      throw new Error(
+        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
+      );
     }
+
+    const contentType = response.headers()["content-type"] || "";
+    const rawBody =
+      contentType.includes("application/json") && status !== 204
+        ? await response.json()
+        : await response.text();
+
+    let filteredBody: any = rawBody;
+    if (Array.isArray(rawBody)) {
+      filteredBody = rawBody.find((plan: any) => plan.id === planId);
+      if (!filteredBody) {
+        throw new Error(`Plan with name "${planId}" not found`);
+      }
+    }
+
+    return { status, body: filteredBody };
+  }
 }
-
 
 /***
  * SAMPLE API RESPONSE
