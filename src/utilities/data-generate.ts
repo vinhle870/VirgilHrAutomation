@@ -91,7 +91,14 @@ export class DataGenerate {
 
     return randomValue;
   }
+  public static async createEmail(): Promise<string> {
+    const seq = DataGenerate.getRandomInt(1, 9999);
+    const firstName = await DataGenerate.generateFirstName();
+    const localPrefix = `${firstName}${seq}`;
+    const email = `${localPrefix}@yopmail.com`;
 
+    return email;
+  }
   static generateDecimal(): number {
     const values: number[] = [0, 1];
 
@@ -100,7 +107,7 @@ export class DataGenerate {
     return randomValue;
   }
   //select randomly Department
-  public static generateDepartmentIDS(departmentIDS: string[]): string {
+  public static generateDepartmentID(departmentIDS: string[]): string {
     const randomValue =
       departmentIDS[Math.floor(Math.random() * departmentIDS.length)];
 
@@ -108,22 +115,27 @@ export class DataGenerate {
   }
 
   public static generateProductType(values: ProductInfo[]): ProductInfo[] {
-    const length = Math.floor(Math.random() * values.length) + 1;
     const result: ProductInfo[] = [];
-    for (let i = 0; i < length; i++) {
-      const randomValue = values[Math.floor(Math.random() * values.length)];
-      result.push({
-        productType: randomValue.productType,
-        productName: randomValue.productName,
-        planId: randomValue.planId,
-      });
-    }
-    return result;
-  }
+    const used = new Set<number>();
 
-  public static chooseAProductType(values: ProductInfo[]): ProductInfo {
-    const randomIndex = Math.floor(Math.random() * values.length);
-    return values[randomIndex];
+    while (result.length < 2 && used.size < values.length) {
+      const randomValue = values[Math.floor(Math.random() * values.length)];
+
+      if (randomValue.productName.includes("500+ Employees")) {
+        continue;
+      }
+
+      if (!used.has(randomValue.productType)) {
+        used.add(randomValue.productType);
+        result.push({
+          productType: randomValue.productType,
+          productName: randomValue.productName,
+          planId: randomValue.planId,
+        });
+      }
+    }
+
+    return result;
   }
 
   /**

@@ -6,6 +6,8 @@ import { localHR } from "src/constant/static-data";
 import { ProductInfo } from "src/objects/IProduct";
 import { DataGenerate } from "src/utilities";
 import { IInviteMember } from "src/objects/iInviteMember";
+import { Partner } from "src/objects/ipartner";
+import { PartnerFactory } from "src/data-factory/partner-factory";
 
 test.describe("Partner managerment", () => {
   test("TC54 Verify that a user can invite members to a team in the Member Portal – Organization tab.", async ({
@@ -28,13 +30,13 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
     //Create department id to send
-    let departmentID =
-      await DataFactory.generateDepartmentID(adminPortalService);
-    //If departmentID is id of localhr, get another id which is not id of localhr
-    while (departmentID == localHR) {
-      departmentID = await DataFactory.generateDepartmentID(adminPortalService);
-    }
-    const partnerDomain = DataFactory.generatePartnerDomain();
+    let departmentID = await PartnerFactory.generatePartnerID(
+      adminPortalService,
+      "BiginHR",
+    );
+
+    const partnerDomain =
+      await PartnerFactory.getDepartmentDomain(departmentID);
     //Get all product types of a department (departmentID)
     const productTypeAndNames: ProductInfo[] =
       await DataFactory.generateProductTypesAndNames(
@@ -42,17 +44,18 @@ test.describe("Partner managerment", () => {
         departmentID,
       );
     const productTypesAndNamesToSend: ProductInfo[] =
-      await DataGenerate.generateProductType(productTypeAndNames);
-
+      DataGenerate.generateProductType(productTypeAndNames);
     //Create partner info
     const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
       isPublic: true,
       whoPay: 0,
       bankTransfer: false,
       departmentId: departmentID,
-      feFilterProductTypes: productTypesAndNamesToSend.map(
-        (p) => p.productType,
-      ),
+      restriction: {
+        feFilterProductTypes: productTypesAndNamesToSend.map(
+          (p) => p.productType,
+        ),
+      },
     });
     //Create partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
@@ -82,21 +85,20 @@ test.describe("Partner managerment", () => {
         );
 
         const partnerURL = `https://${email.split("@")[0]}.${partnerDomain}`;
-        //Choose a plan to buy
-        const selectedPlan: ProductInfo = productTypeAndNames[0];
+
         //Buy selected plan
         await planPage.buyPlanWithoutDiving(
           partnerURL,
           email,
           tempPassword,
-          selectedPlan.productName,
+          productTypesAndNamesToSend[0].productName,
           partnerDomain,
         );
         //Create business
         const business = await adminPortalService.createBussiness(
           "teamName",
           partnerResponse.data,
-          selectedPlan.planId,
+          productTypesAndNamesToSend[0].planId,
           partnerToken,
         );
 
@@ -113,7 +115,7 @@ test.describe("Partner managerment", () => {
             "4",
           );
           //Create member email to invite
-          const memberEmail = await DataFactory.createEmail();
+          const memberEmail = await DataGenerate.createEmail();
           //Create member info
           const member: IInviteMember = {
             recipients: [

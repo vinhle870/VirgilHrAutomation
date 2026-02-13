@@ -5,6 +5,7 @@ import { localHR, paymentOptions } from "src/constant/static-data";
 import { DataGenerate } from "src/utilities";
 import { ProductInfo } from "src/objects/IProduct";
 import Comparison from "src/utilities/compare";
+import { PartnerFactory } from "src/data-factory/partner-factory";
 
 test.describe("Partner managerment", () => {
   test("TC030_API Verify that a partner account can only be created in the Admin Portal – Partner Management.", async ({
@@ -235,14 +236,18 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
     //Create department id to send
-    let departmentID =
-      await DataFactory.generateDepartmentID(adminPortalService);
-    //If departmentID is id of localhr, get another id which is not id of localhr
-    while (departmentID == localHR) {
-      departmentID = await DataFactory.generateDepartmentID(adminPortalService);
-    }
+    let departmentID = await PartnerFactory.generatePartnerID(
+      adminPortalService,
+      "BiginHR",
+    );
+    //PrismHR: 68f09ac3500b0efa8a365bef->ok
+    //BiginHR: 688897d5eb52b4af5573def4->No ok
+    //VirgilHR: 68908f542e20001e47f5394f->No ok
+    //Vensure: 6928522dc95cab35e8188e2e
+    //Epay: 6928522dc95cab35e8188e2f->ok
     //Get department domain
-    const partnerDomain = DataFactory.generatePartnerDomain();
+    const partnerDomain =
+      await PartnerFactory.getDepartmentDomain(departmentID);
     //Get all product types of a department (departmentID)
     const productTypeAndNames: ProductInfo[] =
       await DataFactory.generateProductTypesAndNames(
@@ -251,16 +256,19 @@ test.describe("Partner managerment", () => {
       );
     //Filter some product types from productTypeAndNames to send
     const productTypesAndNamesToSend: ProductInfo[] =
-      await DataGenerate.generateProductType(productTypeAndNames);
+      DataGenerate.generateProductType(productTypeAndNames);
     //Create partner info
     const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
       isPublic: true,
       departmentId: departmentID,
-      feFilterProductTypes: productTypesAndNamesToSend.map(
-        (p) => p.productType,
-      ),
+      restriction: {
+        feFilterProductTypes: productTypesAndNamesToSend.map(
+          (p) => p.productType,
+        ),
+      },
       whoPay: 0,
     });
+
     //Create partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
@@ -297,16 +305,13 @@ test.describe("Partner managerment", () => {
           undefined,
           "5",
         );
-        //Choose a plan to buy among sent product types
-        const selectedPlan: ProductInfo = DataGenerate.chooseAProductType(
-          productTypesAndNamesToSend,
-        );
+
         //By a selected plan
         await planPage.buyPlanWithoutDiving(
           partnerURL,
           email,
           tempPassword,
-          selectedPlan.productName,
+          productTypesAndNamesToSend[0].productName,
           partnerDomain,
         );
 
@@ -336,8 +341,6 @@ test.describe("Partner managerment", () => {
     authenticationService,
     adminPortalService,
   }, testInfo) => {
-    test.describe.configure({ retries: 5 });
-
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
       "API_BASE_URL is not configured",
@@ -352,7 +355,7 @@ test.describe("Partner managerment", () => {
     );
     //Create department id to send
     const departmentID =
-      await DataFactory.generateDepartmentID(adminPortalService);
+      await PartnerFactory.generatePartnerID(adminPortalService);
     //Get all product types of a department (departmentID)
     const productTypeAndNames: ProductInfo[] =
       await DataFactory.generateProductTypesAndNames(
@@ -361,14 +364,16 @@ test.describe("Partner managerment", () => {
       );
     //Filter some product types from productTypeAndNames to send
     const productTypesAndNamesToSend: ProductInfo[] =
-      await DataGenerate.generateProductType(productTypeAndNames);
+      DataGenerate.generateProductType(productTypeAndNames);
     //Create partner info
     const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
       isPublic: true,
       departmentId: departmentID,
-      feFilterProductTypes: productTypesAndNamesToSend.map(
-        (p) => p.productType, //Send a lot of plans
-      ),
+      restriction: {
+        feFilterProductTypes: productTypesAndNamesToSend.map(
+          (p) => p.productType, // Select mutiple plans
+        ),
+      },
       whoPay: 0,
     });
     //Create a new partner

@@ -29,19 +29,6 @@ export class DataFactory {
     return partner;
   }
 
-  static async generateDepartmentID(
-    adminPortalService: AdminPortalService,
-  ): Promise<string> {
-    const departmentID: string =
-      await PartnerFactory.generatePartnerInfor(adminPortalService);
-
-    return departmentID;
-  }
-
-  public static generatePartnerDomain(): string {
-    return PartnerFactory.getPartnerDomain();
-  }
-
   public static async generateProductTypesAndNames(
     adminPortalService: AdminPortalService,
     departmentId: string,
@@ -50,9 +37,5 @@ export class DataFactory {
       adminPortalService,
       departmentId,
     );
-  }
-
-  public static async createEmail(): Promise<string> {
-    return await PartnerFactory.createEmail();
   }
 }
