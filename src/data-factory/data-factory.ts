@@ -1,5 +1,5 @@
 import { AdminPortalService } from "src/api/services/admin-portal.services";
-import { MembPortalCustomer } from "../objects/customer";
+import { CustomerInfo } from "../objects/customer";
 import { CustomerFactory } from "./customer-factory";
 import { Partner } from "src/objects/ipartner";
 import { PartnerFactory } from "./partner-factory";
@@ -9,7 +9,7 @@ export class DataFactory {
   static async generateCustomerInfo(
     portal: string,
     fields?: Partial<Record<string, any>>,
-  ): Promise<MembPortalCustomer> {
+  ): Promise<CustomerInfo> {
     // Delegate to CustomerUser which handles user data generation logic
     const customer = await CustomerFactory.createCustomer(portal, fields);
     return customer;

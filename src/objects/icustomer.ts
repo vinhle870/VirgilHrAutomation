@@ -15,6 +15,8 @@ export interface ICustomer {
 
 	setAccountInfo:(account:UserInfo) => void;
 
+	getMembersList(): UserInfo[];
 
+	addMember:(member:UserInfo) => void;
 
 }

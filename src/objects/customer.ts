@@ -7,15 +7,17 @@ import { format } from "date-fns";
 import { ICustomer } from "./icustomer";
 import { Company } from "./company";
 
-export class MembPortalCustomer implements ICustomer {
+export class CustomerInfo implements ICustomer {
   public accountInfo: UserInfo;
   public plan: string;
   public company: Company;
+  public members: UserInfo[];
 
   constructor() {
     this.accountInfo = {} as UserInfo;
     this.plan = plans[0]; // Default plan
     this.company = {} as Company;
+    this.members = [];
   }
 
   public getAccountInfo(): UserInfo {
@@ -41,4 +43,12 @@ export class MembPortalCustomer implements ICustomer {
   public getCompany = (): Company => {
     return this.company;
   };
+
+  public getMembersList(): UserInfo[] {
+    return this.members;
+  }
+
+  public addMember(member: UserInfo): void {
+    this.members.push(member);
+  } 
 }

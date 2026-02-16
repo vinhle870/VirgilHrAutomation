@@ -1,16 +1,17 @@
-import { MembPortalCustomer } from "src/objects/customer";
+import { CustomerInfo } from "src/objects/customer";
 import { format } from "date-fns";
 import { DataGenerate } from "src/utilities";
 import { validCountry, validIndustry } from "src/constant/static-data";
+import UserInfo from "src/objects/user-info";
 
 export class CustomerFactory {
   static async createCustomer(
     portal: string,
     overrides?: Partial<Record<string, any>>,
     plan?: string
-  ): Promise<MembPortalCustomer> {
+  ): Promise<CustomerInfo> {
 
-    const customer = new MembPortalCustomer();
+    const customer = new CustomerInfo();
     
 
     const ts = format(new Date(), 'yyyyMMddHHmmss');
@@ -18,7 +19,7 @@ export class CustomerFactory {
     const firstName = overrides?.firstName ?? await DataGenerate.generateFirstName();
     const localPrefix = overrides?.firstName ?? `${firstName}${seq}`;
     const email = overrides?.email ?? `${localPrefix}@yopmail.com`;
-    const password = overrides?.password ?? `Vl@${ts.slice(-8)}`;
+    const password = overrides?.password ?? `Pass@${ts.slice(-8)}`;
     const lastName = overrides?.lastName ?? await DataGenerate.generateLastName();
     const jobTitle = overrides?.jobTitle ?? await DataGenerate.generatejobTitle();
     const companyName = overrides?.companyName ?? await DataGenerate.generateCompanyName();
@@ -81,4 +82,19 @@ export class CustomerFactory {
 
     return customer;
   }
+  static async generateMember(overrides?: Partial<Record<string, any>>) {
+   
+    const ts = format(new Date(), 'yyyyMMddHHmmss');
+    const seq = DataGenerate.getRandomInt(1, 9999);
+    const firstName = overrides?.firstName ?? await DataGenerate.generateFirstName();
+    const localPrefix = overrides?.firstName ?? `${firstName}${seq}`;
+    const email = overrides?.email ?? `${localPrefix}@yopmail.com`;
+    const password = overrides?.password ?? `Pass@${ts.slice(-8)}`;
+    const lastName = overrides?.lastName ?? await DataGenerate.generateLastName();
+    const jobTitle = overrides?.jobTitle ?? await DataGenerate.generatejobTitle();
+    const phoneNumber = overrides?.phoneNumber ?? await DataGenerate.generatePhoneNumber();
+    const userType = overrides?.userType ?? '2' // Default to '0' - Owner, '1' - Admin, '2' - User;
+    return { email, password, firstName, lastName, jobTitle, phoneNumber };
+  }
+
 }
