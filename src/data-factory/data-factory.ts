@@ -29,22 +29,13 @@ export class DataFactory {
     return partner;
   }
 
-  static async generateDepartmentID(
-    adminPortalService: AdminPortalService,
-  ): Promise<string> {
-    const departmentID: string =
-      await PartnerFactory.generatePartnerInfor(adminPortalService);
-
-    return departmentID;
-  }
-
-  public static generatePartnerDomain(): string {
-    return PartnerFactory.getPartnerDomain();
-  }
-
   public static async generateProductTypesAndNames(
     adminPortalService: AdminPortalService,
+    departmentId: string,
   ): Promise<ProductInfo[]> {
-    return await PartnerFactory.getProductTypesAndNames(adminPortalService);
+    return await PartnerFactory.getUniqueProductTypesAndNames(
+      adminPortalService,
+      departmentId,
+    );
   }
 }
