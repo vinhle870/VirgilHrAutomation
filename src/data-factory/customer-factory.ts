@@ -11,6 +11,7 @@ export class CustomerFactory {
   ): Promise<MembPortalCustomer> {
 
     const customer = new MembPortalCustomer();
+    
 
     const ts = format(new Date(), 'yyyyMMddHHmmss');
     const seq = DataGenerate.getRandomInt(1, 9999);
@@ -46,6 +47,15 @@ export class CustomerFactory {
     if (plan) {
     }
 
+    customer.setAccountInfo({
+      email,
+      password,
+      firstName,
+      lastName,
+      jobTitle,
+      phoneNumber,
+    });
+
     customer.setCompany({
       companyName,
       companySize,
@@ -63,6 +73,9 @@ export class CustomerFactory {
         type,
         partnerConsultantId,
         industry,
+        productType,
+        billingcycle,
+        trialDays
       }),
     });
 
