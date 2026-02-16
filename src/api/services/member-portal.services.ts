@@ -4,7 +4,7 @@ import {
   GET_CURRENT_SUBSCRIBED_PLAN,
   GET_PAYMENTSTATUS,
   MEMBER_GET_PLANS,
-  MEMBER_BENIFIT,
+  GET_PAYMENT_SUBSCRIPTION,
   SIGN_UP_CONSUMER,
   GET_DEPARTMENTS,
   MEMBER_LOGIN,
@@ -26,14 +26,18 @@ export class MemberPortalService {
   /***
    * Sign up a new user on Member Portal with the provided data
    */
-  async signUpConsumer(consumerData: MembPortalCustomer): Promise<object> {
+  async signUpConsumer(
+    consumerData: MembPortalCustomer,
+  ): Promise<string | Record<string, any>> {
     const baseurl = this.baseUrl;
     const url = `${baseurl}${SIGN_UP_CONSUMER}`;
     const requestBody = {
       ...consumerData.getAccountInfo(),
       ...consumerData.getCompany(),
     };
-    const response = await this.apiClient.sendRequest<object>(
+    const response = await this.apiClient.sendRequest<
+      string | Record<string, any>
+    >(
       "POST",
       url,
       requestBody,
@@ -117,9 +121,9 @@ export class MemberPortalService {
   }
 
   async checkPaymentStatus(guid: string, token?: string): Promise<object> {
-    const paramters = `guid=${guid}`;
+    //const paramters = `guid=${guid}`;
     let temp_url = GET_PAYMENTSTATUS;
-    temp_url = temp_url.replace("${guid}", paramters);
+    temp_url = temp_url.replace("${guid}", guid);
     const url = `${this.baseUrl}/${temp_url}`;
 
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
@@ -158,7 +162,7 @@ export class MemberPortalService {
   }
 
   async getBenifit<T>(email: string, token: string): Promise<T> {
-    const url = `${this.baseUrl}${MEMBER_BENIFIT}`;
+    const url = `${this.baseUrl}${GET_PAYMENT_SUBSCRIPTION}`;
     return (await this.sendRequestToGetBenifit<object>(
       url,
       email.split("@")[0],
@@ -205,4 +209,25 @@ export class MemberPortalService {
 
     return body;
   }
+
+  /**
+   * Get payment subscription details after buying a plan
+   * @param token - The token to authenticate the request
+   * @returns The payment subscription details
+   */
+  async getPaymentSubscription<T>(token: string): Promise<T> {
+    const url = `${this.baseUrl}${GET_PAYMENT_SUBSCRIPTION}`;
+
+    const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+
+    return ( await this.apiClient.sendRequest<object>(
+      "GET",
+      url,
+      undefined,
+      200, // Assuming 200 OK is the expected status code
+      headers,
+    )) as T;
+  }
+
+  
 }

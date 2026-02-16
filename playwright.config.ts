@@ -16,7 +16,7 @@ dotenv.config({
 });
 
 // Run headed when HEADED=true. Default is headless mode.
-const headed = process.env.HEADED ? process.env.HEADED : "true";
+const headed = (process.env.HEADED ?? "false").toLowerCase() === "true";
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -34,15 +34,14 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [["html"]],
+  reporter: [["html", { open: "always" }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://localhost:3000',
 
     /* Run browsers headed when HEADED=true */
-    //  headless: !headed,
-    headless: false,
+    headless: !headed,
 
     // Let the browser open a real window and use the system window size when headed
     viewport: null,
@@ -55,7 +54,7 @@ export default defineConfig({
     },
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: "retain-on-failure",
+    trace: "on",
   },
 
   /* Configure projects for major browsers */

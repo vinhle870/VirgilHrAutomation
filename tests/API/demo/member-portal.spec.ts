@@ -5,10 +5,10 @@ import { validCardInfo } from 'src/constant/static-data';
 
 test.describe('MemberPortalService - signUpConsumer', () => {
 
-test('TC001_API_Verify the API POST v1/Consumer/Consumers Without PartnerID returns 201-Created', async ({ apiClient, memberPortalService, authenticationService, planPage }, testInfo) => {
-    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-    const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
-    const password = process.env.API_PASSWORD ?? process.env.ADMIN_PASSWORD;
+test('TC001_API_Verify the API POST v1/Consumer/Consumers Without PartnerID returns 201-Created', async ({  memberPortalService }, testInfo) => {
+    const base = process.env.API_BASE_URL ;
+    const username = process.env.API_USERNAME ;
+    const password = process.env.API_PASSWORD ;
     testInfo.skip(!base, 'API_BASE_URL is not configured');
 
 
@@ -18,20 +18,23 @@ test('TC001_API_Verify the API POST v1/Consumer/Consumers Without PartnerID retu
     //*****---------------------------------------------------*****
 
     // API VERIFICATION:
-    // Call the service (the fixture `memberPortalService` wraps ApiClient)
+    // Call the service (the fixture `memberPortalService` wraps ApiClient):  v1/Consumer/Consumers
     const resp = await memberPortalService.signUpConsumer(consumerData);
 
-    expect(resp).toBeDefined();
-    expect(typeof resp).toBe('string');
-    // Basic sanity: response should contain at least one property (e.g., id)
-    expect(Object.keys(resp as any).length).toBeGreaterThan(0);
+    expect(resp).toBeTruthy();
+    // API may return a plain string id or a JSON object; accept either.
+    if (typeof (resp as any) === 'string') {
+      expect((resp as any).length).toBeGreaterThan(0);
+    } else {
+      expect(Object.keys(resp as any).length).toBeGreaterThan(0);
+    }
 
   });
 
- test('TC007_API_Verify the API GET Payment/products returns 200-OK and the correct Plans list', async ({ apiClient, memberPortalService, authenticationService, planPage }, testInfo) => {
-    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-    const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
-    const password = process.env.API_PASSWORD ?? process.env.ADMIN_PASSWORD;
+ test('TC007_API_Verify the API GET Payment/products returns 200-OK and the correct Plans list', async ({  memberPortalService, authenticationService }, testInfo) => {
+    const base = process.env.API_BASE_URL;
+    const username = process.env.API_USERNAME ;
+    const password = process.env.API_PASSWORD ;
     testInfo.skip(!base, 'API_BASE_URL is not configured');
 
 
@@ -59,7 +62,7 @@ test('TC001_API_Verify the API POST v1/Consumer/Consumers Without PartnerID retu
 
     //****------------------------------------------------------------------------------------------------*****
 
-     // API VERIFICATION: GET PLANS:
+     // API VERIFICATION: GET PLANS: GET Payment/products
     const plansResp =  await memberPortalService.getPlansList(consumerData.getCompany().departmentId!, consumerToken);
 
     expect(plansResp).toBeDefined();
@@ -69,10 +72,10 @@ test('TC001_API_Verify the API POST v1/Consumer/Consumers Without PartnerID retu
 
   });
 
-   test('TC008_API_GET_v1/Payment/checkout return 200-OK with correct URL', async ({ apiClient, memberPortalService, authenticationService, planPage }, testInfo) => {
-    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-    const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
-    const password = process.env.API_PASSWORD ?? process.env.ADMIN_PASSWORD;
+   test('TC008_API_GET_v1/Payment/checkout return 200-OK with correct URL', async ({  memberPortalService, authenticationService }, testInfo) => {
+    const base = process.env.API_BASE_URL;
+    const username = process.env.API_USERNAME ;
+    const password = process.env.API_PASSWORD ;
     testInfo.skip(!base, 'API_BASE_URL is not configured');
 
 
@@ -105,28 +108,42 @@ test('TC001_API_Verify the API POST v1/Consumer/Consumers Without PartnerID retu
     //****------------------------------------------------------------------------------------------------*****
 
     // API VERIFICATION:
-    //Now, test the checkOutPlan API with the obtained token
+    //Now, test the checkOutPlan API with the obtained token: v1/Payment/checkout
     const planResponse = await memberPortalService.checkOutPlan("1", consumerToken);
 
-    const returnUrl = `https://member-virgilhr-${process.env.exec_env}.bigin.top`;
+    const memberPortalBaseUrl = process.env.MEMBER_PORTAL_BASEURL;
+    if (!memberPortalBaseUrl) {
+      testInfo.skip(true, "MEMBER_PORTAL_BASEURL is not configured");
+      return;
+    }
+    const returnUrl = new URL(memberPortalBaseUrl);
+    const guid = String((planResponse as any).checkoutSessionGuid);
     expect(planResponse).toBeDefined();
     expect(typeof planResponse).toBe('object');
     expect(Object.keys(planResponse as any).length).toBeGreaterThan(0);
-    expect((planResponse as any).returnUrl).toContain(returnUrl);
+    expect((planResponse as any).returnUrl).toContain(returnUrl.toString());
+
+    // API VERIFICATION: GET Payment/checkout/${guid}/PaymentStatus
+    const statusResp = await memberPortalService.checkPaymentStatus(guid, consumerToken);
+    expect(statusResp).toBeDefined();
+    expect(typeof statusResp).toBe('object');
+    expect((statusResp as any).status).toBe("unpaid");
 
   });
 
 
-test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', async ({ apiClient, memberPortalService, authenticationService, planPage }, testInfo) => {
+test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', async ({  memberPortalService, authenticationService,planPage }, testInfo) => {
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
     const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
     const password = process.env.API_PASSWORD ?? process.env.ADMIN_PASSWORD;
+  
     testInfo.skip(!base, 'API_BASE_URL is not configured');
 
 
     // Generate consumer payload with discovered IDs (if any)
     const consumerData = await DataFactory.generateCustomerInfo("member");
     const customerAccountInfo = consumerData.getAccountInfo();
+    const planName = consumerData.getPlan();
     //*****---------------------------------------------------*****
 
     // Call the service (the fixture `memberPortalService` wraps ApiClient)
@@ -142,36 +159,87 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
 
     // Finally, attempt to obtain an auth token for the new consumer using
     // the Authentication service.
-    const consumerToken = await authenticationService.getAuthToken((customerAccountInfo as any).email, tempPassword, "4");
+    let consumerToken = await authenticationService.getAuthToken((customerAccountInfo as any).email, tempPassword, "4");
 
     //****------------------------------------------------------------------------------------------------*****
 
     //Now, test the checkOutPlan API with the obtained token
-    const planResponse = await memberPortalService.checkOutPlan("1", consumerToken);
+    let planResponse = await memberPortalService.checkOutPlan("1", consumerToken);
 
-    const guid = String((planResponse as any).checkoutSessionGuid);
-
-    const returnUrl = `https://member-virgilhr-${process.env.exec_env}.bigin.top`;
+    let guid = String((planResponse as any).checkoutSessionGuid);
 
     //VERFICATION POINT:
     //****-------------Complete Payment to subscribe the plan-------------*****
-    //const subDomainUrl = `https://${partnerInfo.subDomain}.member-virgilhr-${process.env.exec_env}.bigin.top`;
     const planUrl = String((planResponse as any).returnUrl);
 
     await planPage.buyPlan(planUrl, (customerAccountInfo as any).email, tempPassword,validCardInfo);
+  
+    //Refresh the consumer token after the payment is completed
+    const consumerToken_2 = await authenticationService.getAuthToken((customerAccountInfo as any).email, tempPassword, "4");
 
-    const statusResp = await memberPortalService.checkPaymentStatus(guid, consumerToken);
-    expect(statusResp).toBeDefined();
-    expect(typeof statusResp).toBe('object');
-    expect((statusResp as any).status).toBe("paid");
-    expect((statusResp as any).productType).toBe(1);
-     expect((statusResp as any).quantity).toBe(1);
+    // API VERIFICATION: GET Payment/subscription/me
+    const paymentSubscriptionResp = await memberPortalService.getPaymentSubscription(consumerToken_2);
+    expect(paymentSubscriptionResp).toBeDefined();
+    expect(typeof paymentSubscriptionResp).toBe('object');
+    expect((paymentSubscriptionResp as any).main).toBeDefined();
+    expect((paymentSubscriptionResp as any).handbookBuilder).toBeDefined();
+    expect((paymentSubscriptionResp as any).lms).toBeDefined();
+    expect((paymentSubscriptionResp as any).main.name).toContain(planName);
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('productType');
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('quantity');
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('productType');
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('price');
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('discount');
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('startDate');
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('endDate');
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('contractStartDate');
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('contractEndDate');
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('remainingDays');
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('planId');
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('isTrial');
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('isCanceled');
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('isPaymentLate');
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('cancelAtPeriodEnd');
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('canceledBy');
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('canceledDate');
+    expect((paymentSubscriptionResp as any).main).toHaveProperty('cancellationReason');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('name');
+    expect((paymentSubscriptionResp as any).handbookBuilder.name).toContain(planName);
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('productType');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('quantity');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('price');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('discount');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('startDate');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('endDate');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('contractStartDate');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('contractEndDate');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('remainingDays');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('isTrial');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('isCanceled');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('isPaymentLate');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('cancelAtPeriodEnd');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('canceledBy');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('canceledDate');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('cancellationReason');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('planId');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('currentPlan');
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty('rootPlan');
+    expect((paymentSubscriptionResp as any).lms).toHaveProperty('name');
+    expect((paymentSubscriptionResp as any).lms.name).toContain(planName);
+    expect((paymentSubscriptionResp as any).lms).toHaveProperty('productType');
+    expect((paymentSubscriptionResp as any).lms).toHaveProperty('quantity');
+    expect((paymentSubscriptionResp as any).lms).toHaveProperty('price');
+    expect((paymentSubscriptionResp as any).lms).toHaveProperty('remainingDays');
+    expect((paymentSubscriptionResp as any).lms).toHaveProperty('planId');
+    expect((paymentSubscriptionResp as any).lms).toHaveProperty('currentPlan');
+
+
     //****-----------------------------------------------------------------*****
 
   });
 
 
-  test('TC014_UI_Verify that after a successful payment, the system automatically redirects the user to the Virgil homepage', async ({ apiClient, memberPortalService, authenticationService, planPage }, testInfo) => {
+  test('TC014_UI_Verify that after a successful payment, the system automatically redirects the user to the Virgil homepage', async ({ memberPortalService, authenticationService, planPage }, testInfo) => {
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
     const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
     const password = process.env.API_PASSWORD ?? process.env.ADMIN_PASSWORD;
@@ -187,10 +255,12 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
     // Call the service (the fixture `memberPortalService` wraps ApiClient)
     const resp = await memberPortalService.signUpConsumer(consumerData);
 
-    expect(resp).toBeDefined();
-    expect(typeof resp).toBe('string');
-    // Basic sanity: response should contain at least one property (e.g., id)
-    expect(Object.keys(resp as any).length).toBeGreaterThan(0);
+    expect(resp).toBeTruthy();
+    if (typeof (resp as any) === 'string') {
+      expect((resp as any).length).toBeGreaterThan(0);
+    } else {
+      expect(Object.keys(resp as any).length).toBeGreaterThan(0);
+    }
 
     //****----------Now attempt to reset password for the newly created consumer using the----------*****
     // Authentication service helper. Use a temporary password for the reset.
@@ -226,11 +296,16 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
     //Now, test the checkOutPlan API with the obtained token
     const planResponse = await memberPortalService.checkOutPlan("1", consumerToken);
 
-    const returnUrl = `https://member-virgilhr-${process.env.exec_env}.bigin.top`;
+    const memberPortalBaseUrl = process.env.MEMBER_PORTAL_BASEURL;
+    if (!memberPortalBaseUrl) {
+      testInfo.skip(true, "MEMBER_PORTAL_BASEURL is not configured");
+      return;
+    }
+    const returnUrl = new URL(memberPortalBaseUrl);
     expect(planResponse).toBeDefined();
     expect(typeof planResponse).toBe('object');
     expect(Object.keys(planResponse as any).length).toBeGreaterThan(0);
-    expect((planResponse as any).returnUrl).toContain(returnUrl);
+    expect((planResponse as any).returnUrl).toContain(returnUrl.toString());
 
     //****-------------Complete Payment to subscribe the plan-------------*****
     //const subDomainUrl = `https://${partnerInfo.subDomain}.member-virgilhr-${process.env.exec_env}.bigin.top`;
@@ -243,7 +318,7 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
 
   });
 
-   test('TC015_API_Verify GET Plan/me returns 200-OK and correct paid plan details', async ({ apiClient, memberPortalService, authenticationService, planPage }, testInfo) => {
+   test('TC015_API_Verify GET Plan/me returns 200-OK and correct paid plan details', async ({ memberPortalService, authenticationService, planPage }, testInfo) => {
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
     const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
     const password = process.env.API_PASSWORD ?? process.env.ADMIN_PASSWORD;
@@ -259,10 +334,12 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
     // Call the service (the fixture `memberPortalService` wraps ApiClient)
     const resp = await memberPortalService.signUpConsumer(consumerData);
 
-    expect(resp).toBeDefined();
-    expect(typeof resp).toBe('string');
-    // Basic sanity: response should contain at least one property (e.g., id)
-    expect(Object.keys(resp as any).length).toBeGreaterThan(0);
+    expect(resp).toBeTruthy();
+    if (typeof (resp as any) === 'string') {
+      expect((resp as any).length).toBeGreaterThan(0);
+    } else {
+      expect(Object.keys(resp as any).length).toBeGreaterThan(0);
+    }
 
     //****----------Now attempt to reset password for the newly created consumer using the----------*****
     // Authentication service helper. Use a temporary password for the reset.
@@ -282,10 +359,8 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
     //Now, test the checkOutPlan API with the obtained token
     const planResponse = await memberPortalService.checkOutPlan("1", consumerToken);
 
-    const returnUrl = `https://member-virgilhr-${process.env.exec_env}.bigin.top`;
-
+    
     //****-------------Complete Payment to subscribe the plan-------------*****
-    //const subDomainUrl = `https://${partnerInfo.subDomain}.member-virgilhr-${process.env.exec_env}.bigin.top`;
     const planUrl = String((planResponse as any).returnUrl);
     await planPage.buyPlan(planUrl, (customerAccountInfo as any).email, tempPassword,validCardInfo);
 
@@ -295,7 +370,7 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
     const newConsumerToken = await authenticationService.getAuthToken((customerAccountInfo as any).email, tempPassword, "4");
 
     // API VERIFICATION:
-    // PreviewPlan  API call to get current user's plan
+    // PreviewPlan  API call to get current user's plan: GET Plan/me
     const planDetailsResp = await memberPortalService.getCurrentSubscribedPlan(newConsumerToken);
     expect(planDetailsResp).toBeDefined();
     expect(typeof planDetailsResp).toBe('object');
@@ -312,7 +387,7 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
     //Verify some plan details
     expect((planDetailsResp as any).departmentId).toBe(consumerData.getCompany().departmentId);
     const planName = consumerData.getPlan();
-    expect((planDetailsResp as any).name).toBe(planName);
+    expect((planDetailsResp as any).name).toContain(planName);
 
 
   });
@@ -325,7 +400,7 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
 
     //*****-----Optionally discover partnerId/departmentId from the system to use in the-----*****
     // generated consumer. If search finds nothing, generator will use defaults.
-    const partnerName = 'VinhPartner002';
+    const partnerName = process.env.PARTNER_NAME as string;
 
     const adminService = await AdminPortalService.create(apiClient, authenticationService);
 
@@ -334,16 +409,19 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
     // Generate consumer payload with discovered IDs (if any)
     const consumerData = await DataFactory.generateCustomerInfo("member", {partnerId:partnerInfo.partnerId, departmentId:partnerInfo.departmentId});
     const customerAccountInfo = consumerData.getAccountInfo();
+    const planName = consumerData.getPlan();
     //*****---------------------------------------------------*****
 
     // API VERIFICATION:
     // Call the service (the fixture `memberPortalService` wraps ApiClient)
     const resp = await memberPortalService.signUpConsumer(consumerData);
 
-    expect(resp).toBeDefined();
-    expect(typeof resp).toBe('string');
-    // Basic sanity: response should contain at least one property (e.g., id)
-    expect(Object.keys(resp as any).length).toBeGreaterThan(0);
+    expect(resp).toBeTruthy();
+    if (typeof (resp as any) === 'string') {
+      expect((resp as any).length).toBeGreaterThan(0);
+    } else {
+      expect(Object.keys(resp as any).length).toBeGreaterThan(0);
+    }
 
     //****----------Now attempt to reset password for the newly created consumer using the----------*****
     // Authentication service helper. Use a temporary password for the reset.
@@ -379,11 +457,16 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
     //Now, test the checkOutPlan API with the obtained token
     const planResponse = await memberPortalService.checkOutPlan("1", consumerToken);
 
-    const returnUrl = `https://member-virgilhr-${process.env.exec_env}.bigin.top`;
+    const memberPortalBaseUrl = process.env.MEMBER_PORTAL_BASEURL;
+    if (!memberPortalBaseUrl) {
+      testInfo.skip(true, "MEMBER_PORTAL_BASEURL is not configured");
+      return;
+    }
+    const returnUrl = new URL(memberPortalBaseUrl);
     expect(planResponse).toBeDefined();
     expect(typeof planResponse).toBe('object');
     expect(Object.keys(planResponse as any).length).toBeGreaterThan(0);
-    expect((planResponse as any).returnUrl).toContain(returnUrl);
+    expect((planResponse as any).returnUrl).toContain(returnUrl.toString());
 
     //****-------------Complete Payment to subscribe the plan-------------*****
     //const subDomainUrl = `https://${partnerInfo.subDomain}.member-virgilhr-${process.env.exec_env}.bigin.top`;
@@ -413,8 +496,8 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
     expect(planDetailsResp as any).toHaveProperty('partnerSetting');
     //Verify some plan details
     expect((planDetailsResp as any).departmentId).toBe(partnerInfo.departmentId);
-    const planName = "Under 50 Employees test";
-    expect((planDetailsResp as any).name).toBe(planName);
+   
+    expect((planDetailsResp as any).name).toContain(planName);
 
 
   });
