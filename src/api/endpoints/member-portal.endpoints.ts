@@ -10,5 +10,7 @@ export const GET_CURRENT_SUBSCRIBED_PLAN = "Plan/me"; // Get current user's plan
 export const MEMBER_GET_PLANS = "Payment/products?"; // Get current Plans list
 export const GET_PAYMENTSTATUS = "Payment/checkout/${guid}/PaymentStatus";
 export const MEMBER_LOGIN = "/Consumer/Consumers/GetLoginFailReason";
-export const MEMBER_BENIFIT = "/Payment/subscription/me";
+export const GET_PAYMENT_SUBSCRIPTION = "/Payment/subscription/me";
 export const GET_DEPARTMENTS = "Configuration/Department";
+
+

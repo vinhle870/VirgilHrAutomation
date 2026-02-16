@@ -166,8 +166,11 @@ export class ApiClient {
       return (await response.json()) as T;
     }
 
-    // Return an empty object or a specific type if the response is intentionally empty (e.g., 204)
-    return {} as T;
+    // If the API returns non-JSON (e.g., plain text id), return the text body.
+    // Keep `{}` for intentionally empty responses (e.g., 204) or empty bodies.
+    if (response.status() === 204) return {} as T;
+    const textBody = await response.text();
+    return (textBody ? (textBody as unknown as T) : ({} as T));
   }
 
   public async sendPartnerRequest<T>(
