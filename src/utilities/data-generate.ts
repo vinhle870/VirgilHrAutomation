@@ -133,7 +133,8 @@ export class DataGenerate {
   }
 
   public static async generateInvitedMember(
-    partnerID: string,
+    partnerID?: string,
+    //6992aac26a533316f298aa22
     role = 3,
   ): Promise<IMemberInvitation> {
     const invitedMember: IMemberInvitation = {

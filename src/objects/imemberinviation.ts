@@ -1,5 +1,5 @@
 export interface IMemberInvitation {
-  id: string;
+  id?: string;
   recipients: [
     {
       email: string;

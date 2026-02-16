@@ -65,4 +65,68 @@ test.describe("Partner managerment", () => {
       expect(successfullyInvitedMember).toBe(true);
     }
   });
+  test("TC62 Verify that an account can belong to one or multiple teams.", async ({
+    apiClient,
+    authenticationService,
+    adminPortalService,
+  }, testInfo) => {
+    testInfo.skip(
+      !process.env.API_BASE_URL && !process.env.BASE_URL,
+      "API_BASE_URL is not configured",
+    );
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+    testInfo.skip(!base, "API_BASE_URL is not configured");
+
+    const adminService = await AdminPortalService.create(
+      apiClient,
+      authenticationService,
+    );
+    //Create a new invited member
+    const invitedMember = await DataGenerate.generateInvitedMember();
+
+    for (let i = 0; i < 2; i++) {
+      let departmentID = await PartnerFactory.generatePartnerID(
+        adminPortalService,
+        "BiginHR",
+      );
+
+      //Get all product types of a department (departmentID)
+      const productTypeAndNames: ProductInfo[] =
+        await DataFactory.generateProductTypesAndNames(
+          adminPortalService,
+          departmentID,
+        );
+      const productTypesAndNamesToSend: ProductInfo[] =
+        DataGenerate.generateProductType(productTypeAndNames);
+      //Create partner info
+      const partnerInfo = await DataFactory.generatePartnerInfo(
+        0,
+        adminService,
+        {
+          isPublic: true,
+          whoPay: 0,
+          bankTransfer: false,
+          departmentId: departmentID,
+          restriction: {
+            feFilterProductTypes: productTypesAndNamesToSend.map(
+              (p) => p.productType,
+            ),
+          },
+        },
+      );
+      //Create partner
+      const partnerResponse = await adminService.createPartner(partnerInfo);
+
+      if (partnerResponse.status == 200) {
+        //create invited member infor
+        invitedMember.id = partnerResponse.data;
+        //Call API to create a new member to a team
+        const successfullyInvitedMember: boolean =
+          await adminPortalService.inviteMembers(invitedMember);
+
+        expect(successfullyInvitedMember).toBe(true);
+      }
+    }
+  });
 });
