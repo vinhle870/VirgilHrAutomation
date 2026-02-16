@@ -12,6 +12,7 @@ import { Authentication } from "src/api/services/authentication.service";
 import { MembPortalCustomer } from "src/objects/customer";
 import { Partner } from "src/objects/ipartner";
 import { APIResponse } from "@playwright/test";
+import { IInviteMember } from "src/objects/iInviteMember";
 
 export class AdminPortalService {
   private apiClient: ApiClient;
@@ -422,6 +423,52 @@ export class AdminPortalService {
     }
 
     return { status, body: filteredBody };
+  }
+
+  public async inviteMembers(invitedMember: IInviteMember): Promise<boolean> {
+    const url = `https://api.qa.virgilhr.com/v1/Manage/Organization/Partner/Invite`;
+
+    const response = await this.sendRequestToInviteMembers(url, invitedMember);
+
+    return response;
+  }
+
+  private async sendRequestToInviteMembers(
+    url: string,
+    invitedMember: IInviteMember,
+    expectedStatus = 200,
+  ): Promise<boolean> {
+    const fullUrl = url.startsWith("http") ? url : `${this.baseUrl}/${url}`;
+
+    let tokenToUse = this.authToken ?? this.apiClient.getAuthToken();
+    if (!tokenToUse || tokenToUse === "undefined") {
+      throw new Error("Auth token is missing or invalid");
+    }
+
+    const mergedHeaders: Record<string, string> = {
+      accept: "application/json, text/plain, */*",
+      authorization: `Bearer ${tokenToUse}`,
+      "content-type": "application/json",
+      origin: "https://admin.qa.virgilhr.com",
+      referer: "https://admin.qa.virgilhr.com/",
+      "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+    };
+
+    const response = await this.apiClient.getApiContext().post(fullUrl, {
+      headers: mergedHeaders,
+      data: invitedMember,
+    });
+
+    const status = response.status();
+    if (status !== expectedStatus) {
+      throw new Error(
+        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
+      );
+    }
+
+    const body = await response.json();
+    return body === true;
   }
 }
 

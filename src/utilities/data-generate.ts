@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { IMemberInvitation } from "src/objects/imemberinviation";
 import { ProductInfo } from "src/objects/IProduct";
 
 export class DataGenerate {
@@ -91,14 +92,7 @@ export class DataGenerate {
 
     return randomValue;
   }
-  public static async createEmail(): Promise<string> {
-    const seq = DataGenerate.getRandomInt(1, 9999);
-    const firstName = await DataGenerate.generateFirstName();
-    const localPrefix = `${firstName}${seq}`;
-    const email = `${localPrefix}@yopmail.com`;
 
-    return email;
-  }
   static generateDecimal(): number {
     const values: number[] = [0, 1];
 
@@ -136,6 +130,29 @@ export class DataGenerate {
     }
 
     return result;
+  }
+
+  public static async generateInvitedMember(
+    partnerID: string,
+    role = 3,
+  ): Promise<IMemberInvitation> {
+    const invitedMember: IMemberInvitation = {
+      id: partnerID,
+      recipients: [
+        {
+          email: await DataGenerate.generateEmail(),
+          firstName: await DataGenerate.generateFirstName(),
+          lastName: await DataGenerate.generateLastName(),
+          phoneNumber: await DataGenerate.generatePhoneNumber(),
+          jobTitle: await DataGenerate.generatejobTitle(),
+          role: role,
+          partnerConsumerType: 1,
+          consultantRole: role,
+        },
+      ],
+    };
+
+    return invitedMember;
   }
 
   /**

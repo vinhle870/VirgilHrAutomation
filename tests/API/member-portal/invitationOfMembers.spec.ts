@@ -1,12 +1,9 @@
 import { test, expect } from "src/fixtures";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { DataFactory } from "src/data-factory";
-import Comparison from "src/utilities/compare";
-import { localHR } from "src/constant/static-data";
 import { ProductInfo } from "src/objects/IProduct";
 import { DataGenerate } from "src/utilities";
 import { IInviteMember } from "src/objects/iInviteMember";
-import { Partner } from "src/objects/ipartner";
 import { PartnerFactory } from "src/data-factory/partner-factory";
 
 test.describe("Partner managerment", () => {
@@ -115,7 +112,7 @@ test.describe("Partner managerment", () => {
             "4",
           );
           //Create member email to invite
-          const memberEmail = await DataGenerate.createEmail();
+          const memberEmail = await DataGenerate.generateEmail();
           //Create member info
           const member: IInviteMember = {
             recipients: [
