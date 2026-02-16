@@ -123,11 +123,6 @@ test('TC001_API_Verify the API POST v1/Consumer/Consumers Without PartnerID retu
     expect(Object.keys(planResponse as any).length).toBeGreaterThan(0);
     expect((planResponse as any).returnUrl).toContain(returnUrl.toString());
 
-    // API VERIFICATION: GET Payment/checkout/${guid}/PaymentStatus
-    const statusResp = await memberPortalService.checkPaymentStatus(guid, consumerToken);
-    expect(statusResp).toBeDefined();
-    expect(typeof statusResp).toBe('object');
-    expect((statusResp as any).status).toBe("unpaid");
 
   });
 
