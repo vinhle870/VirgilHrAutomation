@@ -118,7 +118,6 @@ export class PlanPage {
   ): Promise<void> {
     await this.loginPage.loginWithValidAccount(url, email, password);
 
-    // Scrolls the page to the bottom
     await this.page.waitForURL("**/register-success");
 
     let div_firstPlan = await LocatorHandling.getLocator(
@@ -187,29 +186,20 @@ export class PlanPage {
       PlanPageLocators.btn_Subscribe,
     );
     await btn_Subscribe.click();
-
-    //await txt_BillingCity.first().waitFor({ state: 'hidden', timeout: 20000 });
-    // let btn_DiveInLocator;
-    // try {
-    //   btn_DiveInLocator = await this.page.waitForSelector(
-    //     PlanPageLocators.btn_ReadyDiveIn,
-    //     { timeout: 5000 }, // timeout ngắn
-    //   );
-    // } catch {
-    //   btn_DiveInLocator = null;
-    // }
-
-    // if (btn_DiveInLocator) {
-    //   await btn_DiveInLocator.click();
-    // }
-
+    let departmentName;
     try {
-      const departmentName = new RegExp(`.*${domain}.*`);
+      departmentName = new RegExp(`.*${domain}.*`);
 
       await this.page.waitForURL(departmentName);
 
       await LocatorHandling.getLocator(this.page, HomePageLocators.home);
     } catch (error) {
+      await btn_Subscribe.click();
+
+      await this.page.waitForURL(departmentName!);
+
+      await LocatorHandling.getLocator(this.page, HomePageLocators.home);
+
       console.log(error);
     }
   }

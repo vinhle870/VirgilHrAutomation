@@ -3,14 +3,11 @@ import { Partner } from "src/objects/ipartner";
 import UserInfo from "src/objects/user-info";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { ProductInfo } from "src/objects/IProduct";
+import { DataFactory } from "./data-factory";
+import { localHR } from "src/constant/static-data";
 
 export class PartnerFactory {
-  private static partnerDomain: string;
-  private static departmentID: string;
-
-  public static getPartnerDomain(): string {
-    return PartnerFactory.partnerDomain;
-  }
+  private static departmentInfor: any;
   static async createPartner(
     levelOfPartner: number,
     adminService: AdminPortalService,
@@ -34,7 +31,7 @@ export class PartnerFactory {
 
     const departmentId: string =
       overrides?.departmentId ??
-      (await PartnerFactory.generatePartnerInfor(adminService));
+      (await PartnerFactory.generatePartnerID(adminService));
 
     const bankTransfer: boolean =
       overrides?.bankTransfer ?? DataGenerate.generateBoolean();
@@ -63,11 +60,23 @@ export class PartnerFactory {
     const billingCycle: number = 1;
     const apiEnable: boolean = false;
 
-    const feFilterProductTypes: number[] =
-      overrides?.feFilterProductTypes ??
-      DataGenerate.generateProductType(
-        await PartnerFactory.getProductTypesAndNames(adminService),
-      );
+    const restriction = {
+      eSignEnable: true,
+      productSupport: true,
+      resourceRequest: true,
+      contactExpert: true,
+      ssoEnable: true,
+      lmsEnable: true,
+      hrToolsEnable: true,
+      feFilterProductTypes:
+        overrides?.restriction?.feFilterProductTypes ??
+        DataGenerate.generateProductType(
+          await PartnerFactory.getUniqueProductTypesAndNames(
+            adminService,
+            departmentId,
+          ),
+        ),
+    };
 
     //Payment options
     const whoPay: number = overrides?.whoPay ?? DataGenerate.generateDecimal();
@@ -82,7 +91,7 @@ export class PartnerFactory {
 
     partner.setIPartnerInfo({
       whoPay,
-      feFilterProductTypes,
+      restriction,
       apiEnable,
       departmentId,
       bankTransfer,
@@ -101,43 +110,77 @@ export class PartnerFactory {
     return partner;
   }
 
-  public static async generatePartnerInfor(
+  public static async generatePartnerID(
     adminService: AdminPortalService,
+    departmentName?: string,
   ): Promise<string> {
-    const departmentIdResponse = await adminService.getDepartmentInfo();
+    PartnerFactory.departmentInfor = await adminService.getDepartmentInfo();
 
-    const ids = departmentIdResponse.body.map((dept: any) => dept.id);
+    if (departmentName) {
+      const dept = PartnerFactory.departmentInfor.body.find(
+        (d: any) => d.name.toLowerCase() === departmentName.toLowerCase(),
+      );
 
-    PartnerFactory.departmentID = DataGenerate.generateDepartmentIDS(ids);
+      if (dept) {
+        return dept.id;
+      } else {
+        throw new Error(`Department with name "${departmentName}" not found`);
+      }
+    }
 
-    const matchedDept = departmentIdResponse.body.find(
-      (dept: any) => dept.id === PartnerFactory.departmentID,
-    );
+    const ids = PartnerFactory.departmentInfor.body.map((dept: any) => dept.id);
+    let id = DataGenerate.generateDepartmentID(ids);
 
-    PartnerFactory.partnerDomain = matchedDept?.domain?.partner ?? null;
-
-    return await PartnerFactory.departmentID;
+    while (id == localHR) {
+      id = await PartnerFactory.generatePartnerID(adminService);
+    }
+    return id;
   }
 
-  public static async getProductTypesAndNames(
+  public static async getDepartmentDomain(
+    departmenID: string,
+  ): Promise<string> {
+    const matchedDept = PartnerFactory.departmentInfor.body.find(
+      (dept: any) => dept.id === departmenID,
+    );
+
+    return matchedDept?.domain?.partner ?? null;
+  }
+
+  public static async getUniqueProductTypesAndNames(
     adminService: AdminPortalService,
+    departmentId: string,
   ): Promise<ProductInfo[]> {
     const productTypesResponse = await adminService.getProductTypes();
     if (!productTypesResponse?.body) {
       return [];
     }
+
     const department = productTypesResponse.body.find(
-      (d: any) => d.departmentId === PartnerFactory.departmentID,
+      (d: any) => d.departmentId === departmentId,
     );
+
     if (!department?.plans) {
       return [];
     }
+
+    const seenProductTypes = new Set<number>();
+
     const products: ProductInfo[] = department.plans.flatMap((plan: any) =>
-      plan.products.map((p: any) => ({
-        productType: p.productType,
-        productName: plan.name,
-      })),
+      plan.products
+        .filter((p: any) => {
+          if (seenProductTypes.has(p.productType)) return false;
+
+          seenProductTypes.add(p.productType);
+          return true;
+        })
+        .map((p: any) => ({
+          productType: p.productType,
+          productName: plan.name,
+          planId: plan.id,
+        })),
     );
+
     return products;
   }
 }

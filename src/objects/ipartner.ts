@@ -1,8 +1,17 @@
 import UserInfo from "./user-info";
 
 export default interface IPartnerInfo {
+  restriction: {
+    eSignEnable?: boolean;
+    productSupport?: boolean;
+    resourceRequest?: boolean;
+    contactExpert?: boolean;
+    ssoEnable?: boolean;
+    lmsEnable?: boolean;
+    hrToolsEnable?: boolean;
+    feFilterProductTypes: number[];
+  };
   whoPay: number;
-  feFilterProductTypes: number[];
   apiEnable: boolean;
   departmentId: string;
   bankTransfer: boolean;
@@ -16,6 +25,7 @@ export default interface IPartnerInfo {
   subDomain: string;
   userInfo: UserInfo;
   billingCycle?: number;
+  planId?: string;
 }
 
 export interface IPartnerInfoWithDepartmentAndProductTypes {

@@ -6,12 +6,10 @@ import {
   MEMBER_GET_PLANS,
   GET_PAYMENT_SUBSCRIPTION,
   SIGN_UP_CONSUMER,
-  GET_DEPARTMENTS,
   MEMBER_LOGIN,
 } from "src/api/endpoints/member-portal.endpoints";
 import { MembPortalCustomer } from "src/objects/customer";
-import { ApiLoginResponse } from "src/objects/responselogin";
-import { APIResponse } from "@playwright/test";
+import { IInviteMember } from "src/objects/iInviteMember";
 
 export class MemberPortalService {
   private apiClient: ApiClient;
@@ -138,29 +136,6 @@ export class MemberPortalService {
     return response; // Return the checkout plan response
   }
 
-  async loginMember(
-    email: string,
-    password: string,
-    name: string,
-  ): Promise<ApiLoginResponse<string>> {
-    const url = `${this.baseUrl}${MEMBER_LOGIN}`;
-
-    const requestBody = {
-      userName: email,
-      password: password,
-      subDomain: name,
-      domain: `${name}.member-virgilhr-qa.bigin.top`,
-    };
-
-    const response = await this.apiClient.sendRequestToLoginPortal<string>(
-      "POST",
-      url,
-      requestBody,
-    );
-
-    return response;
-  }
-
   async getBenifit<T>(email: string, token: string): Promise<T> {
     const url = `${this.baseUrl}${GET_PAYMENT_SUBSCRIPTION}`;
     return (await this.sendRequestToGetBenifit<object>(
@@ -208,6 +183,60 @@ export class MemberPortalService {
         : await response.text();
 
     return body;
+  }
+
+  public async inviteMember(
+    token: string,
+    member: IInviteMember,
+    name: string,
+  ): Promise<{ status: number; body: any }> {
+    const url = "https://api.qa.virgilhr.com/v1/Consumer/Teams/Invite";
+
+    const response: { status: number; body: any } =
+      await this.sendRequesToInviteMember(token, url, name, member);
+
+    return { status: response.status, body: response.body };
+  }
+
+  private async sendRequesToInviteMember(
+    token: string,
+    url: string,
+    name: string,
+    payload: IInviteMember,
+    expectedStatus = 200,
+  ): Promise<{ status: number; body: any }> {
+    const fullUrl = url.startsWith("http") ? url : `${this.baseUrl}/${url}`;
+
+    const mergedHeaders: Record<string, string> = {
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+      origin: `https://${name}.member-virgilhr-qa.bigin.top`,
+      priority: "u=1, i",
+      referer: `https://${name}.member-virgilhr-qa.bigin.top/`,
+      "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0",
+    };
+
+    const requestOptions: any = { headers: mergedHeaders };
+    requestOptions.data = payload;
+
+    const response = await this.apiClient
+      .getApiContext()
+      .post(fullUrl, requestOptions);
+    const status = response.status();
+    if (status !== expectedStatus) {
+      throw new Error(
+        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
+      );
+    }
+
+    const contentType = response.headers()["content-type"] || "";
+    const body =
+      contentType.includes("application/json") && status !== 204
+        ? await response.json()
+        : await response.text();
+
+    return { status, body };
   }
 
   /**

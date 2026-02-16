@@ -6,13 +6,6 @@ import { PartnerFactory } from "./partner-factory";
 import { ProductInfo } from "src/objects/IProduct";
 
 export class DataFactory {
-
-  /**
-   * Generate customer info for the given portal
-   * @param portal        
-*     @param fields           
-   * @returns 
-   */
   static async generateCustomerInfo(
     portal: string,
     fields?: Partial<Record<string, any>>,
@@ -22,13 +15,6 @@ export class DataFactory {
     return customer;
   }
 
-  /**      
-   * Generate partner info for the given level
-   * @param level         
-   * @param adminService 
-   * @param overrides 
-   * @returns 
-   */
   static async generatePartnerInfo(
     level: number,
     adminService: AdminPortalService,
@@ -43,32 +29,13 @@ export class DataFactory {
     return partner;
   }
 
-
-  /**
-   * Generate department ID for the given admin portal service
-   * @param adminPortalService 
-   * @returns 
-   */
-  static async generateDepartmentID(
-    adminPortalService: AdminPortalService,
-  ): Promise<string> {
-    const departmentID: string =
-      await PartnerFactory.generatePartnerInfor(adminPortalService);
-
-    return departmentID;
-  }
-
-  /**
-   * Generate partner domain
-   * @returns 
-   */
-  public static generatePartnerDomain(): string {
-    return PartnerFactory.getPartnerDomain();
-  }
-
   public static async generateProductTypesAndNames(
     adminPortalService: AdminPortalService,
+    departmentId: string,
   ): Promise<ProductInfo[]> {
-    return await PartnerFactory.getProductTypesAndNames(adminPortalService);
+    return await PartnerFactory.getUniqueProductTypesAndNames(
+      adminPortalService,
+      departmentId,
+    );
   }
 }
