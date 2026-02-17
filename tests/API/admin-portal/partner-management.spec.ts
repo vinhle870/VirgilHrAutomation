@@ -236,7 +236,7 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
     //Create department id to send
-    let departmentID = await PartnerFactory.generatePartnerID(
+    let departmentID = await PartnerFactory.getPartnerID(
       adminPortalService,
       "BiginHR",
     );
@@ -354,8 +354,7 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
     //Create department id to send
-    const departmentID =
-      await PartnerFactory.generatePartnerID(adminPortalService);
+    const departmentID = await PartnerFactory.getPartnerID(adminPortalService);
     //Get all product types of a department (departmentID)
     const productTypeAndNames: ProductInfo[] =
       await DataFactory.generateProductTypesAndNames(

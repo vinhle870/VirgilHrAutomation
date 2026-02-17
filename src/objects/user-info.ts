@@ -8,4 +8,5 @@ export default interface UserInfo {
 
   //info to be added on Admin Portal
   userType?: number;
+  inviteToken?: string;
 }

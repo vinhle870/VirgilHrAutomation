@@ -170,7 +170,7 @@ export class ApiClient {
     // Keep `{}` for intentionally empty responses (e.g., 204) or empty bodies.
     if (response.status() === 204) return {} as T;
     const textBody = await response.text();
-    return (textBody ? (textBody as unknown as T) : ({} as T));
+    return textBody ? (textBody as unknown as T) : ({} as T);
   }
 
   public async sendPartnerRequest<T>(

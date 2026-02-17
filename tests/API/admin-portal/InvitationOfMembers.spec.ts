@@ -24,11 +24,10 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
     //Create department id to send
-    let departmentID = await PartnerFactory.generatePartnerID(
+    let departmentID = await PartnerFactory.getPartnerID(
       adminPortalService,
       "BiginHR",
     );
-
     //Get all product types of a department (departmentID)
     const productTypeAndNames: ProductInfo[] =
       await DataFactory.generateProductTypesAndNames(
@@ -41,7 +40,7 @@ test.describe("Partner managerment", () => {
     const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
       isPublic: true,
       whoPay: 0,
-      bankTransfer: false,
+      bankTransfer: true,
       departmentId: departmentID,
       restriction: {
         feFilterProductTypes: productTypesAndNamesToSend.map(
@@ -82,51 +81,46 @@ test.describe("Partner managerment", () => {
       apiClient,
       authenticationService,
     );
-    //Create a new invited member
-    const invitedMember = await DataGenerate.generateInvitedMember();
 
-    for (let i = 0; i < 2; i++) {
-      let departmentID = await PartnerFactory.generatePartnerID(
+    const departmentID = await PartnerFactory.getPartnerID(
+      adminPortalService,
+      "BiginHR",
+    );
+    //Get all product types of a department (departmentID)
+    const productTypeAndNames: ProductInfo[] =
+      await DataFactory.generateProductTypesAndNames(
         adminPortalService,
-        "BiginHR",
+        departmentID,
       );
+    const productTypesAndNamesToSend: ProductInfo[] =
+      DataGenerate.generateProductType(productTypeAndNames);
+    //Create partner info
+    const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
+      isPublic: true,
+      whoPay: 0,
+      bankTransfer: false,
+      departmentId: departmentID,
+      restriction: {
+        feFilterProductTypes: productTypesAndNamesToSend.map(
+          (p) => p.productType,
+        ),
+      },
+    });
+    //Create partner
+    const partnerResponse = await adminService.createPartner(partnerInfo);
 
-      //Get all product types of a department (departmentID)
-      const productTypeAndNames: ProductInfo[] =
-        await DataFactory.generateProductTypesAndNames(
-          adminPortalService,
-          departmentID,
-        );
-      const productTypesAndNamesToSend: ProductInfo[] =
-        DataGenerate.generateProductType(productTypeAndNames);
-      //Create partner info
-      const partnerInfo = await DataFactory.generatePartnerInfo(
-        0,
-        adminService,
-        {
-          isPublic: true,
-          whoPay: 0,
-          bankTransfer: false,
-          departmentId: departmentID,
-          restriction: {
-            feFilterProductTypes: productTypesAndNamesToSend.map(
-              (p) => p.productType,
-            ),
-          },
-        },
+    if (partnerResponse.status == 200) {
+      //Create a new invited member
+      const invitedMember = await DataGenerate.generateInvitedMember(
+        partnerResponse.data,
       );
-      //Create partner
-      const partnerResponse = await adminService.createPartner(partnerInfo);
+      //create invited member infor
+      invitedMember.id = partnerResponse.data;
+      //Call API to create a new member to a team
+      const successfullyInvitedMember: boolean =
+        await adminPortalService.inviteMembers(invitedMember);
 
-      if (partnerResponse.status == 200) {
-        //create invited member infor
-        invitedMember.id = partnerResponse.data;
-        //Call API to create a new member to a team
-        const successfullyInvitedMember: boolean =
-          await adminPortalService.inviteMembers(invitedMember);
-
-        expect(successfullyInvitedMember).toBe(true);
-      }
+      expect(successfullyInvitedMember).toBe(true);
     }
   });
 });

@@ -133,8 +133,7 @@ export class DataGenerate {
   }
 
   public static async generateInvitedMember(
-    partnerID?: string,
-    //6992aac26a533316f298aa22
+    partnerID: string,
     role = 3,
   ): Promise<IMemberInvitation> {
     const invitedMember: IMemberInvitation = {
@@ -154,6 +153,15 @@ export class DataGenerate {
     };
 
     return invitedMember;
+  }
+
+  public static async generateYopMail(): Promise<string> {
+    const seq = DataGenerate.getRandomInt(1, 9999);
+    const firstName = await DataGenerate.generateFirstName();
+    const localPrefix = `${firstName}${seq}`;
+    const email = `${localPrefix}@yopmail.com`;
+
+    return email;
   }
 
   /**

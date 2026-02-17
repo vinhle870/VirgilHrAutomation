@@ -31,13 +31,13 @@ export class PartnerFactory {
 
     const departmentId: string =
       overrides?.departmentId ??
-      (await PartnerFactory.generatePartnerID(adminService));
+      (await PartnerFactory.getPartnerID(adminService));
 
-    const bankTransfer: boolean =
+    let bankTransfer: boolean =
       overrides?.bankTransfer ?? DataGenerate.generateBoolean();
-    const canCustomUpdatePlan: boolean =
+    let canCustomUpdatePlan: boolean =
       overrides?.canCustomUpdatePlan ?? DataGenerate.generateBoolean();
-    const companyType: number =
+    let companyType: number =
       overrides?.companyType ?? DataGenerate.generateBoolean();
     const isPublic: boolean =
       overrides?.isPublic ?? DataGenerate.generateBoolean();
@@ -46,7 +46,7 @@ export class PartnerFactory {
     const partnerType: number =
       overrides?.partnerType ?? DataGenerate.generateDecimal();
 
-    const paymentEnable: boolean =
+    let paymentEnable: boolean =
       overrides?.paymentEnable ?? DataGenerate.generateBoolean();
 
     const subDomain: string = overrides?.subDomain ?? name;
@@ -57,10 +57,10 @@ export class PartnerFactory {
       jobTitle,
       phoneNumber,
     };
-    const billingCycle: number = 1;
+
     const apiEnable: boolean = false;
 
-    const restriction = {
+    let restriction = {
       eSignEnable: true,
       productSupport: true,
       resourceRequest: true,
@@ -80,6 +80,7 @@ export class PartnerFactory {
 
     //Payment options
     const whoPay: number = overrides?.whoPay ?? DataGenerate.generateDecimal();
+    const planId: string = overrides?.planId ?? ""; //masterPlanID
 
     partner.setAccountInfo({
       email,
@@ -88,29 +89,58 @@ export class PartnerFactory {
       jobTitle,
       phoneNumber,
     });
+    let billingCycle: number;
+    if (!overrides?.planId) {
+      billingCycle = 1;
 
-    partner.setIPartnerInfo({
-      whoPay,
-      restriction,
-      apiEnable,
-      departmentId,
-      bankTransfer,
-      canCustomUpdatePlan,
-      companyType,
-      isPublic,
-      level,
-      name,
-      partnerType,
-      paymentEnable,
-      subDomain,
-      userInfo,
-      ...(bankTransfer && { billingCycle }),
-    });
+      partner.setIPartnerInfo({
+        whoPay,
+        restriction,
+        apiEnable,
+        departmentId,
+        bankTransfer,
+        canCustomUpdatePlan,
+        companyType,
+        isPublic,
+        level,
+        name,
+        partnerType,
+        paymentEnable,
+        subDomain,
+        userInfo,
+        ...(bankTransfer && { billingCycle }),
+      });
+    } else {
+      billingCycle = 0;
+      canCustomUpdatePlan = false;
+      companyType = 1;
+      paymentEnable = true;
+      bankTransfer = true;
+
+      partner.setIPartnerInfo({
+        whoPay,
+        restriction,
+        apiEnable,
+        departmentId,
+        bankTransfer,
+        canCustomUpdatePlan,
+        companyType,
+        isPublic,
+        level,
+        name,
+        partnerType,
+        paymentEnable,
+        subDomain,
+        userInfo,
+        ...(bankTransfer && { billingCycle }),
+        planId,
+      });
+    }
 
     return partner;
   }
 
-  public static async generatePartnerID(
+  public static async getPartnerID(
     adminService: AdminPortalService,
     departmentName?: string,
   ): Promise<string> {
@@ -132,7 +162,7 @@ export class PartnerFactory {
     let id = DataGenerate.generateDepartmentID(ids);
 
     while (id == localHR) {
-      id = await PartnerFactory.generatePartnerID(adminService);
+      id = await PartnerFactory.getPartnerID(adminService);
     }
     return id;
   }

@@ -470,6 +470,42 @@ export class AdminPortalService {
     const body = await response.json();
     return body === true;
   }
+
+  public async getMasterPlanID(
+    departmentID: string,
+    indexOfPhan = 0,
+  ): Promise<string> {
+    const url = `https://api.qa.virgilhr.com/v1/Payment/products?departmentId=${departmentID}`;
+
+    let tokenToUse = this.authToken ?? this.apiClient.getAuthToken();
+
+    const mergedHeaders: Record<string, string> = {
+      Authorization: `Bearer ${tokenToUse}`,
+      "Content-Type": "application/json",
+    };
+
+    const response = await this.apiClient.sendRequest<any>(
+      "GET",
+      url,
+      undefined,
+      200,
+      mergedHeaders,
+    );
+
+    // Get all plans of departmentID
+    const plans = response as any[];
+    if (!Array.isArray(plans) || plans.length === 0) {
+      throw new Error("No plans returned from API");
+    }
+
+    // Choose a plan to buy
+    const masterPlanId = plans[indexOfPhan].masterPlanId;
+    if (!masterPlanId) {
+      throw new Error("masterPlanId not found in response");
+    }
+
+    return masterPlanId;
+  }
 }
 
 /***

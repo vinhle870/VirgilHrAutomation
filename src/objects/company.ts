@@ -1,29 +1,28 @@
 export interface Company {
+  //Common Info
+  companyName?: string;
+  companySize?: string;
 
-     //Common Info
-     companyName?: string;
-     companySize?: string;
+  //Info to be signup on Member Portal
+  partnerId?: string;
+  source?: string;
+  departmentId?: string;
+  ssoProvider?: string;
+  ssoToken?: string;
 
-     //Info to be signup on Member Portal
-     partnerId?: string;
-     source?: string;
-     departmentId?: string;
-     ssoProvider?: string;
-     ssoToken?: string;
+  //Info to be added on Admin Portal
 
-     //Info to be added on Admin Portal
-
-     useCredit?: boolean;
-	statesEmployee?: string[];
-     country?: Country;
-     totalEmployees?: number;
-	isSso?: boolean;
-     type?: string;
-     partnerConsultantId?:string;
-     industry?: Industry[] | null;
-     trialDays?: number;
-     productType?: number;
-     state?: State;
-     billingcycle?:number
-
+  useCredit?: boolean;
+  statesEmployee?: string[];
+  country?: Country;
+  totalEmployees?: number;
+  isSso?: boolean;
+  type?: string;
+  partnerConsultantId?: string;
+  industry?: Industry[] | null;
+  trialDays?: number;
+  productType?: number;
+  state?: State;
+  billingcycle?: number;
+  teamId?: string;
 }
