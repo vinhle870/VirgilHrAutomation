@@ -28,14 +28,4 @@ export class DataFactory {
 
     return partner;
   }
-
-  public static async generateProductTypesAndNames(
-    adminPortalService: AdminPortalService,
-    departmentId: string,
-  ): Promise<ProductInfo[]> {
-    return await PartnerFactory.getUniqueProductTypesAndNames(
-      adminPortalService,
-      departmentId,
-    );
-  }
 }

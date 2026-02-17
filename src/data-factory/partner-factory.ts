@@ -3,7 +3,6 @@ import { Partner } from "src/objects/ipartner";
 import UserInfo from "src/objects/user-info";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { ProductInfo } from "src/objects/IProduct";
-import { DataFactory } from "./data-factory";
 import { localHR } from "src/constant/static-data";
 
 export class PartnerFactory {
@@ -60,6 +59,16 @@ export class PartnerFactory {
 
     const apiEnable: boolean = false;
 
+    let feFilterProductTypes: number[] = [];
+
+    if (!overrides?.restriction?.feFilterProductTypes)
+      feFilterProductTypes = DataGenerate.generateProductType(
+        await PartnerFactory.getUniqueProductTypesAndNames(
+          adminService,
+          departmentId,
+        ),
+      ).map((p) => p.productType);
+
     let restriction = {
       eSignEnable: true,
       productSupport: true,
@@ -69,15 +78,8 @@ export class PartnerFactory {
       lmsEnable: true,
       hrToolsEnable: true,
       feFilterProductTypes:
-        overrides?.restriction?.feFilterProductTypes ??
-        DataGenerate.generateProductType(
-          await PartnerFactory.getUniqueProductTypesAndNames(
-            adminService,
-            departmentId,
-          ),
-        ),
+        overrides?.restriction?.feFilterProductTypes ?? feFilterProductTypes,
     };
-
     //Payment options
     const whoPay: number = overrides?.whoPay ?? DataGenerate.generateDecimal();
     const planId: string = overrides?.planId ?? ""; //masterPlanID

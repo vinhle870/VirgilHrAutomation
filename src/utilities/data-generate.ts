@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { IMemberInvitation } from "src/objects/imemberinviation";
 import { ProductInfo } from "src/objects/IProduct";
+import { IRecipient } from "src/objects/iInviteMember";
 
 export class DataGenerate {
   /**
@@ -133,7 +134,7 @@ export class DataGenerate {
   }
 
   public static async generateInvitedMember(
-    partnerID: string,
+    partnerID?: string,
     role = 3,
   ): Promise<IMemberInvitation> {
     const invitedMember: IMemberInvitation = {
@@ -153,15 +154,6 @@ export class DataGenerate {
     };
 
     return invitedMember;
-  }
-
-  public static async generateYopMail(): Promise<string> {
-    const seq = DataGenerate.getRandomInt(1, 9999);
-    const firstName = await DataGenerate.generateFirstName();
-    const localPrefix = `${firstName}${seq}`;
-    const email = `${localPrefix}@yopmail.com`;
-
-    return email;
   }
 
   /**

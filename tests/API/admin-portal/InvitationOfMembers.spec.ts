@@ -1,7 +1,6 @@
 import { test, expect } from "src/fixtures";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { DataFactory } from "src/data-factory";
-import { ProductInfo } from "src/objects/IProduct";
 import { DataGenerate } from "src/utilities";
 import { PartnerFactory } from "src/data-factory/partner-factory";
 
@@ -28,25 +27,12 @@ test.describe("Partner managerment", () => {
       adminPortalService,
       "BiginHR",
     );
-    //Get all product types of a department (departmentID)
-    const productTypeAndNames: ProductInfo[] =
-      await DataFactory.generateProductTypesAndNames(
-        adminPortalService,
-        departmentID,
-      );
-    const productTypesAndNamesToSend: ProductInfo[] =
-      DataGenerate.generateProductType(productTypeAndNames);
     //Create partner info
     const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
       isPublic: true,
       whoPay: 0,
-      bankTransfer: true,
+      bankTransfer: false,
       departmentId: departmentID,
-      restriction: {
-        feFilterProductTypes: productTypesAndNamesToSend.map(
-          (p) => p.productType,
-        ),
-      },
     });
     //Create partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
@@ -86,41 +72,32 @@ test.describe("Partner managerment", () => {
       adminPortalService,
       "BiginHR",
     );
-    //Get all product types of a department (departmentID)
-    const productTypeAndNames: ProductInfo[] =
-      await DataFactory.generateProductTypesAndNames(
-        adminPortalService,
-        departmentID,
-      );
-    const productTypesAndNamesToSend: ProductInfo[] =
-      DataGenerate.generateProductType(productTypeAndNames);
-    //Create partner info
-    const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
-      isPublic: true,
-      whoPay: 0,
-      bankTransfer: false,
-      departmentId: departmentID,
-      restriction: {
-        feFilterProductTypes: productTypesAndNamesToSend.map(
-          (p) => p.productType,
-        ),
-      },
-    });
-    //Create partner
-    const partnerResponse = await adminService.createPartner(partnerInfo);
+    //Create a new invited member
+    const invitedMember = await DataGenerate.generateInvitedMember();
 
-    if (partnerResponse.status == 200) {
-      //Create a new invited member
-      const invitedMember = await DataGenerate.generateInvitedMember(
-        partnerResponse.data,
+    for (let i = 0; i < 2; i++) {
+      //Create partner info
+      const partnerInfo = await DataFactory.generatePartnerInfo(
+        0,
+        adminService,
+        {
+          isPublic: true,
+          whoPay: 0,
+          bankTransfer: false,
+          departmentId: departmentID,
+        },
       );
-      //create invited member infor
-      invitedMember.id = partnerResponse.data;
-      //Call API to create a new member to a team
-      const successfullyInvitedMember: boolean =
-        await adminPortalService.inviteMembers(invitedMember);
+      //Create partner
+      const partnerResponse = await adminService.createPartner(partnerInfo);
+      if (partnerResponse.status == 200) {
+        //create invited member infor
+        invitedMember.id = partnerResponse.data;
+        //Call API to invite a new member to a team
+        const successfullyInvitedMember: boolean =
+          await adminPortalService.inviteMembers(invitedMember);
 
-      expect(successfullyInvitedMember).toBe(true);
+        expect(successfullyInvitedMember).toBe(true);
+      }
     }
   });
 });

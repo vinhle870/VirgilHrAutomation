@@ -4,7 +4,7 @@ export interface IRecipient {
   jobTitle: string;
   lastName: string;
   phoneNumber: string;
-  role: number;
+  role?: number;
 }
 
 export interface IInviteMember {

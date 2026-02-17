@@ -33,7 +33,7 @@ test.describe("Partner managerment", () => {
     );
     const masterPlanId = await adminPortalService.getMasterPlanID(departmentID);
     const productTypeAndNames: ProductInfo[] =
-      await DataFactory.generateProductTypesAndNames(
+      await PartnerFactory.getUniqueProductTypesAndNames(
         adminPortalService,
         departmentID,
       );
@@ -94,17 +94,16 @@ test.describe("Partner managerment", () => {
             tempPassword,
             "4",
           );
-          //Create member email to invite
-          const memberEmail = await DataGenerate.generateYopMail();
+          const invitedAdminMember = await DataGenerate.generateInvitedMember();
           //Create admin member info
           const member: IInviteMember = {
             recipients: [
               {
-                email: memberEmail,
-                firstName: partnerInfo.getAccountInfo()?.firstName!,
-                jobTitle: "Test",
-                lastName: partnerInfo.getAccountInfo()?.lastName!,
-                phoneNumber: partnerInfo.getAccountInfo()?.phoneNumber!,
+                email: invitedAdminMember.recipients[0].email,
+                firstName: invitedAdminMember.recipients[0].firstName,
+                jobTitle: invitedAdminMember.recipients[0].jobTitle,
+                lastName: invitedAdminMember.recipients[0].lastName,
+                phoneNumber: invitedAdminMember.recipients[0].phoneNumber,
                 role: 1,
               },
             ],
@@ -146,7 +145,7 @@ test.describe("Partner managerment", () => {
     );
     const masterPlanId = await adminPortalService.getMasterPlanID(departmentID);
     const productTypeAndNames: ProductInfo[] =
-      await DataFactory.generateProductTypesAndNames(
+      await PartnerFactory.getUniqueProductTypesAndNames(
         adminPortalService,
         departmentID,
       );
@@ -208,17 +207,17 @@ test.describe("Partner managerment", () => {
             "4",
           );
           //Create member email to invite
-          const memberEmail = await DataGenerate.generateYopMail();
-          //Create admin member info
+          const invitedAdminMember = await DataGenerate.generateInvitedMember();
+          //Create a new member info with role of admin
           const member: IInviteMember = {
             recipients: [
               {
-                email: memberEmail,
-                firstName: partnerInfo.getAccountInfo()?.firstName!,
+                email: invitedAdminMember.recipients[0].email,
+                firstName: invitedAdminMember.recipients[0].firstName,
                 jobTitle: "Test",
-                lastName: partnerInfo.getAccountInfo()?.lastName!,
-                phoneNumber: partnerInfo.getAccountInfo()?.phoneNumber!,
-                role: 1,
+                lastName: invitedAdminMember.recipients[0].lastName,
+                phoneNumber: invitedAdminMember.recipients[0].phoneNumber,
+                role: 2,
               },
             ],
           };
@@ -230,18 +229,6 @@ test.describe("Partner managerment", () => {
           );
 
           expect(inviteMemberResponse.status).toBe(200);
-
-          await authenticationService.confirmEmailWithoutToken(
-            memberEmail,
-            undefined,
-            "4",
-          );
-
-          await authenticationService.resetPasswordWithoutToken(
-            { username: memberEmail, password: tempPassword },
-            undefined,
-            "4",
-          );
         }
       }
     }
