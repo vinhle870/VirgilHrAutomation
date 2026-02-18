@@ -12,4 +12,5 @@ export default interface UserInfo {
   inviteToken?: string;
   //info to be added on Member Portal as role
   role?: number;
+  partnerConsumerType: number;
 }

@@ -4,6 +4,7 @@ import { DataGenerate } from "src/utilities";
 import { validCountry, validIndustry } from "src/constant/static-data";
 import UserInfo from "src/objects/user-info";
 import { PersonDataGenerator } from "./person-data-generator";
+import { Country, Industry } from "src/objects";
 
 type PortalType = "member" | "admin";
 
@@ -68,6 +69,8 @@ export class CustomerBuilder {
   private memberOptions: MemberCompanyOptions = {};
   private adminOptions: AdminCompanyOptions = {};
   private memberOverridesList: Partial<UserInfo>[] = [];
+  private inviteTokenOverride?: string | undefined | null;
+  private teamIdOverride?: string | undefined | null;
 
   // ── Portal selection ─────────────────────────────────────────
 
@@ -213,6 +216,16 @@ export class CustomerBuilder {
 
   withTrialDays(trialDays: number): this {
     this.adminOptions.trialDays = trialDays;
+    return this;
+  }
+
+  withInviteToken(inviteToken: string): this {
+    this.inviteTokenOverride = inviteToken;
+    return this;
+  }
+
+  withTeamId(teamId: string): this {
+    this.teamIdOverride = teamId;
     return this;
   }
 

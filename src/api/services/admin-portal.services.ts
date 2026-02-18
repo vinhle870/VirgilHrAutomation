@@ -6,13 +6,14 @@ import {
   GET_PRODUCTTYPEFILTERS,
   SEARCH_PARTNER_BY_TEXT,
   SEARCH_CUSTOMER_BY_EMAIL,
-  ADMIN_GET_PLANS,
+  GET_DEPARTMENT_PLAN,
+  GET_DEPARTMENT_PAYMENT_PRODUCT,
 } from "src/api/endpoints/admin-portal.endpoints";
 import { Authentication } from "src/api/services/authentication.service";
 import { CustomerInfo } from "src/objects/customer";
 import { Partner } from "src/objects/ipartner";
 import { APIResponse } from "@playwright/test";
-import { IInviteMember } from "src/objects/iInviteMember";
+
 
 export class AdminPortalService {
   private apiClient: ApiClient;
@@ -293,7 +294,7 @@ export class AdminPortalService {
     nameOfPlan: string,
     departmentId?: string,
   ): Promise<object> {
-    const path = ADMIN_GET_PLANS.replace(/^\/+/, "");
+    const path = GET_DEPARTMENT_PLAN.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}${departmentId}`;
 
     const headers = this.authToken
@@ -471,11 +472,11 @@ export class AdminPortalService {
     return body === true;
   }
 
-  public async getMasterPlanID(
+  public async getDepartmentPaymentProduct(
     departmentID: string,
-    indexOfPhan = 0,
-  ): Promise<string> {
-    const url = `https://api.qa.virgilhr.com/v1/Payment/products?departmentId=${departmentID}`;
+  ): Promise<object[]> {
+    
+    const url = `${this.baseUrl}/${GET_DEPARTMENT_PAYMENT_PRODUCT}${departmentID}`;
 
     let tokenToUse = this.authToken ?? this.apiClient.getAuthToken();
 
@@ -492,19 +493,7 @@ export class AdminPortalService {
       mergedHeaders,
     );
 
-    // Get all plans of departmentID
-    const plans = response as any[];
-    if (!Array.isArray(plans) || plans.length === 0) {
-      throw new Error("No plans returned from API");
-    }
-
-    // Choose a plan to buy
-    const masterPlanId = plans[indexOfPhan].masterPlanId;
-    if (!masterPlanId) {
-      throw new Error("masterPlanId not found in response");
-    }
-
-    return masterPlanId;
+   return response;
   }
 }
 
