@@ -9,7 +9,7 @@ import {
   ADMIN_GET_PLANS,
 } from "src/api/endpoints/admin-portal.endpoints";
 import { Authentication } from "src/api/services/authentication.service";
-import { MembPortalCustomer } from "src/objects/customer";
+import { CustomerInfo } from "src/objects/customer";
 import { Partner } from "src/objects/ipartner";
 import { APIResponse } from "@playwright/test";
 import { IInviteMember } from "src/objects/iInviteMember";
@@ -121,12 +121,12 @@ export class AdminPortalService {
     return {};
   }
 
-  async createCustomer(customerInfo: MembPortalCustomer): Promise<any> {
+  async createCustomer(customerInfo: CustomerInfo): Promise<any> {
     const path = CREATE_CUSTOMER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
     const requestBody = {
-      ...customerInfo.getAccountInfo(),
-      ...customerInfo.getCompany(),
+      ...customerInfo.accountInfo,
+      ...customerInfo.company,
     };
     const headers = this.authToken
       ? { Authorization: `Bearer ${this.authToken}` }
@@ -180,8 +180,8 @@ export class AdminPortalService {
     const url = `${this.baseUrl}/${path}`;
 
     const requestBody = {
-      ...partnerInfo.getIPartnerInfo(),
-      ...partnerInfo.getAccountInfo(),
+      ...partnerInfo.partnerInfo,
+      ...partnerInfo.accountInfo,
     };
 
     const headers = this.authToken

@@ -1,5 +1,5 @@
 import { test, expect } from 'src/fixtures';
-import { DataFactory } from 'src/data-factory';
+import { DataFactory, CustomerBuilder } from 'src/data-factory';
 import { AdminPortalService } from 'src/api/services/admin-portal.services';
 import { validCardInfo } from 'src/constant/static-data';
 
@@ -13,8 +13,9 @@ test('TC001_API_Verify the API POST v1/Consumer/Consumers Without PartnerID retu
 
 
     // Generate consumer payload with discovered IDs (if any)
-    const consumerData = await DataFactory.generateCustomerInfo("member");
-    const customerAccountInfo = consumerData.getAccountInfo();
+    //const consumerData = await DataFactory.customerBuilder().forMemberPortal().build();
+    const consumerData = await DataFactory.customerBuilder().forMemberPortal().build();
+    const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
 
     // API VERIFICATION:
@@ -39,8 +40,8 @@ test('TC001_API_Verify the API POST v1/Consumer/Consumers Without PartnerID retu
 
 
     // Generate consumer payload with discovered IDs (if any)
-    const consumerData = await DataFactory.generateCustomerInfo("member");
-    const customerAccountInfo = consumerData.getAccountInfo();
+    const consumerData = await DataFactory.customerBuilder().forMemberPortal().build();
+    const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
 
     // API VERIFICATION:
@@ -63,7 +64,7 @@ test('TC001_API_Verify the API POST v1/Consumer/Consumers Without PartnerID retu
     //****------------------------------------------------------------------------------------------------*****
 
      // API VERIFICATION: GET PLANS: GET Payment/products
-    const plansResp =  await memberPortalService.getPlansList(consumerData.getCompany().departmentId!, consumerToken);
+    const plansResp =  await memberPortalService.getPlansList(consumerData.company.departmentId!, consumerToken);
 
     expect(plansResp).toBeDefined();
     expect(typeof plansResp).toBe('object');
@@ -80,8 +81,8 @@ test('TC001_API_Verify the API POST v1/Consumer/Consumers Without PartnerID retu
 
 
     // Generate consumer payload with discovered IDs (if any)
-    const consumerData = await DataFactory.generateCustomerInfo("member");
-    const customerAccountInfo = consumerData.getAccountInfo();
+    const consumerData = await DataFactory.customerBuilder().forMemberPortal().build();
+    const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
 
     // API VERIFICATION:
@@ -136,9 +137,9 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
 
 
     // Generate consumer payload with discovered IDs (if any)
-    const consumerData = await DataFactory.generateCustomerInfo("member");
-    const customerAccountInfo = consumerData.getAccountInfo();
-    const planName = consumerData.getPlan();
+    const consumerData = await DataFactory.customerBuilder().forMemberPortal().build();
+    const customerAccountInfo = consumerData.accountInfo;
+    const planName = consumerData.plan;
     //*****---------------------------------------------------*****
 
     // Call the service (the fixture `memberPortalService` wraps ApiClient)
@@ -242,8 +243,8 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
 
 
     // Generate consumer payload with discovered IDs (if any)
-    const consumerData = await DataFactory.generateCustomerInfo("member");
-    const customerAccountInfo = consumerData.getAccountInfo();
+    const consumerData = await DataFactory.customerBuilder().forMemberPortal().build();
+    const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
 
     // API VERIFICATION:
@@ -279,7 +280,7 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
     //****------------------------------------------------------------------------------------------------*****
 
      // API VERIFICATION: GET PLANS:
-    const plansResp =  await memberPortalService.getPlansList(consumerData.getCompany().departmentId!, consumerToken);
+    const plansResp =  await memberPortalService.getPlansList(consumerData.company.departmentId!, consumerToken);
 
     expect(plansResp).toBeDefined();
     expect(typeof plansResp).toBe('object');
@@ -321,8 +322,8 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
 
 
     // Generate consumer payload with discovered IDs (if any)
-    const consumerData = await DataFactory.generateCustomerInfo("member");
-    const customerAccountInfo = consumerData.getAccountInfo();
+    const consumerData = await DataFactory.customerBuilder().forMemberPortal().build();
+    const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
 
     // API VERIFICATION:
@@ -380,8 +381,8 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
     expect(planDetailsResp as any).toHaveProperty('price');
     expect(planDetailsResp as any).toHaveProperty('partnerSetting');
     //Verify some plan details
-    expect((planDetailsResp as any).departmentId).toBe(consumerData.getCompany().departmentId);
-    const planName = consumerData.getPlan();
+    expect((planDetailsResp as any).departmentId).toBe(consumerData.company.departmentId);
+    const planName = consumerData.plan;
     expect((planDetailsResp as any).name).toContain(planName);
 
 
@@ -400,11 +401,18 @@ test('TC012_API_Verify GET Payment/Status returns 200-OK with correct status', a
     const adminService = await AdminPortalService.create(apiClient, authenticationService);
 
     const partnerInfo = await adminService.searchPartner(partnerName);
-
+    if (!partnerInfo.partnerId || !partnerInfo.departmentId) {
+      testInfo.skip(true, "Partner ID or department ID is not configured");
+      return;
+    }
     // Generate consumer payload with discovered IDs (if any)
-    const consumerData = await DataFactory.generateCustomerInfo("member", {partnerId:partnerInfo.partnerId, departmentId:partnerInfo.departmentId});
-    const customerAccountInfo = consumerData.getAccountInfo();
-    const planName = consumerData.getPlan();
+   // const consumerData = await DataFactory.generateCustomerInfo("member", {partnerId:partnerInfo.partnerId, departmentId:partnerInfo.departmentId});
+   const consumerData = await DataFactory.customerBuilder()
+   .forMemberPortal().withPartner(partnerInfo.partnerId)
+   .withDepartment(partnerInfo.departmentId)
+   .build();
+   const customerAccountInfo = consumerData.accountInfo;
+    const planName = consumerData.plan;
     //*****---------------------------------------------------*****
 
     // API VERIFICATION:

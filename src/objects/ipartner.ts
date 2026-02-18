@@ -34,27 +34,6 @@ export interface IPartnerInfoWithDepartmentAndProductTypes {
 }
 
 export class Partner {
-  private iPartnerInfo: IPartnerInfo | undefined;
-  private accountInfo: UserInfo | undefined;
-
-  constructor() {
-    this.accountInfo = undefined;
-    this.iPartnerInfo = undefined;
-  }
-
-  public getIPartnerInfo(): IPartnerInfo | undefined {
-    return this.iPartnerInfo;
-  }
-
-  public setIPartnerInfo(iPartnerInfo: IPartnerInfo) {
-    this.iPartnerInfo = iPartnerInfo;
-  }
-
-  public getAccountInfo(): UserInfo | undefined {
-    return this.accountInfo;
-  }
-
-  public setAccountInfo(accountInfo: UserInfo) {
-    this.accountInfo = accountInfo;
-  }
+  accountInfo: UserInfo | undefined;
+  partnerInfo: IPartnerInfo | undefined;
 }

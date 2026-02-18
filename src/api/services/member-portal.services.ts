@@ -7,9 +7,21 @@ import {
   GET_PAYMENT_SUBSCRIPTION,
   SIGN_UP_CONSUMER,
   MEMBER_LOGIN,
+  INVITE_MEMBER,
 } from "src/api/endpoints/member-portal.endpoints";
-import { MembPortalCustomer } from "src/objects/customer";
-import { IInviteMember } from "src/objects/iInviteMember";
+import { CustomerInfo } from "src/objects/customer";
+import UserInfo from "src/objects/user-info";
+
+/**
+ * Payload for inviting members to a team.
+ * Matches API schema: `{ recipients: [{ email, firstName, ... }] }`
+ */
+export interface InviteMemberPayload {
+  recipients: Pick<
+    UserInfo,
+    "email" | "firstName" | "lastName" | "phoneNumber" | "jobTitle" | "role"
+  >[];
+}
 
 export class MemberPortalService {
   private apiClient: ApiClient;
@@ -25,13 +37,13 @@ export class MemberPortalService {
    * Sign up a new user on Member Portal with the provided data
    */
   async signUpConsumer(
-    consumerData: MembPortalCustomer,
+    consumerData: CustomerInfo,
   ): Promise<string | Record<string, any>> {
     const baseurl = this.baseUrl;
     const url = `${baseurl}${SIGN_UP_CONSUMER}`;
     const requestBody = {
-      ...consumerData.getAccountInfo(),
-      ...consumerData.getCompany(),
+      ...consumerData.accountInfo,
+      ...consumerData.company,
     };
     const response = await this.apiClient.sendRequest<
       string | Record<string, any>
@@ -185,58 +197,27 @@ export class MemberPortalService {
     return body;
   }
 
-  public async inviteMember(
-    token: string,
-    member: IInviteMember,
-    name: string,
-  ): Promise<{ status: number; body: any }> {
-    const url = "https://api.qa.virgilhr.com/v1/Consumer/Teams/Invite";
+  /**
+   * Invite a member to a team from Admin Portal
+   * @param token - The token to authenticate the request
+   * @param member - The member to invite
+   * @param name - The name of the team
+   * @returns The invite member response
+   */
+  public async inviteMember(token: string, member: InviteMemberPayload, name: string,
+  ): Promise<object> {
+    const url = `${this.baseUrl}/${INVITE_MEMBER}`;
+    const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
-    const response: { status: number; body: any } =
-      await this.sendRequesToInviteMember(token, url, name, member);
-
-    return { status: response.status, body: response.body };
-  }
-
-  private async sendRequesToInviteMember(
-    token: string,
-    url: string,
-    name: string,
-    payload: IInviteMember,
-    expectedStatus = 200,
-  ): Promise<{ status: number; body: any }> {
-    const fullUrl = url.startsWith("http") ? url : `${this.baseUrl}/${url}`;
-
-    const mergedHeaders: Record<string, string> = {
-      authorization: `Bearer ${token}`,
-      "content-type": "application/json",
-      origin: `https://${name}.member-virgilhr-qa.bigin.top`,
-      priority: "u=1, i",
-      referer: `https://${name}.member-virgilhr-qa.bigin.top/`,
-      "user-agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0",
-    };
-
-    const requestOptions: any = { headers: mergedHeaders };
-    requestOptions.data = payload;
-
-    const response = await this.apiClient
-      .getApiContext()
-      .post(fullUrl, requestOptions);
-    const status = response.status();
-    if (status !== expectedStatus) {
-      throw new Error(
-        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
-      );
-    }
-
-    const contentType = response.headers()["content-type"] || "";
-    const body =
-      contentType.includes("application/json") && status !== 204
-        ? await response.json()
-        : await response.text();
-
-    return { status, body };
+    const response = await this.apiClient.sendRequest<object>(
+      "POST",
+      url,
+      member,
+      200, // Assuming 200 OK is the expected status code
+      headers,
+    );
+    return response; // Return the checkout plan response
+   
   }
 
   /**
