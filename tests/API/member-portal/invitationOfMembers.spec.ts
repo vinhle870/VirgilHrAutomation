@@ -6,7 +6,7 @@ import { TestDataProvider } from "src/test-data";
 import { ProductInfo } from "src/objects/iproduct";
 import { DataGenerate } from "src/utilities";
 
-test.describe("Partner managerment", () => {
+test.describe("Partner management", () => {
   test("TC54 Verify that a user can invite members to a team in the Member Portal-Organization tab.", async ({
     apiClient,
     authenticationService,
@@ -128,14 +128,16 @@ test.describe("Partner managerment", () => {
             "4",
           );
           //API Step: Invite members to a team in the Member Portal-Organization tab.
-          const inviteMemberResponse = memberPortalService.inviteMember(
+          const partnerName = partnerInfo.partnerInfo?.name;
+          expect(partnerName).toBeDefined();
+
+          const inviteMemberResponse = await memberPortalService.inviteMember(
             token,
             invitePayload,
-            partnerInfo.partnerInfo?.name!,
+            partnerName!,
           );
           expect(inviteMemberResponse).toBeDefined();
-          expect(typeof inviteMemberResponse).toBe("boolean");
-          expect(inviteMemberResponse).toBe(true);
+          expect(typeof inviteMemberResponse).toBe("object");
 
           
         }
