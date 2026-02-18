@@ -1,4 +1,4 @@
-interface Country {
-    key: string;   // e.g., "US"
-    value: string; // e.g., "United States"
+export interface Country {
+  key: string;
+  value: string;
 }

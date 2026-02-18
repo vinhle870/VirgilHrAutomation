@@ -1,19 +1,31 @@
-import { DataHandling } from "../data-handling/data-handling";
-import { Customer } from "../objects/customer";
-import { Constants } from "../utilities/constants";
-import { CustomerFactory } from "./customer-factory";
+import { CustomerBuilder } from "./customer-builder";
+import { PartnerBuilder } from "./partner-builder";
 
+/**
+ * Entry point for creating typed test data builders.
+ *
+ * For pre-condition data (department IDs, product types, domains),
+ * use TestDataProvider from `src/test-data`.
+ *
+ * Usage:
+ * ```ts
+ * const customer = await DataFactory.customerBuilder()
+ *   .forMemberPortal()
+ *   .withPartner(partnerId)
+ *   .build();
+ *
+ * const partner = await DataFactory.partnerBuilder()
+ *   .withDepartment(departmentId)
+ *   .withFilterProductTypes(products)
+ *   .build();
+ * ```
+ */
+export class DataFactory {
+  static customerBuilder(): CustomerBuilder {
+    return new CustomerBuilder();
+  }
 
-export class DataFactory{
-
-static async generateCustomerInfo(partnerId?: string, departmentId?: string): Promise<Customer> {
-  // Delegate to CustomerUser which handles user data generation logic
-  const customer = await CustomerFactory.createCustomer( {
-    partnerId: partnerId,
-    departmentId: departmentId
-  } );
-  return customer;
-
-}
-
+  static partnerBuilder(): PartnerBuilder {
+    return new PartnerBuilder();
+  }
 }

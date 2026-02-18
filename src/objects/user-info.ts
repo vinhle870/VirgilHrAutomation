@@ -1,26 +1,14 @@
-import { DataHandling } from "../data-handling/data-handling";
 export default interface UserInfo {
+  email: string;
+  password?: string;
+  firstName: string;
+  lastName: string;
+  jobTitle: string;
+  phoneNumber: string;
 
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    jobTitle: string;
-    companyName: string;
-    companySize: string;
-    phoneNumber: string;
-    partnerId?: string;
-    source: string;
-    departmentId: string;
-    ssoProvider?: string;
-    ssoToken?: string;
+  //info to be added on Admin Portal
+  userType?: number;
 
-    /**
-     * Get Dealer Login Account
-     * @param user
-     * @returns
-     */
-
-    generateCustomerPayload: (partnerId?: string, departmentId?: string) => Promise<object>;
-
+  //info to be added on Member Portal as role
+  role?: number;
 }
