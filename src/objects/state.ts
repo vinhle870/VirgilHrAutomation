@@ -1,4 +1,4 @@
-interface State {
-    key: string;   // e.g., "AL"
-    value: string; // e.g., "Alabama"
+export interface State {
+  key: string;
+  value: string;
 }

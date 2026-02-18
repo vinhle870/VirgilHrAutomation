@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { IMemberInvitation } from "src/objects/imemberinviation";
-import { ProductInfo } from "src/objects/IProduct";
+import { ProductInfo } from "src/objects/iproduct";
 
 export class DataGenerate {
   /**

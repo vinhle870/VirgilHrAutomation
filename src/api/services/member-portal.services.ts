@@ -10,7 +10,18 @@ import {
   INVITE_MEMBER,
 } from "src/api/endpoints/member-portal.endpoints";
 import { CustomerInfo } from "src/objects/customer";
-import { IInviteMember } from "src/objects/iInviteMember";
+import UserInfo from "src/objects/user-info";
+
+/**
+ * Payload for inviting members to a team.
+ * Matches API schema: `{ recipients: [{ email, firstName, ... }] }`
+ */
+export interface InviteMemberPayload {
+  recipients: Pick<
+    UserInfo,
+    "email" | "firstName" | "lastName" | "phoneNumber" | "jobTitle" | "role"
+  >[];
+}
 
 export class MemberPortalService {
   private apiClient: ApiClient;
@@ -31,8 +42,8 @@ export class MemberPortalService {
     const baseurl = this.baseUrl;
     const url = `${baseurl}${SIGN_UP_CONSUMER}`;
     const requestBody = {
-      ...consumerData.getAccountInfo(),
-      ...consumerData.getCompany(),
+      ...consumerData.accountInfo,
+      ...consumerData.company,
     };
     const response = await this.apiClient.sendRequest<
       string | Record<string, any>
@@ -193,7 +204,7 @@ export class MemberPortalService {
    * @param name - The name of the team
    * @returns The invite member response
    */
-  public async inviteMember(token: string,member: IInviteMember,name: string,
+  public async inviteMember(token: string, member: InviteMemberPayload, name: string,
   ): Promise<object> {
     const url = `${this.baseUrl}/${INVITE_MEMBER}`;
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
@@ -201,7 +212,7 @@ export class MemberPortalService {
     const response = await this.apiClient.sendRequest<object>(
       "POST",
       url,
-      undefined,
+      member,
       200, // Assuming 200 OK is the expected status code
       headers,
     );

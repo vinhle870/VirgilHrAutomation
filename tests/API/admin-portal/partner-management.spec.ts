@@ -1,11 +1,11 @@
 import { test, expect } from "src/fixtures";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { DataFactory } from "src/data-factory";
+import { TestDataProvider } from "src/test-data";
 import { localHR, paymentOptions } from "src/constant/static-data";
 import { DataGenerate } from "src/utilities";
-import { ProductInfo } from "src/objects/IProduct";
+import { ProductInfo } from "src/objects/iproduct";
 import Comparison from "src/utilities/compare";
-import { PartnerFactory } from "src/data-factory/partner-factory";
 
 test.describe("Partner managerment", () => {
   test("TC030_API Verify that a partner account can only be created in the Admin Portal – Partner Management.", async ({
@@ -25,7 +25,7 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
 
-    const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService);
+    const partnerInfo = await DataFactory.partnerBuilder().build();
 
     const response = await adminService.createPartner(partnerInfo);
 
@@ -49,9 +49,9 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
 
-    const peoInfo = await DataFactory.generatePartnerInfo(1, adminService);
+    const peoInfo = await DataFactory.partnerBuilder().withLevel(1).build();
 
-    const nameOfPeoInfo: string = peoInfo.getIPartnerInfo()?.name!;
+    const nameOfPeoInfo: string = peoInfo.partnerInfo?.name!;
 
     const responsePEO = await adminService.createPartner(peoInfo);
 
@@ -62,9 +62,9 @@ test.describe("Partner managerment", () => {
       expect(peoLevel).toBe(1);
     }
 
-    const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService);
+    const partnerInfo = await DataFactory.partnerBuilder().build();
 
-    const nameOfpartnerInfo: string = partnerInfo.getIPartnerInfo()?.name!;
+    const nameOfpartnerInfo: string = partnerInfo.partnerInfo?.name!;
 
     const responsePartner = await adminService.createPartner(partnerInfo);
 
@@ -101,14 +101,10 @@ test.describe("Partner managerment", () => {
       if (i == 0) domain = "";
       else domain = `test${seq}`;
 
-      const partnerInfo = await DataFactory.generatePartnerInfo(
-        0,
-        adminService,
-        {
-          isPublic: true,
-          subDomain: domain,
-        },
-      );
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withIsPublic(true)
+        .withSubDomain(domain)
+        .build();
       const responseOfPartner = await adminService.createPartner(partnerInfo);
 
       expect(responseOfPartner.status).toBe(200);
@@ -132,15 +128,11 @@ test.describe("Partner managerment", () => {
     );
 
     for (let i = 0; i < paymentOptions.length; i++) {
-      const partnerInfo = await DataFactory.generatePartnerInfo(
-        0,
-        adminService,
-        {
-          paymentEnable: i,
-        },
-      );
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withPaymentEnable(!!i)
+        .build();
 
-      const nameOfPartnerInfo = partnerInfo.getIPartnerInfo()?.name!;
+      const nameOfPartnerInfo = partnerInfo.partnerInfo?.name!;
 
       const responseOfPartner = await adminService.createPartner(partnerInfo);
 
@@ -172,17 +164,17 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
 
-    const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
-      isPublic: true,
-      whoPay: 0,
-    });
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withIsPublic(true)
+      .withWhoPay(0)
+      .build();
 
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
     if (partnerResponse.status == 200) {
       const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-      const email = partnerInfo.getAccountInfo()?.email;
+      const email = partnerInfo.accountInfo?.email;
 
       if (!email) {
         throw new Error(
@@ -203,7 +195,7 @@ test.describe("Partner managerment", () => {
           "5",
         );
 
-        const emailOfPartner = partnerInfo.getAccountInfo()?.email!;
+        const emailOfPartner = partnerInfo.accountInfo?.email!;
 
         const searchResponse =
           await adminService.getCustomerIdByEmail(emailOfPartner);
@@ -235,39 +227,25 @@ test.describe("Partner managerment", () => {
       apiClient,
       authenticationService,
     );
+    const testData = new TestDataProvider(adminPortalService);
+
     //Create department id to send
-    let departmentID = await PartnerFactory.generatePartnerID(
-      adminPortalService,
-      "BiginHR",
-    );
-    //PrismHR: 68f09ac3500b0efa8a365bef->ok
-    //BiginHR: 688897d5eb52b4af5573def4->No ok
-    //VirgilHR: 68908f542e20001e47f5394f->No ok
-    //Vensure: 6928522dc95cab35e8188e2e
-    //Epay: 6928522dc95cab35e8188e2f->ok
+    let departmentID = await testData.getDepartmentId("BiginHR");
     //Get department domain
-    const partnerDomain =
-      await PartnerFactory.getDepartmentDomain(departmentID);
+    const partnerDomain = await testData.getDepartmentDomain(departmentID);
     //Get all product types of a department (departmentID)
     const productTypeAndNames: ProductInfo[] =
-      await DataFactory.generateProductTypesAndNames(
-        adminPortalService,
-        departmentID,
-      );
+      await testData.getProductTypes(departmentID);
     //Filter some product types from productTypeAndNames to send
     const productTypesAndNamesToSend: ProductInfo[] =
       DataGenerate.generateProductType(productTypeAndNames);
     //Create partner info
-    const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
-      isPublic: true,
-      departmentId: departmentID,
-      restriction: {
-        feFilterProductTypes: productTypesAndNamesToSend.map(
-          (p) => p.productType,
-        ),
-      },
-      whoPay: 0,
-    });
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withIsPublic(true)
+      .withDepartment(departmentID)
+      .withFilterProductTypes(productTypesAndNamesToSend)
+      .withWhoPay(0)
+      .build();
 
     //Create partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
@@ -275,7 +253,7 @@ test.describe("Partner managerment", () => {
     if (partnerResponse.status == 200) {
       const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-      const email = partnerInfo.getAccountInfo()?.email!;
+      const email = partnerInfo.accountInfo?.email!;
 
       const resetPartner =
         await authenticationService.resetPasswordWithoutToken(
@@ -353,29 +331,23 @@ test.describe("Partner managerment", () => {
       apiClient,
       authenticationService,
     );
+    const testData = new TestDataProvider(adminPortalService);
+
     //Create department id to send
-    const departmentID =
-      await PartnerFactory.generatePartnerID(adminPortalService);
+    const departmentID = await testData.getDepartmentId();
     //Get all product types of a department (departmentID)
     const productTypeAndNames: ProductInfo[] =
-      await DataFactory.generateProductTypesAndNames(
-        adminPortalService,
-        departmentID,
-      );
+      await testData.getProductTypes(departmentID);
     //Filter some product types from productTypeAndNames to send
     const productTypesAndNamesToSend: ProductInfo[] =
       DataGenerate.generateProductType(productTypeAndNames);
     //Create partner info
-    const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
-      isPublic: true,
-      departmentId: departmentID,
-      restriction: {
-        feFilterProductTypes: productTypesAndNamesToSend.map(
-          (p) => p.productType, // Select mutiple plans
-        ),
-      },
-      whoPay: 0,
-    });
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withIsPublic(true)
+      .withDepartment(departmentID)
+      .withFilterProductTypes(productTypesAndNamesToSend)
+      .withWhoPay(0)
+      .build();
     //Create a new partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
@@ -398,17 +370,17 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
 
-    const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
-      isPublic: true,
-      whoPay: 0,
-    });
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withIsPublic(true)
+      .withWhoPay(0)
+      .build();
 
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
     if (partnerResponse.status == 200) {
       const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-      const email = partnerInfo.getAccountInfo()?.email!;
+      const email = partnerInfo.accountInfo?.email!;
 
       const resetPartner =
         await authenticationService.resetPasswordWithoutToken(
@@ -481,17 +453,17 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
 
-    const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
-      isPublic: true,
-      whoPay: 1,
-    });
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withIsPublic(true)
+      .withWhoPay(1)
+      .build();
 
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
     if (partnerResponse.status == 200) {
       const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-      const email = partnerInfo.getAccountInfo()?.email!;
+      const email = partnerInfo.accountInfo?.email!;
 
       const resetPassword =
         await authenticationService.resetPasswordWithoutToken(
@@ -507,7 +479,7 @@ test.describe("Partner managerment", () => {
           "5",
         );
 
-        const emailOfPartner = partnerInfo.getAccountInfo()?.email!;
+        const emailOfPartner = partnerInfo.accountInfo?.email!;
 
         expect(emailOfPartner).toBeDefined();
 
@@ -538,14 +510,14 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
 
-    const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
-      isPublic: true,
-      whoPay: 1,
-    });
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withIsPublic(true)
+      .withWhoPay(1)
+      .build();
 
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
-    const email = partnerInfo.getAccountInfo()?.email!;
+    const email = partnerInfo.accountInfo?.email!;
 
     if (partnerResponse.status == 200) {
       const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
@@ -602,14 +574,14 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
 
-    const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
-      isPublic: true,
-      whoPay: 1,
-    });
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withIsPublic(true)
+      .withWhoPay(1)
+      .build();
 
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
-    const email = partnerInfo.getAccountInfo()?.email!;
+    const email = partnerInfo.accountInfo?.email!;
 
     if (partnerResponse.status == 200) {
       const tempPassword = "TempPass@" + Date.now().toString().slice(-4);

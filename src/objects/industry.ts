@@ -1,4 +1,4 @@
-interface Industry {
-    code: string;   // e.g., "TECH"
-    value: string; // e.g., "Technology"
+export interface Industry {
+  code: string;
+  value: string;
 }
