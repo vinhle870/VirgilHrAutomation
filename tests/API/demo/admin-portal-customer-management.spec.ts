@@ -1,5 +1,5 @@
 import { test, expect } from 'src/fixtures';
-import { DataFactory } from 'src/data-factory';
+import { DataFactory, CustomerBuilder } from 'src/data-factory';
 import { AdminPortalService } from 'src/api/services/admin-portal.services';
 import { plans, validCardInfo } from 'src/constant/static-data';
 import { DataHandling } from 'src/data-handling/data-handling';
@@ -22,11 +22,11 @@ test.describe('Admin Portal - Customer Management', () => {
     const partnerInfo = await adminService.searchPartner(partnerName);
 
     // Generate consumer payload with discovered IDs (if any)
-        const overridesFields = { //partnerId: partnerInfo.partnerId,
-      departmentId: partnerInfo.departmentId
-  };
-    const consumerData = await DataFactory.generateCustomerInfo("admin",overridesFields);
-    const customerAccountInfo = consumerData.getAccountInfo();
+    const consumerData = await DataFactory.customerBuilder()
+      .forAdminPortal()
+      .withDepartment(partnerInfo.departmentId)
+      .build();
+    const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
 
 
@@ -65,16 +65,15 @@ test.describe('Admin Portal - Customer Management', () => {
     //Filter product type id by name
     const filteredProductType = await DataHandling.filterProductTypeFiltersByName(productTypeFilters, plans[1]);
 
-    const overridesFields = {
-      companySize: filteredProductType,
-      trialDays:30,
-      partnerId: partnerInfo.partnerId,
-      departmentId: partnerInfo.departmentId
-  };
-
     // Generate consumer payload with discovered IDs (if any)
-    const consumerData = await DataFactory.generateCustomerInfo("admin",overridesFields);
-    const customerAccountInfo = consumerData.getAccountInfo();
+    const consumerData = await DataFactory.customerBuilder()
+      .forAdminPortal()
+      .withCompanySize(filteredProductType)
+      .withAdminOptions({ trialDays: 30 })
+      .withPartner(partnerInfo.partnerId)
+      .withDepartment(partnerInfo.departmentId)
+      .build();
+    const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
 
 
@@ -88,7 +87,7 @@ test.describe('Admin Portal - Customer Management', () => {
     expect(Object.keys(resp as any).length).toBeGreaterThan(0);
     expect(Object.keys(resp.id).length).toBeGreaterThan(0);
     expect(resp.email).toBe(customerAccountInfo.email);
-    expect(resp.team.name).toBe(consumerData.getCompany().companyName);
+    expect(resp.team.name).toBe(consumerData.company.companyName);
 
 
   });
@@ -113,16 +112,14 @@ test.describe('Admin Portal - Customer Management', () => {
     //Filter product type id by name
     const filteredProductType = await DataHandling.filterProductTypeFiltersByName(productTypeFilters, plans[1]);
 
-    const overridesFields = {
-      companySize: filteredProductType,
-      productType: filteredProductType,
-      trialDays:30,
-      departmentId: partnerInfo.departmentId
-  };
-
     // Generate consumer payload with discovered IDs (if any)
-    const consumerData = await DataFactory.generateCustomerInfo("admin",overridesFields);
-    const customerAccountInfo = consumerData.getAccountInfo();
+    const consumerData = await DataFactory.customerBuilder()
+      .forAdminPortal()
+      .withCompanySize(filteredProductType)
+      .withAdminOptions({ productType: filteredProductType, trialDays: 30 })
+      .withDepartment(partnerInfo.departmentId)
+      .build();
+    const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
 
 
@@ -162,17 +159,14 @@ test.describe('Admin Portal - Customer Management', () => {
     const plan=plans[2];
     const filteredProductType = await DataHandling.filterProductTypeFiltersByName(productTypeFilters, plan);
 
-    const overridesFields = {
-      companySize: filteredProductType,
-      productType: filteredProductType,
-      billingcycle:1,//Yearly billing cycle
-      useCredit:true,
-      departmentId: partnerInfo.departmentId
-  };
-
     // Generate consumer payload with discovered IDs (if any)
-    const consumerData = await DataFactory.generateCustomerInfo("admin",overridesFields);
-    const customerAccountInfo = consumerData.getAccountInfo();
+    const consumerData = await DataFactory.customerBuilder()
+      .forAdminPortal()
+      .withCompanySize(filteredProductType)
+      .withAdminOptions({ productType: filteredProductType, billingcycle: 1, useCredit: true })
+      .withDepartment(partnerInfo.departmentId)
+      .build();
+    const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
 
     // Call the admin service to create customer
@@ -185,7 +179,7 @@ test.describe('Admin Portal - Customer Management', () => {
     expect(Object.keys(resp as any).length).toBeGreaterThan(0);
     expect(Object.keys(resp.id).length).toBeGreaterThan(0);
     expect(resp.email).toBe(customerAccountInfo.email);
-    expect(resp.team.name).toBe(consumerData.getCompany().companyName);
+    expect(resp.team.name).toBe(consumerData.company.companyName);
 
     //Call the admin service to get consumer by ID to verify useCredit = true
     const consumerById = await adminService.getConsumerById(resp.id);
@@ -211,11 +205,11 @@ test.describe('Admin Portal - Customer Management', () => {
     const partnerInfo = await adminService.searchPartner(partnerName);
 
     // Generate consumer payload with discovered IDs (if any)
-        const overridesFields = { //partnerId: partnerInfo.partnerId,
-      departmentId: partnerInfo.departmentId
-  };
-    const consumerData = await DataFactory.generateCustomerInfo("admin",overridesFields);
-    const customerAccountInfo = consumerData.getAccountInfo();
+    const consumerData = await DataFactory.customerBuilder()
+      .forAdminPortal()
+      .withDepartment(partnerInfo.departmentId)
+      .build();
+    const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
 
 
@@ -262,16 +256,14 @@ test.describe('Admin Portal - Customer Management', () => {
     const plan=plans[1];
     const filteredProductType = await DataHandling.filterProductTypeFiltersByName(productTypeFilters, plan);
 
-    const overridesFields = {
-      companySize: filteredProductType,
-      productType: filteredProductType,
-      trialDays:30,
-      departmentId: partnerInfo.departmentId
-  };
-
     // Generate consumer payload with discovered IDs (if any)
-    const consumerData = await DataFactory.generateCustomerInfo("admin",overridesFields);
-    const customerAccountInfo = consumerData.getAccountInfo();
+    const consumerData = await DataFactory.customerBuilder()
+      .forAdminPortal()
+      .withCompanySize(filteredProductType)
+      .withAdminOptions({ productType: filteredProductType, trialDays: 30 })
+      .withDepartment(partnerInfo.departmentId)
+      .build();
+    const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
 
 
@@ -296,7 +288,7 @@ test.describe('Admin Portal - Customer Management', () => {
 
     // API VERIFICATION: Verify the Customer Subscription plan And The number of trial days
     expect(consumerById.subscription.name).toBe(plan);
-    expect(diffDays).toBe(consumerData.getCompany().trialDays);
+    expect(diffDays).toBe(consumerData.company.trialDays);
 
   });
 

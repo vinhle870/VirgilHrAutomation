@@ -1,2 +1,1 @@
-// Re-export test data or helpers. For JSON files, import where needed.
-//export { default as user } from './user.json';
+export { TestDataProvider } from "./test-data-provider";

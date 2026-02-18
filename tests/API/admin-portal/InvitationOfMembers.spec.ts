@@ -1,9 +1,9 @@
 import { test, expect } from "src/fixtures";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { DataFactory } from "src/data-factory";
-import { ProductInfo } from "src/objects/IProduct";
+import { TestDataProvider } from "src/test-data";
+import { ProductInfo } from "src/objects/iproduct";
 import { DataGenerate } from "src/utilities";
-import { PartnerFactory } from "src/data-factory/partner-factory";
 
 test.describe("Partner managerment", () => {
   test("TC57 In the Admin Portal, the admin can invite members to a team from the Details page of any account.", async ({
@@ -23,32 +23,24 @@ test.describe("Partner managerment", () => {
       apiClient,
       authenticationService,
     );
+    const testData = new TestDataProvider(adminPortalService);
+
     //Create department id to send
-    let departmentID = await PartnerFactory.generatePartnerID(
-      adminPortalService,
-      "BiginHR",
-    );
+    let departmentID = await testData.getDepartmentId("BiginHR");
 
     //Get all product types of a department (departmentID)
     const productTypeAndNames: ProductInfo[] =
-      await DataFactory.generateProductTypesAndNames(
-        adminPortalService,
-        departmentID,
-      );
+      await testData.getProductTypes(departmentID);
     const productTypesAndNamesToSend: ProductInfo[] =
       DataGenerate.generateProductType(productTypeAndNames);
     //Create partner info
-    const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
-      isPublic: true,
-      whoPay: 0,
-      bankTransfer: false,
-      departmentId: departmentID,
-      restriction: {
-        feFilterProductTypes: productTypesAndNamesToSend.map(
-          (p) => p.productType,
-        ),
-      },
-    });
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withIsPublic(true)
+      .withWhoPay(0)
+      .withBankTransfer(false)
+      .withDepartment(departmentID)
+      .withFilterProductTypes(productTypesAndNamesToSend)
+      .build();
     //Create partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
 

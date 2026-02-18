@@ -1,5 +1,5 @@
 import { test, expect } from 'src/fixtures';
-import { DataFactory } from 'src/data-factory';
+import { DataFactory, CustomerBuilder } from 'src/data-factory';
 import { AdminPortalService } from 'src/api/services/admin-portal.services';
 import { plans, validCardInfo } from 'src/constant/static-data';
 import { DataHandling } from 'src/data-handling/data-handling';
@@ -22,11 +22,11 @@ test.describe('MemberPortalService - signUpConsumer', () => {
     const partnerInfo = await adminService.searchPartner(partnerName);
 
     // Generate consumer payload with discovered IDs (if any)
-        const overridesFields = { //partnerId: partnerInfo.partnerId,
-      departmentId: partnerInfo.departmentId
-  };
-    const consumerData = await DataFactory.generateCustomerInfo("admin",overridesFields);
-    const customerAccountInfo = consumerData.getAccountInfo();
+    const consumerData = await DataFactory.customerBuilder()
+      .forAdminPortal()
+      .withDepartment(partnerInfo.departmentId)
+      .build();
+    const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
 
 

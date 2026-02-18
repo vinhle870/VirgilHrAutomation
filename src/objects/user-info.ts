@@ -8,4 +8,7 @@ export default interface UserInfo {
 
   //info to be added on Admin Portal
   userType?: number;
+
+  //info to be added on Member Portal as role
+  role?: number;
 }
