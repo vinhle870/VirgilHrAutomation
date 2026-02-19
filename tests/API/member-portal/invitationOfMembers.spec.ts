@@ -206,23 +206,23 @@ test.describe("Partner management", () => {
     if (partnerResponse.status == 200) {
       const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-      const email = partnerInfo.accountInfo?.email!;
+      const businessOwnerEmail = partnerInfo.accountInfo?.email!;
 
       const resetPartner =
         await authenticationService.resetPasswordWithoutToken(
-          { username: email, password: tempPassword },
+          { username: businessOwnerEmail, password: tempPassword },
           undefined,
           "5",
         );
 
       if (resetPartner) {
         await authenticationService.confirmEmailWithoutToken(
-          email,
+          businessOwnerEmail,
           undefined,
           "5",
         );
         const partnerToken = await authenticationService.getAuthToken(
-          email,
+          businessOwnerEmail,
           tempPassword,
           "5",
         );
@@ -236,13 +236,13 @@ test.describe("Partner management", () => {
 
         if (business.status == 200) {
           await authenticationService.resetPasswordWithoutToken(
-            { username: email, password: tempPassword },
+            { username: businessOwnerEmail, password: tempPassword },
             undefined,
             "4",
           );
 
-          const token = await authenticationService.getAuthToken(
-            email,
+          const businnerOwnertoken = await authenticationService.getAuthToken(
+            businessOwnerEmail,
             tempPassword,
             "4",
           );
@@ -251,7 +251,7 @@ test.describe("Partner management", () => {
          expect(partnerName).toBeDefined();
 
          const inviteMemberResponse = await memberPortalService.inviteMember(
-           token,
+          businnerOwnertoken,
            invitePayload,
            partnerName!,
          );         
