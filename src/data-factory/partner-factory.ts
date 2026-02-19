@@ -100,7 +100,7 @@ export class PartnerFactory {
     adminService: AdminPortalService,
     departmentName?: string,
   ): Promise<string> {
-    PartnerFactory.departmentInfor = await adminService.getDepartmentInfo();
+    PartnerFactory.departmentInfor = await adminService.getDepartmentsList();
 
     if (departmentName) {
       const dept = PartnerFactory.departmentInfor.body.find(
@@ -139,7 +139,7 @@ export class PartnerFactory {
     adminService: AdminPortalService,
     departmentId: string,
   ): Promise<ProductInfo[]> {
-    const productTypesResponse = await adminService.getProductTypes();
+    const productTypesResponse = await adminService.getAllDepartmentsPlans();
     if (!productTypesResponse?.body) {
       return [];
     }

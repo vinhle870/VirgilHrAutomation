@@ -52,6 +52,8 @@ export class CustomerFactory {
     if (overrides?.ssoProvider && overrides?.ssoToken) {
       builder.withSso(overrides.ssoProvider, overrides.ssoToken);
     }
+    const inviteToken = overrides?.inviteToken ?? null;
+    const teamId = overrides?.teamId ?? null;
 
     // Admin-specific
     if (portal === "admin") {
