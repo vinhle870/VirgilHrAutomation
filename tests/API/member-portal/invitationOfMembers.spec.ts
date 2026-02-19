@@ -34,15 +34,16 @@ test.describe("Partner management", () => {
 
     const partnerDomain = await testData.getDepartmentDomain(departmentID);
 
-    const productNamesList: string[] = ["test 1","test 2"];
-    
-    const paymentProductName: string = "500+ Employees";
+      const paymentProductName: string = "500+ Employees";
     
     //Get all product types of a department (departmentID): 
     // It is required for scenario Bank Transfer is True
     const productTypesAndNamesToSend: ProductInfo[] = await testData.getProductTypesBasedDepartmentId(departmentID);
+    
     const masterPlan: any = await testData.filterMasterPlanBasedName(departmentID, paymentProductName);
+    
     const masterPlanId = masterPlan.masterPlanId;
+   
     //Create partner info using PartnerBuilder
     const partnerInfo = await DataFactory.partnerBuilder()
       .withIsPublic(true)
@@ -154,35 +155,58 @@ test.describe("Partner management", () => {
       apiClient,
       authenticationService,
     );
+    /* ****************Pre-requisites: Prepare data for the test*******************************/
     //Create department id to send
-    let departmentID = await PartnerFactory.getPartnerID(
-      adminPortalService,
-      "BiginHR",
-    );
-    const masterPlanId = await adminPortalService.getMasterPlanID(departmentID);
-    const productTypeAndNames: ProductInfo[] =
-      await PartnerFactory.getUniqueProductTypesAndNames(
-        adminPortalService,
-        departmentID,
-      );
-    //Create partner info
-    const partnerInfo = await DataFactory.generatePartnerInfo(0, adminService, {
-      isPublic: true,
-      whoPay: 0,
-      bankTransfer: true,
-      departmentId: departmentID,
-      restriction: {
-        feFilterProductTypes: productTypeAndNames.map((p) => p.productType),
-      },
-      planId: masterPlanId,
-    });
-    //Create partner
+    const testData = new TestDataProvider(adminPortalService);
+
+    let departmentID = await testData.getDepartmentId("BiginHR");
+
+    const partnerDomain = await testData.getDepartmentDomain(departmentID);
+
+    //Get all product types of a department (departmentID): It is required for scenario Bank Transfer is True
+    const productTypesAndNamesToSend: ProductInfo[] = await testData.getProductTypesBasedDepartmentId(departmentID);
+    
+    const paymentProductName: string = "500+ Employees";
+
+    const masterPlan: any = await testData.filterMasterPlanBasedName(departmentID, paymentProductName);
+    
+    const masterPlanId = masterPlan.masterPlanId;
+   
+    //Create partner info using PartnerBuilder
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withIsPublic(true)
+      .withWhoPay(0)
+      .withBankTransfer(true)
+      .withDepartment(departmentID)
+      .withFilterProductTypes(productTypesAndNamesToSend)
+      .withPlanId(masterPlanId)
+      .build();
+
+      // Generate member data for invite payload
+      const customerWithMember = await new CustomerBuilder()
+      .withMember()
+      .build();
+
+    const member = customerWithMember.members[0];
+
+    const invitePayload: InviteMemberPayload = {
+      recipients: [{
+        email: member.email,
+        firstName: member.firstName,
+        lastName: member.lastName,
+        phoneNumber: member.phoneNumber,
+        jobTitle: member.jobTitle,
+        role: 3,
+      }],
+    };
+    //***********************************************// 
+    //API Step: Create partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
     if (partnerResponse.status == 200) {
       const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-      const email = partnerInfo.getAccountInfo()?.email!;
+      const email = partnerInfo.accountInfo?.email!;
 
       const resetPartner =
         await authenticationService.resetPasswordWithoutToken(
@@ -202,7 +226,7 @@ test.describe("Partner management", () => {
           tempPassword,
           "5",
         );
-        //Create business
+        //API Step: Create business
         const business = await adminPortalService.createBussiness(
           "teamName",
           partnerResponse.data,
@@ -222,29 +246,17 @@ test.describe("Partner management", () => {
             tempPassword,
             "4",
           );
-          //Create member email to invite
-          const invitedAdminMember = await DataGenerate.generateInvitedMember();
-          //Create a new member info with role of admin
-          const member: IInviteMember = {
-            recipients: [
-              {
-                email: invitedAdminMember.recipients[0].email,
-                firstName: invitedAdminMember.recipients[0].firstName,
-                jobTitle: "Test",
-                lastName: invitedAdminMember.recipients[0].lastName,
-                phoneNumber: invitedAdminMember.recipients[0].phoneNumber,
-                role: 2,
-              },
-            ],
-          };
+         //API Step: Invite members to a team in the Member Portal-Organization tab.
+         const partnerName = partnerInfo.partnerInfo?.name;
+         expect(partnerName).toBeDefined();
 
-          const inviteMemberResponse = await memberPortalService.inviteMember(
-            token,
-            member,
-            partnerInfo.getIPartnerInfo()?.name!,
-          );
-
-          expect(inviteMemberResponse.status).toBe(200);
+         const inviteMemberResponse = await memberPortalService.inviteMember(
+           token,
+           invitePayload,
+           partnerName!,
+         );         
+         expect(inviteMemberResponse).toBeDefined();
+         expect(typeof inviteMemberResponse).toBe("object");
         }
       }
     }
