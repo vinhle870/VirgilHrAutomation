@@ -24,7 +24,7 @@ test.describe('Admin Portal - Customer Management', () => {
     // Generate consumer payload with discovered IDs (if any)
     const consumerData = await DataFactory.customerBuilder()
       .forAdminPortal()
-      .withDepartment(partnerInfo.departmentId)
+      .withDepartment(partnerInfo.departmentId!)
       .build();
     const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
@@ -70,8 +70,8 @@ test.describe('Admin Portal - Customer Management', () => {
       .forAdminPortal()
       .withCompanySize(filteredProductType)
       .withAdminOptions({ trialDays: 30 })
-      .withPartner(partnerInfo.partnerId)
-      .withDepartment(partnerInfo.departmentId)
+      .withPartner(partnerInfo.partnerId!)
+      .withDepartment(partnerInfo.departmentId!)
       .build();
     const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
@@ -117,7 +117,7 @@ test.describe('Admin Portal - Customer Management', () => {
       .forAdminPortal()
       .withCompanySize(filteredProductType)
       .withAdminOptions({ productType: filteredProductType, trialDays: 30 })
-      .withDepartment(partnerInfo.departmentId)
+      .withDepartment(partnerInfo.departmentId!)
       .build();
     const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
@@ -164,7 +164,7 @@ test.describe('Admin Portal - Customer Management', () => {
       .forAdminPortal()
       .withCompanySize(filteredProductType)
       .withAdminOptions({ productType: filteredProductType, billingcycle: 1, useCredit: true })
-      .withDepartment(partnerInfo.departmentId)
+      .withDepartment(partnerInfo.departmentId!)
       .build();
     const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
@@ -207,7 +207,7 @@ test.describe('Admin Portal - Customer Management', () => {
     // Generate consumer payload with discovered IDs (if any)
     const consumerData = await DataFactory.customerBuilder()
       .forAdminPortal()
-      .withDepartment(partnerInfo.departmentId)
+      .withDepartment(partnerInfo.departmentId!)
       .build();
     const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
@@ -261,7 +261,7 @@ test.describe('Admin Portal - Customer Management', () => {
       .forAdminPortal()
       .withCompanySize(filteredProductType)
       .withAdminOptions({ productType: filteredProductType, trialDays: 30 })
-      .withDepartment(partnerInfo.departmentId)
+      .withDepartment(partnerInfo.departmentId!)
       .build();
     const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
