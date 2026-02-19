@@ -1,6 +1,5 @@
 import { format } from "date-fns";
-import { IMemberInvitation } from "src/objects/imemberinviation";
-import { ProductInfo } from "src/objects/iproduct";
+
 
 export class DataGenerate {
   /**
@@ -100,60 +99,11 @@ export class DataGenerate {
 
     return randomValue;
   }
-  //select randomly Department
-  public static generateDepartmentID(departmentIDS: string[]): string {
-    const randomValue =
-      departmentIDS[Math.floor(Math.random() * departmentIDS.length)];
 
-    return randomValue;
-  }
 
-  public static generateProductType(values: ProductInfo[]): ProductInfo[] {
-    const result: ProductInfo[] = [];
-    const used = new Set<number>();
+ 
 
-    while (result.length < 2 && used.size < values.length) {
-      const randomValue = values[Math.floor(Math.random() * values.length)];
-
-      if (randomValue.productName.includes("500+ Employees")) {
-        continue;
-      }
-
-      if (!used.has(randomValue.productType)) {
-        used.add(randomValue.productType);
-        result.push({
-          productType: randomValue.productType,
-          productName: randomValue.productName,
-          planId: randomValue.planId,
-        });
-      }
-    }
-
-    return result;
-  }
-
-  public static async generateInvitedMember(
-    partnerID: string,
-    role = 3,
-  ): Promise<IMemberInvitation> {
-    const invitedMember: IMemberInvitation = {
-      id: partnerID,
-      recipients: [
-        {
-          email: await DataGenerate.generateEmail(),
-          firstName: await DataGenerate.generateFirstName(),
-          lastName: await DataGenerate.generateLastName(),
-          phoneNumber: await DataGenerate.generatePhoneNumber(),
-          jobTitle: await DataGenerate.generatejobTitle(),
-          role: role,
-          partnerConsumerType: 1,
-          consultantRole: role,
-        },
-      ],
-    };
-
-    return invitedMember;
-  }
+ 
 
   /**
    * Generate a dynamic user payload with sensible defaults.

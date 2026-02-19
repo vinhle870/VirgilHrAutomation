@@ -51,17 +51,15 @@ export class TestDataProvider {
       const dept = this.departmentCache.body.find(
         (d: any) => d.name.toLowerCase() === departmentName.toLowerCase(),
       );
-      if (dept) return dept.id;
+      if (dept) 
+        return dept.id;
       throw new Error(`Department with name "${departmentName}" not found`);
     }
 
     const ids: string[] = this.departmentCache.body.map(
       (dept: any) => dept.id,
     );
-    let id = DataGenerate.generateDepartmentID(ids);
-    while (id === localHR) {
-      id = DataGenerate.generateDepartmentID(ids);
-    }
+    let id = DataGenerate.selectRandomlyInList(ids);
     return id;
   }
 
@@ -82,7 +80,7 @@ export class TestDataProvider {
   /**
    * Get unique product types and names for a given department.
    */
-  async getProductTypes(departmentId: string): Promise<ProductInfo[]> {
+  async getProductTypesBasedDepartmentId(departmentId: string): Promise<ProductInfo[]> {
     const productTypesResponse = await this.adminService.getProductTypes();
     if (!productTypesResponse?.body) return [];
 
@@ -107,6 +105,36 @@ export class TestDataProvider {
     );
     return products;
   }
+
+  /**
+   * Filter product info list based on product name list and return the filtered product info list
+   * @param departmentId
+   * @param productNameList
+   * @returns ProductInfo[] filtered by product name list
+   */
+  async filterProductInfoListBasedName(departmentId: string, productNameList: string[]): Promise<ProductInfo[]> {
+    const productTypeAndNames: ProductInfo[] = await this.getProductTypesBasedDepartmentId(departmentId);
+
+    const nameSet = new Set(productNameList.map(n => n.toLowerCase()));
+
+    const filteredProductInfoList: ProductInfo[] = productTypeAndNames.filter(
+      (product) => nameSet.has(product.productName.toLowerCase()),
+    );
+
+    return filteredProductInfoList;
+  }
+
+  async filterMasterPlanBasedName(departmentId: string, planName: string): Promise<any> {
+    const masterPlanIDResponse: object[] = await this.adminService.getDepartmentPaymentProduct(departmentId);
+
+    const planItem = masterPlanIDResponse.filter((m: any) => m.name.toLowerCase() === planName.toLowerCase());
+    if (!planItem) {
+      throw new Error(`Master plan with name "${planName}" not found`);
+    }
+    return planItem;
+  }
+
+
 
   // ── Internal ────────────────────────────────────────────────
 

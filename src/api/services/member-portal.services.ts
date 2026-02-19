@@ -230,7 +230,7 @@ export class MemberPortalService {
 
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
-    return ( await this.apiClient.sendRequest<object>(
+    return (await this.apiClient.sendRequest<object>(
       "GET",
       url,
       undefined,
@@ -238,6 +238,4 @@ export class MemberPortalService {
       headers,
     )) as T;
   }
-
-  
 }

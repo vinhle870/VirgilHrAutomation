@@ -6,13 +6,14 @@ import {
   GET_PRODUCTTYPEFILTERS,
   SEARCH_PARTNER_BY_TEXT,
   SEARCH_CUSTOMER_BY_EMAIL,
-  ADMIN_GET_PLANS,
+  GET_DEPARTMENT_PLAN,
+  GET_DEPARTMENT_PAYMENT_PRODUCT,
 } from "src/api/endpoints/admin-portal.endpoints";
 import { Authentication } from "src/api/services/authentication.service";
 import { CustomerInfo } from "src/objects/customer";
 import { Partner } from "src/objects/ipartner";
 import { APIResponse } from "@playwright/test";
-import { IInviteMember } from "src/objects/iInviteMember";
+
 
 export class AdminPortalService {
   private apiClient: ApiClient;
@@ -293,7 +294,7 @@ export class AdminPortalService {
     nameOfPlan: string,
     departmentId?: string,
   ): Promise<object> {
-    const path = ADMIN_GET_PLANS.replace(/^\/+/, "");
+    const path = GET_DEPARTMENT_PLAN.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}${departmentId}`;
 
     const headers = this.authToken
@@ -469,6 +470,30 @@ export class AdminPortalService {
 
     const body = await response.json();
     return body === true;
+  }
+
+  public async getDepartmentPaymentProduct(
+    departmentID: string,
+  ): Promise<object[]> {
+    
+    const url = `${this.baseUrl}/${GET_DEPARTMENT_PAYMENT_PRODUCT}${departmentID}`;
+
+    let tokenToUse = this.authToken ?? this.apiClient.getAuthToken();
+
+    const mergedHeaders: Record<string, string> = {
+      Authorization: `Bearer ${tokenToUse}`,
+      "Content-Type": "application/json",
+    };
+
+    const response = await this.apiClient.sendRequest<any>(
+      "GET",
+      url,
+      undefined,
+      200,
+      mergedHeaders,
+    );
+
+   return response;
   }
 }
 
