@@ -8,11 +8,14 @@ import {
   SEARCH_CUSTOMER_BY_EMAIL,
   GET_DEPARTMENT_PLAN,
   GET_DEPARTMENT_PAYMENT_PRODUCT,
+  GET_DEPARTMENTS_LIST,
+  GET_ALL_DEPARTMENTS_PLANS,
 } from "src/api/endpoints/admin-portal.endpoints";
 import { Authentication } from "src/api/services/authentication.service";
 import { CustomerInfo } from "src/objects/customer";
 import { Partner } from "src/objects/ipartner";
 import { APIResponse } from "@playwright/test";
+import { CREATE_BUSINESS } from "../endpoints/partner-portal.endpoints";
 
 
 export class AdminPortalService {
@@ -122,6 +125,11 @@ export class AdminPortalService {
     return {};
   }
 
+  /**
+   * POST /Manage/Consumers: Create a new consumer
+   * @param customerInfo - The information of the consumer
+   * @returns The response from the API
+   */
   async createCustomer(customerInfo: CustomerInfo): Promise<any> {
     const path = CREATE_CUSTOMER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
@@ -144,6 +152,10 @@ export class AdminPortalService {
     return response;
   }
 
+  /**
+   * GET /Manage/Plan/ProductTypeFilter: Get the information of the product type filters
+   * @returns The response from the API
+   */
   async getProductTypeFilters(): Promise<any> {
     const path = GET_PRODUCTTYPEFILTERS.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
@@ -160,6 +172,11 @@ export class AdminPortalService {
     return response;
   }
 
+  /**
+   * GET /Manage/Consumers: Get the information of the consumer by id
+   * @param id - The id of the consumer
+   * @returns The response from the API
+   */
   async getConsumerById(id: string): Promise<any> {
     const path = GET_CONSUMER_BY_ID.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}/${id}`;
@@ -176,6 +193,11 @@ export class AdminPortalService {
     return response;
   }
 
+/**
+ * POST /Partner/Manage/Partner: Create a new partner
+ * @param partnerInfo - The information of the partner
+ * @returns The response from the API
+ */
   async createPartner(partnerInfo: Partner): Promise<any> {
     const path = CREATE_PARTNER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
@@ -189,7 +211,7 @@ export class AdminPortalService {
       ? { Authorization: `Bearer ${this.authToken}` }
       : undefined;
 
-    const response = await this.apiClient.sendPartnerRequest<any>(
+    const response = await this.apiClient.sendRequest<any>(
       "POST",
       url,
       requestBody,
@@ -200,16 +222,21 @@ export class AdminPortalService {
     return response;
   }
 
-  async getDepartmentInfo(): Promise<any> {
-    const url = "https://api.qa.virgilhr.com/v1/Configuration/Department";
+  /**
+   * GET /Configuration/Department: Get the information of the department
+   * @returns The response from the API
+   */
+  async getDepartmentsList(): Promise<any> {
+    const url = `${this.baseUrl}/${GET_DEPARTMENTS_LIST}`;
 
     const headers = this.authToken
       ? { Authorization: `Bearer ${this.authToken}` }
       : undefined;
 
-    const response = await this.apiClient.sendToGetDepartmentInfor<any>(
+    const response = await this.apiClient.sendRequest<any>(
       "GET",
       url,
+      undefined,
       200,
       headers,
     );
@@ -217,16 +244,21 @@ export class AdminPortalService {
     return response;
   }
 
-  async getProductTypes(): Promise<any> {
-    const url = `https://api.qa.virgilhr.com/v1/Manage/Plan/Departments`;
+  /**
+   * GET /Manage/Plan/Departments: Get the information of the product types
+   * @returns The response from the API
+   */
+  async getAllDepartmentsPlans(): Promise<any> {
+    const url = `${this.baseUrl}/${GET_ALL_DEPARTMENTS_PLANS}`;
 
     const headers = this.authToken
       ? { Authorization: `Bearer ${this.authToken}` }
       : undefined;
 
-    const response = await this.apiClient.sendToGetProductTypes<any>(
+    const response = await this.apiClient.sendRequest<any>(
       "GET",
       url,
+      undefined,
       200,
       headers,
     );
@@ -234,6 +266,8 @@ export class AdminPortalService {
     return response;
   }
 
+
+  //===========================================================================
   async getCustomerIdByEmail(email: string): Promise<any> {
     const path = SEARCH_CUSTOMER_BY_EMAIL.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
@@ -361,7 +395,7 @@ export class AdminPortalService {
     planId: string,
     token: string,
   ): Promise<any> {
-    const url = `https://api.qa.virgilhr.com/v1/Partner/Manage/Partner/Business`;
+    const url = `${this.baseUrl}${CREATE_BUSINESS}`;
 
     const response = await this.sendRequestToCreateBusiness(
       teamName,

@@ -11,3 +11,5 @@ export const CREATE_PARTNER = "/Manage/Organization/Partner";
 export const SEARCH_CUSTOMER_BY_EMAIL = "/Manage/CustomerManagement";
 export const GET_DEPARTMENT_PLAN = "Manage/Plan?DepartmentId=";
 export const GET_DEPARTMENT_PAYMENT_PRODUCT = "Payment/products?departmentId=";
+export const GET_DEPARTMENTS_LIST = "Configuration/Department";
+export const GET_ALL_DEPARTMENTS_PLANS = "Manage/Plan/Departments";

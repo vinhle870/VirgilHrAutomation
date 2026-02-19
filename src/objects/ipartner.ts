@@ -23,7 +23,6 @@ export default interface IPartnerInfo {
   partnerType: number;
   paymentEnable: boolean;
   subDomain: string;
-  userInfo: UserInfo;
   billingCycle?: number;
   planId?: string;
 }

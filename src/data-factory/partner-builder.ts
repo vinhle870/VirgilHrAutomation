@@ -203,13 +203,6 @@ export class PartnerBuilder {
     const bankTransfer = o.bankTransfer ?? DataGenerate.generateBoolean();
 
     // Build user info block for partner payload
-    const userInfo: UserInfo = {
-      email: accountInfo.email,
-      firstName: accountInfo.firstName,
-      lastName: accountInfo.lastName,
-      jobTitle: accountInfo.jobTitle,
-      phoneNumber: accountInfo.phoneNumber,
-    };
 
     // Build restriction from provided values (no API calls)
     const feFilterProductTypes =
@@ -244,7 +237,7 @@ export class PartnerBuilder {
       partnerType: o.partnerType ?? DataGenerate.generateDecimal(),
       paymentEnable: o.paymentEnable ?? DataGenerate.generateBoolean(),
       subDomain,
-      userInfo,
+ 
       ...(bankTransfer && {
         billingCycle: o.billingCycle ?? 1,
       }),

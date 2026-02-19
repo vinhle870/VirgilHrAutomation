@@ -48,7 +48,7 @@ export class TestDataProvider {
     await this.ensureDepartmentCache();
 
     if (departmentName) {
-      const dept = this.departmentCache.body.find(
+      const dept = this.departmentCache.find(
         (d: any) => d.name.toLowerCase() === departmentName.toLowerCase(),
       );
       if (dept) 
@@ -81,10 +81,10 @@ export class TestDataProvider {
    * Get unique product types and names for a given department.
    */
   async getProductTypesBasedDepartmentId(departmentId: string): Promise<ProductInfo[]> {
-    const productTypesResponse = await this.adminService.getProductTypes();
-    if (!productTypesResponse?.body) return [];
+    const productTypesResponse = await this.adminService.getAllDepartmentsPlans();
+    if (!productTypesResponse) return [];
 
-    const department = productTypesResponse.body.find(
+    const department = productTypesResponse.find(
       (d: any) => d.departmentId === departmentId,
     );
     if (!department?.plans) return [];
@@ -127,9 +127,25 @@ export class TestDataProvider {
   async filterMasterPlanBasedName(departmentId: string, planName: string): Promise<any> {
     const masterPlanIDResponse: object[] = await this.adminService.getDepartmentPaymentProduct(departmentId);
 
-    const planItem = masterPlanIDResponse.filter((m: any) => m.name.toLowerCase() === planName.toLowerCase());
+    const planItem = masterPlanIDResponse.find((m: any) => (m.name as string).toLowerCase().includes(planName.toLowerCase()));
     if (!planItem) {
       throw new Error(`Master plan with name "${planName}" not found`);
+    }
+    return planItem;
+  }
+
+  async filterPartnerPaymentProductBasedName(partnerPaymentProductsList: object[], planName: string): Promise<any> {
+    const planItem = partnerPaymentProductsList.find((m: any) => (m.name as string).toLowerCase().includes(planName.toLowerCase()));
+    if (!planItem) {
+      throw new Error(`Partner payment product with name "${planName}" not found`);
+    }
+    return planItem;
+  }
+
+  async filterPartnerPlanBasedName(partnerPlansList: object[], planName: string): Promise<any> {
+    const planItem = partnerPlansList.find((m: any) => (m.name as string).toLowerCase().includes(planName.toLowerCase()));
+    if (!planItem) {
+      throw new Error(`Partner plan with name "${planName}" not found`);
     }
     return planItem;
   }
@@ -140,7 +156,7 @@ export class TestDataProvider {
 
   private async ensureDepartmentCache(): Promise<void> {
     if (!this.departmentCache) {
-      this.departmentCache = await this.adminService.getDepartmentInfo();
+      this.departmentCache = await this.adminService.getDepartmentsList();
     }
   }
 }
