@@ -207,7 +207,6 @@ export class MemberPortalService {
   public async inviteMember(
     token: string,
     member: InviteMemberPayload,
-    name: string,
   ): Promise<object> {
     const url = `${this.baseUrl}/${INVITE_MEMBER}`;
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;

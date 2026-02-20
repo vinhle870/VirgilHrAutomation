@@ -128,7 +128,6 @@ test.describe("Partner management", () => {
         const inviteMemberResponse = await memberPortalService.inviteMember(
           token,
           invitePayload,
-          partnerName!,
         );
         expect(inviteMemberResponse).toBeDefined();
       }
@@ -140,7 +139,6 @@ test.describe("Partner management", () => {
     authenticationService,
     adminPortalService,
     memberPortalService,
-    partnerPortalService,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
@@ -181,83 +179,72 @@ test.describe("Partner management", () => {
     //Create partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
-    if (partnerResponse.status == 200) {
-      const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-      const email = partnerInfo.accountInfo?.email!;
+    const email = partnerInfo.accountInfo?.email!;
 
-      const resetPartner =
-        await authenticationService.resetPasswordWithoutToken(
-          { username: email, password: tempPassword },
-          undefined,
-          "5",
-        );
+    const resetPartner = await authenticationService.resetPasswordWithoutToken(
+      { username: email, password: tempPassword },
+      undefined,
+      "5",
+    );
 
-      if (resetPartner) {
-        await authenticationService.confirmEmailWithoutToken(
-          email,
-          undefined,
-          "5",
-        );
-        const partnerToken = await authenticationService.getAuthToken(
-          email,
-          tempPassword,
-          "5",
-        );
-        //Create business
-        const business = await partnerPortalService.createBusiness(
-          partnerResponse,
-          partnerInfo.accountInfo?.firstName!,
-          masterPlanId,
-          undefined,
-          undefined,
-          partnerToken,
-        );
+    if (resetPartner) {
+      await authenticationService.confirmEmailWithoutToken(
+        email,
+        undefined,
+        "5",
+      );
+      const partnerToken = await authenticationService.getAuthToken(
+        email,
+        tempPassword,
+        "5",
+      );
+      //Create business
+      const business = await adminPortalService.createBussiness(
+        partnerInfo.accountInfo?.firstName!,
+        partnerResponse,
+        masterPlanId,
+        partnerToken,
+      );
 
-        if (business) {
-          console.log("business:", business);
+      await authenticationService.resetPasswordWithoutToken(
+        { username: email, password: tempPassword },
+        undefined,
+        "4",
+      );
 
-          await authenticationService.resetPasswordWithoutToken(
-            { username: email, password: tempPassword },
-            undefined,
-            "4",
-          );
+      const token = await authenticationService.getAuthToken(
+        email,
+        tempPassword,
+        "4",
+      );
+      // Generate member data for invite payload
+      const customerWithMember = await new CustomerBuilder()
+        .withMember()
+        .build();
 
-          const token = await authenticationService.getAuthToken(
-            email,
-            tempPassword,
-            "4",
-          );
-          // Generate member data for invite payload
-          const customerWithMember = await new CustomerBuilder()
-            .withMember()
-            .build();
+      const member = customerWithMember.members[0];
 
-          const member = customerWithMember.members[0];
+      const invitePayload: InviteMemberPayload = {
+        recipients: [
+          {
+            email: member.email,
+            firstName: member.firstName,
+            lastName: member.lastName,
+            phoneNumber: member.phoneNumber,
+            jobTitle: member.jobTitle,
+            role: 2,
+          },
+        ],
+      };
 
-          const invitePayload: InviteMemberPayload = {
-            recipients: [
-              {
-                email: member.email,
-                firstName: member.firstName,
-                lastName: member.lastName,
-                phoneNumber: member.phoneNumber,
-                jobTitle: member.jobTitle,
-                role: 2,
-              },
-            ],
-          };
+      const inviteMemberResponse = await memberPortalService.inviteMember(
+        token,
+        invitePayload,
+      );
 
-          const inviteMemberResponse = await memberPortalService.inviteMember(
-            token,
-            invitePayload,
-            partnerInfo.partnerInfo?.name!,
-          );
-          console.log("inviteMemberResponse:", inviteMemberResponse);
-
-          //      expect(inviteMemberResponse.Status).toBe(200);
-        }
-      }
+      expect(inviteMemberResponse).toBe(true);
     }
   });
 });

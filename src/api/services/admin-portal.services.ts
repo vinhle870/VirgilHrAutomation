@@ -10,12 +10,30 @@ import {
   GET_DEPARTMENT_PAYMENT_PRODUCT,
   GET_DEPARTMENTS_LIST,
   GET_ALL_DEPARTMENTS_PLANS,
+  INVITE_MEMBER_ADMINPORTAL,
 } from "src/api/endpoints/admin-portal.endpoints";
 import { Authentication } from "src/api/services/authentication.service";
 import { CustomerInfo } from "src/objects/customer";
 import { Partner } from "src/objects/ipartner";
 import { APIResponse } from "@playwright/test";
 import { CREATE_BUSINESS } from "../endpoints/partner-portal.endpoints";
+import { InviteMemberPayload } from "./member-portal.services";
+
+export interface RecipientInfo {
+  email: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  jobTitle: string;
+  role: number;
+  partnerConsumerType: number;
+  consultantRole: number;
+}
+
+export interface InviteMemberWithId {
+  id: string;
+  recipients: RecipientInfo[];
+}
 
 export class AdminPortalService {
   private apiClient: ApiClient;
@@ -458,29 +476,12 @@ export class AdminPortalService {
     return { status, body: filteredBody };
   }
 
-  public async inviteMembers(invitedMember: IInviteMember): Promise<boolean> {
-    const url = `https://api.qa.virgilhr.com/v1/Manage/Organization/Partner/Invite`;
+  public async inviteMembers(member: InviteMemberWithId): Promise<object> {
+    const url = `${this.baseUrl}/${INVITE_MEMBER_ADMINPORTAL}`;
 
-    const response = await this.sendRequestToInviteMembers(url, invitedMember);
-
-    return response;
-  }
-
-  private async sendRequestToInviteMembers(
-    url: string,
-    invitedMember: IInviteMember,
-    expectedStatus = 200,
-  ): Promise<boolean> {
-    const fullUrl = url.startsWith("http") ? url : `${this.baseUrl}/${url}`;
-
-    let tokenToUse = this.authToken ?? this.apiClient.getAuthToken();
-    if (!tokenToUse || tokenToUse === "undefined") {
-      throw new Error("Auth token is missing or invalid");
-    }
-
-    const mergedHeaders: Record<string, string> = {
+    const headers: Record<string, string> = {
       accept: "application/json, text/plain, */*",
-      authorization: `Bearer ${tokenToUse}`,
+      authorization: `Bearer ${this.authToken ?? ""}`,
       "content-type": "application/json",
       origin: "https://admin.qa.virgilhr.com",
       referer: "https://admin.qa.virgilhr.com/",
@@ -488,20 +489,14 @@ export class AdminPortalService {
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
     };
 
-    const response = await this.apiClient.getApiContext().post(fullUrl, {
-      headers: mergedHeaders,
-      data: invitedMember,
-    });
-
-    const status = response.status();
-    if (status !== expectedStatus) {
-      throw new Error(
-        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
-      );
-    }
-
-    const body = await response.json();
-    return body === true;
+    const response = await this.apiClient.sendRequest<object>(
+      "POST",
+      url,
+      member,
+      200, // Assuming 200 OK is the expected status code
+      headers,
+    );
+    return response; // Return the checkout plan response
   }
 
   public async getDepartmentPaymentProduct(
