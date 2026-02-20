@@ -5,6 +5,7 @@ import { TestDataProvider } from "src/test-data";
 import { DataGenerate } from "src/utilities";
 import { ProductInfo } from "src/objects/iproduct";
 import Comparison from "src/utilities/compare";
+import { paymentOptions, plans } from "src/constant/static-data";
 
 test.describe("Partner managerment", () => {
   test("TC030_API Verify that a partner account can only be created in the Admin Portal – Partner Management.", async ({
@@ -28,7 +29,7 @@ test.describe("Partner managerment", () => {
 
     const response = await adminService.createPartner(partnerInfo);
 
-    expect(response.data).toBeDefined();
+    expect(response).toBeDefined();
   });
 
   test("TC31 Verify when a Partner is being created, the admin can select its level as Partner or PEO/Consultant.", async ({
@@ -226,89 +227,72 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
     const testData = new TestDataProvider(adminPortalService);
-
     //Create department id to send
-    let departmentID = await testData.getDepartmentId("BiginHR");
-      adminPortalService,
-      "BiginHR",
+    const departmentID = await testData.getDepartmentId("BiginHR");
+    const paymentProductName: string = plans[1];
+    //Choose masterID to send
+    const masterPlan: any = await testData.filterMasterPlanBasedName(
+      departmentID,
+      paymentProductName,
     );
-    //PrismHR: 68f09ac3500b0efa8a365bef->ok
-    //BiginHR: 688897d5eb52b4af5573def4->No ok
-    //VirgilHR: 68908f542e20001e47f5394f->No ok
-    //Vensure: 6928522dc95cab35e8188e2e
-    //Epay: 6928522dc95cab35e8188e2f->ok
-    //Get department domain
-    const partnerDomain = await testData.getDepartmentDomain(departmentID);
-    const masterPlanId = await adminPortalService.getMasterPlanID(departmentID);
-    //Get all product types of a department (departmentID)
-    const productTypeAndNames: ProductInfo[] =
-      await testData.getProductTypes(departmentID);
-    //Create partner info
+    const masterPlanId = masterPlan.masterPlanId;
 
+    //Get all product types of a department (departmentID)
+    const productTypesAndNamesToSend: ProductInfo[] =
+      await testData.getProductTypesBasedDepartmentId(departmentID);
+    //Create partner info
     const partnerInfo = await DataFactory.partnerBuilder()
       .withIsPublic(true)
-      .withDepartment(departmentID)
-      .withFilterProductTypes(productTypesAndNamesToSend)
       .withWhoPay(0)
+      .withBankTransfer(true)
+      .withFilterProductTypes(productTypesAndNamesToSend)
+      .withDepartment(departmentID)
+      .withPlanId(masterPlanId)
       .build();
-//Need to create method withPlanId and pass the masterPlanID: Ngoan need to be done
-
     //Create partner
-    const partnerResponse = await adminService.createPartner(partnerInfo);
+    await adminService.createPartner(partnerInfo);
 
-    if (partnerResponse.status == 200) {
-      const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
+    const email = partnerInfo.accountInfo?.email!;
+    //Reset partner
+    await authenticationService.resetPasswordWithoutToken(
+      { username: email, password: tempPassword },
+      undefined,
+      "5",
+    );
+    //Reset customer
+    await authenticationService.resetPasswordWithoutToken(
+      { username: email, password: tempPassword },
+      undefined,
+      "4",
+    );
 
-      const email = partnerInfo.accountInfo?.email!;
+    const token = await authenticationService.getAuthToken(
+      email,
+      tempPassword,
+      "4",
+    );
 
-      const resetPartner =
-        await authenticationService.resetPasswordWithoutToken(
-          { username: email, password: tempPassword },
-          undefined,
-          "5",
-        );
+    await authenticationService.confirmEmailWithoutToken(email, undefined, "5");
 
-      const resetCustomer =
-        await authenticationService.resetPasswordWithoutToken(
-          { username: email, password: tempPassword },
-          undefined,
-          "4",
-        );
+    await authenticationService.confirmEmailWithoutToken(email, undefined, "4");
 
-      const token = await authenticationService.getAuthToken(
-        email,
-        tempPassword,
-        "4",
-      );
+    //Get benifits in member portal after partner bought the selected plan successfully
+    const benifitResponse: any = await memberPortalService.getBenifit<object>(
+      email,
+      token,
+    );
+    console.log("benifitResponse:", benifitResponse);
 
-      if (resetPartner) {
-        await authenticationService.confirmEmailWithoutToken(
-          email,
-          undefined,
-          "5",
-        );
+    // Get benifit imformation of selected plan in adminportal
+    const boughtPlan: any = await adminPortalService.getPlan(
+      apiClient,
+      benifitResponse.main.name,
+      departmentID,
+    );
 
-        if (resetCustomer) {
-          await authenticationService.confirmEmailWithoutToken(
-            email,
-            undefined,
-            "4",
-          );
-        }
-        //Get benifits in member portal after partner bought the selected plan successfully
-        const benifitResponse: any =
-          await memberPortalService.getBenifit<object>(email, token);
-        //Get benifit imformation of selected plan in adminportal
-        const boughtPlan: any = await adminPortalService.getPlan(
-          apiClient,
-          benifitResponse.main.name,
-          departmentID,
-        );
-
-        Comparison.comparePlan(benifitResponse, boughtPlan);
-      }
-    }
+    Comparison.comparePlan(benifitResponse, boughtPlan);
   });
   test("TC38 Verify that the admin can specify which plans a Partner can use for its Businesses via the Product Type field.", async ({
     apiClient,
@@ -334,7 +318,6 @@ test.describe("Partner managerment", () => {
     const departmentID = await testData.getDepartmentId();
     //Get all product types of a department (departmentID)
     const productTypeAndNames: ProductInfo[] =
-
       await testData.getProductTypes(departmentID);
 
     //Choose a plan to buy
@@ -462,7 +445,6 @@ test.describe("Partner managerment", () => {
     if (partnerResponse.status == 200) {
       const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-
       const email = partnerInfo.accountInfo?.email!;
 
       const resetPassword =
@@ -478,7 +460,6 @@ test.describe("Partner managerment", () => {
           undefined,
           "5",
         );
-
 
         const emailOfPartner = partnerInfo.accountInfo?.email!;
 
@@ -511,14 +492,12 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
 
-
     const partnerInfo = await DataFactory.partnerBuilder()
       .withIsPublic(true)
       .withWhoPay(1)
       .build();
 
     const partnerResponse = await adminService.createPartner(partnerInfo);
-
 
     const email = partnerInfo.accountInfo?.email!;
 
@@ -577,14 +556,12 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
 
-
     const partnerInfo = await DataFactory.partnerBuilder()
       .withIsPublic(true)
       .withWhoPay(1)
       .build();
 
     const partnerResponse = await adminService.createPartner(partnerInfo);
-
 
     const email = partnerInfo.accountInfo?.email!;
 
