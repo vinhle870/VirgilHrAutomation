@@ -17,7 +17,6 @@ import { Partner } from "src/objects/ipartner";
 import { APIResponse } from "@playwright/test";
 import { CREATE_BUSINESS } from "../endpoints/partner-portal.endpoints";
 
-
 export class AdminPortalService {
   private apiClient: ApiClient;
   private baseUrl: string;
@@ -193,11 +192,11 @@ export class AdminPortalService {
     return response;
   }
 
-/**
- * POST /Partner/Manage/Partner: Create a new partner
- * @param partnerInfo - The information of the partner
- * @returns The response from the API
- */
+  /**
+   * POST /Partner/Manage/Partner: Create a new partner
+   * @param partnerInfo - The information of the partner
+   * @returns The response from the API
+   */
   async createPartner(partnerInfo: Partner): Promise<any> {
     const path = CREATE_PARTNER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
@@ -265,7 +264,6 @@ export class AdminPortalService {
 
     return response;
   }
-
 
   //===========================================================================
   async getCustomerIdByEmail(email: string): Promise<any> {
@@ -509,7 +507,6 @@ export class AdminPortalService {
   public async getDepartmentPaymentProduct(
     departmentID: string,
   ): Promise<object[]> {
-    
     const url = `${this.baseUrl}/${GET_DEPARTMENT_PAYMENT_PRODUCT}${departmentID}`;
 
     let tokenToUse = this.authToken ?? this.apiClient.getAuthToken();
@@ -527,7 +524,7 @@ export class AdminPortalService {
       mergedHeaders,
     );
 
-   return response;
+    return response;
   }
 }
 

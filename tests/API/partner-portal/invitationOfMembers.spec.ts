@@ -13,13 +13,12 @@ test.describe("Partner management", () => {
     authenticationService,
     adminPortalService,
     partnerPortalService,
-    memberPortalService,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
       "API_BASE_URL is not configured",
     );
-    //***************Pre-requisites: Prepare data for the test*******************************// 
+    //***************Pre-requisites: Prepare data for the test*******************************//
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
     testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -35,15 +34,19 @@ test.describe("Partner management", () => {
 
     //Choose a plan = "50 - 100 Employees"
     const paymentProductName: string = plans[1];
-    
-    //Get all product types of a department (departmentID): 
+
+    //Get all product types of a department (departmentID):
     // It is required for scenario Bank Transfer is True
-    const productTypesAndNamesToSend: ProductInfo[] = await testData.getProductTypesBasedDepartmentId(departmentID);
-    
-    const masterPlan: any = await testData.filterMasterPlanBasedName(departmentID, paymentProductName);
-    
+    const productTypesAndNamesToSend: ProductInfo[] =
+      await testData.getProductTypesBasedDepartmentId(departmentID);
+
+    const masterPlan: any = await testData.filterMasterPlanBasedName(
+      departmentID,
+      paymentProductName,
+    );
+
     const masterPlanId = masterPlan.masterPlanId;
-   
+
     //Create partner info using PartnerBuilder
     const partnerInfo = await DataFactory.partnerBuilder()
       .withIsPublic(true)
@@ -53,9 +56,9 @@ test.describe("Partner management", () => {
       .withFilterProductTypes(productTypesAndNamesToSend)
       .withPlanId(masterPlanId)
       .build();
-    
-      // Generate member data for invite payload
-      const customerWithMember = await new CustomerBuilder()
+
+    // Generate member data for invite payload
+    const customerWithMember = await new CustomerBuilder()
       .forMemberPortal()
       .withMember()
       .build();
@@ -63,17 +66,19 @@ test.describe("Partner management", () => {
     const member = customerWithMember.members[0];
 
     const invitePayload: InviteMemberPayload = {
-      recipients: [{
-        email: member.email,
-        firstName: member.firstName,
-        lastName: member.lastName,
-        phoneNumber: member.phoneNumber,
-        jobTitle: member.jobTitle,
-        role: 3,
-      }],
+      recipients: [
+        {
+          email: member.email,
+          firstName: member.firstName,
+          lastName: member.lastName,
+          phoneNumber: member.phoneNumber,
+          jobTitle: member.jobTitle,
+          role: 3,
+        },
+      ],
     };
-//*************Pre-condition ****************  //
-//*********API Step: Create partner
+    //*************Pre-condition ****************  //
+    //*********API Step: Create partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
     if (partnerResponse) {
@@ -81,33 +86,39 @@ test.describe("Partner management", () => {
 
       const email = partnerInfo.accountInfo?.email!;
 
-      const resetPartner = await authenticationService.resetPasswordWithoutToken(
+      const resetPartner =
+        await authenticationService.resetPasswordWithoutToken(
           { username: email, password: tempPassword },
           undefined,
           "5",
         );
 
       if (resetPartner) {
-        await authenticationService.confirmEmailWithoutToken(email,
+        await authenticationService.confirmEmailWithoutToken(
+          email,
           undefined,
-          "5",//Partner Portal
+          "5", //Partner Portal
         );
 
         //API Step: Get auth token from Partner
         const partnerToken = await authenticationService.getAuthToken(
           email,
           tempPassword,
-          "5"//Partner Portal
+          "5", //Partner Portal
         );
 
         //API Step: Get partner payment products list
-        const partnerPlansList = await partnerPortalService.getPartnerPlansList(partnerToken);
-        const planItem = await testData.filterPartnerPlanBasedName(partnerPlansList, paymentProductName);
-       
-      //*************End of Pre-condition **************** //
+        const partnerPlansList =
+          await partnerPortalService.getPartnerPlansList(partnerToken);
+        const planItem = await testData.filterPartnerPlanBasedName(
+          partnerPlansList,
+          paymentProductName,
+        );
 
-      //*************API Step: Create business
-      
+        //*************End of Pre-condition **************** //
+
+        //*************API Step: Create business
+
         const business = await partnerPortalService.createBusiness(
           partnerResponse,
           customerWithMember.company.companyName!,
@@ -148,8 +159,5 @@ test.describe("Partner management", () => {
         */
       }
     }
-   
   });
-
- 
 });

@@ -204,7 +204,10 @@ export class MemberPortalService {
    * @param name - The name of the team
    * @returns The invite member response
    */
-  public async inviteMember(token: string, member: InviteMemberPayload, name: string,
+  public async inviteMember(
+    token: string,
+    member: InviteMemberPayload,
+    name: string,
   ): Promise<object> {
     const url = `${this.baseUrl}/${INVITE_MEMBER}`;
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
@@ -217,7 +220,6 @@ export class MemberPortalService {
       headers,
     );
     return response; // Return the checkout plan response
-   
   }
 
   /**

@@ -4,6 +4,7 @@ import { DataFactory } from "src/data-factory";
 import { TestDataProvider } from "src/test-data";
 import { ProductInfo } from "src/objects/iproduct";
 import { DataGenerate } from "src/utilities";
+import { PartnerFactory } from "src/data-factory/partner-factory";
 
 test.describe("Partner managerment", () => {
   test("TC57 In the Admin Portal, the admin can invite members to a team from the Details page of any account.", async ({
@@ -74,28 +75,34 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
 
-    const departmentID = await PartnerFactory.getPartnerID(
-      adminPortalService,
-      "BiginHR",
-    );
-    //Create a new invited member
-    const invitedMember = await DataGenerate.generateInvitedMember();
+      const paymentProductName: string = plans[1];
 
-    for (let i = 0; i < 2; i++) {
-      //Create partner info
-      const partnerInfo = await DataFactory.generatePartnerInfo(
-        0,
-        adminService,
-        {
-          isPublic: true,
-          whoPay: 0,
-          bankTransfer: false,
-          departmentId: departmentID,
-        },
-      );
+    const testData = new TestDataProvider(adminPortalService);
+
+    //Create department id to send
+    let departmentID = await testData.getDepartmentId("BiginHR");
+
+    const masterPlan: any = await testData.filterMasterPlanBasedName(
+      departmentID,
+      paymentProductName,
+    );
+    const masterPlanId = masterPlan.masterPlanId;
+
+    const productTypesAndNamesToSend: ProductInfo[] =
+      await testData.getProductTypesBasedDepartmentId(departmentID);
+    //Create partner info
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withIsPublic(true)
+      .withWhoPay(0)
+      .withBankTransfer(true)
+      .withDepartment(departmentID)
+      .withFilterProductTypes(productTypesAndNamesToSend)
+      .withPlanId(masterPlanId)
+      .build();
       //Create partner
       const partnerResponse = await adminService.createPartner(partnerInfo);
       if (partnerResponse.status == 200) {
+        const invitedMember:
         //create invited member infor
         invitedMember.id = partnerResponse.data;
         //Call API to invite a new member to a team
