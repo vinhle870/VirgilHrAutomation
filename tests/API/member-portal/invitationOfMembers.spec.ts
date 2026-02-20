@@ -14,7 +14,6 @@ test.describe("Partner management", () => {
     authenticationService,
     adminPortalService,
     memberPortalService,
-    planPage,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
@@ -208,39 +207,63 @@ test.describe("Partner management", () => {
         "5",
       );
       //Create business
-      if (i == 0)
+      if (i == 0) {
         await adminPortalService.createBussiness(
           partnerInfo.accountInfo?.firstName!,
           owner,
           masterPlanId,
           partnerToken,
         );
+      }
     }
     //Invite members
     let memberToInvite;
-    for (let i = 0; i < 3; i++) {
+    let role;
+    let invitePayload: InviteMemberPayload;
+    for (let i = 0; i <= 2; i++) {
       email = partnerInfoes[i]?.accountInfo?.email ?? "";
-
-      if (i == 0) memberToInvite = admin;
-      else memberToInvite = member;
-
-      let role;
 
       if (i == 0) role = 2;
       else role = 3;
 
-      const invitePayload: InviteMemberPayload = {
-        recipients: [
-          {
-            email: memberToInvite.email,
-            firstName: memberToInvite.firstName,
-            lastName: memberToInvite.lastName,
-            phoneNumber: memberToInvite.phoneNumber,
-            jobTitle: memberToInvite.jobTitle,
-            role: 2,
-          },
-        ],
-      };
+      if (i == 0 || i == 1) {
+        invitePayload = {
+          recipients: [
+            {
+              email,
+              firstName: partnerInfoes[i + 1]?.accountInfo?.firstName!,
+              lastName: partnerInfoes[i + 1]?.accountInfo?.lastName!,
+              phoneNumber: partnerInfoes[i + 1]?.accountInfo?.phoneNumber!,
+              jobTitle: partnerInfoes[i + 1]?.accountInfo?.jobTitle!,
+              role: role,
+            },
+          ],
+        };
+      } else {
+        const customerWithMember = await new CustomerBuilder()
+          .withMember()
+          .build();
+
+        const member = customerWithMember.members[0];
+
+        invitePayload = {
+          recipients: [
+            {
+              email: member.email,
+              firstName: member.firstName,
+              lastName: member.lastName,
+              phoneNumber: member.phoneNumber,
+              jobTitle: member.jobTitle,
+              role: 2,
+            },
+          ],
+        };
+      }
+      await authenticationService.confirmEmailWithoutToken(
+        email,
+        undefined,
+        "4",
+      );
       await authenticationService.resetPasswordWithoutToken(
         { username: email, password: tempPassword },
         undefined,
@@ -252,12 +275,17 @@ test.describe("Partner management", () => {
         tempPassword,
         "4",
       );
+
+      //Switch to owener team
+      if (i == 1 || i == 0) {
+      }
       const inviteMemberResponse = await memberPortalService.inviteMember(
         token,
         invitePayload,
       );
 
-      expect(inviteMemberResponse).toBe(true);
+      if (i == 0 || i == 1) expect(inviteMemberResponse).toBe(true);
+      else expect(inviteMemberResponse).toBe(false);
     }
   });
 });
