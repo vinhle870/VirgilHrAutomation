@@ -6,7 +6,7 @@ import { TestDataProvider } from "src/test-data";
 import { ProductInfo } from "src/objects/iproduct";
 import { DataGenerate } from "src/utilities";
 import { plans } from "src/constant/static-data";
-import { UserInfo } from "src/objects";
+import { Partner, UserInfo } from "src/objects";
 
 test.describe("Partner management", () => {
   test("TC54 Verify that a user can invite members to a team in the Member Portal-Organization tab.", async ({
@@ -155,7 +155,6 @@ test.describe("Partner management", () => {
     const paymentProductName: string = plans[1];
 
     const testData = new TestDataProvider(adminPortalService);
-
     //Create department id to send
     let departmentID = await testData.getDepartmentId("BiginHR");
 
@@ -167,29 +166,37 @@ test.describe("Partner management", () => {
 
     const productTypesAndNamesToSend: ProductInfo[] =
       await testData.getProductTypesBasedDepartmentId(departmentID);
-    //Create partner info
-    const partnerInfo = await DataFactory.partnerBuilder()
-      .withIsPublic(true)
-      .withWhoPay(0)
-      .withBankTransfer(true)
-      .withDepartment(departmentID)
-      .withFilterProductTypes(productTypesAndNamesToSend)
-      .withPlanId(masterPlanId)
-      .build();
-    //Create partner
-    const partnerResponse = await adminService.createPartner(partnerInfo);
-
+    let owner;
+    let admin;
+    let member;
+    const partnerInfoes: Partner[] = [];
+    let email;
     const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+    for (let i = 0; i < 3; i++) {
+      //Create partner info
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withIsPublic(true)
+        .withWhoPay(0)
+        .withBankTransfer(true)
+        .withDepartment(departmentID)
+        .withFilterProductTypes(productTypesAndNamesToSend)
+        .withPlanId(masterPlanId)
+        .build();
+      //Push partnerInfo to get email
+      partnerInfoes.push(partnerInfo);
+      //Create partner
+      if (i == 0) owner = await adminService.createPartner(partnerInfo);
+      else if (i == 1) admin = await adminService.createPartner(partnerInfo);
+      else if (i == 2) member = await adminService.createPartner(partnerInfo);
 
-    const email = partnerInfo.accountInfo?.email!;
+      email = partnerInfo.accountInfo?.email!;
 
-    const resetPartner = await authenticationService.resetPasswordWithoutToken(
-      { username: email, password: tempPassword },
-      undefined,
-      "5",
-    );
+      await authenticationService.resetPasswordWithoutToken(
+        { username: email, password: tempPassword },
+        undefined,
+        "5",
+      );
 
-    if (resetPartner) {
       await authenticationService.confirmEmailWithoutToken(
         email,
         undefined,
@@ -201,13 +208,39 @@ test.describe("Partner management", () => {
         "5",
       );
       //Create business
-      const business = await adminPortalService.createBussiness(
-        partnerInfo.accountInfo?.firstName!,
-        partnerResponse,
-        masterPlanId,
-        partnerToken,
-      );
+      if (i == 0)
+        await adminPortalService.createBussiness(
+          partnerInfo.accountInfo?.firstName!,
+          owner,
+          masterPlanId,
+          partnerToken,
+        );
+    }
+    //Invite members
+    let memberToInvite;
+    for (let i = 0; i < 3; i++) {
+      email = partnerInfoes[i]?.accountInfo?.email ?? "";
 
+      if (i == 0) memberToInvite = admin;
+      else memberToInvite = member;
+
+      let role;
+
+      if (i == 0) role = 2;
+      else role = 3;
+
+      const invitePayload: InviteMemberPayload = {
+        recipients: [
+          {
+            email: memberToInvite.email,
+            firstName: memberToInvite.firstName,
+            lastName: memberToInvite.lastName,
+            phoneNumber: memberToInvite.phoneNumber,
+            jobTitle: memberToInvite.jobTitle,
+            role: 2,
+          },
+        ],
+      };
       await authenticationService.resetPasswordWithoutToken(
         { username: email, password: tempPassword },
         undefined,
@@ -219,26 +252,6 @@ test.describe("Partner management", () => {
         tempPassword,
         "4",
       );
-      // Generate member data for invite payload
-      const customerWithMember = await new CustomerBuilder()
-        .withMember()
-        .build();
-
-      const member = customerWithMember.members[0];
-
-      const invitePayload: InviteMemberPayload = {
-        recipients: [
-          {
-            email: member.email,
-            firstName: member.firstName,
-            lastName: member.lastName,
-            phoneNumber: member.phoneNumber,
-            jobTitle: member.jobTitle,
-            role: 2,
-          },
-        ],
-      };
-
       const inviteMemberResponse = await memberPortalService.inviteMember(
         token,
         invitePayload,
