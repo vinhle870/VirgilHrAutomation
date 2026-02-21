@@ -150,6 +150,23 @@ export class TestDataProvider {
     return planItem;
   }
 
+  /**
+   * Filter plan based on plan name
+   * @param planList - List of plans
+   * @param planName - Plan name
+   * @returns Plan object
+   */
+  async filterPlanBasedName(planList: object[], planName: string): Promise<any> {
+    let filteredPlan: any = planList;
+    if (Array.isArray(planList)) {
+      filteredPlan = planList.find((plan: any) => plan.name === planName);
+      if (!filteredPlan) {
+        throw new Error(`Plan with name "${planName}" not found`);
+      }
+    }
+    return filteredPlan;
+  }
+
 
 
   // ── Internal ────────────────────────────────────────────────
