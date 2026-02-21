@@ -5,7 +5,7 @@ import { TestDataProvider } from "src/test-data";
 import { DataGenerate } from "src/utilities";
 import { ProductInfo } from "src/objects/iproduct";
 import Comparison from "src/utilities/compare";
-import { paymentOptions, plans } from "src/constant/static-data";
+import { plans } from "src/constant/static-data";
 
 test.describe("Partner managerment", () => {
   test("TC030_API Verify that a partner account can only be created in the Admin Portal – Partner Management.", async ({
@@ -30,6 +30,8 @@ test.describe("Partner managerment", () => {
     const response = await adminService.createPartner(partnerInfo);
 
     expect(response).toBeDefined();
+    expect(typeof response).toBe("string");
+    expect(response.length).toBeGreaterThan(0);
   });
 
   test("TC31 Verify when a Partner is being created, the admin can select its level as Partner or PEO/Consultant.", async ({
@@ -55,26 +57,24 @@ test.describe("Partner managerment", () => {
 
     const responsePEO = await adminService.createPartner(peoInfo);
 
-    if (responsePEO.status == 200) {
-      const peoLevel = (await adminService.searchPartnerByText(nameOfPeoInfo))
-        .entities[0].level;
+    const peoLevel = (await adminService.searchPartnerByText(nameOfPeoInfo))
+      .entities[0].level;
 
-      expect(peoLevel).toBe(1);
-    }
+    expect(peoLevel).toBe(1); //PEO level is 1
 
+    //Create a new partner with level 0 as Partner
     const partnerInfo = await DataFactory.partnerBuilder().build();
 
     const nameOfpartnerInfo: string = partnerInfo.partnerInfo?.name!;
 
     const responsePartner = await adminService.createPartner(partnerInfo);
 
-    if (responsePartner.status == 200) {
-      const partnerLevel = await (
-        await adminService.searchPartnerByText(nameOfpartnerInfo)
-      ).entities[0].level;
+    //Search partner by name and get the level
+    const partnerLevel = await (
+      await adminService.searchPartnerByText(nameOfpartnerInfo)
+    ).entities[0].level;
 
-      expect(partnerLevel).toBe(0);
-    }
+    expect(partnerLevel).toBe(0); //Partner level is 0
   });
   test("TC_33 When creating a new Partner, the admin can choose to assign a sub-domain to that Partner, or not.", async ({
     apiClient,
@@ -108,6 +108,8 @@ test.describe("Partner managerment", () => {
       const responseOfPartner = await adminService.createPartner(partnerInfo);
 
       expect(responseOfPartner).toBeDefined();
+      expect(typeof responseOfPartner).toBe("string");
+      expect(responseOfPartner.length).toBeGreaterThan(0);
     }
   });
   test("TC034_API For Payment Options, the admin can select either Partner/Consultant Owner or Member Portal Consumer.", async ({
@@ -127,6 +129,7 @@ test.describe("Partner managerment", () => {
       authenticationService,
     );
 
+    const paymentOptions = [0, 1]; // 0: Partner, 1: Customer
     for (let i = 0; i < paymentOptions.length; i++) {
       const partnerInfo = await DataFactory.partnerBuilder()
         .withPaymentEnable(!!i)
@@ -136,15 +139,13 @@ test.describe("Partner managerment", () => {
 
       const responseOfPartner = await adminService.createPartner(partnerInfo);
 
-      if (responseOfPartner.status == 200) {
-        const searchResponse = (
-          await adminService.searchPartnerByText(nameOfPartnerInfo)
-        ).entities[0].paymentEnable;
+      const paymentEnable = (
+        await adminService.searchPartnerByText(nameOfPartnerInfo)
+      ).entities[0].paymentEnable;
 
-        if (i == 0) expect(searchResponse).toBe(false);
-        else if (i == 1) expect(searchResponse).toBe(true);
-      }
-    }
+      if (i == 0) expect(paymentEnable).toBe(false);
+      else expect(paymentEnable).toBe(true);
+    } //end for loop
   });
 
   test("TC35 With Payment Options = Partner/Consultant Owner, the user will make payments in the Partner Portal, and the Partner account will be the owner of all Businesses.", async ({
@@ -169,39 +170,44 @@ test.describe("Partner managerment", () => {
       .withWhoPay(0)
       .build();
 
-    const partnerResponse = await adminService.createPartner(partnerInfo);
+    await adminService.createPartner(partnerInfo);
 
-    if (partnerResponse.status == 200) {
-      const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+    const email = partnerInfo.accountInfo?.email!;
 
-      const email = partnerInfo.accountInfo?.email!;
+    if (!email) {
+      throw new Error(
+        "Generated partnerInfo does not contain accountInfo.email",
+      );
+    }
 
-      const resetResp = await authenticationService.resetPasswordWithoutToken(
-        { username: email, password: tempPassword },
+    const resetResp = await authenticationService.resetPasswordWithoutToken(
+      { username: email, password: tempPassword },
+      undefined,
+      "5",
+    );
+
+    if (resetResp) {
+      await authenticationService.confirmEmailWithoutToken(
+        email,
         undefined,
         "5",
       );
 
-      if (resetResp) {
-        await authenticationService.confirmEmailWithoutToken(
-          email,
-          undefined,
-          "5",
-        );
+      const emailOfPartner = partnerInfo.accountInfo?.email!;
 
-        const emailOfPartner = partnerInfo.accountInfo?.email!;
+      const searchResponse =
+        await adminService.getCustomerByEmail(emailOfPartner);
 
-        const searchResponse =
-          await adminService.getCustomerIdByEmail(emailOfPartner);
+      const customerId = searchResponse.entities[0].consumerObjectId;
 
-        const customerId = searchResponse.body.entities[0].consumerObjectId;
+      const customerRole = await adminService.getCustomer(customerId);
 
-        const customerRole = await adminService.getRoleOfCustomer(customerId);
-
-        expect(customerRole.body.role).toBe(0);
-      }
+      //Get the role of the customer: 0: Owner, 1: Admin, 3: User
+      expect(customerRole.role).toBe(0);
     }
   });
+
   test("TC37 Verify that when creating a new Partner, the admin can allow certain benefits to appear in the Member Portal.", async ({
     apiClient,
     authenticationService,
@@ -220,6 +226,7 @@ test.describe("Partner managerment", () => {
       apiClient,
       authenticationService,
     );
+
     const testData = new TestDataProvider(adminPortalService);
     //Create department id to send
     const departmentID = await testData.getDepartmentId("BiginHR");
@@ -239,10 +246,11 @@ test.describe("Partner managerment", () => {
       .withIsPublic(true)
       .withWhoPay(0)
       .withBankTransfer(true)
-      .withFilterProductTypes(productTypesAndNamesToSend)
       .withDepartment(departmentID)
+      .withFilterProductTypes(productTypesAndNamesToSend)
       .withPlanId(masterPlanId)
       .build();
+
     //Create partner
     await adminService.createPartner(partnerInfo);
 
@@ -262,31 +270,28 @@ test.describe("Partner managerment", () => {
       "4",
     );
 
-    const token = await authenticationService.getAuthToken(
+    await authenticationService.confirmEmailWithoutToken(email, undefined, "5");
+
+    const memberportalToken = await authenticationService.getAuthToken(
       email,
       tempPassword,
       "4",
     );
 
-    await authenticationService.confirmEmailWithoutToken(email, undefined, "5");
-
-    await authenticationService.confirmEmailWithoutToken(email, undefined, "4");
-
     //Get benifits in member portal after partner bought the selected plan successfully
-    const benifitResponse: any = await memberPortalService.getBenifit<object>(
-      email,
-      token,
-    );
-    console.log("benifitResponse:", benifitResponse);
+    const memberportalPlanResp: any =
+      await memberPortalService.getPaymentSubscription(memberportalToken);
 
-    // Get benifit imformation of selected plan in adminportal
-    const boughtPlan: any = await adminPortalService.getPlan(
-      apiClient,
-      benifitResponse.main.name,
-      departmentID,
+    //Get benifit imformation of selected plan in adminportal
+    const adminportalPlanResp: any =
+      await adminPortalService.getDepartmentPlanList(departmentID);
+
+    const adminportalPlan = await testData.filterPlanBasedName(
+      adminportalPlanResp,
+      paymentProductName,
     );
 
-    Comparison.comparePlan(benifitResponse, boughtPlan);
+    Comparison.comparePlan(memberportalPlanResp, adminportalPlan);
   });
   test("TC38 Verify that the admin can specify which plans a Partner can use for its Businesses via the Product Type field.", async ({
     apiClient,
@@ -435,7 +440,7 @@ test.describe("Partner managerment", () => {
     expect(emailOfPartner).toBeDefined();
 
     const searchResponse =
-      await adminService.getCustomerIdByEmail(emailOfPartner);
+      await adminService.getCustomerByEmail(emailOfPartner);
 
     const customerEmail = searchResponse.body.entities[0];
 
@@ -486,7 +491,7 @@ test.describe("Partner managerment", () => {
 
     expect(partnerToLogin).toBeDefined();
 
-    const searchResponse = await adminService.getCustomerIdByEmail(email);
+    const searchResponse = await adminService.getCustomerByEmail(email);
 
     const customerEmail = searchResponse.body.entities[0];
 

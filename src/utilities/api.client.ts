@@ -72,6 +72,7 @@ export class ApiClient {
     data?: object,
     expectedStatus = 200,
     headers?: Record<string, string>,
+    params?: Record<string, string | number>,
   ): Promise<T> {
     let response: APIResponse;
 
@@ -80,6 +81,7 @@ export class ApiClient {
     try {
       const requestOptions: any = {};
       if (data) requestOptions.data = data;
+      if (params) requestOptions.params = params;
 
       // Merge headers: prefer explicit `headers` passed for this call,
       // but include the stored auth token if present. This avoids calling
@@ -194,145 +196,5 @@ export class ApiClient {
   }
 
 
-  public async sendRequestToGetCusomterId<T>(
-    method: HTTPMethod,
-    url: string,
-    expectedStatus = 200,
-    headers?: Record<string, string>,
-    params?: Record<string, string | number>,
-  ): Promise<{ status: number; body: T }> {
-    const fullUrl = url.startsWith("http") ? url : `${this.baseURL}/${url}`;
-    const mergedHeaders: Record<string, string> = {
-      ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
-      ...(headers || {}),
-    };
-    const requestOptions: any = { headers: mergedHeaders, params };
-    let response: APIResponse;
-    switch (method) {
-      case "GET":
-        response = await this.apiContext.get(fullUrl, requestOptions);
-        break;
-      case "POST":
-        response = await this.apiContext.post(fullUrl, requestOptions);
-        break;
-      case "PUT":
-        response = await this.apiContext.put(fullUrl, requestOptions);
-        break;
-      case "DELETE":
-        response = await this.apiContext.delete(fullUrl, requestOptions);
-        break;
-      default:
-        throw new Error(`Unsupported HTTP method: ${method}`);
-    }
-    const status = response.status();
-    if (status !== expectedStatus) {
-      throw new Error(
-        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
-      );
-    }
-    const contentType = response.headers()["content-type"] || "";
-    const body =
-      contentType.includes("application/json") && status !== 204
-        ? await response.json()
-        : await response.text();
-    return { status, body };
-  }
-
-  public async sendRequestToGetCustomerRole<T>(
-    method: HTTPMethod,
-    url: string,
-    expectedStatus = 200,
-    headers?: Record<string, string>,
-  ): Promise<{ status: number; body: T }> {
-    const fullUrl = url.startsWith("http") ? url : `${this.baseURL}/${url}`;
-
-    const mergedHeaders: Record<string, string> = {
-      ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
-      ...(headers || {}),
-    };
-
-    const requestOptions: any = { headers: mergedHeaders };
-
-    let response: APIResponse;
-    switch (method) {
-      case "GET":
-        response = await this.apiContext.get(fullUrl, requestOptions);
-        break;
-      case "POST":
-        response = await this.apiContext.post(fullUrl, requestOptions);
-        break;
-      case "PUT":
-        response = await this.apiContext.put(fullUrl, requestOptions);
-        break;
-      case "DELETE":
-        response = await this.apiContext.delete(fullUrl, requestOptions);
-        break;
-      default:
-        throw new Error(`Unsupported HTTP method: ${method}`);
-    }
-
-    const status = response.status();
-    if (status !== expectedStatus) {
-      throw new Error(
-        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
-      );
-    }
-
-    const contentType = response.headers()["content-type"] || "";
-    const body =
-      contentType.includes("application/json") && status !== 204
-        ? await response.json()
-        : await response.text();
-
-    return { status, body: body as T };
-  }
-
-  public async sendRequestToLogin<T>(
-    method: HTTPMethod,
-    url: string,
-    expectedStatus = 200,
-    headers?: Record<string, string>,
-  ): Promise<{ status: number; body: T }> {
-    const fullUrl = url.startsWith("http") ? url : `${this.baseURL}/${url}`;
-
-    const mergedHeaders: Record<string, string> = {
-      ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
-      ...(headers || {}),
-    };
-
-    const requestOptions: any = { headers: mergedHeaders };
-
-    let response: APIResponse;
-    switch (method) {
-      case "GET":
-        response = await this.apiContext.get(fullUrl, requestOptions);
-        break;
-      case "POST":
-        response = await this.apiContext.post(fullUrl, requestOptions);
-        break;
-      case "PUT":
-        response = await this.apiContext.put(fullUrl, requestOptions);
-        break;
-      case "DELETE":
-        response = await this.apiContext.delete(fullUrl, requestOptions);
-        break;
-      default:
-        throw new Error(`Unsupported HTTP method: ${method}`);
-    }
-
-    const status = response.status();
-    if (status !== expectedStatus) {
-      throw new Error(
-        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
-      );
-    }
-
-    const contentType = response.headers()["content-type"] || "";
-    const body =
-      contentType.includes("application/json") && status !== 204
-        ? await response.json()
-        : await response.text();
-
-    return { status, body: body as T };
-  }
+ 
 }

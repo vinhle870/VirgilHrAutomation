@@ -143,6 +143,11 @@ export class PartnerBuilder {
     return this;
   }
 
+  /**
+   * Set the who pay value for the partner.
+   * @param whoPay - The who pay value (0: Partner, 1: Customer) UI Field: Payment Options
+   * @returns The partner builder
+   */
   withWhoPay(whoPay: number): this {
     this.partnerOverrides.whoPay = whoPay;
     return this;

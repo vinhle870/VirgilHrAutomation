@@ -16,7 +16,10 @@ test.describe("Admin Portal - Customer Management", () => {
 
     //*****-----Optionally discover partnerId/departmentId from the system to use in the-----*****
     // generated consumer. If search finds nothing, generator will use defaults.
-    const partnerName = "VinhPartner002";
+    const partnerName = process.env.PARTNER_NAME;
+    if (!partnerName) {
+      throw new Error("PARTNER_NAME is not configured");
+    }
 
     const adminService = await AdminPortalService.create(
       apiClient,
@@ -58,7 +61,10 @@ test.describe("Admin Portal - Customer Management", () => {
 
     //*****-----Optionally discover partnerId/departmentId from the system to use in the-----*****
     // generated consumer. If search finds nothing, generator will use defaults.
-    const partnerName = "VinhPartner002";
+    const partnerName = process.env.PARTNER_NAME;
+    if (!partnerName) {
+      throw new Error("PARTNER_NAME is not configured");
+    }
 
     const adminService = await AdminPortalService.create(
       apiClient,
@@ -112,7 +118,10 @@ test.describe("Admin Portal - Customer Management", () => {
 
     //*****-----Optionally discover partnerId/departmentId from the system to use in the-----*****
     // generated consumer. If search finds nothing, generator will use defaults.
-    const partnerName = "VinhPartner002";
+    const partnerName = process.env.PARTNER_NAME;
+    if (!partnerName) {
+      throw new Error("PARTNER_NAME is not configured");
+    }
 
     const adminService = await AdminPortalService.create(
       apiClient,
@@ -164,7 +173,10 @@ test.describe("Admin Portal - Customer Management", () => {
 
     //*****-----Optionally discover partnerId/departmentId from the system to use in the-----*****
     // generated consumer. If search finds nothing, generator will use defaults.
-    const partnerName = "VinhPartner002";
+    const partnerName = process.env.PARTNER_NAME;
+    if (!partnerName) {
+      throw new Error("PARTNER_NAME is not configured");
+    }
 
     const adminService = await AdminPortalService.create(
       apiClient,
@@ -228,7 +240,10 @@ test.describe("Admin Portal - Customer Management", () => {
 
     //*****-----Optionally discover partnerId/departmentId from the system to use in the-----*****
     // generated consumer. If search finds nothing, generator will use defaults.
-    const partnerName = "VinhPartner002";
+    const partnerName = process.env.PARTNER_NAME;
+    if (!partnerName) {
+      throw new Error("PARTNER_NAME is not configured");
+    }
 
     const adminService = await AdminPortalService.create(
       apiClient,
@@ -276,7 +291,10 @@ test.describe("Admin Portal - Customer Management", () => {
 
     //*****-----Optionally discover partnerId/departmentId from the system to use in the-----*****
     // generated consumer. If search finds nothing, generator will use defaults.
-    const partnerName = "VinhPartner002";
+    const partnerName = process.env.PARTNER_NAME;
+    if (!partnerName) {
+      throw new Error("PARTNER_NAME is not configured");
+    }
 
     const adminService = await AdminPortalService.create(
       apiClient,

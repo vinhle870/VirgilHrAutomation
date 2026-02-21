@@ -77,7 +77,7 @@ export class DataGenerate {
   }
   static async generateCompanyName(): Promise<string> {
     const { faker } = await import("@faker-js/faker");
-    return faker.company.name();
+    return faker.company.name().replace(",", "and");
   }
 
   static async generatejobTitle(): Promise<string> {
