@@ -39,6 +39,13 @@ export class PersonDataGenerator {
       ...(overrides?.userType !== undefined && {
         userType: overrides.userType,
       }),
+      ...(overrides?.partnerConsumerType !== undefined && {
+        partnerConsumerType: overrides.partnerConsumerType,
+      }),
+      ...(overrides?.role !== undefined && {
+        role: overrides.role,
+      }),
     };
   }
+  
 }
