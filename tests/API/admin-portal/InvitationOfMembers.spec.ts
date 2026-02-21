@@ -7,7 +7,6 @@ import { CustomerBuilder, DataFactory } from "src/data-factory";
 import { TestDataProvider } from "src/test-data";
 import { ProductInfo } from "src/objects/iproduct";
 import { plans } from "src/constant/static-data";
-import { InviteMemberPayload } from "src/api/services";
 
 test.describe("Partner management", () => {
   test("TC57 In the Admin Portal, the admin can invite members to a team from the Details page of any account.", async ({
@@ -117,6 +116,7 @@ test.describe("Partner management", () => {
     const customerWithMember = await new CustomerBuilder().withMember().build();
 
     const member = customerWithMember.members[0];
+
     for (let i = 0; i < 2; i++) {
       // Create partner info
       const partnerInfo = await DataFactory.partnerBuilder()

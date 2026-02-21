@@ -12,7 +12,7 @@ import {
   GET_ALL_DEPARTMENTS_PLANS,
   INVITE_MEMBER_ADMINPORTAL,
 } from "src/api/endpoints/admin-portal.endpoints";
-import { INVITE_MEMBERS } from "src/api/endpoints/admin-portal.endpoints";
+
 import { Authentication } from "src/api/services/authentication.service";
 import { CustomerInfo } from "src/objects/customer";
 import { Partner } from "src/objects/ipartner";
