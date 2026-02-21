@@ -30,7 +30,7 @@ test.describe("Partner managerment", () => {
     const response = await adminService.createPartner(partnerInfo);
 
     expect(response).toBeDefined();
-    expect(typeof response).toBe('string');
+    expect(typeof response).toBe("string");
     expect(response.length).toBeGreaterThan(0);
   });
 
@@ -55,13 +55,12 @@ test.describe("Partner managerment", () => {
 
     const nameOfPeoInfo: string = peoInfo.partnerInfo?.name!;
 
-    const responsePEO = await adminService.createPartner(peoInfo);
-
+    await adminService.createPartner(peoInfo);
 
     const peoLevel = (await adminService.searchPartnerByText(nameOfPeoInfo))
       .entities[0].level;
 
-    expect(peoLevel).toBe(1);//PEO level is 1
+    expect(peoLevel).toBe(1); //PEO level is 1
 
     //Create a new partner with level 0 as Partner
     const partnerInfo = await DataFactory.partnerBuilder().build();
@@ -71,10 +70,11 @@ test.describe("Partner managerment", () => {
     const responsePartner = await adminService.createPartner(partnerInfo);
 
     //Search partner by name and get the level
-    const partnerLevel = await (await adminService.searchPartnerByText(nameOfpartnerInfo)).entities[0].level;
+    const partnerLevel = await (
+      await adminService.searchPartnerByText(nameOfpartnerInfo)
+    ).entities[0].level;
 
     expect(partnerLevel).toBe(0); //Partner level is 0
-
   });
   test("TC_33 When creating a new Partner, the admin can choose to assign a sub-domain to that Partner, or not.", async ({
     apiClient,
@@ -108,7 +108,7 @@ test.describe("Partner managerment", () => {
       const responseOfPartner = await adminService.createPartner(partnerInfo);
 
       expect(responseOfPartner).toBeDefined();
-      expect(typeof responseOfPartner).toBe('string');
+      expect(typeof responseOfPartner).toBe("string");
       expect(responseOfPartner.length).toBeGreaterThan(0);
     }
   });
@@ -137,7 +137,7 @@ test.describe("Partner managerment", () => {
 
       const nameOfPartnerInfo = partnerInfo.partnerInfo?.name!;
 
-      const responseOfPartner = await adminService.createPartner(partnerInfo);
+      await adminService.createPartner(partnerInfo);
 
       const paymentEnable = (
         await adminService.searchPartnerByText(nameOfPartnerInfo)
@@ -145,8 +145,7 @@ test.describe("Partner managerment", () => {
 
       if (i == 0) expect(paymentEnable).toBe(false);
       else expect(paymentEnable).toBe(true);
-
-    }//end for loop
+    } //end for loop
   });
 
   test("TC35 With Payment Options = Partner/Consultant Owner, the user will make payments in the Partner Portal, and the Partner account will be the owner of all Businesses.", async ({
@@ -171,12 +170,10 @@ test.describe("Partner managerment", () => {
       .withWhoPay(0)
       .build();
 
-    const partnerResponse = await adminService.createPartner(partnerInfo);
-
+    await adminService.createPartner(partnerInfo);
 
     const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
-
-    const email = partnerInfo.accountInfo?.email;
+    const email = partnerInfo.accountInfo?.email!;
 
     if (!email) {
       throw new Error(
@@ -209,9 +206,7 @@ test.describe("Partner managerment", () => {
       //Get the role of the customer: 0: Owner, 1: Admin, 3: User
       expect(customerRole.role).toBe(0);
     }
-
   });
-
 
   test("TC37 Verify that when creating a new Partner, the admin can allow certain benefits to appear in the Member Portal.", async ({
     apiClient,
@@ -227,32 +222,25 @@ test.describe("Partner managerment", () => {
 
     testInfo.skip(!base, "API_BASE_URL is not configured");
 
-    const adminService = await AdminPortalService.create(apiClient,authenticationService);
-   
+    const adminService = await AdminPortalService.create(
+      apiClient,
+      authenticationService,
+    );
+
     const testData = new TestDataProvider(adminPortalService);
-
     //Create department id to send
-    let departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
-
-    //PrismHR: 68f09ac3500b0efa8a365bef->ok
-    //BiginHR: 688897d5eb52b4af5573def4->No ok
-    //VirgilHR: 68908f542e20001e47f5394f->No ok
-    //Vensure: 6928522dc95cab35e8188e2e
-    //Epay: 6928522dc95cab35e8188e2f->ok
-    //Get department domain
-
-    //Choose a plan = "50 - 100 Employees"
+    const departmentID = await testData.getDepartmentId("BiginHR");
     const paymentProductName: string = plans[1];
-
-    //Get all product types of a department (departmentID): 
-    // It is required for scenario Bank Transfer is True
-    const productTypesAndNamesToSend: ProductInfo[] = await testData.getProductTypesBasedDepartmentId(departmentID);
-
-
-    const masterPlan: any = await testData.filterMasterPlanBasedName(departmentID, paymentProductName);
-
+    //Choose masterID to send
+    const masterPlan: any = await testData.filterMasterPlanBasedName(
+      departmentID,
+      paymentProductName,
+    );
     const masterPlanId = masterPlan.masterPlanId;
 
+    //Get all product types of a department (departmentID)
+    const productTypesAndNamesToSend: ProductInfo[] =
+      await testData.getProductTypesBasedDepartmentId(departmentID);
     //Create partner info
     const partnerInfo = await DataFactory.partnerBuilder()
       .withIsPublic(true)
@@ -263,28 +251,26 @@ test.describe("Partner managerment", () => {
       .withPlanId(masterPlanId)
       .build();
 
-
     //Create partner
-    const partnerResponse = await adminService.createPartner(partnerInfo);
+    const partner = await adminService.createPartner(partnerInfo);
 
     const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
     const email = partnerInfo.accountInfo?.email!;
+    //Reset partner
+    await authenticationService.resetPasswordWithoutToken(
+      { username: email, password: tempPassword },
+      undefined,
+      "5",
+    );
+    //Reset customer
+    await authenticationService.resetPasswordWithoutToken(
+      { username: email, password: tempPassword },
+      undefined,
+      "4",
+    );
 
-    const resetCustomer =
-      await authenticationService.resetPasswordWithoutToken(
-        { username: email, password: tempPassword },
-        undefined,
-        "4",
-      );
-
-    if (resetCustomer) {
-      await authenticationService.confirmEmailWithoutToken(
-        email,
-        undefined,
-        "4",
-      );
-    }
+    await authenticationService.confirmEmailWithoutToken(email, undefined, "5");
 
     const memberportalToken = await authenticationService.getAuthToken(
       email,
@@ -292,196 +278,168 @@ test.describe("Partner managerment", () => {
       "4",
     );
 
-    //Get benifits in member portal after partner bought the selected plan successfully
-    const memberportalPlanResp: any = await memberPortalService.getPaymentSubscription(memberportalToken);
-
     //Get benifit imformation of selected plan in adminportal
-    const adminportalPlanResp: any = await adminPortalService.getDepartmentPlanList(departmentID);
+    const adminportalPlanResp: any =
+      await adminPortalService.getDepartmentPlanList(departmentID);
 
-    const adminportalPlan = await testData.filterPlanBasedName(adminportalPlanResp, paymentProductName);
+    //Get benifits in member portal after the partner bought the selected plan successfully
+    const memberportalPlanResp: any =
+      await memberPortalService.getPaymentSubscription(memberportalToken);
 
-    Comparison.comparePlan(memberportalPlanResp, adminportalPlan);
-  
-  
+    const adminportalPlan = await testData.filterPlanBasedName(
+      adminportalPlanResp,
+      paymentProductName,
+    );
+
+    console.log("memberportalPlanResp:", memberportalPlanResp);
+    console.log("adminportalPlan:", adminportalPlan);
+
+    if (partner.status == 200)
+      Comparison.comparePlan(memberportalPlanResp, adminportalPlan);
   });
-test("TC38 Verify that the admin can specify which plans a Partner can use for its Businesses via the Product Type field.", async ({
-  apiClient,
-  authenticationService,
-  adminPortalService,
-}, testInfo) => {
-  testInfo.skip(
-    !process.env.API_BASE_URL && !process.env.BASE_URL,
-    "API_BASE_URL is not configured",
-  );
-  const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-  testInfo.skip(!base, "API_BASE_URL is not configured");
-
-  const adminService = await AdminPortalService.create(apiClient,authenticationService);
-
-  const testData = new TestDataProvider(adminPortalService);
-
-  //Choose a plan = "50 - 100 Employees"
-  const paymentProductName: string = plans[1];
-
-  //Create department id to send
-
-  const departmentID = await testData.getDepartmentId();
-
-  //Get all product types of a department (departmentID): 
-  // It is required for scenario Bank Transfer is True
-  const productTypesAndNamesToSend: ProductInfo[] = await testData.getProductTypesBasedDepartmentId(departmentID);
-
-
-  const masterPlan: any = await testData.filterMasterPlanBasedName(departmentID, paymentProductName);
-
-  const masterPlanId = masterPlan.masterPlanId;
-
-  //Create partner info
-  const partnerInfo = await DataFactory.partnerBuilder()
-    .withIsPublic(true)
-    .withWhoPay(0)
-    .withBankTransfer(true)
-    .withDepartment(departmentID)
-    .withFilterProductTypes(productTypesAndNamesToSend)
-    .withPlanId(masterPlanId)
-    .build();
-
-  //Create a new partner
-  const partnerResponse = await adminService.createPartner(partnerInfo);
-
-  expect(partnerResponse).toBeDefined();
-});
-
-
-test("TC44 For Payment Options = Partner/Consultant Owner, the Owner account can log in to both the Member Portal and the Partner Portal.", async ({
-  apiClient,
-  authenticationService,
-}, testInfo) => {
-  testInfo.skip(
-    !process.env.API_BASE_URL && !process.env.BASE_URL,
-    "API_BASE_URL is not configured",
-  );
-  const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-  testInfo.skip(!base, "API_BASE_URL is not configured");
-
-  const adminService = await AdminPortalService.create(
+  test("TC38 Verify that the admin can specify which plans a Partner can use for its Businesses via the Product Type field.", async ({
     apiClient,
     authenticationService,
-  );
+    adminPortalService,
+  }, testInfo) => {
+    testInfo.skip(
+      !process.env.API_BASE_URL && !process.env.BASE_URL,
+      "API_BASE_URL is not configured",
+    );
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
-  const partnerInfo = await DataFactory.partnerBuilder()
-    .withIsPublic(true)
-    .withWhoPay(0)
-    .build();
+    testInfo.skip(!base, "API_BASE_URL is not configured");
 
-  const partnerResponse = await adminService.createPartner(partnerInfo);
+    const adminService = await AdminPortalService.create(
+      apiClient,
+      authenticationService,
+    );
+    const testData = new TestDataProvider(adminPortalService);
 
-  if (partnerResponse.status == 200) {
+    //Get all product types of a department (departmentID)
+    const departmentID = await testData.getDepartmentId("BiginHR");
+    const paymentProductName: string = plans[1];
+    //Choose a plan to buy
+    const masterPlan: any = await testData.filterMasterPlanBasedName(
+      departmentID,
+      paymentProductName,
+    );
+
+    const masterPlanId = masterPlan.masterPlanId;
+    // Get all product types of a department
+    const productTypesAndNamesToSend: ProductInfo[] =
+      await testData.getProductTypesBasedDepartmentId(departmentID);
+    //Create partner info
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withIsPublic(true)
+      .withDepartment(departmentID)
+      .withFilterProductTypes(productTypesAndNamesToSend)
+      .withWhoPay(0)
+      .withPlanId(masterPlanId)
+      .build();
+    //Create a new partner
+    const partnerResponse = await adminService.createPartner(partnerInfo);
+
+    expect(partnerResponse).toBeDefined();
+  });
+  test("TC44 For Payment Options = Partner/Consultant Owner, the Owner account can log in to both the Member Portal and the Partner Portal.", async ({
+    apiClient,
+    authenticationService,
+  }, testInfo) => {
+    testInfo.skip(
+      !process.env.API_BASE_URL && !process.env.BASE_URL,
+      "API_BASE_URL is not configured",
+    );
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+    testInfo.skip(!base, "API_BASE_URL is not configured");
+
+    const adminService = await AdminPortalService.create(
+      apiClient,
+      authenticationService,
+    );
+    //Create a new partner with Payment Options = Partner/Consultant Owner
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withIsPublic(true)
+      .withWhoPay(0)
+      .build();
+
+    await adminService.createPartner(partnerInfo);
+
+    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+
+    const email = partnerInfo.accountInfo?.email!;
+    //Login in partner portal
+    await authenticationService.resetPasswordWithoutToken(
+      { username: email, password: tempPassword },
+      undefined,
+      "5",
+    );
+
+    await authenticationService.resetPasswordWithoutToken(
+      { username: email, password: tempPassword },
+      undefined,
+      "4",
+    );
+
+    await authenticationService.confirmEmailWithoutToken(email, undefined, "5");
+
+    const partnerToLogin = await authenticationService.getAuthToken(
+      email,
+      tempPassword,
+      "5",
+    );
+
+    expect(partnerToLogin).toBeDefined();
+    //Login in member portal
+    await authenticationService.confirmEmailWithoutToken(email, undefined, "4");
+
+    const memberToLogin = await authenticationService.getAuthToken(
+      email,
+      tempPassword,
+      "4",
+    );
+
+    expect(memberToLogin).toBeDefined();
+  });
+
+  test("TC45 With Payment Options = Member Portal Consumer, after successfully creating a Partner account, the user receives one credential email — for the Partner Portal.", async ({
+    apiClient,
+    authenticationService,
+  }, testInfo) => {
+    testInfo.skip(
+      !process.env.API_BASE_URL && !process.env.BASE_URL,
+      "API_BASE_URL is not configured",
+    );
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+    testInfo.skip(!base, "API_BASE_URL is not configured");
+
+    const adminService = await AdminPortalService.create(
+      apiClient,
+      authenticationService,
+    );
+
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withIsPublic(true)
+      .withWhoPay(1)
+      .build();
+
+    const partner = await adminService.createPartner(partnerInfo);
+
     const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
     const email = partnerInfo.accountInfo?.email!;
 
-    const resetPartner =
-      await authenticationService.resetPasswordWithoutToken(
-        { username: email, password: tempPassword },
-        undefined,
-        "5",
-      );
+    await authenticationService.resetPasswordWithoutToken(
+      { username: email, password: tempPassword },
+      undefined,
+      "5",
+    );
 
-    const resetCustomer =
-      await authenticationService.resetPasswordWithoutToken(
-        { username: email, password: tempPassword },
-        undefined,
-        "4",
-      );
+    await authenticationService.confirmEmailWithoutToken(email, undefined, "5");
 
-    if (resetPartner) {
-      const partnerResponse =
-        await authenticationService.confirmEmailWithoutToken(
-          email,
-          undefined,
-          "5",
-        );
-
-      if (partnerResponse) {
-        const partnerToLogin = await authenticationService.getAuthToken(
-          email,
-          tempPassword,
-          "5",
-        );
-
-        expect(partnerToLogin).toBeDefined();
-      }
-    }
-
-    if (resetCustomer) {
-      const memberResponse =
-        await authenticationService.confirmEmailWithoutToken(
-          email,
-          undefined,
-          "4",
-        );
-
-      if (memberResponse) {
-        const memberToLogin = await authenticationService.getAuthToken(
-          email,
-          tempPassword,
-          "4",
-        );
-
-        expect(memberToLogin).toBeDefined();
-      }
-    }
-  }
-});
-
-test("TC45 With Payment Options = Member Portal Consumer, after successfully creating a Partner account, the user receives one credential email — for the Partner Portal.", async ({
-  apiClient,
-  authenticationService,
-}, testInfo) => {
-  testInfo.skip(
-    !process.env.API_BASE_URL && !process.env.BASE_URL,
-    "API_BASE_URL is not configured",
-  );
-  const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-  testInfo.skip(!base, "API_BASE_URL is not configured");
-
-  const adminService = await AdminPortalService.create(
-    apiClient,
-    authenticationService,
-  );
-
-  const partnerInfo = await DataFactory.partnerBuilder()
-    .withIsPublic(true)
-    .withWhoPay(1)
-    .build();
-
-  const partnerResponse = await adminService.createPartner(partnerInfo);
-
-  if (partnerResponse.status == 200) {
-    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
-
-
-    const email = partnerInfo.accountInfo?.email!;
-
-    const resetPassword =
-      await authenticationService.resetPasswordWithoutToken(
-        { username: email, password: tempPassword },
-        undefined,
-        "5",
-      );
-
-    if (resetPassword) {
-      await authenticationService.confirmEmailWithoutToken(
-        email,
-        undefined,
-        "5",
-      );
-
-
+    if (partner.status == 200) {
       const emailOfPartner = partnerInfo.accountInfo?.email!;
 
       expect(emailOfPartner).toBeDefined();
@@ -493,64 +451,56 @@ test("TC45 With Payment Options = Member Portal Consumer, after successfully cre
 
       expect(customerEmail).toBeFalsy();
     }
-  }
-});
+  });
 
-test("TC46 For Payment Options = Member Portal Consumer, the Owner of the Partner/Consultant can only log in to the Partner Portal.", async ({
-  apiClient,
-  authenticationService,
-}, testInfo) => {
-  testInfo.skip(
-    !process.env.API_BASE_URL && !process.env.BASE_URL,
-    "API_BASE_URL is not configured",
-  );
-  const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-  testInfo.skip(!base, "API_BASE_URL is not configured");
-
-  const adminService = await AdminPortalService.create(
+  test("TC46 For Payment Options = Member Portal Consumer, the Owner of the Partner/Consultant can only log in to the Partner Portal.", async ({
     apiClient,
     authenticationService,
-  );
+  }, testInfo) => {
+    testInfo.skip(
+      !process.env.API_BASE_URL && !process.env.BASE_URL,
+      "API_BASE_URL is not configured",
+    );
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
+    testInfo.skip(!base, "API_BASE_URL is not configured");
 
-  const partnerInfo = await DataFactory.partnerBuilder()
-    .withIsPublic(true)
-    .withWhoPay(1)
-    .build();
+    const adminService = await AdminPortalService.create(
+      apiClient,
+      authenticationService,
+    );
 
-  const partnerResponse = await adminService.createPartner(partnerInfo);
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withIsPublic(true)
+      .withWhoPay(1)
+      .build();
 
+    const partner = await adminService.createPartner(partnerInfo);
 
-  const email = partnerInfo.accountInfo?.email!;
+    if (partner.status == 200) {
+      const email = partnerInfo.accountInfo?.email!;
 
-  if (partnerResponse.status == 200) {
-    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+      const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-    const resetPassword =
       await authenticationService.resetPasswordWithoutToken(
         { username: email, password: tempPassword },
         undefined,
         "5",
       );
 
-    if (resetPassword) {
-      const partnerResponse =
-        await authenticationService.confirmEmailWithoutToken(
-          email,
-          undefined,
-          "5",
-        );
+      await authenticationService.confirmEmailWithoutToken(
+        email,
+        undefined,
+        "5",
+      );
 
-      if (partnerResponse) {
-        const partnerToLogin = await authenticationService.getAuthToken(
-          email,
-          tempPassword,
-          "5",
-        );
+      const partnerToLogin = await authenticationService.getAuthToken(
+        email,
+        tempPassword,
+        "5",
+      );
 
-        expect(partnerToLogin).toBeDefined();
-      }
+      expect(partnerToLogin).toBeDefined();
 
       const searchResponse = await adminService.getCustomerByEmail(email);
 
@@ -558,50 +508,47 @@ test("TC46 For Payment Options = Member Portal Consumer, the Owner of the Partne
 
       expect(customerEmail).toBeFalsy();
     }
-  }
-});
+  });
 
-test("TC47 For Businesses under a Partner with Payment Options = Member Portal Consumer, the Business Owner cannot log in to the Member Portal.", async ({
-  apiClient,
-  authenticationService,
-  memberPortalService,
-}, testInfo) => {
-  testInfo.skip(
-    !process.env.API_BASE_URL && !process.env.BASE_URL,
-    "API_BASE_URL is not configured",
-  );
-  const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-  testInfo.skip(!base, "API_BASE_URL is not configured");
-
-  const adminService = await AdminPortalService.create(
+  test("TC47 For Businesses under a Partner with Payment Options = Member Portal Consumer, the Business Owner cannot log in to the Member Portal.", async ({
     apiClient,
     authenticationService,
-  );
+    memberPortalService,
+  }, testInfo) => {
+    testInfo.skip(
+      !process.env.API_BASE_URL && !process.env.BASE_URL,
+      "API_BASE_URL is not configured",
+    );
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
+    testInfo.skip(!base, "API_BASE_URL is not configured");
 
-  const partnerInfo = await DataFactory.partnerBuilder()
-    .withIsPublic(true)
-    .withWhoPay(1)
-    .build();
+    const adminService = await AdminPortalService.create(
+      apiClient,
+      authenticationService,
+    );
 
-  const partnerResponse = await adminService.createPartner(partnerInfo);
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withIsPublic(true)
+      .withWhoPay(1)
+      .build();
 
+    const partnerResponse = await adminService.createPartner(partnerInfo);
 
-  const email = partnerInfo.accountInfo?.email!;
+    const email = partnerInfo.accountInfo?.email!;
 
-  if (partnerResponse.status == 200) {
-    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+    if (partnerResponse.status == 200) {
+      const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-    const resetPassword =
-      await authenticationService.resetPasswordWithoutToken(
-        { username: email, password: tempPassword },
-        undefined,
-        "5",
-      );
+      const resetPassword =
+        await authenticationService.resetPasswordWithoutToken(
+          { username: email, password: tempPassword },
+          undefined,
+          "5",
+        );
 
-    if (resetPassword) {
+      if (resetPassword) {
+      }
     }
-  }
-});
+  });
 });

@@ -10,14 +10,31 @@ import {
   GET_DEPARTMENT_PAYMENT_PRODUCT,
   GET_DEPARTMENTS_LIST,
   GET_ALL_DEPARTMENTS_PLANS,
-  INVITE_MEMBERS,
+  INVITE_MEMBER_ADMINPORTAL,
 } from "src/api/endpoints/admin-portal.endpoints";
+
 import { Authentication } from "src/api/services/authentication.service";
 import { CustomerInfo } from "src/objects/customer";
 import { Partner } from "src/objects/ipartner";
 import { APIResponse } from "@playwright/test";
 import { CREATE_BUSINESS } from "../endpoints/partner-portal.endpoints";
+import { InviteMemberPayload } from "./member-portal.services";
 
+export interface RecipientInfo {
+  email: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  jobTitle: string;
+  role: number;
+  partnerConsumerType: number;
+  consultantRole: number;
+}
+
+export interface InviteMemberWithId {
+  id: string;
+  recipients: RecipientInfo[];
+}
 
 export class AdminPortalService {
   private apiClient: ApiClient;
@@ -74,7 +91,13 @@ export class AdminPortalService {
     const path = SEARCH_PARTNER_BY_TEXT.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}?${query}`;
 
-    const headers = token ? { Authorization: `Bearer ${token}` } : this.authToken ? { Authorization: `Bearer ${this.authToken}` } : this.apiClient.getAuthToken() ? { Authorization: `Bearer ${this.apiClient.getAuthToken()}` } : undefined;
+    const headers = token
+      ? { Authorization: `Bearer ${token}` }
+      : this.authToken
+        ? { Authorization: `Bearer ${this.authToken}` }
+        : this.apiClient.getAuthToken()
+          ? { Authorization: `Bearer ${this.apiClient.getAuthToken()}` }
+          : undefined;
 
     const response = await this.apiClient.sendRequest<{
       total: number;
@@ -191,11 +214,11 @@ export class AdminPortalService {
     return response;
   }
 
-/**
- * POST /Partner/Manage/Partner: Create a new partner
- * @param partnerInfo - The information of the partner
- * @returns The response from the API
- */
+  /**
+   * POST /Partner/Manage/Partner: Create a new partner
+   * @param partnerInfo - The information of the partner
+   * @returns The response from the API
+   */
   async createPartner(partnerInfo: Partner): Promise<any> {
     const path = CREATE_PARTNER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
@@ -264,7 +287,6 @@ export class AdminPortalService {
     return response;
   }
 
-
   //===========================================================================
   /**
    * GET /Manage/CustomerManagement: Get the id of the customer by email
@@ -303,8 +325,7 @@ export class AdminPortalService {
       undefined,
       200,
       headers,
-      params
-
+      params,
     );
 
     return response;
@@ -339,9 +360,7 @@ export class AdminPortalService {
    * @param departmentId - The id of the department
    * @returns The response from the API
    */
-  async getDepartmentPlanList(
-    departmentId?: string,
-  ): Promise<object> {
+  async getDepartmentPlanList(departmentId?: string): Promise<object> {
     const path = GET_DEPARTMENT_PLAN.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}${departmentId}`;
 
@@ -360,11 +379,9 @@ export class AdminPortalService {
     return response;
   }
 
-
   public async getDepartmentPaymentProduct(
     departmentID: string,
   ): Promise<object[]> {
-    
     const url = `${this.baseUrl}/${GET_DEPARTMENT_PAYMENT_PRODUCT}${departmentID}`;
 
     let tokenToUse = this.authToken ?? this.apiClient.getAuthToken();
@@ -382,8 +399,28 @@ export class AdminPortalService {
       mergedHeaders,
     );
 
-   return response;
+    return response;
+  }
+  public async inviteMembers(member: InviteMemberWithId): Promise<object> {
+    const url = `${this.baseUrl}/${INVITE_MEMBER_ADMINPORTAL}`;
+
+    const headers: Record<string, string> = {
+      accept: "application/json, text/plain, */*",
+      authorization: `Bearer ${this.authToken ?? ""}`,
+      "content-type": "application/json",
+      origin: "https://admin.qa.virgilhr.com",
+      referer: "https://admin.qa.virgilhr.com/",
+      "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+    };
+
+    const response = await this.apiClient.sendRequest<object>(
+      "POST",
+      url,
+      member,
+      200, // Assuming 200 OK is the expected status code
+      headers,
+    );
+    return response; // Return the checkout plan response
   }
 }
-
-
