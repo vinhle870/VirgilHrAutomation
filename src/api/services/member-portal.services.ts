@@ -6,8 +6,7 @@ import {
   GET_PAYMENT_PRODUCTS,
   GET_PAYMENT_SUBSCRIPTION,
   SIGN_UP_CONSUMER,
-  MEMBER_LOGIN,
-  INVITE_MEMBER,
+  MEMBER_INVITE_MEMBER,
 } from "src/api/endpoints/member-portal.endpoints";
 import { CustomerInfo } from "src/objects/customer";
 import UserInfo from "src/objects/user-info";
@@ -148,7 +147,6 @@ export class MemberPortalService {
     return response; // Return the checkout plan response
   }
 
-
   /**
    * Invite a member to a team from Admin Portal
    * @param token - The token to authenticate the request
@@ -160,7 +158,7 @@ export class MemberPortalService {
     token: string,
     member: InviteMemberPayload,
   ): Promise<object> {
-    const url = `${this.baseUrl}/${INVITE_MEMBER}`;
+    const url = `${this.baseUrl}/${MEMBER_INVITE_MEMBER}`;
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
     const response = await this.apiClient.sendRequest<object>(

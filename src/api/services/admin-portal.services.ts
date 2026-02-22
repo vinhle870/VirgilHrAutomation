@@ -10,7 +10,7 @@ import {
   GET_DEPARTMENT_PAYMENT_PRODUCT,
   GET_DEPARTMENTS_LIST,
   GET_ALL_DEPARTMENTS_PLANS,
-  INVITE_MEMBER,
+  ADMIN_INVITE_MEMBER,
 } from "src/api/endpoints/admin-portal.endpoints";
 
 import { Authentication } from "src/api/services/authentication.service";
@@ -402,7 +402,7 @@ export class AdminPortalService {
     return response;
   }
   public async inviteMembers(member: InviteMemberWithId): Promise<object> {
-    const url = `${this.baseUrl}/${INVITE_MEMBER}`;
+    const url = `${this.baseUrl}/${ADMIN_INVITE_MEMBER}`;
 
     const headers: Record<string, string> = {
       accept: "application/json, text/plain, */*",

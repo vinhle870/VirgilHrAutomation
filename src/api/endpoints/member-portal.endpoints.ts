@@ -12,6 +12,4 @@ export const GET_PAYMENT_STATUS = "Payment/checkout/${guid}/PaymentStatus";
 export const MEMBER_LOGIN = "/Consumer/Consumers/GetLoginFailReason";
 export const GET_PAYMENT_SUBSCRIPTION = "/Payment/subscription/me";
 export const GET_DEPARTMENTS = "Configuration/Department";
-export const INVITE_MEMBER = "Consumer/Teams/Invite";
-
-
+export const MEMBER_INVITE_MEMBER = "Consumer/Teams/Invite";
