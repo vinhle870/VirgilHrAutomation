@@ -175,12 +175,6 @@ test.describe("Partner managerment", () => {
     const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
     const email = partnerInfo.accountInfo?.email!;
 
-    if (!email) {
-      throw new Error(
-        "Generated partnerInfo does not contain accountInfo.email",
-      );
-    }
-
     const resetResp = await authenticationService.resetPasswordWithoutToken(
       { username: email, password: tempPassword },
       undefined,
@@ -291,11 +285,7 @@ test.describe("Partner managerment", () => {
       paymentProductName,
     );
 
-    console.log("memberportalPlanResp:", memberportalPlanResp);
-    console.log("adminportalPlan:", adminportalPlan);
-
-    if (partner.status == 200)
-      Comparison.comparePlan(memberportalPlanResp, adminportalPlan);
+    Comparison.comparePlan(memberportalPlanResp, adminportalPlan);
   });
   test("TC38 Verify that the admin can specify which plans a Partner can use for its Businesses via the Product Type field.", async ({
     apiClient,
@@ -475,39 +465,33 @@ test.describe("Partner managerment", () => {
       .withWhoPay(1)
       .build();
 
-    const partner = await adminService.createPartner(partnerInfo);
+    await adminService.createPartner(partnerInfo);
 
-    if (partner.status == 200) {
-      const email = partnerInfo.accountInfo?.email!;
+    const email = partnerInfo.accountInfo?.email!;
 
-      const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-      await authenticationService.resetPasswordWithoutToken(
-        { username: email, password: tempPassword },
-        undefined,
-        "5",
-      );
+    await authenticationService.resetPasswordWithoutToken(
+      { username: email, password: tempPassword },
+      undefined,
+      "5",
+    );
 
-      await authenticationService.confirmEmailWithoutToken(
-        email,
-        undefined,
-        "5",
-      );
+    await authenticationService.confirmEmailWithoutToken(email, undefined, "5");
 
-      const partnerToLogin = await authenticationService.getAuthToken(
-        email,
-        tempPassword,
-        "5",
-      );
+    const partnerToLogin = await authenticationService.getAuthToken(
+      email,
+      tempPassword,
+      "5",
+    );
 
-      expect(partnerToLogin).toBeDefined();
+    expect(partnerToLogin).toBeDefined();
 
-      const searchResponse = await adminService.getCustomerByEmail(email);
+    const searchResponse = await adminService.getCustomerByEmail(email);
 
-      const customerEmail = searchResponse.body.entities[0];
+    const customerEmail = searchResponse.body.entities[0];
 
-      expect(customerEmail).toBeFalsy();
-    }
+    expect(customerEmail).toBeFalsy();
   });
 
   test("TC47 For Businesses under a Partner with Payment Options = Member Portal Consumer, the Business Owner cannot log in to the Member Portal.", async ({
@@ -537,18 +521,12 @@ test.describe("Partner managerment", () => {
 
     const email = partnerInfo.accountInfo?.email!;
 
-    if (partnerResponse.status == 200) {
-      const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-      const resetPassword =
-        await authenticationService.resetPasswordWithoutToken(
-          { username: email, password: tempPassword },
-          undefined,
-          "5",
-        );
-
-      if (resetPassword) {
-      }
-    }
+    await authenticationService.resetPasswordWithoutToken(
+      { username: email, password: tempPassword },
+      undefined,
+      "5",
+    );
   });
 });

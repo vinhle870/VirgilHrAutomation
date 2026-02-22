@@ -129,6 +129,7 @@ test.describe("Invite members to a team", () => {
         token,
         invitePayload,
       );
+
       expect(inviteMemberResponse).toBeDefined();
       expect(typeof inviteMemberResponse).toBe("object");
     }

@@ -84,6 +84,7 @@ test.describe("Partner management", () => {
     apiClient,
     authenticationService,
     adminPortalService,
+    partnerPortalService,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
@@ -97,6 +98,8 @@ test.describe("Partner management", () => {
       apiClient,
       authenticationService,
     );
+    const tempPassword = "Password@123";
+
     const testData = new TestDataProvider(adminPortalService);
 
     const paymentProductName: string = plans[1];
@@ -109,6 +112,7 @@ test.describe("Partner management", () => {
       paymentProductName,
     );
     const masterPlanId = masterPlan.masterPlanId;
+    console.log("masterPlanId:", masterPlanId);
 
     const productTypesAndNamesToSend: ProductInfo[] =
       await testData.getProductTypesBasedDepartmentId(departmentID);
@@ -146,10 +150,59 @@ test.describe("Partner management", () => {
         ],
       };
       // Call API to create a new member to a team
-      const successfullyInvitedMember =
-        await adminPortalService.inviteMembers(invitePayload);
+      await adminPortalService.inviteMembers(invitePayload);
+      //Get a business list via partners
+      const email = partnerInfo.accountInfo?.email ?? "";
 
-      expect(successfullyInvitedMember).toBe(true);
+      await authenticationService.resetPasswordWithoutToken(
+        { username: email, password: tempPassword },
+        undefined,
+        "5",
+      );
+
+      await authenticationService.confirmEmailWithoutToken(
+        email,
+        undefined,
+        "5",
+      );
+
+      const partnerToken = await authenticationService.getAuthToken(
+        email,
+        tempPassword,
+        "5",
+      );
+
+      //API Step: Get business list
+      const businessList =
+        await partnerPortalService.getBusinessList(partnerToken);
+
+      expect(businessList).toBeDefined();
+      expect(typeof businessList).toBe("object");
+      expect(businessList.entities).toBeDefined();
+      expect(typeof businessList.entities).toBe("object");
+      expect(businessList.entities.length).toBeGreaterThan(0);
+      expect(businessList.entities[0].id).toBeDefined();
+      expect(typeof businessList.entities[0].id).toBe("string");
+
+      //API Step: Get team members list
+      const teamMembersList = await partnerPortalService.getTeamMembersList(
+        businessList.entities[0].id,
+        partnerToken,
+      );
+      expect(teamMembersList).toBeDefined();
+      expect(typeof teamMembersList).toBe("object");
+      expect(teamMembersList.total).toBeDefined();
+      expect(typeof teamMembersList.total).toBe("number");
+      expect(teamMembersList.total).toEqual(
+        customerWithMember.members.length + 1,
+      ); // +1 for the partner who created the business
+      expect(teamMembersList.entities).toBeDefined();
+      expect(typeof teamMembersList.entities).toBe("object");
+      expect(teamMembersList.entities[1].email).toBeDefined();
+      expect(typeof teamMembersList.entities[1].email).toBe("string");
+      expect(teamMembersList.entities[1].email).toBe(
+        customerWithMember.members[0].email,
+      );
     }
   });
 });

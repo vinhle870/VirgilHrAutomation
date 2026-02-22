@@ -1,6 +1,4 @@
 import { format } from "date-fns";
-import { UserInfo } from "src/objects";
-import { ProductInfo } from "src/objects";
 
 export class DataGenerate {
   /**
@@ -108,29 +106,6 @@ export class DataGenerate {
     return randomValue;
   }
 
-  public static generateProductType(values: ProductInfo[]): ProductInfo[] {
-    const result: ProductInfo[] = [];
-    const used = new Set<number>();
-
-    while (result.length < 2 && used.size < values.length) {
-      const randomValue = values[Math.floor(Math.random() * values.length)];
-
-      if (randomValue.productName.includes("500+ Employees")) {
-        continue;
-      }
-
-      if (!used.has(randomValue.productType)) {
-        used.add(randomValue.productType);
-        result.push({
-          productType: randomValue.productType,
-          productName: randomValue.productName,
-          planId: randomValue.planId,
-        });
-      }
-    }
-
-    return result;
-  }
   private static async generateYopMail(): Promise<{
     firstName: string;
     email: string;
