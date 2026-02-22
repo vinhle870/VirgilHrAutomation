@@ -210,10 +210,9 @@ export class PartnerBuilder {
     // Build user info block for partner payload
 
     // Build restriction from provided values (no API calls)
-    const feFilterProductTypes =
-      this.restrictionOptions.feFilterProductTypes
-        ? this.restrictionOptions.feFilterProductTypes.map((p) => p.productType)
-        : this.feFilterProductTypesValue;
+    const feFilterProductTypes = this.restrictionOptions.feFilterProductTypes
+      ? this.restrictionOptions.feFilterProductTypes.map((p) => p.productType)
+      : this.feFilterProductTypesValue;
 
     const restriction = {
       eSignEnable: this.restrictionOptions.eSignEnable ?? true,
@@ -234,15 +233,14 @@ export class PartnerBuilder {
       bankTransfer,
       canCustomUpdatePlan:
         o.canCustomUpdatePlan ?? DataGenerate.generateBoolean(),
-      companyType:
-        o.companyType ?? (DataGenerate.generateBoolean() ? 1 : 0),
+      companyType: o.companyType ?? (DataGenerate.generateBoolean() ? 1 : 0),
       isPublic: o.isPublic ?? DataGenerate.generateBoolean(),
       level: o.level ?? 0,
       name,
       partnerType: o.partnerType ?? DataGenerate.generateDecimal(),
       paymentEnable: o.paymentEnable ?? DataGenerate.generateBoolean(),
       subDomain,
- 
+
       ...(bankTransfer && {
         billingCycle: o.billingCycle ?? 1,
       }),

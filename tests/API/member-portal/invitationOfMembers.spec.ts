@@ -4,7 +4,6 @@ import { InviteMemberPayload } from "src/api/services/member-portal.services";
 import { DataFactory, CustomerBuilder } from "src/data-factory";
 import { TestDataProvider } from "src/test-data";
 import { ProductInfo } from "src/objects/iproduct";
-import { DataGenerate } from "src/utilities";
 import { plans } from "src/constant/static-data";
 import { Partner, UserInfo } from "src/objects";
 
@@ -79,64 +78,59 @@ test.describe("Invite members to a team", () => {
     //API Step: Create partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
-    if (partnerResponse.status == 200) {
-      const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-      const email = partnerInfo.accountInfo?.email!;
+    const email = partnerInfo.accountInfo?.email!;
 
-      const resetPartner =
-        await authenticationService.resetPasswordWithoutToken(
-          { username: email, password: tempPassword },
-          undefined,
-          "5",
-        );
+    const resetPartner = await authenticationService.resetPasswordWithoutToken(
+      { username: email, password: tempPassword },
+      undefined,
+      "5",
+    );
 
-      if (resetPartner) {
-        await authenticationService.confirmEmailWithoutToken(
-          email,
-          undefined,
-          "5",
-        );
-        const partnerToken = await authenticationService.getAuthToken(
-          email,
-          tempPassword,
-          "5",
-        );
+    if (resetPartner) {
+      await authenticationService.confirmEmailWithoutToken(
+        email,
+        undefined,
+        "5",
+      );
+      const partnerToken = await authenticationService.getAuthToken(
+        email,
+        tempPassword,
+        "5",
+      );
 
-        //API Step: Create business
-        const business = await partnerPortalService.createBusiness(
-          partnerResponse,
-          "teamName",
-          masterPlanId,
-          undefined,
-          undefined,
-          partnerToken,
-        );
+      //API Step: Create business
+      await partnerPortalService.createBusiness(
+        partnerResponse,
+        "teamName",
+        masterPlanId,
+        undefined,
+        undefined,
+        partnerToken,
+      );
 
-        if (business.status == 200) {
-          await authenticationService.resetPasswordWithoutToken(
-            { username: email, password: tempPassword },
-            undefined,
-            "4",
-          );
-          //API Step: Get auth token
-          const token = await authenticationService.getAuthToken(
-            email,
-            tempPassword,
-            "4",
-          );
-          //API Step: Invite members to a team in the Member Portal-Organization tab.
-          const partnerName = partnerInfo.partnerInfo?.name;
-          expect(partnerName).toBeDefined();
+      await authenticationService.resetPasswordWithoutToken(
+        { username: email, password: tempPassword },
+        undefined,
+        "4",
+      );
+      //API Step: Get auth token
+      const token = await authenticationService.getAuthToken(
+        email,
+        tempPassword,
+        "4",
+      );
+      //API Step: Invite members to a team in the Member Portal-Organization tab.
+      const partnerName = partnerInfo.partnerInfo?.name;
+      expect(partnerName).toBeDefined();
 
-          const inviteMemberResponse = await memberPortalService.inviteMember(
-            token,
-            invitePayload,
-          );
-          expect(inviteMemberResponse).toBeDefined();
-          expect(typeof inviteMemberResponse).toBe("object");
-        }
-      }
+      const inviteMemberResponse = await memberPortalService.inviteMember(
+        token,
+        invitePayload,
+      );
+      expect(inviteMemberResponse).toBeDefined();
+      expect(typeof inviteMemberResponse).toBe("object");
     }
   });
 
