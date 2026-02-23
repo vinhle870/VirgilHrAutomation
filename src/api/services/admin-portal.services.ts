@@ -12,6 +12,7 @@ import {
   GET_ALL_DEPARTMENTS_PLANS,
   ADMIN_INVITE_MEMBER,
   CUSTOMER_INVITE_MEMBER,
+  CUSTOMER_MANAGEMENT,
 } from "src/api/endpoints/admin-portal.endpoints";
 import { Authentication } from "src/api/services/authentication.service";
 import { CustomerInfo } from "src/objects/customer";
@@ -475,7 +476,7 @@ export class AdminPortalService {
   }
 
   async getTeamIDsFromCustomerManagemt(customerID: string): Promise<string> {
-    const url = `https://api.qa.virgilhr.com/v1/Manage/CustomerManagement/${customerID}`;
+    const url = `${this.baseUrl}/${CUSTOMER_MANAGEMENT}/${customerID}`;
 
     const headers: Record<string, string> = {
       accept: "application/json, text/plain, */*",
@@ -485,13 +486,6 @@ export class AdminPortalService {
       origin: "https://admin.qa.virgilhr.com",
       priority: "u=1, i",
       referer: "https://admin.qa.virgilhr.com/",
-      "sec-ch-ua":
-        '"Not:A-Brand";v="99", "Microsoft Edge";v="145", "Chromium";v="145"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"Windows"',
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "same-site",
       "user-agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0",
     };
@@ -506,5 +500,22 @@ export class AdminPortalService {
     const teamId = response?.teams?.[0]?.companyProfiles?.[0]?.teamId ?? null;
 
     return teamId;
+  }
+
+  public async inviteMember(
+    token: string,
+    member: InviteMemberPayload,
+  ): Promise<object> {
+    const url = `${this.baseUrl}/${CUSTOMER_INVITE_MEMBER}`;
+    const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+
+    const response = await this.apiClient.sendRequest<object>(
+      "POST",
+      url,
+      member,
+      200, // Assuming 200 OK is the expected status code
+      headers,
+    );
+    return response; // Return the checkout plan response
   }
 }

@@ -6,10 +6,11 @@ import {
   GET_PAYMENT_PRODUCTS,
   GET_PAYMENT_SUBSCRIPTION,
   SIGN_UP_CONSUMER,
-  COMSUMER_INVITE_MEMBER,
+  ACEPTION_OF_INVITATION,
 } from "src/api/endpoints/member-portal.endpoints";
 import { CustomerInfo } from "src/objects/customer";
 import UserInfo from "src/objects/user-info";
+import { CUSTOMER_INVITE_MEMBER } from "../endpoints";
 
 /**
  * Payload for inviting members to a team.
@@ -161,22 +162,6 @@ export class MemberPortalService {
    * @param name - The name of the team
    * @returns The invite member response
    */
-  public async inviteMember(
-    token: string,
-    member: InviteMemberPayload,
-  ): Promise<object> {
-    const url = `${this.baseUrl}/${COMSUMER_INVITE_MEMBER}`;
-    const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-
-    const response = await this.apiClient.sendRequest<object>(
-      "POST",
-      url,
-      member,
-      200, // Assuming 200 OK is the expected status code
-      headers,
-    );
-    return response; // Return the checkout plan response
-  }
 
   /**
    * Get payment subscription details after buying a plan
@@ -201,7 +186,7 @@ export class MemberPortalService {
     teamId: string,
     token: string,
   ): Promise<any> {
-    const url = `https://api.qa.virgilhr.com/v1/Consumer/Teams/Accept`;
+    const url = `${this.baseUrl}/${ACEPTION_OF_INVITATION}`;
 
     const headers: Record<string, string> = {
       accept: "application/json",
