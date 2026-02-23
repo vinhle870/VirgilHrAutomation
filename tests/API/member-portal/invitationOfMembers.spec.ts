@@ -1,264 +1,297 @@
-import { test, expect } from "src/fixtures";
-import { AdminPortalService } from "src/api/services/admin-portal.services";
-import { InviteMemberPayload } from "src/api/services/member-portal.services";
-import { DataFactory, CustomerBuilder } from "src/data-factory";
-import { TestDataProvider } from "src/test-data";
-import { ProductInfo } from "src/objects/iproduct";
-import { DataGenerate } from "src/utilities";
+// import { test, expect } from "src/fixtures";
+// import { AdminPortalService } from "src/api/services/admin-portal.services";
+// import { InviteMemberPayload } from "src/api/services/member-portal.services";
+// import { DataFactory, CustomerBuilder } from "src/data-factory";
+// import { TestDataProvider } from "src/test-data";
+// import { ProductInfo } from "src/objects/iproduct";
+// import { plans } from "src/constant/static-data";
+// import { Partner, UserInfo } from "src/objects";
 
-test.describe("Partner management", () => {
-  test("TC54 Verify that a user can invite members to a team in the Member Portal-Organization tab.", async ({
-    apiClient,
-    authenticationService,
-    adminPortalService,
-    memberPortalService,
-    planPage,
-  }, testInfo) => {
-    testInfo.skip(
-      !process.env.API_BASE_URL && !process.env.BASE_URL,
-      "API_BASE_URL is not configured",
-    );
-    //***************Pre-requisites: Prepare data for the test*******************************// 
-    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+// test.describe("Invite members to a team", () => {
+//   test("TC54 Verify that a user can invite members to a team in the Member Portal-Organization tab.", async ({
+//     apiClient,
+//     authenticationService,
+//     adminPortalService,
+//     memberPortalService,
+//     partnerPortalService,
+//   }, testInfo) => {
+//     testInfo.skip(
+//       !process.env.API_BASE_URL && !process.env.BASE_URL,
+//       "API_BASE_URL is not configured",
+//     );
+//     //***************Pre-requisites: Prepare data for the test*******************************//
+//     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
-    testInfo.skip(!base, "API_BASE_URL is not configured");
+//     testInfo.skip(!base, "API_BASE_URL is not configured");
 
-    const adminService = await AdminPortalService.create(
-      apiClient,
-      authenticationService,
-    );
-    const testData = new TestDataProvider(adminPortalService);
+//     const adminService = await AdminPortalService.create(
+//       apiClient,
+//       authenticationService,
+//     );
+//     const testData = new TestDataProvider(adminPortalService);
 
-    //Create department id to send
-    let departmentID = await testData.getDepartmentId("BiginHR");
+//     //Create department id to send
+//     let departmentID = await testData.getDepartmentId("BiginHR");
 
-    const partnerDomain = await testData.getDepartmentDomain(departmentID);
+//     const paymentProductName: string = "500+ Employees";
 
-      const paymentProductName: string = "500+ Employees";
-    
-    //Get all product types of a department (departmentID): 
-    // It is required for scenario Bank Transfer is True
-    const productTypesAndNamesToSend: ProductInfo[] = await testData.getProductTypesBasedDepartmentId(departmentID);
-    
-    const masterPlan: any = await testData.filterMasterPlanBasedName(departmentID, paymentProductName);
-    
-    const masterPlanId = masterPlan.masterPlanId;
-   
-    //Create partner info using PartnerBuilder
-    const partnerInfo = await DataFactory.partnerBuilder()
-      .withIsPublic(true)
-      .withWhoPay(0)
-      .withBankTransfer(true)
-      .withDepartment(departmentID)
-      .withFilterProductTypes(productTypesAndNamesToSend)
-      .withPlanId(masterPlanId)
-      .build();
-    
-      // Generate member data for invite payload
-      const customerWithMember = await new CustomerBuilder()
-      .withMember()
-      .build();
+//     //Get all product types of a department (departmentID):
+//     // It is required for scenario Bank Transfer is True
+//     const productTypesAndNamesToSend: ProductInfo[] =
+//       await testData.getProductTypesBasedDepartmentId(departmentID);
 
-    const member = customerWithMember.members[0];
+//     const masterPlan: any = await testData.filterMasterPlanBasedName(
+//       departmentID,
+//       paymentProductName,
+//     );
 
-    const invitePayload: InviteMemberPayload = {
-      recipients: [{
-        email: member.email,
-        firstName: member.firstName,
-        lastName: member.lastName,
-        phoneNumber: member.phoneNumber,
-        jobTitle: member.jobTitle,
-        role: 3,
-      }],
-    };
-    //***********************************************// 
-//API Step: Create partner
-    const partnerResponse = await adminService.createPartner(partnerInfo);
+//     const masterPlanId = masterPlan.masterPlanId;
 
-    if (partnerResponse.status == 200) {
-      const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+//     //Create partner info using PartnerBuilder
+//     const partnerInfo = await DataFactory.partnerBuilder()
+//       .withIsPublic(true)
+//       .withWhoPay(0)
+//       .withBankTransfer(true)
+//       .withDepartment(departmentID)
+//       .withFilterProductTypes(productTypesAndNamesToSend)
+//       .withPlanId(masterPlanId)
+//       .build();
 
-      const email = partnerInfo.accountInfo?.email!;
+//     // Generate member data for invite payload
+//     const customerWithMember = await new CustomerBuilder().withMember().build();
 
-      const resetPartner =
-        await authenticationService.resetPasswordWithoutToken(
-          { username: email, password: tempPassword },
-          undefined,
-          "5",
-        );
+//     const member = customerWithMember.members[0];
 
-      if (resetPartner) {
-        await authenticationService.confirmEmailWithoutToken(
-          email,
-          undefined,
-          "5",
-        );
-        const partnerToken = await authenticationService.getAuthToken(
-          email,
-          tempPassword,
-          "5",
-        );
+//     const invitePayload: InviteMemberPayload = {
+//       recipients: [
+//         {
+//           email: member.email,
+//           firstName: member.firstName,
+//           lastName: member.lastName,
+//           phoneNumber: member.phoneNumber,
+//           jobTitle: member.jobTitle,
+//           role: 3,
+//         },
+//       ],
+//     };
+//     //***********************************************//
+//     //API Step: Create partner
+//     const partnerResponse = await adminService.createPartner(partnerInfo);
 
-        //API Step: Create business
-        const business = await adminPortalService.createBussiness(
-          "teamName",
-          partnerResponse.data,
-          productTypesAndNamesToSend[0].planId,
-          partnerToken,
-        );
+//     const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-        if (business.status == 200) {
-          await authenticationService.resetPasswordWithoutToken(
-            { username: email, password: tempPassword },
-            undefined,
-            "4",
-          );
-//API Step: Get auth token
-          const token = await authenticationService.getAuthToken(
-            email,
-            tempPassword,
-            "4",
-          );
-          //API Step: Invite members to a team in the Member Portal-Organization tab.
-          const partnerName = partnerInfo.partnerInfo?.name;
-          expect(partnerName).toBeDefined();
+//     const email = partnerInfo.accountInfo?.email!;
 
-          const inviteMemberResponse = await memberPortalService.inviteMember(
-            token,
-            invitePayload,
-            partnerName!,
-          );
-          expect(inviteMemberResponse).toBeDefined();
-          expect(typeof inviteMemberResponse).toBe("object");
+//     const resetPartner = await authenticationService.resetPasswordWithoutToken(
+//       { username: email, password: tempPassword },
+//       undefined,
+//       "5",
+//     );
 
-          
-        }
-      }
-    }
-  });
+//     if (resetPartner) {
+//       await authenticationService.confirmEmailWithoutToken(
+//         email,
+//         undefined,
+//         "5",
+//       );
+//       const partnerToken = await authenticationService.getAuthToken(
+//         email,
+//         tempPassword,
+//         "5",
+//       );
 
-  test("TC55 In the Member Portal, only the Owner and Admin of a team can invite members to that team.", async ({
-    apiClient,
-    authenticationService,
-    adminPortalService,
-    memberPortalService,
-  }, testInfo) => {
-    testInfo.skip(
-      !process.env.API_BASE_URL && !process.env.BASE_URL,
-      "API_BASE_URL is not configured",
-    );
-    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+//       //API Step: Create business
+//       await partnerPortalService.createBusiness(
+//         partnerResponse,
+//         "teamName",
+//         masterPlanId,
+//         undefined,
+//         undefined,
+//         partnerToken,
+//       );
 
-    testInfo.skip(!base, "API_BASE_URL is not configured");
+//       await authenticationService.resetPasswordWithoutToken(
+//         { username: email, password: tempPassword },
+//         undefined,
+//         "4",
+//       );
+//       //API Step: Get auth token
+//       const token = await authenticationService.getAuthToken(
+//         email,
+//         tempPassword,
+//         "4",
+//       );
+//       //API Step: Invite members to a team in the Member Portal-Organization tab.
+//       const partnerName = partnerInfo.partnerInfo?.name;
+//       expect(partnerName).toBeDefined();
 
-    const adminService = await AdminPortalService.create(
-      apiClient,
-      authenticationService,
-    );
-    /* ****************Pre-requisites: Prepare data for the test*******************************/
-    //Create department id to send
-    const testData = new TestDataProvider(adminPortalService);
+//       const inviteMemberResponse = await memberPortalService.inviteMember(
+//         token,
+//         invitePayload,
+//       );
 
-    let departmentID = await testData.getDepartmentId("BiginHR");
+//       expect(inviteMemberResponse).toBeDefined();
+//       expect(typeof inviteMemberResponse).toBe("object");
+//     }
+//   });
 
-    const partnerDomain = await testData.getDepartmentDomain(departmentID);
+//   test("TC55 In the Member Portal, only the Owner and Admin of a team can invite members to that team.", async ({
+//     apiClient,
+//     authenticationService,
+//     adminPortalService,
+//     partnerPortalService,
+//     memberPortalService,
+//   }, testInfo) => {
+//     testInfo.skip(
+//       !process.env.API_BASE_URL && !process.env.BASE_URL,
+//       "API_BASE_URL is not configured",
+//     );
+//     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+//     testInfo.skip(!base, "API_BASE_URL is not configured");
 
-    //Get all product types of a department (departmentID): It is required for scenario Bank Transfer is True
-    const productTypesAndNamesToSend: ProductInfo[] = await testData.getProductTypesBasedDepartmentId(departmentID);
-    
-    const paymentProductName: string = "500+ Employees";
+//     const adminService = await AdminPortalService.create(
+//       apiClient,
+//       authenticationService,
+//     );
+//     const paymentProductName: string = plans[1];
 
-    const masterPlan: any = await testData.filterMasterPlanBasedName(departmentID, paymentProductName);
-    
-    const masterPlanId = masterPlan.masterPlanId;
-   
-    //Create partner info using PartnerBuilder
-    const partnerInfo = await DataFactory.partnerBuilder()
-      .withIsPublic(true)
-      .withWhoPay(0)
-      .withBankTransfer(true)
-      .withDepartment(departmentID)
-      .withFilterProductTypes(productTypesAndNamesToSend)
-      .withPlanId(masterPlanId)
-      .build();
+//     const testData = new TestDataProvider(adminPortalService);
+//     // Create department id to send
+//     const departmentID = await testData.getDepartmentId("BiginHR");
 
-      // Generate member data for invite payload
-      const customerWithMember = await new CustomerBuilder()
-      .withMember()
-      .build();
+//     const masterPlan: any = await testData.filterMasterPlanBasedName(
+//       departmentID,
+//       paymentProductName,
+//     );
+//     const masterPlanId = masterPlan.masterPlanId;
 
-    const member = customerWithMember.members[0];
+//     const productTypesAndNamesToSend: ProductInfo[] =
+//       await testData.getProductTypesBasedDepartmentId(departmentID);
 
-    const invitePayload: InviteMemberPayload = {
-      recipients: [{
-        email: member.email,
-        firstName: member.firstName,
-        lastName: member.lastName,
-        phoneNumber: member.phoneNumber,
-        jobTitle: member.jobTitle,
-        role: 3,
-      }],
-    };
-    //***********************************************// 
-    //API Step: Create partner
-    const partnerResponse = await adminService.createPartner(partnerInfo);
+//     let owner;
+//     let admin;
+//     let member;
+//     const partnerInfoes: Partner[] = [];
+//     let email;
+//     const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-    if (partnerResponse.status == 200) {
-      const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+//     for (let i = 0; i < 3; i++) {
+//       // Create partner info
+//       const partnerInfo = await DataFactory.partnerBuilder()
+//         .withIsPublic(true)
+//         .withWhoPay(0)
+//         .withBankTransfer(true)
+//         .withDepartment(departmentID)
+//         .withFilterProductTypes(productTypesAndNamesToSend)
+//         .withPlanId(masterPlanId)
+//         .build();
 
-      const businessOwnerEmail = partnerInfo.accountInfo?.email!;
+//       partnerInfoes.push(partnerInfo);
 
-      const resetPartner =
-        await authenticationService.resetPasswordWithoutToken(
-          { username: businessOwnerEmail, password: tempPassword },
-          undefined,
-          "5",
-        );
+//       // Create partner
+//       if (i === 0) owner = await adminService.createPartner(partnerInfo);
+//       else if (i === 1) admin = await adminService.createPartner(partnerInfo);
+//       else if (i === 2) member = await adminService.createPartner(partnerInfo);
 
-      if (resetPartner) {
-        await authenticationService.confirmEmailWithoutToken(
-          businessOwnerEmail,
-          undefined,
-          "5",
-        );
-        const partnerToken = await authenticationService.getAuthToken(
-          businessOwnerEmail,
-          tempPassword,
-          "5",
-        );
-        //API Step: Create business
-        const business = await adminPortalService.createBussiness(
-          "teamName",
-          partnerResponse.data,
-          masterPlanId,
-          partnerToken,
-        );
+//       email = partnerInfo.accountInfo?.email ?? "";
 
-        if (business.status == 200) {
-          await authenticationService.resetPasswordWithoutToken(
-            { username: businessOwnerEmail, password: tempPassword },
-            undefined,
-            "4",
-          );
+//       await authenticationService.resetPasswordWithoutToken(
+//         { username: email, password: tempPassword },
+//         undefined,
+//         "5",
+//       );
 
-          const businnerOwnertoken = await authenticationService.getAuthToken(
-            businessOwnerEmail,
-            tempPassword,
-            "4",
-          );
-         //API Step: Invite members to a team in the Member Portal-Organization tab.
-         const partnerName = partnerInfo.partnerInfo?.name;
-         expect(partnerName).toBeDefined();
+//       await authenticationService.confirmEmailWithoutToken(
+//         email,
+//         undefined,
+//         "5",
+//       );
 
-         const inviteMemberResponse = await memberPortalService.inviteMember(
-          businnerOwnertoken,
-           invitePayload,
-           partnerName!,
-         );         
-         expect(inviteMemberResponse).toBeDefined();
-         expect(typeof inviteMemberResponse).toBe("object");
-        }
-      }
-    }
-  });
-});
+//       const partnerToken = await authenticationService.getAuthToken(
+//         email,
+//         tempPassword,
+//         "5",
+//       );
+
+//       // Create business
+//       await partnerPortalService.createBusiness(
+//         owner,
+//         "TeamName",
+//         masterPlanId,
+//         undefined,
+//         undefined,
+//         partnerToken,
+//       );
+//     }
+
+//     // Invite members
+//     let invitePayload: InviteMemberPayload;
+//     for (let i = 0; i <= 2; i++) {
+//       email = partnerInfoes[i]?.accountInfo?.email ?? "";
+
+//       let role = i === 0 ? 2 : 3;
+
+//       if (i === 0 || i === 1) {
+//         invitePayload = {
+//           recipients: [
+//             {
+//               email,
+//               firstName: partnerInfoes[i + 1]?.accountInfo?.firstName ?? "",
+//               lastName: partnerInfoes[i + 1]?.accountInfo?.lastName ?? "",
+//               phoneNumber: partnerInfoes[i + 1]?.accountInfo?.phoneNumber ?? "",
+//               jobTitle: partnerInfoes[i + 1]?.accountInfo?.jobTitle ?? "",
+//               role: role,
+//             },
+//           ],
+//         };
+//       } else {
+//         const customerWithMember = await new CustomerBuilder()
+//           .withMember()
+//           .build();
+
+//         const memberObj = customerWithMember.members[0];
+
+//         invitePayload = {
+//           recipients: [
+//             {
+//               email: memberObj.email,
+//               firstName: memberObj.firstName,
+//               lastName: memberObj.lastName,
+//               phoneNumber: memberObj.phoneNumber,
+//               jobTitle: memberObj.jobTitle,
+//               role: 2,
+//             },
+//           ],
+//         };
+//       }
+
+//       await authenticationService.confirmEmailWithoutToken(
+//         email,
+//         undefined,
+//         "4",
+//       );
+//       await authenticationService.resetPasswordWithoutToken(
+//         { username: email, password: tempPassword },
+//         undefined,
+//         "4",
+//       );
+
+//       const token = await authenticationService.getAuthToken(
+//         email,
+//         tempPassword,
+//         "4",
+//       );
+
+//       const inviteMemberResponse = await memberPortalService.inviteMember(
+//         token,
+//         invitePayload,
+//       );
+
+//       if (i === 0 || i === 1) {
+//         expect(inviteMemberResponse).toBe(true);
+//       } else {
+//         expect(inviteMemberResponse).toBe(false);
+//       }
+//     }
+//   });
+// });

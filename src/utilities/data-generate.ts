@@ -1,6 +1,5 @@
 import { format } from "date-fns";
 
-
 export class DataGenerate {
   /**
    * select Randomly item from given list
@@ -99,11 +98,25 @@ export class DataGenerate {
 
     return randomValue;
   }
+  //select randomly Department
+  public static generateDepartmentID(departmentIDS: string[]): string {
+    const randomValue =
+      departmentIDS[Math.floor(Math.random() * departmentIDS.length)];
 
+    return randomValue;
+  }
 
- 
+  private static async generateYopMail(): Promise<{
+    firstName: string;
+    email: string;
+  }> {
+    const seq = DataGenerate.getRandomInt(1, 9999);
+    const firstName = await DataGenerate.generateFirstName();
+    const localPrefix = `${firstName}${seq}`;
+    const email = `${localPrefix}@yopmail.com`;
 
- 
+    return { firstName, email };
+  }
 
   /**
    * Generate a dynamic user payload with sensible defaults.

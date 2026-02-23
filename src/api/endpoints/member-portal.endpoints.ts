@@ -9,9 +9,6 @@ export const GET_PAYMENT_PREVIEW_CHANGES = "Payment/PreviewChanges?";
 export const GET_CURRENT_SUBSCRIBED_PLAN = "Plan/me"; // Get current user's plan details
 export const GET_PAYMENT_PRODUCTS = "Payment/products?"; // Get current Plans list
 export const GET_PAYMENT_STATUS = "Payment/checkout/${guid}/PaymentStatus";
-export const MEMBER_LOGIN = "/Consumer/Consumers/GetLoginFailReason";
 export const GET_PAYMENT_SUBSCRIPTION = "/Payment/subscription/me";
 export const GET_DEPARTMENTS = "Configuration/Department";
-export const INVITE_MEMBER = "Consumer/Teams/Invite";
-
-
+export const COMSUMER_INVITE_MEMBER = "Consumer/Teams/Invite";
