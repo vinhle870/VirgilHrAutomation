@@ -11,14 +11,15 @@ import {
   GET_DEPARTMENTS_LIST,
   GET_ALL_DEPARTMENTS_PLANS,
   ADMIN_INVITE_MEMBER,
+  CUSTOMER_INVITE_MEMBER,
 } from "src/api/endpoints/admin-portal.endpoints";
-
 import { Authentication } from "src/api/services/authentication.service";
 import { CustomerInfo } from "src/objects/customer";
 import { Partner } from "src/objects/ipartner";
 import { APIResponse } from "@playwright/test";
 import { CREATE_BUSINESS } from "../endpoints/partner-portal.endpoints";
 import { InviteMemberPayload } from "./member-portal.services";
+import { I500EmployeesPlan } from "src/objects/I500EmployeesPlan";
 
 export interface RecipientInfo {
   email: string;
@@ -422,5 +423,88 @@ export class AdminPortalService {
       headers,
     );
     return response; // Return the checkout plan response
+  }
+
+  async UpgradePlatinum(payload: I500EmployeesPlan) {
+    const url = "https://api.qa.virgilhr.com/v1/Manage/Payment/UpgradePlatinum";
+
+    const headers: Record<string, string> = {
+      "sec-ch-ua-platform": '"Windows"',
+      authorization: `Bearer ${this.authToken ?? ""}`,
+      referer: "https://admin.qa.virgilhr.com/",
+      "sec-ch-ua":
+        '"Not:A-Brand";v="99", "Microsoft Edge";v="145", "Chromium";v="145"',
+      "sec-ch-ua-mobile": "?0",
+      "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0",
+      accept: "application/json, text/plain, */*",
+      "content-type": "application/json",
+    };
+
+    const response = await this.apiClient.sendRequest<object>(
+      "POST",
+      url,
+      payload,
+      200, // Assuming 200 OK is the expected status code
+      headers,
+    );
+    return response; // Return the checkout plan response
+  }
+
+  async inviteMemberViaCustomer(payload: InviteMemberPayload): Promise<any> {
+    const url = `https://api.qa.virgilhr.com/v1/${CUSTOMER_INVITE_MEMBER}`;
+
+    const headers: Record<string, string> = {
+      accept: "application/json, text/plain, */*",
+      "accept-language": "en-US,en;q=0.9,vi;q=0.8",
+      authorization: `Bearer ${this.authToken}`,
+      "content-type": "application/json",
+      origin: "https://admin.qa.virgilhr.com",
+      priority: "u=1, i",
+      referer: "https://admin.qa.virgilhr.com/",
+    };
+
+    const response = await this.apiClient.sendRequest<object>(
+      "POST",
+      url,
+      payload,
+      200, // Assuming 200 OK is the expected status code
+      headers,
+    );
+    return response; // Return the checkout plan response
+  }
+
+  async getTeamIDsFromCustomerManagemt(customerID: string): Promise<string> {
+    const url = `https://api.qa.virgilhr.com/v1/Manage/CustomerManagement/${customerID}`;
+
+    const headers: Record<string, string> = {
+      accept: "application/json, text/plain, */*",
+      "accept-language": "en-US,en;q=0.9,vi;q=0.8",
+      authorization: `Bearer ${this.authToken}`, // giữ nguyên
+      "content-type": "application/json",
+      origin: "https://admin.qa.virgilhr.com",
+      priority: "u=1, i",
+      referer: "https://admin.qa.virgilhr.com/",
+      "sec-ch-ua":
+        '"Not:A-Brand";v="99", "Microsoft Edge";v="145", "Chromium";v="145"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"Windows"',
+      "sec-fetch-dest": "empty",
+      "sec-fetch-mode": "cors",
+      "sec-fetch-site": "same-site",
+      "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0",
+    };
+
+    const response: any = await this.apiClient.sendRequest<object>(
+      "GET",
+      url,
+      undefined,
+      200, // Assuming 200 OK is the expected status code
+      headers,
+    );
+    const teamId = response?.teams?.[0]?.companyProfiles?.[0]?.teamId ?? null;
+
+    return teamId;
   }
 }

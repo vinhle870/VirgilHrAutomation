@@ -127,6 +127,7 @@ test.describe("Partner management", () => {
           undefined,
           partnerToken,
         );
+
         expect(business).toBeDefined();
         expect(typeof business).toBe("boolean");
         expect(business).toBe(true);

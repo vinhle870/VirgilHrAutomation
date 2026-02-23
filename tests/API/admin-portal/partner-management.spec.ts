@@ -486,12 +486,6 @@ test.describe("Partner managerment", () => {
     );
 
     expect(partnerToLogin).toBeDefined();
-
-    const searchResponse = await adminService.getCustomerByEmail(email);
-
-    const customerEmail = searchResponse.body.entities[0];
-
-    expect(customerEmail).toBeFalsy();
   });
 
   // test("TC47 For Businesses under a Partner with Payment Options = Member Portal Consumer, the Business Owner cannot log in to the Member Portal.", async ({

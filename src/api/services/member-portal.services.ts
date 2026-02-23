@@ -16,9 +16,16 @@ import UserInfo from "src/objects/user-info";
  * Matches API schema: `{ recipients: [{ email, firstName, ... }] }`
  */
 export interface InviteMemberPayload {
+  id?: string;
   recipients: Pick<
     UserInfo,
-    "email" | "firstName" | "lastName" | "phoneNumber" | "jobTitle" | "role"
+    | "email"
+    | "firstName"
+    | "lastName"
+    | "phoneNumber"
+    | "jobTitle"
+    | "role"
+    | "partnerConsumerType"
   >[];
 }
 
@@ -188,5 +195,36 @@ export class MemberPortalService {
       200, // Assuming 200 OK is the expected status code
       headers,
     )) as T;
+  }
+
+  async acceptInvitationFromCustomerMagement(
+    teamId: string,
+    token: string,
+  ): Promise<any> {
+    const url = `https://api.qa.virgilhr.com/v1/Consumer/Teams/Accept`;
+
+    const headers: Record<string, string> = {
+      accept: "application/json",
+      "accept-language": "en-US,en;q=0.9,vi;q=0.8",
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+      origin: "https://vinhlepartner222011.member-virgilhr-qa.bigin.top",
+      priority: "u=1, i",
+      referer: "https://vinhlepartner222011.member-virgilhr-qa.bigin.top/",
+      "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0",
+    };
+
+    const payload = { teamId: teamId };
+
+    const response = await this.apiClient.sendRequest<object>(
+      "POST",
+      url,
+      payload,
+      204,
+      headers,
+    );
+
+    return response;
   }
 }

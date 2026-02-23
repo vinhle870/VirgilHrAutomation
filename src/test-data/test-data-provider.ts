@@ -1,7 +1,6 @@
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { ProductInfo } from "src/objects/iproduct";
 import { DataGenerate } from "src/utilities";
-import { localHR } from "src/constant/static-data";
 
 /**
  * Pre-condition data provider for tests.
