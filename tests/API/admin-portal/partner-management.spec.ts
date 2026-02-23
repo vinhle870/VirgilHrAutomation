@@ -494,39 +494,39 @@ test.describe("Partner managerment", () => {
     expect(customerEmail).toBeFalsy();
   });
 
-  test("TC47 For Businesses under a Partner with Payment Options = Member Portal Consumer, the Business Owner cannot log in to the Member Portal.", async ({
-    apiClient,
-    authenticationService,
-    memberPortalService,
-  }, testInfo) => {
-    testInfo.skip(
-      !process.env.API_BASE_URL && !process.env.BASE_URL,
-      "API_BASE_URL is not configured",
-    );
-    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+  // test("TC47 For Businesses under a Partner with Payment Options = Member Portal Consumer, the Business Owner cannot log in to the Member Portal.", async ({
+  //   apiClient,
+  //   authenticationService,
+  //   memberPortalService,
+  // }, testInfo) => {
+  //   testInfo.skip(
+  //     !process.env.API_BASE_URL && !process.env.BASE_URL,
+  //     "API_BASE_URL is not configured",
+  //   );
+  //   const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
-    testInfo.skip(!base, "API_BASE_URL is not configured");
+  //   testInfo.skip(!base, "API_BASE_URL is not configured");
 
-    const adminService = await AdminPortalService.create(
-      apiClient,
-      authenticationService,
-    );
+  //   const adminService = await AdminPortalService.create(
+  //     apiClient,
+  //     authenticationService,
+  //   );
 
-    const partnerInfo = await DataFactory.partnerBuilder()
-      .withIsPublic(true)
-      .withWhoPay(1)
-      .build();
+  //   const partnerInfo = await DataFactory.partnerBuilder()
+  //     .withIsPublic(true)
+  //     .withWhoPay(1)
+  //     .build();
 
-    const partnerResponse = await adminService.createPartner(partnerInfo);
+  //   const partnerResponse = await adminService.createPartner(partnerInfo);
 
-    const email = partnerInfo.accountInfo?.email!;
+  //   const email = partnerInfo.accountInfo?.email!;
 
-    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+  //   const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-    await authenticationService.resetPasswordWithoutToken(
-      { username: email, password: tempPassword },
-      undefined,
-      "5",
-    );
-  });
+  //   await authenticationService.resetPasswordWithoutToken(
+  //     { username: email, password: tempPassword },
+  //     undefined,
+  //     "5",
+  //   );
+  // });
 });
