@@ -6,7 +6,6 @@ import {
   GET_PAYMENT_PRODUCTS,
   GET_PAYMENT_SUBSCRIPTION,
   SIGN_UP_CONSUMER,
-  ACEPTION_OF_INVITATION,
 } from "src/api/endpoints/member-portal.endpoints";
 import { CustomerInfo } from "src/objects/customer";
 import UserInfo from "src/objects/user-info";
@@ -180,36 +179,5 @@ export class MemberPortalService {
       200, // Assuming 200 OK is the expected status code
       headers,
     )) as T;
-  }
-
-  async acceptInvitationFromCustomerMagement(
-    teamId: string,
-    token: string,
-  ): Promise<any> {
-    const url = `${this.baseUrl}/${ACEPTION_OF_INVITATION}`;
-
-    const headers: Record<string, string> = {
-      accept: "application/json",
-      "accept-language": "en-US,en;q=0.9,vi;q=0.8",
-      authorization: `Bearer ${token}`,
-      "content-type": "application/json",
-      origin: "https://vinhlepartner222011.member-virgilhr-qa.bigin.top",
-      priority: "u=1, i",
-      referer: "https://vinhlepartner222011.member-virgilhr-qa.bigin.top/",
-      "user-agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0",
-    };
-
-    const payload = { teamId: teamId };
-
-    const response = await this.apiClient.sendRequest<object>(
-      "POST",
-      url,
-      payload,
-      204,
-      headers,
-    );
-
-    return response;
   }
 }

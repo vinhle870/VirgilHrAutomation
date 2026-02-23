@@ -12,7 +12,6 @@ import {
   GET_ALL_DEPARTMENTS_PLANS,
   ADMIN_INVITE_MEMBER,
   CUSTOMER_INVITE_MEMBER,
-  CUSTOMER_MANAGEMENT,
 } from "src/api/endpoints/admin-portal.endpoints";
 import { Authentication } from "src/api/services/authentication.service";
 import { CustomerInfo } from "src/objects/customer";
@@ -21,6 +20,7 @@ import { APIResponse } from "@playwright/test";
 import { CREATE_BUSINESS } from "../endpoints/partner-portal.endpoints";
 import { InviteMemberPayload } from "./member-portal.services";
 import { I500EmployeesPlan } from "src/objects/I500EmployeesPlan";
+import { UserInfo } from "src/objects";
 
 export interface RecipientInfo {
   email: string;
@@ -452,70 +452,37 @@ export class AdminPortalService {
     return response; // Return the checkout plan response
   }
 
-  async inviteMemberViaCustomer(payload: InviteMemberPayload): Promise<any> {
-    const url = `https://api.qa.virgilhr.com/v1/${CUSTOMER_INVITE_MEMBER}`;
+  async inviteTeamMember(teamID: string, members: UserInfo[]): Promise<any> {
+    const path = CUSTOMER_INVITE_MEMBER.replace(/^\/+/, "");
 
-    const headers: Record<string, string> = {
-      accept: "application/json, text/plain, */*",
-      "accept-language": "en-US,en;q=0.9,vi;q=0.8",
-      authorization: `Bearer ${this.authToken}`,
-      "content-type": "application/json",
-      origin: "https://admin.qa.virgilhr.com",
-      priority: "u=1, i",
-      referer: "https://admin.qa.virgilhr.com/",
+    const url = `${this.baseUrl}/${path}`;
+
+    const headers = { Authorization: `Bearer ${this.authToken}` };
+
+    const requestBody = {
+      id: teamID,
+      recipients: [
+        ...members.map((member) => ({
+          ...{
+            email: member.email,
+            firstName: member.firstName,
+            lastName: member.lastName,
+            phoneNumber: member.phoneNumber,
+            jobTitle: member.jobTitle,
+            role: member.role,
+            partnerConsumerType: 1,
+          },
+        })),
+      ],
     };
-
-    const response = await this.apiClient.sendRequest<object>(
+    const response = await this.apiClient.sendRequest<any>(
       "POST",
       url,
-      payload,
-      200, // Assuming 200 OK is the expected status code
+      requestBody,
+      200,
       headers,
     );
-    return response; // Return the checkout plan response
-  }
 
-  async getTeamIDsFromCustomerManagemt(customerID: string): Promise<string> {
-    const url = `${this.baseUrl}/${CUSTOMER_MANAGEMENT}/${customerID}`;
-
-    const headers: Record<string, string> = {
-      accept: "application/json, text/plain, */*",
-      "accept-language": "en-US,en;q=0.9,vi;q=0.8",
-      authorization: `Bearer ${this.authToken}`, // giữ nguyên
-      "content-type": "application/json",
-      origin: "https://admin.qa.virgilhr.com",
-      priority: "u=1, i",
-      referer: "https://admin.qa.virgilhr.com/",
-      "user-agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0",
-    };
-
-    const response: any = await this.apiClient.sendRequest<object>(
-      "GET",
-      url,
-      undefined,
-      200, // Assuming 200 OK is the expected status code
-      headers,
-    );
-    const teamId = response?.teams?.[0]?.companyProfiles?.[0]?.teamId ?? null;
-
-    return teamId;
-  }
-
-  public async inviteMember(
-    token: string,
-    member: InviteMemberPayload,
-  ): Promise<object> {
-    const url = `${this.baseUrl}/${CUSTOMER_INVITE_MEMBER}`;
-    const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-
-    const response = await this.apiClient.sendRequest<object>(
-      "POST",
-      url,
-      member,
-      200, // Assuming 200 OK is the expected status code
-      headers,
-    );
-    return response; // Return the checkout plan response
+    return response;
   }
 }
