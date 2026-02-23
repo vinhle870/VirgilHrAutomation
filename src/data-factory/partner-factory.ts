@@ -4,6 +4,7 @@ import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { ProductInfo } from "src/objects/iproduct";
 import { localHR } from "src/constant/static-data";
 import { PartnerBuilder } from "./partner-builder";
+import { AdminPortalDataProvider } from "src/test-data";
 
 /**
  * Service utility for partner-related operations.
@@ -50,7 +51,7 @@ export class PartnerFactory {
     builder.withFilterProductTypes(
       overrides?.restriction?.feFilterProductTypes
         ? [] // will be overridden by withRestriction below
-        : DataGenerate.generateProductType(productTypes),
+        : AdminPortalDataProvider.filterProductType(productTypes),
     );
 
     // Account overrides
@@ -114,9 +115,7 @@ export class PartnerFactory {
       }
     }
 
-    const ids = PartnerFactory.departmentInfor.body.map(
-      (dept: any) => dept.id,
-    );
+    const ids = PartnerFactory.departmentInfor.body.map((dept: any) => dept.id);
     let id = DataGenerate.generateDepartmentID(ids);
 
     while (id == localHR) {

@@ -1,11 +1,11 @@
 import { ApiClient } from "src/utilities";
 import {
-    CREATE_BUSINESS,
-    GET_BUSINESS_LIST,
-    GET_PARTNER_PAYMENT_PRODUCTS_LIST,
-    GET_PARTNER_PLANS_LIST,
-    GET_TEAM_MEMBERS_LIST,
-    INVITE_MEMBER,
+  CREATE_BUSINESS,
+  GET_BUSINESS_LIST,
+  GET_PARTNER_PAYMENT_PRODUCTS_LIST,
+  GET_PARTNER_PLANS_LIST,
+  GET_TEAM_MEMBERS_LIST,
+  PARTNER_INVITE_MEMBER,
 } from "src/api/endpoints/partner-portal.endpoints";
 import { CustomerInfo } from "src/objects/customer";
 import UserInfo from "src/objects/user-info";
@@ -17,7 +17,6 @@ import { InviteMemberPayload } from ".";
  * Payload for inviting members to a team.
  * Matches API schema: `{ recipients: [{ email, firstName, ... }] }`
  */
-
 
 export class PartnerPortalService {
   private apiClient: ApiClient;
@@ -39,17 +38,24 @@ export class PartnerPortalService {
    * @param membersEmails - The emails of the members
    * @param token - The token of the partner
    */
-  async createBusiness(partnerId: string,teamName: string,planId: string,assigneeEmails:string[]|undefined,membersList:UserInfo[]|undefined,token: string): Promise<any> { 
+  async createBusiness(
+    partnerId: string,
+    teamName: string,
+    planId: string,
+    assigneeEmails: string[] | undefined,
+    membersList: UserInfo[] | undefined,
+    token: string,
+  ): Promise<any> {
     const path = CREATE_BUSINESS.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
-    
+
     const requestBody = {
-        partnerId,
-        teamName,
-        planId,
-        assignedIds: assigneeEmails??[],
-        recipients: membersList??[],
-        useCredit: true,
+      partnerId,
+      teamName,
+      planId,
+      assignedIds: assigneeEmails ?? [],
+      recipients: membersList ?? [],
+      useCredit: true,
     };
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
@@ -110,29 +116,33 @@ export class PartnerPortalService {
    * @param token - The token of the partner
    * @returns The invite member response
    */
-  async inviteMember(businessId: string, members: UserInfo[],token: string): Promise<any> {
-    const path = INVITE_MEMBER.replace(/^\/+/, "");
-    
+  async inviteMember(
+    businessId: string,
+    members: UserInfo[],
+    token: string,
+  ): Promise<any> {
+    const path = PARTNER_INVITE_MEMBER.replace(/^\/+/, "");
+
     const url = `${this.baseUrl}/${path}`;
-    
+
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-    
-        const requestBody = {
-      id:businessId, 
+
+    const requestBody = {
+      id: businessId,
       recipients: [
-          ...members.map(member => ({
-            ...{
+        ...members.map((member) => ({
+          ...{
             email: member.email,
             firstName: member.firstName,
             lastName: member.lastName,
             phoneNumber: member.phoneNumber,
             jobTitle: member.jobTitle,
             role: member.role,
-            }, 
-          ...{isEmailMemberExisted: false, partnerConsumerType: 1}
-          })),
-      ]
-  }   
+          },
+          ...{ isEmailMemberExisted: false, partnerConsumerType: 1 },
+        })),
+      ],
+    };
     const response = await this.apiClient.sendRequest<any>(
       "POST",
       url,
@@ -140,7 +150,7 @@ export class PartnerPortalService {
       200,
       headers,
     );
-    
+
     return response;
   }
 
@@ -172,7 +182,10 @@ export class PartnerPortalService {
    * @returns The list of members for a team
    */
   async getTeamMembersList(teamId: string, token: string): Promise<any> {
-    const path = GET_TEAM_MEMBERS_LIST.replace(/^\/+/, "").replaceAll("{teamId}", teamId);
+    const path = GET_TEAM_MEMBERS_LIST.replace(/^\/+/, "").replaceAll(
+      "{teamId}",
+      teamId,
+    );
     this.baseUrl = this.baseUrl.replace("v1", "v2");
     const url = `${this.baseUrl}/${path}`;
 
@@ -186,6 +199,4 @@ export class PartnerPortalService {
     );
     return response;
   }
-
-
 }
