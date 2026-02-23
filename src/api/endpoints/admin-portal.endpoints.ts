@@ -14,4 +14,3 @@ export const GET_DEPARTMENT_PAYMENT_PRODUCT = "Payment/products?departmentId=";
 export const GET_DEPARTMENTS_LIST = "Configuration/Department";
 export const GET_ALL_DEPARTMENTS_PLANS = "Manage/Plan/Departments";
 export const ADMIN_INVITE_MEMBER = "Manage/Organization/Partner/Invite";
-export const CUSTOMER_INVITE_MEMBER = "Manage/Teams/Invite";

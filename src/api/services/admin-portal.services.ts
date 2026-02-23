@@ -11,8 +11,8 @@ import {
   GET_DEPARTMENTS_LIST,
   GET_ALL_DEPARTMENTS_PLANS,
   ADMIN_INVITE_MEMBER,
-  CUSTOMER_INVITE_MEMBER,
 } from "src/api/endpoints/admin-portal.endpoints";
+
 import { Authentication } from "src/api/services/authentication.service";
 import { CustomerInfo } from "src/objects/customer";
 import { Partner } from "src/objects/ipartner";
@@ -327,7 +327,7 @@ export class AdminPortalService {
       undefined,
       200,
       headers,
-      params,
+      
     );
 
     return response;
@@ -401,31 +401,12 @@ export class AdminPortalService {
       mergedHeaders,
     );
 
+
     return response;
   }
-  public async inviteMembers(member: InviteMemberWithId): Promise<object> {
-    const url = `${this.baseUrl}/${ADMIN_INVITE_MEMBER}`;
+ 
 
-    const headers: Record<string, string> = {
-      accept: "application/json, text/plain, */*",
-      authorization: `Bearer ${this.authToken ?? ""}`,
-      "content-type": "application/json",
-      origin: "https://admin.qa.virgilhr.com",
-      referer: "https://admin.qa.virgilhr.com/",
-      "user-agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
-    };
-
-    const response = await this.apiClient.sendRequest<object>(
-      "POST",
-      url,
-      member,
-      200, // Assuming 200 OK is the expected status code
-      headers,
-    );
-    return response; // Return the checkout plan response
-  }
-
+   
   async UpgradePlatinum(payload: I500EmployeesPlan) {
     const url = "https://api.qa.virgilhr.com/v1/Manage/Payment/UpgradePlatinum";
 
@@ -451,7 +432,6 @@ export class AdminPortalService {
     );
     return response; // Return the checkout plan response
   }
-
   async inviteTeamMember(teamID: string, members: UserInfo[]): Promise<any> {
     const path = CUSTOMER_INVITE_MEMBER.replace(/^\/+/, "");
 

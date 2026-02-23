@@ -11,3 +11,4 @@ export const GET_PAYMENT_PRODUCTS = "Payment/products?"; // Get current Plans li
 export const GET_PAYMENT_STATUS = "Payment/checkout/${guid}/PaymentStatus";
 export const GET_PAYMENT_SUBSCRIPTION = "/Payment/subscription/me";
 export const GET_DEPARTMENTS = "Configuration/Department";
+export const COMSUMER_INVITE_MEMBER = "Consumer/Teams/Invite";
