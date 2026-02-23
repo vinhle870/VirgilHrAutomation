@@ -427,7 +427,6 @@ test.describe("Partner management", () => {
     }
   });
 
- 
   test("TC67: API- POST /Partner/Manage/Partner/Business with WhoPay=1 (Customer): 1st invited Member = Owner", async ({
     apiClient,
     authenticationService,
@@ -577,5 +576,4 @@ test.describe("Partner management", () => {
       }
     }
   });
-  
 });

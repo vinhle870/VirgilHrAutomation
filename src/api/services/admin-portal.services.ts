@@ -19,6 +19,8 @@ import { Partner } from "src/objects/ipartner";
 import { APIResponse } from "@playwright/test";
 import { CREATE_BUSINESS } from "../endpoints/partner-portal.endpoints";
 import { InviteMemberPayload } from "./member-portal.services";
+import { I500EmployeesPlan } from "src/objects/I500EmployeesPlan";
+import { UserInfo } from "src/objects";
 
 export interface RecipientInfo {
   email: string;
@@ -325,7 +327,7 @@ export class AdminPortalService {
       undefined,
       200,
       headers,
-      params,
+      
     );
 
     return response;
@@ -399,28 +401,68 @@ export class AdminPortalService {
       mergedHeaders,
     );
 
+
     return response;
   }
-  public async inviteMembers(member: InviteMemberWithId): Promise<object> {
-    const url = `${this.baseUrl}/${ADMIN_INVITE_MEMBER}`;
+ 
+
+   
+  async UpgradePlatinum(payload: I500EmployeesPlan) {
+    const url = "https://api.qa.virgilhr.com/v1/Manage/Payment/UpgradePlatinum";
 
     const headers: Record<string, string> = {
-      accept: "application/json, text/plain, */*",
+      "sec-ch-ua-platform": '"Windows"',
       authorization: `Bearer ${this.authToken ?? ""}`,
-      "content-type": "application/json",
-      origin: "https://admin.qa.virgilhr.com",
       referer: "https://admin.qa.virgilhr.com/",
+      "sec-ch-ua":
+        '"Not:A-Brand";v="99", "Microsoft Edge";v="145", "Chromium";v="145"',
+      "sec-ch-ua-mobile": "?0",
       "user-agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0",
+      accept: "application/json, text/plain, */*",
+      "content-type": "application/json",
     };
 
     const response = await this.apiClient.sendRequest<object>(
       "POST",
       url,
-      member,
+      payload,
       200, // Assuming 200 OK is the expected status code
       headers,
     );
     return response; // Return the checkout plan response
+  }
+  async inviteTeamMember(teamID: string, members: UserInfo[]): Promise<any> {
+    const path = CUSTOMER_INVITE_MEMBER.replace(/^\/+/, "");
+
+    const url = `${this.baseUrl}/${path}`;
+
+    const headers = { Authorization: `Bearer ${this.authToken}` };
+
+    const requestBody = {
+      id: teamID,
+      recipients: [
+        ...members.map((member) => ({
+          ...{
+            email: member.email,
+            firstName: member.firstName,
+            lastName: member.lastName,
+            phoneNumber: member.phoneNumber,
+            jobTitle: member.jobTitle,
+            role: member.role,
+            partnerConsumerType: 1,
+          },
+        })),
+      ],
+    };
+    const response = await this.apiClient.sendRequest<any>(
+      "POST",
+      url,
+      requestBody,
+      200,
+      headers,
+    );
+
+    return response;
   }
 }

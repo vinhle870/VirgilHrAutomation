@@ -151,8 +151,7 @@ export class ApiClient {
     // Read response body once to use for both logging and return value
     const status = response.status();
     const contentType = response.headers()["content-type"] || "";
-    const isJson =
-      contentType.includes("application/json") && status !== 204;
+    const isJson = contentType.includes("application/json") && status !== 204;
     const responseBody = isJson
       ? await response.json()
       : status === 204
@@ -192,9 +191,6 @@ export class ApiClient {
 
     if (isJson) return responseBody as T;
     if (status === 204) return {} as T;
-    return (responseBody ? (responseBody as unknown as T) : ({} as T));
+    return responseBody ? (responseBody as unknown as T) : ({} as T);
   }
-
-
- 
 }
