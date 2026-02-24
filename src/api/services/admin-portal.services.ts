@@ -1,4 +1,4 @@
-import { ApiClient, HTTPMethod } from "src/utilities";
+import { ApiClient } from "src/utilities";
 import {
   CREATE_CUSTOMER,
   CREATE_PARTNER,
@@ -10,15 +10,11 @@ import {
   GET_DEPARTMENT_PAYMENT_PRODUCT,
   GET_DEPARTMENTS_LIST,
   GET_ALL_DEPARTMENTS_PLANS,
-  ADMIN_INVITE_MEMBER,
+  CUSTOMER_INVITE_MEMBER,
 } from "src/api/endpoints/admin-portal.endpoints";
-
 import { Authentication } from "src/api/services/authentication.service";
 import { CustomerInfo } from "src/objects/customer";
 import { Partner } from "src/objects/ipartner";
-import { APIResponse } from "@playwright/test";
-import { CREATE_BUSINESS } from "../endpoints/partner-portal.endpoints";
-import { InviteMemberPayload } from "./member-portal.services";
 import { I500EmployeesPlan } from "src/objects/I500EmployeesPlan";
 import { UserInfo } from "src/objects";
 
@@ -327,7 +323,6 @@ export class AdminPortalService {
       undefined,
       200,
       headers,
-      
     );
 
     return response;
@@ -401,26 +396,14 @@ export class AdminPortalService {
       mergedHeaders,
     );
 
-
     return response;
   }
- 
 
-   
   async UpgradePlatinum(payload: I500EmployeesPlan) {
     const url = "https://api.qa.virgilhr.com/v1/Manage/Payment/UpgradePlatinum";
 
     const headers: Record<string, string> = {
-      "sec-ch-ua-platform": '"Windows"',
-      authorization: `Bearer ${this.authToken ?? ""}`,
-      referer: "https://admin.qa.virgilhr.com/",
-      "sec-ch-ua":
-        '"Not:A-Brand";v="99", "Microsoft Edge";v="145", "Chromium";v="145"',
-      "sec-ch-ua-mobile": "?0",
-      "user-agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0",
-      accept: "application/json, text/plain, */*",
-      "content-type": "application/json",
+      authorization: `Bearer ${this.authToken}`,
     };
 
     const response = await this.apiClient.sendRequest<object>(
@@ -455,6 +438,7 @@ export class AdminPortalService {
         })),
       ],
     };
+
     const response = await this.apiClient.sendRequest<any>(
       "POST",
       url,
@@ -464,5 +448,52 @@ export class AdminPortalService {
     );
 
     return response;
+  }
+
+  async searchCustomerByEmail(
+    email: string,
+    token?: string,
+  ): Promise<{ total: number; entities: Array<Record<string, any>> }> {
+    const query = `AccountStatus=&AccountType=&BillingCycle=&DepartmentId=&Length=12&OrderBy=updatedAt%20desc&PartnerId=&PartnerLevel=&PaymentStatus=&Search=${encodeURIComponent(email)}&SearchString=&Source=&Start=0&StripeProductId=&UserType=`;
+    const path = GET_CUSTOMER.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}?${query}`;
+
+    const headers = token
+      ? { Authorization: `Bearer ${token}` }
+      : this.authToken
+        ? { Authorization: `Bearer ${this.authToken}` }
+        : this.apiClient.getAuthToken()
+          ? { Authorization: `Bearer ${this.apiClient.getAuthToken()}` }
+          : undefined;
+
+    const response = await this.apiClient.sendRequest<{
+      total: number;
+      entities: Array<Record<string, any>>;
+    }>("GET", url, undefined, 200, headers);
+
+    return response; // Return the partner data
+  }
+
+  async getTeamIdOfCustomer(
+    customerID: string,
+    token?: string,
+  ): Promise<{ total: number; entities: Array<Record<string, any>> }> {
+    const path = GET_CUSTOMER.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}/${customerID}`;
+
+    const headers = token
+      ? { Authorization: `Bearer ${token}` }
+      : this.authToken
+        ? { Authorization: `Bearer ${this.authToken}` }
+        : this.apiClient.getAuthToken()
+          ? { Authorization: `Bearer ${this.apiClient.getAuthToken()}` }
+          : undefined;
+
+    const response = await this.apiClient.sendRequest<{
+      total: number;
+      entities: Array<Record<string, any>>;
+    }>("GET", url, undefined, 200, headers);
+
+    return response; // Return the partner data
   }
 }

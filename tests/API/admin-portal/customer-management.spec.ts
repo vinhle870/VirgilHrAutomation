@@ -1,17 +1,16 @@
 import { test, expect } from "src/fixtures";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { DataFactory } from "src/data-factory";
-import { plans } from "src/constant/static-data";
 import { I500EmployeesPlan } from "src/objects/I500EmployeesPlan";
 import { PlatinumPlan } from "src/data-factory/platinum-data-generator";
-import delay from "src/utilities/delay";
+import { TestDataProvider } from "src/test-data";
 
 test.describe("Partner management", () => {
   test("TC56 Verify that the admin can invite members to a team in the Admin Portal - Customer Management.", async ({
     apiClient,
     authenticationService,
     adminPortalService,
-    memberPortalService,
+    yopmailPage,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
@@ -25,21 +24,30 @@ test.describe("Partner management", () => {
       apiClient,
       authenticationService,
     );
+    const testData = new TestDataProvider(adminPortalService);
+
+    const departmentID = await testData.getDepartmentId("BiginHR");
+
+    const customerDataName = "Individual 01";
+    const customerDataEmail = "Individual01@yopmail.com";
+
     // Build consumer data
     const consumerData = await DataFactory.customerBuilder()
       .forAdminPortal()
-      .withDepartment("688897d5eb52b4af5573def4") // TODO: call API to get department id
-      .withMembers(10)
+      .withEmail(customerDataEmail)
+      .withCompanyName(customerDataName)
+      .withDepartment(departmentID)
+      .withMembers(1)
       .build();
+
     // Check if customer already exists
-    let searchedCustomer = await adminPortalService.getCustomerByEmail(
-      consumerData.accountInfo.email,
-    );
+    let searchedCustomer =
+      await adminPortalService.searchCustomerByEmail(customerDataEmail);
 
-    const tempPassword = "Password@123";
+    expect(searchedCustomer.entities.length).toBeGreaterThan(0);
 
-    let teamID;
-    if (searchedCustomer.teams.length == 0) {
+    // Create a new customer if consumerData has been not existed yet
+    if (searchedCustomer.entities.length === 0) {
       const resp = await adminService.createCustomer(consumerData);
 
       const plan: I500EmployeesPlan = PlatinumPlan.generatePlatinumPlan(
@@ -49,68 +57,30 @@ test.describe("Partner management", () => {
 
       await adminPortalService.UpgradePlatinum(plan);
 
-      searchedCustomer = await adminPortalService.getCustomerByEmail(
+      searchedCustomer = await adminPortalService.searchCustomerByEmail(
         consumerData.accountInfo.email,
-      );
-
-      teamID = searchedCustomer.teams[0].id;
-
-      await authenticationService.resetPasswordWithoutToken(
-        { username: consumerData.accountInfo.email, password: tempPassword },
-        undefined,
-        "4",
-      );
-
-      await authenticationService.confirmEmailWithoutToken(
-        consumerData.accountInfo.email,
-        undefined,
-        "4",
-      );
-
-      const consumerToken = await authenticationService.getAuthToken(
-        consumerData.accountInfo.email,
-        tempPassword,
-        "4",
       );
     }
 
-    const inviteResponse = await adminPortalService.inviteTeamMember(
-      teamID,
-      consumerData.members,
-    );
-    expect(inviteResponse).toBe(true);
+    const teamId = searchedCustomer?.entities?.[0]?.consumers?.teamIds?.[0];
 
-    // Invite 500+ employees
+    //  Invite employees
     for (let i = 0; i < consumerData.members.length; i++) {
       const memberData = await DataFactory.customerBuilder()
         .forMemberPortal()
         .withCompanyName(consumerData.company.companyName!)
-        .withDepartment("688897d5eb52b4af5573def4") // TODO: call API to get department id
+        .withDepartment(departmentID)
         .withEmail(consumerData.members[i].email)
         .build();
 
-      await memberPortalService.signUpConsumer(memberData);
-
-      await authenticationService.resetPasswordWithoutToken(
-        { username: memberData.accountInfo.email, password: tempPassword },
-        undefined,
-        "4",
+      const inviteResponse = await adminPortalService.inviteTeamMember(
+        teamId,
+        consumerData.members,
       );
 
-      await authenticationService.confirmEmailWithoutToken(
-        memberData.accountInfo.email,
-        undefined,
-        "4",
-      );
+      expect(inviteResponse).toBe(true);
 
-      const partnerToken = await authenticationService.getAuthToken(
-        memberData.accountInfo.email,
-        tempPassword,
-        "4",
-      );
-
-      const planOfMember =
-        await memberPortalService.getCurrentSubscribedPlan(partnerToken);
+      await yopmailPage.acceptInvitation(memberData.accountInfo.email);
     }
   });
 });
