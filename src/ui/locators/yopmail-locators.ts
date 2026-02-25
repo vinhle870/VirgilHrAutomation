@@ -10,4 +10,8 @@ export class YopMailPageLocators {
   static invitationAcceptanceButton: string = "//a[text()='Accept Invite']";
 
   static iframe: string = "//iframe[@id='ifmail']";
+
+  static iframeOfCapcha = "//iframe[title='reCAPTCHA']";
+
+  static anchorCapcha = "#recaptcha-anchor";
 }

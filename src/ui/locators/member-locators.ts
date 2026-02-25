@@ -5,4 +5,6 @@ export class MemberPageLocators {
   static setPasswordInput: string = "//input[@placeholder='Set your password']";
 
   static joinTeamButton: string = "//span[text()='Join Your Team']";
+
+  static divingButton: string = "//span[text()='I’m ready to dive in']";
 }
