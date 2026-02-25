@@ -244,10 +244,9 @@ test.describe("Partner managerment", () => {
       .withFilterProductTypes(productTypesAndNamesToSend)
       .withPlanId(masterPlanId)
       .build();
-
     //Create partner
     const partner = await adminService.createPartner(partnerInfo);
-
+    //Check plan of partner
     const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
     const email = partnerInfo.accountInfo?.email!;

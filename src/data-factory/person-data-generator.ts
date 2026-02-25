@@ -11,15 +11,14 @@ import UserInfo from "src/objects/user-info";
  * any field left undefined will be auto-generated with realistic fake data.
  */
 export class PersonDataGenerator {
-  static async generate(
-    overrides?: Partial<UserInfo>,
-  ): Promise<UserInfo> {
+  static async generate(overrides?: Partial<UserInfo>): Promise<UserInfo> {
     const ts = format(new Date(), "yyyyMMddHHmmss");
-    const seq = DataGenerate.getRandomInt(1, 9999);
+    const seq1 = DataGenerate.getRandomInt(1, 999);
+    const seq2 = DataGenerate.getRandomInt(1, 999999) + seq1;
 
     const firstName =
       overrides?.firstName ?? (await DataGenerate.generateFirstName());
-    const localPrefix = overrides?.firstName ?? `${firstName}${seq}`;
+    const localPrefix = overrides?.firstName ?? `${firstName}${seq2}`;
     const email = overrides?.email ?? `${localPrefix}@yopmail.com`;
     const password = overrides?.password ?? `Pass@${ts.slice(-8)}`;
     const lastName =
@@ -47,5 +46,4 @@ export class PersonDataGenerator {
       }),
     };
   }
-  
 }

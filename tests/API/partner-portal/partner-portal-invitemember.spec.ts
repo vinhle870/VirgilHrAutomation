@@ -1,10 +1,8 @@
 import { test, expect } from "src/fixtures";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
-import { InviteMemberPayload } from "src/api/services/member-portal.services";
 import { DataFactory, CustomerBuilder } from "src/data-factory";
 import { TestDataProvider } from "src/test-data";
 import { ProductInfo } from "src/objects/iproduct";
-import { DataGenerate } from "src/utilities";
 import { plans } from "src/constant/static-data";
 
 test.describe("Partner management", () => {

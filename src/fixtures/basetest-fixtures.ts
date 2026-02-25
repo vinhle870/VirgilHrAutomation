@@ -10,6 +10,7 @@ import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { MemberPortalService } from "src/api/services";
 import { PlanPage } from "src/ui/pages/plan-page";
 import { PartnerPortalService } from "src/api/services/partner-portal.services";
+import { YopMailPage } from "src/ui/pages/yopmail-page";
 
 // Declare the types of your fixtures.
 type MyFixtures = {
@@ -25,6 +26,7 @@ type MyFixtures = {
   memberPortalService: MemberPortalService;
   partnerPortalService: PartnerPortalService;
   api_token: string;
+  yopmailPage: YopMailPage;
 };
 
 export const test = base.extend<MyFixtures>({
@@ -94,6 +96,11 @@ export const test = base.extend<MyFixtures>({
   partnerPortalService: async ({ apiClient: api }, use) => {
     const partnerPortalService = new PartnerPortalService(api);
     await use(partnerPortalService);
+  },
+
+  yopmailPage: async ({ page }, use) => {
+    const yopmailPage = new YopMailPage(page);
+    await use(yopmailPage);
   },
 });
 
