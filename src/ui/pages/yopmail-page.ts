@@ -55,7 +55,6 @@ export class YopMailPage {
     );
 
     await continueWithEmailButton.click();
-    console.log("Before setPasswordInputElement");
 
     const setPasswordInputElement = await LocatorHandling.getLocator(
       this.page,

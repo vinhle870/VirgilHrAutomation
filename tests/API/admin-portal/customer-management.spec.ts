@@ -4,6 +4,7 @@ import { DataFactory } from "src/data-factory";
 import { I500EmployeesPlan } from "src/objects/I500EmployeesPlan";
 import { PlatinumPlan } from "src/data-factory/platinum-data-generator";
 import { TestDataProvider } from "src/test-data";
+import { CustomerInfo } from "src/objects";
 
 test.describe("Partner management", () => {
   test("TC56 Verify that the admin can invite members to a team in the Admin Portal - Customer Management.", async ({
@@ -37,7 +38,7 @@ test.describe("Partner management", () => {
       .withEmail(customerDataEmail)
       .withCompanyName(customerDataName)
       .withDepartment(departmentID)
-      .withMembers(1)
+      .withMembers(20)
       .build();
 
     // Check if customer already exists
@@ -64,23 +65,26 @@ test.describe("Partner management", () => {
 
     const teamId = searchedCustomer?.entities?.[0]?.consumers?.teamIds?.[0];
 
+    let memberData: CustomerInfo[] = [];
     //  Invite employees
     for (let i = 0; i < consumerData.members.length; i++) {
-      const memberData = await DataFactory.customerBuilder()
+      const member = await DataFactory.customerBuilder()
         .forMemberPortal()
         .withCompanyName(consumerData.company.companyName!)
         .withDepartment(departmentID)
         .withEmail(consumerData.members[i].email)
         .build();
 
-      const inviteResponse = await adminPortalService.inviteTeamMember(
-        teamId,
-        consumerData.members,
-      );
-
-      expect(inviteResponse).toBe(true);
-
-      await yopmailPage.acceptInvitation(memberData.accountInfo.email);
+      memberData.push(member);
     }
+    const inviteResponse = await adminPortalService.inviteTeamMember(
+      teamId,
+      consumerData.members,
+    );
+
+    expect(inviteResponse).toBe(true);
+
+    for (let i = 0; i < memberData.length; i++)
+      await yopmailPage.acceptInvitation(memberData[i].accountInfo.email);
   });
 });

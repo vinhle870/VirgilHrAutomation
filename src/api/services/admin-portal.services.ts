@@ -474,10 +474,7 @@ export class AdminPortalService {
     return response; // Return the partner data
   }
 
-  async getTeamIdOfCustomer(
-    customerID: string,
-    token?: string,
-  ): Promise<{ total: number; entities: Array<Record<string, any>> }> {
+  async getCustomerInfo(customerID: string, token?: string): Promise<any> {
     const path = GET_CUSTOMER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}/${customerID}`;
 
