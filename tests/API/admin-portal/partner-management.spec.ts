@@ -428,18 +428,16 @@ test.describe("Partner managerment", () => {
 
     await authenticationService.confirmEmailWithoutToken(email, undefined, "5");
 
-    if (partner.status == 200) {
-      const emailOfPartner = partnerInfo.accountInfo?.email!;
+    const emailOfPartner = partnerInfo.accountInfo?.email!;
 
-      expect(emailOfPartner).toBeDefined();
+    expect(emailOfPartner).toBeDefined();
 
-      const searchResponse =
-        await adminService.getCustomerByEmail(emailOfPartner);
+    const searchResponse =
+      await adminService.getCustomerByEmail(emailOfPartner);
 
-      const customerEmail = searchResponse.body.entities[0];
+    const customerEmail = searchResponse.body.entities[0];
 
-      expect(customerEmail).toBeFalsy();
-    }
+    expect(customerEmail).toBeFalsy();
   });
 
   test("TC46 For Payment Options = Member Portal Consumer, the Owner of the Partner/Consultant can only log in to the Partner Portal.", async ({

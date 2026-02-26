@@ -87,11 +87,13 @@ export class YopMailPage {
       timeout,
     });
 
-    expect(
-      await LocatorHandling.getLocator(
-        this.page,
-        MemberPageLocators.divingButton,
-      ),
-    ).toBeVisible({ timeout: timeout });
+    const divingButton = await LocatorHandling.getLocator(
+      this.page,
+      MemberPageLocators.divingButton,
+    );
+
+    expect(divingButton).toBeVisible({ timeout: timeout });
+
+    await divingButton.click();
   }
 }
