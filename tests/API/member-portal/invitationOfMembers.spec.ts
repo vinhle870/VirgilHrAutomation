@@ -14,6 +14,7 @@ test.describe("Invite members to a team", () => {
     adminPortalService,
     memberPortalService,
     partnerPortalService,
+    yopmailPage,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
@@ -33,7 +34,7 @@ test.describe("Invite members to a team", () => {
     //Create department id to send
     let departmentID = await testData.getDepartmentId("BiginHR");
 
-    const paymentProductName: string = "500+ Employees";
+    const paymentProductName: string = plans[4];
 
     //Get all product types of a department (departmentID):
     // It is required for scenario Bank Transfer is True
@@ -78,61 +79,177 @@ test.describe("Invite members to a team", () => {
     //API Step: Create partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
-    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+    const tempPassword = "Password@123";
 
     const email = partnerInfo.accountInfo?.email!;
 
-    const resetPartner = await authenticationService.resetPasswordWithoutToken(
+    await authenticationService.resetPasswordWithoutToken(
       { username: email, password: tempPassword },
       undefined,
       "5",
     );
 
-    if (resetPartner) {
-      await authenticationService.confirmEmailWithoutToken(
-        email,
-        undefined,
-        "5",
-      );
-      const partnerToken = await authenticationService.getAuthToken(
-        email,
-        tempPassword,
-        "5",
-      );
+    await authenticationService.confirmEmailWithoutToken(email, undefined, "5");
+    const partnerToken = await authenticationService.getAuthToken(
+      email,
+      tempPassword,
+      "5",
+    );
 
-      //API Step: Create business
-      await partnerPortalService.createBusiness(
-        partnerResponse,
-        "teamName",
-        masterPlanId,
-        undefined,
-        undefined,
-        partnerToken,
-      );
+    //API Step: Create business
+    await partnerPortalService.createBusiness(
+      partnerResponse,
+      "teamName",
+      masterPlanId,
+      undefined,
+      undefined,
+      partnerToken,
+    );
 
-      await authenticationService.resetPasswordWithoutToken(
-        { username: email, password: tempPassword },
-        undefined,
-        "4",
-      );
-      //API Step: Get auth token
-      const token = await authenticationService.getAuthToken(
-        email,
-        tempPassword,
-        "4",
-      );
-      //API Step: Invite members to a team in the Member Portal-Organization tab.
-      const partnerName = partnerInfo.partnerInfo?.name;
-      expect(partnerName).toBeDefined();
+    await authenticationService.resetPasswordWithoutToken(
+      { username: email, password: tempPassword },
+      undefined,
+      "4",
+    );
+    //API Step: Get auth token
+    const token = await authenticationService.getAuthToken(
+      email,
+      tempPassword,
+      "4",
+    );
+    //API Step: Invite members to a team in the Member Portal-Organization tab.
+    const partnerName = partnerInfo.partnerInfo?.name;
+    expect(partnerName).toBeDefined();
 
-      const inviteMemberResponse = await memberPortalService.inviteMember(
-        token,
-        invitePayload,
-      );
+    await memberPortalService.inviteMember(token, invitePayload);
+    const invitedEmail = invitePayload.recipients[0].email;
 
-      expect(inviteMemberResponse).toBeDefined();
-      expect(typeof inviteMemberResponse).toBe("object");
-    }
+    await yopmailPage.acceptInvitation(invitedEmail);
+
+    const invitedEmailToken = await authenticationService.getAuthToken(
+      invitedEmail,
+      tempPassword,
+      "4",
+    );
+
+    const paymentSubscriptionResp =
+      await memberPortalService.getPaymentSubscription(invitedEmailToken);
+
+    expect(paymentSubscriptionResp).toBeDefined();
+    expect(typeof paymentSubscriptionResp).toBe("object");
+    expect((paymentSubscriptionResp as any).main).toBeDefined();
+    expect((paymentSubscriptionResp as any).handbookBuilder).toBeDefined();
+    expect((paymentSubscriptionResp as any).lms).toBeDefined();
+    expect((paymentSubscriptionResp as any).main.name).toContain(
+      paymentProductName,
+    );
+    expect((paymentSubscriptionResp as any).main).toHaveProperty("productType");
+    expect((paymentSubscriptionResp as any).main).toHaveProperty("quantity");
+    expect((paymentSubscriptionResp as any).main).toHaveProperty("productType");
+    expect((paymentSubscriptionResp as any).main).toHaveProperty("price");
+    expect((paymentSubscriptionResp as any).main).toHaveProperty("discount");
+    expect((paymentSubscriptionResp as any).main).toHaveProperty("startDate");
+    expect((paymentSubscriptionResp as any).main).toHaveProperty("endDate");
+    expect((paymentSubscriptionResp as any).main).toHaveProperty(
+      "contractStartDate",
+    );
+    expect((paymentSubscriptionResp as any).main).toHaveProperty(
+      "contractEndDate",
+    );
+    expect((paymentSubscriptionResp as any).main).toHaveProperty(
+      "remainingDays",
+    );
+    expect((paymentSubscriptionResp as any).main).toHaveProperty("planId");
+    expect((paymentSubscriptionResp as any).main).toHaveProperty("isTrial");
+    expect((paymentSubscriptionResp as any).main).toHaveProperty("isCanceled");
+    expect((paymentSubscriptionResp as any).main).toHaveProperty(
+      "isPaymentLate",
+    );
+    expect((paymentSubscriptionResp as any).main).toHaveProperty(
+      "cancelAtPeriodEnd",
+    );
+    expect((paymentSubscriptionResp as any).main).toHaveProperty("canceledBy");
+    expect((paymentSubscriptionResp as any).main).toHaveProperty(
+      "canceledDate",
+    );
+    expect((paymentSubscriptionResp as any).main).toHaveProperty(
+      "cancellationReason",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "name",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder.name).toContain(
+      paymentProductName,
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "productType",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "quantity",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "price",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "discount",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "startDate",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "endDate",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "contractStartDate",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "contractEndDate",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "remainingDays",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "isTrial",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "isCanceled",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "isPaymentLate",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "cancelAtPeriodEnd",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "canceledBy",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "canceledDate",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "cancellationReason",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "planId",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "currentPlan",
+    );
+    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
+      "rootPlan",
+    );
+    expect((paymentSubscriptionResp as any).lms).toHaveProperty("name");
+    expect((paymentSubscriptionResp as any).lms.name).toContain(
+      paymentProductName,
+    );
+    expect((paymentSubscriptionResp as any).lms).toHaveProperty("productType");
+    expect((paymentSubscriptionResp as any).lms).toHaveProperty("quantity");
+    expect((paymentSubscriptionResp as any).lms).toHaveProperty("price");
+    expect((paymentSubscriptionResp as any).lms).toHaveProperty(
+      "remainingDays",
+    );
+    expect((paymentSubscriptionResp as any).lms).toHaveProperty("planId");
+    expect((paymentSubscriptionResp as any).lms).toHaveProperty("currentPlan");
   });
 
   test("TC55 In the Member Portal, only the Owner and Admin of a team can invite members to that team.", async ({
@@ -163,6 +280,7 @@ test.describe("Invite members to a team", () => {
       departmentID,
       paymentProductName,
     );
+
     const masterPlanId = masterPlan.masterPlanId;
 
     const productTypesAndNamesToSend: ProductInfo[] =

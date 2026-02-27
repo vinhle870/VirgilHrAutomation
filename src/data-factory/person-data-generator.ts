@@ -30,7 +30,7 @@ export class PersonDataGenerator {
 
     return {
       email,
-      password,
+      //   password,
       firstName,
       lastName,
       jobTitle,

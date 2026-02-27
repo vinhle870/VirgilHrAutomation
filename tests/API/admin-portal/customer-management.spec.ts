@@ -31,7 +31,9 @@ test.describe("Partner management", () => {
 
     const tempPassword = "Password@123";
     let planName = plans[4];
-    const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
+    const departmentID = await testData.getDepartmentId(
+      process.env.DEPARTMENT_NAME,
+    );
 
     const customerDataName = "Individual 01";
     const customerDataEmail = "Individual01@yopmail.com";
@@ -91,6 +93,7 @@ test.describe("Partner management", () => {
 
     for (let i = 0; i < memberData.length; i++) {
       await yopmailPage.acceptInvitation(memberData[i].accountInfo.email);
+
       const invitedMember = await authenticationService.getAuthToken(
         memberData[i].accountInfo.email,
         tempPassword,
@@ -250,7 +253,9 @@ test.describe("Partner management", () => {
 
     const testData = new TestDataProvider(adminPortalService);
 
-    const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
+    const departmentID = await testData.getDepartmentId(
+      process.env.DEPARTMENT_NAME,
+    );
 
     const customerDataName = "vinhle2262026";
     const customerDataEmail = "vinhle2262026@yopmail.com";
