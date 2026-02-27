@@ -29,7 +29,7 @@ test.describe("Partner management", () => {
     const testData = new TestDataProvider(adminPortalService);
 
     //Create department id to send
-    let departmentID = await testData.getDepartmentId("BiginHR");
+    let departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
 
     //Choose a plan = "50 - 100 Employees"
     const paymentProductName: string = plans[1];
@@ -153,7 +153,7 @@ test.describe("Partner management", () => {
     const testData = new TestDataProvider(adminPortalService);
 
     //Create department id to send
-    let departmentID = await testData.getDepartmentId("BiginHR");
+    let departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
 
     //Choose a plan = "50 - 100 Employees"
     const paymentProductName: string = plans[1];
@@ -303,7 +303,7 @@ test.describe("Partner management", () => {
     const testData = new TestDataProvider(adminPortalService);
 
     //Create department id to send
-    let departmentID = await testData.getDepartmentId("BiginHR");
+    let departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
 
     //Choose a plan = "50 - 100 Employees"
     const paymentProductName: string = plans[1];
@@ -447,7 +447,7 @@ test.describe("Partner management", () => {
     const testData = new TestDataProvider(adminPortalService);
 
     //Create department id to send
-    let departmentID = await testData.getDepartmentId("BiginHR");
+    let departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
 
     //Choose a plan = "50 - 100 Employees"
     const paymentProductName: string = plans[1];

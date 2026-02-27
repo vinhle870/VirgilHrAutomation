@@ -2,20 +2,31 @@ import { test, expect } from "src/fixtures";
 import { DataFactory, CustomerBuilder } from "src/data-factory";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { validCardInfo } from "src/constant/static-data";
+import { TestDataProvider } from "src/test-data";
 
 test.describe("MemberPortalService - signUpConsumer", () => {
   test("TC001_API_Verify the API POST v1/Consumer/Consumers Without PartnerID returns 201-Created", async ({
     memberPortalService,
+    apiClient,
+    authenticationService,
   }, testInfo) => {
     const base = process.env.API_BASE_URL;
     const username = process.env.API_USERNAME;
     const password = process.env.API_PASSWORD;
     testInfo.skip(!base, "API_BASE_URL is not configured");
 
+    const adminService = await AdminPortalService.create(
+      apiClient,
+      authenticationService,
+    );
+    const testData = new TestDataProvider(adminService);
+    const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
+
     // Generate consumer payload with discovered IDs (if any)
     //const consumerData = await DataFactory.customerBuilder().forMemberPortal().build();
     const consumerData = await DataFactory.customerBuilder()
       .forMemberPortal()
+      .withDepartment(departmentID)
       .build();
     const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****

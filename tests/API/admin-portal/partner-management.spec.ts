@@ -223,7 +223,7 @@ test.describe("Partner managerment", () => {
 
     const testData = new TestDataProvider(adminPortalService);
     //Create department id to send
-    const departmentID = await testData.getDepartmentId("BiginHR");
+    const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
     const paymentProductName: string = plans[1];
     //Choose masterID to send
     const masterPlan: any = await testData.filterMasterPlanBasedName(
@@ -306,7 +306,7 @@ test.describe("Partner managerment", () => {
     const testData = new TestDataProvider(adminPortalService);
 
     //Get all product types of a department (departmentID)
-    const departmentID = await testData.getDepartmentId("BiginHR");
+    const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
     const paymentProductName: string = plans[1];
     //Choose a plan to buy
     const masterPlan: any = await testData.filterMasterPlanBasedName(
