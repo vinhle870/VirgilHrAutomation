@@ -62,6 +62,8 @@ test.describe("Partner management", () => {
     // Create partner
     const partner = await adminService.createPartner(partnerInfo);
 
+    delay(20000);
+
     const email = partnerInfo.accountInfo?.email!;
     // Create invited member info
     const customerWithMember = await new CustomerBuilder().withMember().build();
@@ -264,7 +266,7 @@ test.describe("Partner management", () => {
 
     const tempPassword = "Password@123";
     const testData = new TestDataProvider(adminPortalService);
-    const paymentProductName: string = "Under 50 Employees";
+    const paymentProductName: string = plans[0];
 
     // Create department id
     const departmentID = await testData.getDepartmentId(
@@ -294,6 +296,8 @@ test.describe("Partner management", () => {
       .build();
 
     const partner = await adminService.createPartner(partnerInfo);
+
+    delay(20000);
 
     const email = partnerInfo.accountInfo?.email ?? "";
 

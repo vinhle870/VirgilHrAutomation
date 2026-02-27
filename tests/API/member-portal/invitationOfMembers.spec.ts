@@ -6,6 +6,7 @@ import { TestDataProvider } from "src/test-data";
 import { ProductInfo } from "src/objects/iproduct";
 import { plans } from "src/constant/static-data";
 import { Partner, UserInfo } from "src/objects";
+import delay from "src/utilities/delay";
 
 test.describe("Invite members to a team", () => {
   test("TC54 Verify that a user can invite members to a team in the Member Portal-Organization tab.", async ({
@@ -80,6 +81,8 @@ test.describe("Invite members to a team", () => {
     //***********************************************//
     //API Step: Create partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
+
+    delay(20000);
 
     const tempPassword = "Password@123";
 
@@ -308,6 +311,8 @@ test.describe("Invite members to a team", () => {
 
     // Create partner (Owner)
     const owner = await adminService.createPartner(partnerInfo);
+
+    delay(20000);
 
     const email = partnerInfo.accountInfo?.email ?? "";
 
