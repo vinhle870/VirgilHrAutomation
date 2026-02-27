@@ -415,6 +415,7 @@ export class AdminPortalService {
     );
     return response; // Return the checkout plan response
   }
+
   async inviteTeamMember(teamID: string, members: UserInfo[]): Promise<any> {
     const path = CUSTOMER_INVITE_MEMBER.replace(/^\/+/, "");
 

@@ -189,4 +189,41 @@ export class MemberPortalService {
       headers,
     )) as T;
   }
+
+  async inviteTeamMemberFromAnOwnerCustomer(
+    memberToken: string,
+    members: UserInfo[],
+  ): Promise<any> {
+    const path = COMSUMER_INVITE_MEMBER.replace(/^\/+/, "");
+
+    const url = `${this.baseUrl}/${path}`;
+
+    const headers = { Authorization: `Bearer ${memberToken}` };
+
+    const requestBody = {
+      recipients: [
+        ...members.map((member) => ({
+          ...{
+            email: member.email,
+            firstName: member.firstName,
+            lastName: member.lastName,
+            phoneNumber: member.phoneNumber,
+            jobTitle: member.jobTitle,
+            role: member.role,
+            partnerConsumerType: 1,
+          },
+        })),
+      ],
+    };
+
+    const response = await this.apiClient.sendRequest<any>(
+      "POST",
+      url,
+      requestBody,
+      200,
+      headers,
+    );
+
+    return response;
+  }
 }
