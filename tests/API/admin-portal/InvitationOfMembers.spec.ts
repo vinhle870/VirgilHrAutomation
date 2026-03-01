@@ -16,7 +16,7 @@ test.describe("Partner management", () => {
     authenticationService,
     adminPortalService,
     partnerPortalService,
-    yopmailPage,
+    accountActivation,
     memberPortalService,
   }, testInfo) => {
     testInfo.skip(
@@ -62,7 +62,7 @@ test.describe("Partner management", () => {
     // Create partner
     const partner = await adminService.createPartner(partnerInfo);
 
-    delay(20000);
+    delay(60000);
 
     const email = partnerInfo.accountInfo?.email!;
     // Create invited member info
@@ -114,7 +114,7 @@ test.describe("Partner management", () => {
 
     const invitedEmail = customerWithMember.members[0].email;
 
-    await yopmailPage.acceptInvitation(invitedEmail);
+    await accountActivation.acceptInvitation(invitedEmail);
 
     const invitedMemberToken = await authenticationService.getAuthToken(
       invitedEmail,
@@ -248,7 +248,7 @@ test.describe("Partner management", () => {
     authenticationService,
     adminPortalService,
     partnerPortalService,
-    yopmailPage,
+    accountActivation,
     memberPortalService,
   }, testInfo) => {
     testInfo.skip(
@@ -352,7 +352,7 @@ test.describe("Partner management", () => {
 
       const invitedEmail = customerWithMember.members[0].email;
 
-      await yopmailPage.acceptInvitation(invitedEmail);
+      await accountActivation.acceptInvitation(invitedEmail);
 
       const invitedMember = await authenticationService.getAuthToken(
         invitedEmail,

@@ -1,6 +1,6 @@
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { ProductInfo } from "src/objects/iproduct";
-import { DataGenerate } from "src/utilities";
+import { CollectionUtils } from "src/utilities/collection-utils";
 
 /**
  * Pre-condition data provider for tests.
@@ -39,43 +39,36 @@ export class TestDataProvider {
 
   // ── Department ──────────────────────────────────────────────
 
-  /**
-   * Get a department ID by name.
-   * If no name is given, picks a random department (excluding localHR).
-   */
   async getDepartmentId(departmentName?: string): Promise<string> {
     await this.ensureDepartmentCache();
 
     if (departmentName) {
-      const dept = this.departmentCache.find(
-        (d: any) => d.name.toLowerCase() === departmentName.toLowerCase(),
+      const dept = CollectionUtils.findByName(
+        this.departmentCache,
+        departmentName,
       );
-      if (dept) return dept.id;
-      throw new Error(`Department with name "${departmentName}" not found`);
+      return (dept as any).id;
     }
 
-    const ids: string[] = this.departmentCache.body.map((dept: any) => dept.id);
-    let id = DataGenerate.selectRandomlyInList(ids);
-    return id;
+    const ids: string[] = this.departmentCache.body.map(
+      (dept: any) => dept.id,
+    );
+    return CollectionUtils.pickOne(ids);
   }
 
-  /**
-   * Get the partner portal domain for a given department ID.
-   */
   async getDepartmentDomain(departmentId: string): Promise<string> {
     await this.ensureDepartmentCache();
 
-    const matchedDept = this.departmentCache.body.find(
-      (dept: any) => dept.id === departmentId,
+    const matchedDept = CollectionUtils.findByProperty(
+      this.departmentCache.body,
+      "id",
+      departmentId,
     );
-    return matchedDept?.domain?.partner ?? null;
+    return (matchedDept as any)?.domain?.partner ?? null;
   }
 
   // ── Product types ───────────────────────────────────────────
 
-  /**
-   * Get unique product types and names for a given department.
-   */
   async getProductTypesBasedDepartmentId(
     departmentId: string,
   ): Promise<ProductInfo[]> {
@@ -83,112 +76,68 @@ export class TestDataProvider {
       await this.adminService.getAllDepartmentsPlans();
     if (!productTypesResponse) return [];
 
-    const department = productTypesResponse.find(
-      (d: any) => d.departmentId === departmentId,
+    const department = CollectionUtils.findByPropertyOrNull(
+      productTypesResponse as any[],
+      "departmentId",
+      departmentId,
     );
-    if (!department?.plans) return [];
+    if (!(department as any)?.plans) return [];
 
     const seenProductTypes = new Set<number>();
-    const products: ProductInfo[] = department.plans.flatMap((plan: any) =>
-      plan.products
-        .filter((p: any) => {
-          if (seenProductTypes.has(p.productType)) return false;
-          seenProductTypes.add(p.productType);
-          return true;
-        })
-        .map((p: any) => ({
-          productType: p.productType,
-          productName: plan.name,
-          planId: plan.id,
-        })),
+    const products: ProductInfo[] = (department as any).plans.flatMap(
+      (plan: any) =>
+        plan.products
+          .filter((p: any) => {
+            if (seenProductTypes.has(p.productType)) return false;
+            seenProductTypes.add(p.productType);
+            return true;
+          })
+          .map((p: any) => ({
+            productType: p.productType,
+            productName: plan.name,
+            planId: plan.id,
+          })),
     );
     return products;
   }
 
-  /**
-   * Filter product info list based on product name list and return the filtered product info list
-   * @param departmentId
-   * @param productNameList
-   * @returns ProductInfo[] filtered by product name list
-   */
   async filterProductInfoListBasedName(
     departmentId: string,
     productNameList: string[],
   ): Promise<ProductInfo[]> {
-    const productTypeAndNames: ProductInfo[] =
-      await this.getProductTypesBasedDepartmentId(departmentId);
-
-    const nameSet = new Set(productNameList.map((n) => n.toLowerCase()));
-
-    const filteredProductInfoList: ProductInfo[] = productTypeAndNames.filter(
-      (product) => nameSet.has(product.productName.toLowerCase()),
-    );
-
-    return filteredProductInfoList;
+    const products = await this.getProductTypesBasedDepartmentId(departmentId);
+    return CollectionUtils.filterByNames(
+      products.map((p) => ({ ...p, name: p.productName })),
+      productNameList,
+    ).map(({ name, ...rest }) => rest as unknown as ProductInfo);
   }
 
   async filterMasterPlanBasedName(
     departmentId: string,
     planName: string,
   ): Promise<any> {
-    const masterPlanIDResponse: object[] =
+    const masterPlans: any[] =
       await this.adminService.getDepartmentPaymentProduct(departmentId);
-
-    const planItem = masterPlanIDResponse.find((m: any) =>
-      (m.name as string).toLowerCase().includes(planName.toLowerCase()),
-    );
-    if (!planItem) {
-      throw new Error(`Master plan with name "${planName}" not found`);
-    }
-    return planItem;
+    return CollectionUtils.findByName(masterPlans, planName);
   }
 
   async filterPartnerPaymentProductBasedName(
-    partnerPaymentProductsList: object[],
+    partnerPaymentProductsList: any[],
     planName: string,
   ): Promise<any> {
-    const planItem = partnerPaymentProductsList.find((m: any) =>
-      (m.name as string).toLowerCase().includes(planName.toLowerCase()),
-    );
-    if (!planItem) {
-      throw new Error(
-        `Partner payment product with name "${planName}" not found`,
-      );
-    }
-    return planItem;
+    return CollectionUtils.findByName(partnerPaymentProductsList, planName);
   }
 
   async filterPartnerPlanBasedName(
-    partnerPlansList: object[],
+    partnerPlansList: any[],
     planName: string,
   ): Promise<any> {
-    const planItem = partnerPlansList.find((m: any) =>
-      (m.name as string).toLowerCase().includes(planName.toLowerCase()),
-    );
-    if (!planItem) {
-      throw new Error(`Partner plan with name "${planName}" not found`);
-    }
-    return planItem;
+    return CollectionUtils.findByName(partnerPlansList, planName);
   }
 
-  /**
-   * Filter plan based on plan name
-   * @param planList - List of plans
-   * @param planName - Plan name
-   * @returns Plan object
-   */
-  async filterPlanBasedName(
-    planList: object[],
-    planName: string,
-  ): Promise<any> {
-    let filteredPlan: any = planList;
-    if (Array.isArray(planList)) {
-      filteredPlan = planList.find((plan: any) => plan.name === planName);
-      if (!filteredPlan) {
-        throw new Error(`Plan with name "${planName}" not found`);
-      }
-    }
-    return filteredPlan;
+  async filterPlanBasedName(planList: any[], planName: string): Promise<any> {
+    if (!Array.isArray(planList)) return planList;
+    return CollectionUtils.findByProperty(planList, "name", planName);
   }
 
   // ── Internal ────────────────────────────────────────────────

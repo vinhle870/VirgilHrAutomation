@@ -11,6 +11,7 @@ import {
   GET_DEPARTMENTS_LIST,
   GET_ALL_DEPARTMENTS_PLANS,
   CUSTOMER_INVITE_MEMBER,
+  UPGRADE_PLATINUM,
 } from "src/api/endpoints/admin-portal.endpoints";
 import { Authentication } from "src/api/services/authentication.service";
 import { CustomerInfo } from "src/objects/customer";
@@ -400,7 +401,7 @@ export class AdminPortalService {
   }
 
   async UpgradePlatinum(payload: I500EmployeesPlan) {
-    const url = "https://api.qa.virgilhr.com/v1/Manage/Payment/UpgradePlatinum";
+    const url = `${this.baseUrl}/${UPGRADE_PLATINUM}`;
 
     const headers: Record<string, string> = {
       authorization: `Bearer ${this.authToken}`,

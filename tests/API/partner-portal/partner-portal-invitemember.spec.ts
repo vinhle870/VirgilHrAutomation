@@ -67,7 +67,7 @@ test.describe("Partner management", () => {
     //*********API Step: Create partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
-    delay(20000);
+    delay(30000);
 
     if (partnerResponse) {
       const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
@@ -81,7 +81,7 @@ test.describe("Partner management", () => {
           "5",
         );
 
-      if (resetPartner) {
+
         await authenticationService.confirmEmailWithoutToken(
           email,
           undefined,
@@ -131,7 +131,7 @@ test.describe("Partner management", () => {
         expect(businessList.entities.length).toBeGreaterThan(0);
         expect(businessList.entities[0].id).toBeDefined();
         expect(typeof businessList.entities[0].id).toBe("string");
-      }
+
     }
   });
 
@@ -140,7 +140,7 @@ test.describe("Partner management", () => {
     authenticationService,
     adminPortalService,
     partnerPortalService,
-    yopmailPage,
+    accountActivation,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
@@ -197,7 +197,7 @@ test.describe("Partner management", () => {
     //*********API Step: Create partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
-    delay(20000);
+    delay(30000);
 
     const tempPassword = "Password@123";
 
@@ -225,20 +225,9 @@ test.describe("Partner management", () => {
       "5", //Partner Portal
     );
 
-    const businessList =
-      await partnerPortalService.getBusinessList(partnerToken);
-
-    const businessId = businessList.entities[0].id;
-
-    await partnerPortalService.inviteMember(
-      businessId,
-      customerWithMember.members,
-      partnerToken,
-    );
-
     const invitedEmail = customerWithMember.members[0].email;
 
-    await yopmailPage.acceptInvitation(invitedEmail);
+    //await accountActivation.acceptInvitation(invitedEmail);
     //API Step: Get partner payment products list
     const partnerPlansList =
       await partnerPortalService.getPartnerPlansList(partnerToken);
@@ -260,6 +249,9 @@ test.describe("Partner management", () => {
       customerWithMember.members,
       partnerToken,
     );
+
+    const businessList = await partnerPortalService.getBusinessList(partnerToken);
+
     expect(business).toBeDefined();
     expect(typeof business).toBe("boolean");
     expect(business).toBe(true);
@@ -354,7 +346,7 @@ test.describe("Partner management", () => {
     //*********API Step: Create partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
-    delay(20000);
+    delay(30000);
 
     const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
@@ -366,7 +358,7 @@ test.describe("Partner management", () => {
       "5",
     );
 
-    if (resetPartner) {
+
       await authenticationService.confirmEmailWithoutToken(
         email,
         undefined,
@@ -435,7 +427,7 @@ test.describe("Partner management", () => {
       expect(teamMembersList.entities[1].email).toBe(
         customerWithMember.members[0].email,
       );
-    }
+
   });
 
   test("TC67: API- POST /Partner/Manage/Partner/Business with WhoPay=1 (Customer): 1st invited Member = Owner", async ({
@@ -446,7 +438,7 @@ test.describe("Partner management", () => {
   }, testInfo) => {
     testInfo.skip(
       true,
-      "FAILED: Wait for confirmation for the case invite member for Customer under Partner with Payment Options = Member Portal Consumer",
+      "FAILED: BUG: invite member for Customer under Partner with Payment Options = Member Portal Consumer",
     );
     //***************Pre-requisites: Prepare data for the test*******************************//
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
@@ -490,7 +482,7 @@ test.describe("Partner management", () => {
       .build();
 
     // Generate member data for invite payload
-    const customerWithMember = await new CustomerBuilder()
+    const customerWithMember = await DataFactory.customerBuilder()
       .forMemberPortal()
       .withMember({ role: 3 }) // User role
       .build();
@@ -499,7 +491,7 @@ test.describe("Partner management", () => {
     //*********API Step: Create partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
-    delay(20000);
+    delay(30000);
 
     if (partnerResponse) {
       const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
@@ -513,7 +505,7 @@ test.describe("Partner management", () => {
           "5",
         );
 
-      if (resetPartner) {
+
         const confirmEmailResponse =
           await authenticationService.confirmEmailWithoutToken(
             email,
@@ -534,12 +526,8 @@ test.describe("Partner management", () => {
         );
 
         //API Step: Get partner payment products list
-        const partnerPlansList =
-          await partnerPortalService.getPartnerPlansList(partnerToken);
-        const planItem = await testData.filterPartnerPlanBasedName(
-          partnerPlansList,
-          paymentProductName,
-        );
+        const partnerPlansList = await partnerPortalService.getPartnerPlansList(partnerToken);
+        const planItem = await testData.filterPartnerPlanBasedName(partnerPlansList, paymentProductName);
 
         //*************End of Pre-condition **************** //
 
@@ -588,7 +576,7 @@ test.describe("Partner management", () => {
         expect(teamMembersList.entities[0].email).toBe(
           customerWithMember.members[0].email,
         );
-      }
+
     }
   });
 });

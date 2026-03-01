@@ -464,7 +464,7 @@ test.describe("MemberPortalService - signUpConsumer", () => {
     );
 
     const urlRegex = new RegExp(`.*member-virgilhr-qa.bigin.top/home$`);
-    expect(planPage.page.url()).toMatch(urlRegex);
+    expect(planPage.currentPage.url()).toMatch(urlRegex);
   });
 
   test("TC015_API_Verify GET Plan/me returns 200-OK and correct paid plan details", async ({

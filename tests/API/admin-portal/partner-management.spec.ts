@@ -2,7 +2,7 @@ import { test, expect } from "src/fixtures";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { DataFactory } from "src/data-factory";
 import { TestDataProvider } from "src/test-data";
-import { DataGenerate } from "src/utilities";
+import { CollectionUtils } from "src/utilities";
 import { ProductInfo } from "src/objects/iproduct";
 import Comparison from "src/utilities/compare";
 import { plans } from "src/constant/static-data";
@@ -156,7 +156,7 @@ test.describe("Partner managerment", () => {
     );
 
     for (let i = 0; i < 2; i++) {
-      const seq = DataGenerate.getRandomInt(1, 9999);
+      const seq = CollectionUtils.randomInt(1, 9999);
 
       let domain;
 

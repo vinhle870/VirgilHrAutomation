@@ -2,7 +2,7 @@ import { test, expect } from "src/fixtures";
 import { DataFactory, CustomerBuilder } from "src/data-factory";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { plans, validCardInfo } from "src/constant/static-data";
-import { DataHandling } from "src/data-handling/data-handling";
+import { CollectionUtils } from "src/utilities";
 
 test.describe("Admin Portal - Customer Management", () => {
   test("TC017_API Verify that new customer can be Added under PartnerID return 201-Created and correct Response", async ({
@@ -77,11 +77,12 @@ test.describe("Admin Portal - Customer Management", () => {
     const productTypeFilters = await adminService.getProductTypeFilters();
 
     //Filter product type id by name
-    const filteredProductType =
-      await DataHandling.filterProductTypeFiltersByName(
-        productTypeFilters,
-        plans[1],
-      );
+    const matchedProduct = CollectionUtils.findByPropertyOrNull(
+      Array.isArray(productTypeFilters) ? productTypeFilters : [productTypeFilters],
+      "name" as any,
+      plans[1],
+    );
+    const filteredProductType = matchedProduct ? (matchedProduct as any).productType : undefined;
 
     // Generate consumer payload with discovered IDs (if any)
     const consumerData = await DataFactory.customerBuilder()
@@ -134,11 +135,12 @@ test.describe("Admin Portal - Customer Management", () => {
     const productTypeFilters = await adminService.getProductTypeFilters();
 
     //Filter product type id by name
-    const filteredProductType =
-      await DataHandling.filterProductTypeFiltersByName(
-        productTypeFilters,
-        plans[1],
-      );
+    const matchedProduct = CollectionUtils.findByPropertyOrNull(
+      Array.isArray(productTypeFilters) ? productTypeFilters : [productTypeFilters],
+      "name" as any,
+      plans[1],
+    );
+    const filteredProductType = matchedProduct ? (matchedProduct as any).productType : undefined;
 
     // Generate consumer payload with discovered IDs (if any)
     const consumerData = await DataFactory.customerBuilder()
@@ -190,11 +192,12 @@ test.describe("Admin Portal - Customer Management", () => {
 
     //Filter product type id by name
     const plan = plans[2];
-    const filteredProductType =
-      await DataHandling.filterProductTypeFiltersByName(
-        productTypeFilters,
-        plan,
-      );
+    const matchedPlan = CollectionUtils.findByPropertyOrNull(
+      Array.isArray(productTypeFilters) ? productTypeFilters : [productTypeFilters],
+      "name" as any,
+      plan,
+    );
+    const filteredProductType = matchedPlan ? (matchedPlan as any).productType : undefined;
 
     // Generate consumer payload with discovered IDs (if any)
     const consumerData = await DataFactory.customerBuilder()
@@ -308,11 +311,12 @@ test.describe("Admin Portal - Customer Management", () => {
 
     //Filter product type id by name
     const plan = plans[1];
-    const filteredProductType =
-      await DataHandling.filterProductTypeFiltersByName(
-        productTypeFilters,
-        plan,
-      );
+    const matchedPlan = CollectionUtils.findByPropertyOrNull(
+      Array.isArray(productTypeFilters) ? productTypeFilters : [productTypeFilters],
+      "name" as any,
+      plan,
+    );
+    const filteredProductType = matchedPlan ? (matchedPlan as any).productType : undefined;
 
     // Generate consumer payload with discovered IDs (if any)
     const consumerData = await DataFactory.customerBuilder()

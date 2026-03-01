@@ -6,13 +6,14 @@ import { PlatinumPlan } from "src/data-factory/platinum-data-generator";
 import { TestDataProvider } from "src/test-data";
 import { CustomerInfo } from "src/objects";
 import { plans } from "src/constant/static-data";
+import { DataGenerate } from "src/utilities";
 
 test.describe("Partner management", () => {
   test("TC56 Verify that the admin can invite members to a team in the Admin Portal - Customer Management.", async ({
     apiClient,
     authenticationService,
     adminPortalService,
-    yopmailPage,
+    accountActivation,
     memberPortalService,
   }, testInfo) => {
     testInfo.skip(
@@ -35,10 +36,10 @@ test.describe("Partner management", () => {
       process.env.DEPARTMENT_NAME,
     );
 
-    const customerDataName = "Individual 01";
-    const customerDataEmail = "Individual01@yopmail.com";
+    const customerDataName = await DataGenerate.generateCompanyName();
+    const customerDataEmail = await DataGenerate.generateEmail();
 
-    // Build consumer data
+    // Build consumer d ata
     const consumerData = await DataFactory.customerBuilder()
       .forAdminPortal()
       .withEmail(customerDataEmail)
@@ -60,29 +61,27 @@ test.describe("Partner management", () => {
         resp.email,
       );
 
-      await adminPortalService.UpgradePlatinum(plan);
+      const upgradePlanResp = await adminPortalService.UpgradePlatinum(plan);
 
       searchedCustomer = await adminPortalService.searchCustomerByEmail(
         consumerData.accountInfo.email,
       );
 
-      planName = plan.restriction.name;
     }
 
     const teamId = searchedCustomer?.entities?.[0]?.consumers?.teamIds?.[0];
 
-    let memberData: CustomerInfo[] = [];
     //  Invite employees
-    for (let i = 0; i < consumerData.members.length; i++) {
-      const member = await DataFactory.customerBuilder()
-        .forMemberPortal()
-        .withCompanyName(consumerData.company.companyName!)
-        .withDepartment(departmentID)
-        .withEmail(consumerData.members[i].email)
-        .build();
-
-      memberData.push(member);
-    }
+    const memberData: CustomerInfo[] = await Promise.all(
+      consumerData.members.map((m) =>
+        DataFactory.customerBuilder()
+          .forMemberPortal()
+          .withCompanyName(consumerData.company.companyName!)
+          .withDepartment(departmentID)
+          .withEmail(m.email)
+          .build(),
+      ),
+    );
 
     const inviteResponse = await adminPortalService.inviteTeamMember(
       teamId,
@@ -91,8 +90,9 @@ test.describe("Partner management", () => {
 
     expect(inviteResponse).toBe(true);
 
+    //Process Accept Invitation and get Payment Subscription via Yopmail
     for (let i = 0; i < memberData.length; i++) {
-      await yopmailPage.acceptInvitation(memberData[i].accountInfo.email);
+      await accountActivation.acceptInvitation(memberData[i].accountInfo.email);
 
       const invitedMember = await authenticationService.getAuthToken(
         memberData[i].accountInfo.email,
@@ -235,7 +235,7 @@ test.describe("Partner management", () => {
     authenticationService,
     adminPortalService,
     memberPortalService,
-    yopmailPage,
+    accountActivation,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
@@ -306,18 +306,6 @@ test.describe("Partner management", () => {
       "4",
     );
 
-    let memberData: CustomerInfo[] = [];
-    //  Invite employees
-    for (let i = 0; i < consumerData.members.length; i++) {
-      const member = await DataFactory.customerBuilder()
-        .forMemberPortal()
-        .withCompanyName(consumerData.company.companyName!)
-        .withDepartment(departmentID)
-        .withEmail(consumerData.members[i].email)
-        .build();
-
-      memberData.push(member);
-    }
 
     const inviteResponse =
       await memberPortalService.inviteTeamMemberFromAnOwnerCustomer(
@@ -327,11 +315,11 @@ test.describe("Partner management", () => {
 
     expect(inviteResponse).toBe(true);
 
-    for (let i = 0; i < memberData.length; i++) {
-      await yopmailPage.acceptInvitation(memberData[i].accountInfo.email);
+    for (let i = 0; i < consumerData.members.length; i++) {
+      await accountActivation.acceptInvitation(consumerData.members[i].email);
 
       const invitedMember = await authenticationService.getAuthToken(
-        memberData[i].accountInfo.email,
+        consumerData.members[i].email,
         tempPassword,
         "4",
       );
