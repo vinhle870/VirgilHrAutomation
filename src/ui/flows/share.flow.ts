@@ -2,7 +2,7 @@ import { Page } from "@playwright/test";
 import { YopMailPage } from "../pages/shared/yopmail.page";
 import { MemberOnboardingPage } from "../pages/member-portal/member-onboarding.page";
 
-export class AccountActivationFlow {
+export class ShareFlow {
   private readonly yopMailPage: YopMailPage;
   private readonly memberOnboarding: MemberOnboardingPage;
   private readonly page: Page;

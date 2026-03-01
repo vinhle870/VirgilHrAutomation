@@ -9,7 +9,7 @@ import {
   AdminPlanPage,
   YopMailPage,
 } from "../ui/pages";
-import { AccountActivationFlow } from "../ui/flows";
+import { ShareFlow } from "../ui/flows";
 import { Authentication } from "../api/services/authentication.service";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { MemberPortalService } from "src/api/services";
@@ -29,7 +29,7 @@ type MyFixtures = {
   partnerPortalService: PartnerPortalService;
   api_token: string;
   yopmailPage: YopMailPage;
-  accountActivation: AccountActivationFlow;
+  accountActivation: ShareFlow;
 };
 
 export const test = base.extend<MyFixtures>({
@@ -105,7 +105,7 @@ export const test = base.extend<MyFixtures>({
   },
 
   accountActivation: async ({ page }, use) => {
-    await use(new AccountActivationFlow(page));
+    await use(new ShareFlow(page));
   },
 });
 

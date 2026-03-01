@@ -1,1 +1,1 @@
-export * from "./account-activation.flow";
+export * from "./share.flow";
