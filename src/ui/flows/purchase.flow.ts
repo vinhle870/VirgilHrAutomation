@@ -19,6 +19,7 @@ export class PurchaseFlow {
     password: string,
     cardinfo: object,
   ) {
+
     await new BuyPlanPage(this.page).fillBuyPlanForm(
       url,
       email,

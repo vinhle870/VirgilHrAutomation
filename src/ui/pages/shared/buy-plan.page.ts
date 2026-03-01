@@ -25,6 +25,7 @@ export class BuyPlanPage extends BasePage {
   ): Promise<void> {
     const logger = (console.debug ?? console.log).bind(console);
     logger(`==================[Plan Purchase] url: ${url}, email: ${email}\n`);
+
     await this.page.waitForURL("**/register-success");
 
     const divFirstPlan = await this.getLocator(BuyPlanLocators.firstPlan);
