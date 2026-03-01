@@ -140,7 +140,7 @@ test.describe("Partner management", () => {
     authenticationService,
     adminPortalService,
     partnerPortalService,
-    accountActivation,
+    onboardingFlow,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
@@ -227,7 +227,7 @@ test.describe("Partner management", () => {
 
     const invitedEmail = customerWithMember.members[0].email;
 
-    //await accountActivation.acceptInvitation(invitedEmail);
+    //await onboardingFlow.acceptInvitation(invitedEmail);
     //API Step: Get partner payment products list
     const partnerPlansList =
       await partnerPortalService.getPartnerPlansList(partnerToken);

@@ -2,10 +2,10 @@ import { Page } from "@playwright/test";
 import { YopMailPage } from "../pages/shared/yopmail.page";
 import { MemberOnboardingPage } from "../pages/member-portal/member-onboarding.page";
 
-export class ShareFlow {
+export class OnboardingFlow {
+  private readonly page: Page;
   private readonly yopMailPage: YopMailPage;
   private readonly memberOnboarding: MemberOnboardingPage;
-  private readonly page: Page;
 
   constructor(page: Page) {
     this.page = page;
@@ -13,6 +13,10 @@ export class ShareFlow {
     this.memberOnboarding = new MemberOnboardingPage(page);
   }
 
+  /**
+   * Accepts an invitation for the user by retrieving the link from YopMail
+   * and completing the onboarding steps.
+   */
   async acceptInvitation(email: string, password = "Password@123") {
     const invitationUrl = await this.yopMailPage.getInvitationLink(email);
 

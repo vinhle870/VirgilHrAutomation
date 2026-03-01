@@ -13,7 +13,7 @@ test.describe("Partner management", () => {
     apiClient,
     authenticationService,
     adminPortalService,
-    accountActivation,
+    onboardingFlow,
     memberPortalService,
   }, testInfo) => {
     testInfo.skip(
@@ -92,7 +92,7 @@ test.describe("Partner management", () => {
 
     //Process Accept Invitation and get Payment Subscription via Yopmail
     for (let i = 0; i < memberData.length; i++) {
-      await accountActivation.acceptInvitation(memberData[i].accountInfo.email);
+      await onboardingFlow.acceptInvitation(memberData[i].accountInfo.email);
 
       const invitedMember = await authenticationService.getAuthToken(
         memberData[i].accountInfo.email,
@@ -235,7 +235,7 @@ test.describe("Partner management", () => {
     authenticationService,
     adminPortalService,
     memberPortalService,
-    accountActivation,
+    onboardingFlow,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
@@ -316,7 +316,7 @@ test.describe("Partner management", () => {
     expect(inviteResponse).toBe(true);
 
     for (let i = 0; i < consumerData.members.length; i++) {
-      await accountActivation.acceptInvitation(consumerData.members[i].email);
+      await onboardingFlow.acceptInvitation(consumerData.members[i].email);
 
       const invitedMember = await authenticationService.getAuthToken(
         consumerData.members[i].email,

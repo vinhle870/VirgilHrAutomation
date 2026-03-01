@@ -15,7 +15,7 @@ test.describe("Invite members to a team", () => {
     adminPortalService,
     memberPortalService,
     partnerPortalService,
-    accountActivation,
+    onboardingFlow,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
@@ -129,7 +129,7 @@ test.describe("Invite members to a team", () => {
     await memberPortalService.inviteMember(token, invitePayload);
     const invitedEmail = invitePayload.recipients[0].email;
 
-    await accountActivation.acceptInvitation(invitedEmail);
+    await onboardingFlow.acceptInvitation(invitedEmail);
 
     const invitedEmailToken = await authenticationService.getAuthToken(
       invitedEmail,
@@ -263,7 +263,7 @@ test.describe("Invite members to a team", () => {
     adminPortalService,
     partnerPortalService,
     memberPortalService,
-    accountActivation,
+    onboardingFlow,
   }, testInfo) => {
     // Skip if base url not configured
     testInfo.skip(
@@ -373,7 +373,7 @@ test.describe("Invite members to a team", () => {
 
     const adminEmail = adminPayload.recipients[0].email;
 
-    await accountActivation.acceptInvitation(adminEmail);
+    await onboardingFlow.acceptInvitation(adminEmail);
 
     const adminToken = await authenticationService.getAuthToken(
       adminEmail,
@@ -528,7 +528,7 @@ test.describe("Invite members to a team", () => {
 
     expect(inviteUserResponse).toBeDefined();
 
-    await accountActivation.acceptInvitation(userEmail);
+    await onboardingFlow.acceptInvitation(userEmail);
 
     const userToken = await authenticationService.getAuthToken(
       userEmail,

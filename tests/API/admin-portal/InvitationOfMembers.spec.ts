@@ -16,7 +16,7 @@ test.describe("Partner management", () => {
     authenticationService,
     adminPortalService,
     partnerPortalService,
-    accountActivation,
+    onboardingFlow,
     memberPortalService,
   }, testInfo) => {
     testInfo.skip(
@@ -114,7 +114,7 @@ test.describe("Partner management", () => {
 
     const invitedEmail = customerWithMember.members[0].email;
 
-    await accountActivation.acceptInvitation(invitedEmail);
+    await onboardingFlow.acceptInvitation(invitedEmail);
 
     const invitedMemberToken = await authenticationService.getAuthToken(
       invitedEmail,
@@ -248,7 +248,7 @@ test.describe("Partner management", () => {
     authenticationService,
     adminPortalService,
     partnerPortalService,
-    accountActivation,
+    onboardingFlow,
     memberPortalService,
   }, testInfo) => {
     testInfo.skip(
@@ -352,7 +352,7 @@ test.describe("Partner management", () => {
 
       const invitedEmail = customerWithMember.members[0].email;
 
-      await accountActivation.acceptInvitation(invitedEmail);
+      await onboardingFlow.acceptInvitation(invitedEmail);
 
       const invitedMember = await authenticationService.getAuthToken(
         invitedEmail,

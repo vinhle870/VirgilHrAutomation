@@ -1,4 +1,4 @@
-export class AdminPlanLocators {
+export class BuyPlanLocators {
   static readonly firstPlan =
     "//p[contains(text(),'Under 50 Employees')]/../../..";
   static readonly buyNow = "//span[text()='Buy Now']";
@@ -14,7 +14,5 @@ export class AdminPlanLocators {
   static readonly subscribe = "//*[text()='Subscribe']";
   static readonly readyDiveIn = "//*[text()='I\u2019m ready to dive in']";
 
-  static generatePlanSelector(planName: string): string {
-    return `//p[contains(text(),'${planName}')]/../../..`;
-  }
+
 }

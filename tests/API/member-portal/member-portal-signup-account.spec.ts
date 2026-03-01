@@ -3,6 +3,7 @@ import { DataFactory, CustomerBuilder } from "src/data-factory";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { validCardInfo } from "src/constant/static-data";
 import { TestDataProvider } from "src/test-data";
+import { ApiClient } from "src/utilities";
 
 test.describe("MemberPortalService - signUpConsumer", () => {
   test("TC001_API_Verify the API POST v1/Consumer/Consumers Without PartnerID returns 201-Created", async ({
@@ -11,8 +12,6 @@ test.describe("MemberPortalService - signUpConsumer", () => {
     authenticationService,
   }, testInfo) => {
     const base = process.env.API_BASE_URL;
-    const username = process.env.API_USERNAME;
-    const password = process.env.API_PASSWORD;
     testInfo.skip(!base, "API_BASE_URL is not configured");
 
     const adminService = await AdminPortalService.create(
@@ -47,15 +46,24 @@ test.describe("MemberPortalService - signUpConsumer", () => {
   test("TC007_API_Verify the API GET Payment/products returns 200-OK and the correct Plans list", async ({
     memberPortalService,
     authenticationService,
+    apiClient,
   }, testInfo) => {
     const base = process.env.API_BASE_URL;
     const username = process.env.API_USERNAME;
     const password = process.env.API_PASSWORD;
     testInfo.skip(!base, "API_BASE_URL is not configured");
 
+    const adminService = await AdminPortalService.create(
+      apiClient,
+      authenticationService,
+    );
+    const testData = new TestDataProvider(adminService);
+    const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
+
     // Generate consumer payload with discovered IDs (if any)
     const consumerData = await DataFactory.customerBuilder()
       .forMemberPortal()
+      .withDepartment(departmentID)
       .build();
     const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
@@ -105,15 +113,24 @@ test.describe("MemberPortalService - signUpConsumer", () => {
   test("TC008_API_GET_v1/Payment/checkout return 200-OK with correct URL", async ({
     memberPortalService,
     authenticationService,
+    apiClient,
   }, testInfo) => {
     const base = process.env.API_BASE_URL;
     const username = process.env.API_USERNAME;
     const password = process.env.API_PASSWORD;
     testInfo.skip(!base, "API_BASE_URL is not configured");
 
+    const adminService = await AdminPortalService.create(
+      apiClient,
+      authenticationService,
+    );
+    const testData = new TestDataProvider(adminService);
+    const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
+
     // Generate consumer payload with discovered IDs (if any)
     const consumerData = await DataFactory.customerBuilder()
       .forMemberPortal()
+      .withDepartment(departmentID)
       .build();
     const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
@@ -174,7 +191,8 @@ test.describe("MemberPortalService - signUpConsumer", () => {
   test("TC012_API_Verify GET Payment/Status returns 200-OK with correct status", async ({
     memberPortalService,
     authenticationService,
-    planPage,
+    purchaseFlow,
+    apiClient,
   }, testInfo) => {
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
     const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
@@ -182,9 +200,17 @@ test.describe("MemberPortalService - signUpConsumer", () => {
 
     testInfo.skip(!base, "API_BASE_URL is not configured");
 
+    const adminService = await AdminPortalService.create(
+      apiClient,
+      authenticationService,
+    );
+    const testData = new TestDataProvider(adminService);
+    const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
+
     // Generate consumer payload with discovered IDs (if any)
     const consumerData = await DataFactory.customerBuilder()
       .forMemberPortal()
+      .withDepartment(departmentID)
       .build();
     const customerAccountInfo = consumerData.accountInfo;
     const planName = consumerData.plan;
@@ -231,7 +257,7 @@ test.describe("MemberPortalService - signUpConsumer", () => {
     //****-------------Complete Payment to subscribe the plan-------------*****
     const planUrl = String((planResponse as any).returnUrl);
 
-    await planPage.buyPlan(
+    await purchaseFlow.buyPlan(
       planUrl,
       (customerAccountInfo as any).email,
       tempPassword,
@@ -366,16 +392,26 @@ test.describe("MemberPortalService - signUpConsumer", () => {
   test("TC014_UI_Verify that after a successful payment, the system automatically redirects the user to the Virgil homepage", async ({
     memberPortalService,
     authenticationService,
-    planPage,
+    purchaseFlow,
+    apiClient,
+    page,
   }, testInfo) => {
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
     const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
     const password = process.env.API_PASSWORD ?? process.env.ADMIN_PASSWORD;
     testInfo.skip(!base, "API_BASE_URL is not configured");
 
+    const adminService = await AdminPortalService.create(
+      apiClient,
+      authenticationService,
+    );
+    const testData = new TestDataProvider(adminService);
+    const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
+
     // Generate consumer payload with discovered IDs (if any)
     const consumerData = await DataFactory.customerBuilder()
       .forMemberPortal()
+      .withDepartment(departmentID)
       .build();
     const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
@@ -456,30 +492,39 @@ test.describe("MemberPortalService - signUpConsumer", () => {
     //****-------------Complete Payment to subscribe the plan-------------*****
     //const subDomainUrl = `https://${partnerInfo.subDomain}.member-virgilhr-${process.env.exec_env}.bigin.top`;
     const planUrl = String((planResponse as any).returnUrl);
-    await planPage.buyPlan(
+    await purchaseFlow.buyPlan(
       planUrl,
       (customerAccountInfo as any).email,
       tempPassword,
       validCardInfo,
     );
 
-    const urlRegex = new RegExp(`.*member-virgilhr-qa.bigin.top/home$`);
-    expect(planPage.currentPage.url()).toMatch(urlRegex);
+    const urlRegex = new RegExp(`.*/home$`);
+    expect(page.url()).toMatch(urlRegex);
   });
 
   test("TC015_API_Verify GET Plan/me returns 200-OK and correct paid plan details", async ({
     memberPortalService,
     authenticationService,
-    planPage,
+    purchaseFlow,
+    apiClient,
   }, testInfo) => {
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
     const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
     const password = process.env.API_PASSWORD ?? process.env.ADMIN_PASSWORD;
     testInfo.skip(!base, "API_BASE_URL is not configured");
 
+    const adminService = await AdminPortalService.create(
+      apiClient,
+      authenticationService,
+    );
+    const testData = new TestDataProvider(adminService);
+    const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
+
     // Generate consumer payload with discovered IDs (if any)
     const consumerData = await DataFactory.customerBuilder()
       .forMemberPortal()
+      .withDepartment(departmentID)
       .build();
     const customerAccountInfo = consumerData.accountInfo;
     //*****---------------------------------------------------*****
@@ -530,7 +575,7 @@ test.describe("MemberPortalService - signUpConsumer", () => {
 
     //****-------------Complete Payment to subscribe the plan-------------*****
     const planUrl = String((planResponse as any).returnUrl);
-    await planPage.buyPlan(
+    await purchaseFlow.buyPlan(
       planUrl,
       (customerAccountInfo as any).email,
       tempPassword,
@@ -574,7 +619,7 @@ test.describe("MemberPortalService - signUpConsumer", () => {
     apiClient,
     memberPortalService,
     authenticationService,
-    planPage,
+    purchaseFlow,
   }, testInfo) => {
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
     const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
@@ -683,7 +728,7 @@ test.describe("MemberPortalService - signUpConsumer", () => {
     //const subDomainUrl = `https://${partnerInfo.subDomain}.member-virgilhr-${process.env.exec_env}.bigin.top`;
     const planUrl = String((planResponse as any).returnUrl);
 
-    await planPage.buyPlan(
+    await purchaseFlow.buyPlan(
       planUrl,
       (customerAccountInfo as any).email,
       tempPassword,
