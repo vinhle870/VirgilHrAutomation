@@ -627,7 +627,7 @@ test.describe("Partner managerment", () => {
 
     const email = partnerInfo.accountInfo?.email!;
 
-    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+    const tempPassword = "Password@123";
 
     await authenticationService.resetPasswordWithoutToken(
       { username: email, password: tempPassword },

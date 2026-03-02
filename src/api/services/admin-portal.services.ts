@@ -456,9 +456,8 @@ export class AdminPortalService {
     email: string,
     token?: string,
   ): Promise<{ total: number; entities: Array<Record<string, any>> }> {
-    const query = `AccountStatus=&AccountType=&BillingCycle=&DepartmentId=&Length=12&OrderBy=updatedAt%20desc&PartnerId=&PartnerLevel=&PaymentStatus=&Search=${encodeURIComponent(email)}&SearchString=&Source=&Start=0&StripeProductId=&UserType=`;
     const path = GET_CUSTOMER.replace(/^\/+/, "");
-    const url = `${this.baseUrl}/${path}?${query}`;
+    const url = `${this.baseUrl}/${path}`;
 
     const headers = token
       ? { Authorization: `Bearer ${token}` }
@@ -471,7 +470,10 @@ export class AdminPortalService {
     const response = await this.apiClient.sendRequest<{
       total: number;
       entities: Array<Record<string, any>>;
-    }>("GET", url, undefined, 200, headers);
+    }>("GET", url, undefined, 200, headers, {
+      Search: encodeURIComponent(email),
+    });
+    console.log("Thay doi param thanh cong");
 
     return response; // Return the partner data
   }

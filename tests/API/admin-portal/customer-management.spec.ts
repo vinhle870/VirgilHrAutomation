@@ -66,7 +66,6 @@ test.describe("Partner management", () => {
       searchedCustomer = await adminPortalService.searchCustomerByEmail(
         consumerData.accountInfo.email,
       );
-
     }
 
     const teamId = searchedCustomer?.entities?.[0]?.consumers?.teamIds?.[0];
@@ -305,7 +304,6 @@ test.describe("Partner management", () => {
       tempPassword,
       "4",
     );
-
 
     const inviteResponse =
       await memberPortalService.inviteTeamMemberFromAnOwnerCustomer(
