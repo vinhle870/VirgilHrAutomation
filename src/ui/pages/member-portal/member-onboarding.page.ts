@@ -17,12 +17,16 @@ export class MemberOnboardingPage extends BasePage {
     const joinTeamBtn = await this.getLocator(
       MemberOnboardingLocators.joinTeam,
     );
+    await joinTeamBtn.scrollIntoViewIfNeeded();
     await joinTeamBtn.click();
 
-    // const closeBtn = await this.getLocator(
-    //   MemberOnboardingLocators.closeGuide,
-    // );
-    // await closeBtn.click();
+    if (process.env.ENV?.toLowerCase() === "prod") {
+      console.log("env:prod");
+      const closeBtn = await this.getLocator(
+        MemberOnboardingLocators.closeGuide,
+      );
+      await closeBtn.click();
+    }
 
     const diveInBtn = await this.getLocator(
       MemberOnboardingLocators.readyDiveIn,

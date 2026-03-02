@@ -39,7 +39,7 @@ test.describe("Partner management", () => {
     const customerDataName = await DataGenerate.generateCompanyName();
     const customerDataEmail = await DataGenerate.generateEmail();
 
-    // Build consumer d ata
+    // Build consumer data
     const consumerData = await DataFactory.customerBuilder()
       .forAdminPortal()
       .withEmail(customerDataEmail)
@@ -250,7 +250,7 @@ test.describe("Partner management", () => {
     );
     const tempPassword = "Password@123";
 
-    const testData = new TestDataProvider(adminService);
+    const testData = new TestDataProvider(adminPortalService);
 
     const departmentID = await testData.getDepartmentId(
       process.env.DEPARTMENT_NAME,
@@ -269,7 +269,7 @@ test.describe("Partner management", () => {
       .withMembers(1)
       .build();
 
-    let planName = plans[4];
+    let planName = process.env.PLAN_NAME_MORE_THAN_500;
     // Check if customer already exists
     let searchedCustomer =
       await adminPortalService.searchCustomerByEmail(customerDataEmail);

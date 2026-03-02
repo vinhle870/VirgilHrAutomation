@@ -11,6 +11,9 @@ import dotenv from "dotenv";
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 const env = process.env.ENV || "qa";
+
+process.env.ENV = env;
+
 dotenv.config({
   path: path.resolve(__dirname, "profile", `.env.${env.toLocaleLowerCase()}`),
 });

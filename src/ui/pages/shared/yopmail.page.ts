@@ -17,6 +17,7 @@ export class YopMailPage extends BasePage {
     await searchInput.fill(email);
 
     const searchButton = await this.getLocator(YopMailLocators.searchButton);
+    await searchButton.scrollIntoViewIfNeeded();
     await searchButton.click();
 
     await this.page.waitForURL(/.*wm.*/, { timeout });
@@ -29,6 +30,7 @@ export class YopMailPage extends BasePage {
     );
 
     const invitationUrl = await acceptButton.getAttribute("href");
+
     expect(invitationUrl).toContain("member");
 
     return invitationUrl!;
