@@ -1,6 +1,6 @@
 import { test, expect } from "src/fixtures";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
-import { DataFactory } from "src/data-factory";
+import { CustomerBuilder, DataFactory } from "src/data-factory";
 import { I500EmployeesPlan } from "src/objects/I500EmployeesPlan";
 import { PlatinumPlan } from "src/data-factory/platinum-data-generator";
 import { TestDataProvider } from "src/test-data";
@@ -61,7 +61,7 @@ test.describe("Partner management", () => {
         resp.email,
       );
 
-      const upgradePlanResp = await adminPortalService.UpgradePlatinum(plan);
+      await adminPortalService.UpgradePlatinum(plan);
 
       searchedCustomer = await adminPortalService.searchCustomerByEmail(
         consumerData.accountInfo.email,
@@ -250,15 +250,15 @@ test.describe("Partner management", () => {
     );
     const tempPassword = "Password@123";
 
-    const testData = new TestDataProvider(adminPortalService);
+    const testData = new TestDataProvider(adminService);
 
     const departmentID = await testData.getDepartmentId(
       process.env.DEPARTMENT_NAME,
     );
 
-    const customerDataName = "vinhle2262026";
-    const customerDataEmail = "vinhle2262026@yopmail.com";
-    //vinhlepartner225001@yopmail.com
+    const customerDataName = "vinhle32006";
+    const customerDataEmail = "vinhle32006@yopmail.com";
+
     let email = customerDataEmail;
     // Build consumer data
     const consumerData = await DataFactory.customerBuilder()

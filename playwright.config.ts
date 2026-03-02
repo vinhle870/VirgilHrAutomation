@@ -41,7 +41,7 @@ export default defineConfig({
     // baseURL: 'http://localhost:3000',
 
     /* Run browsers headed when HEADED=true */
-    headless: !headed,
+    headless: false,
 
     // Let the browser open a real window and use the system window size when headed
     viewport: null,

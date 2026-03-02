@@ -19,10 +19,10 @@ export class MemberOnboardingPage extends BasePage {
     );
     await joinTeamBtn.click();
 
-    const closeBtn = await this.getLocator(
-      MemberOnboardingLocators.closeGuide,
-    );
-    await closeBtn.click();
+    // const closeBtn = await this.getLocator(
+    //   MemberOnboardingLocators.closeGuide,
+    // );
+    // await closeBtn.click();
 
     const diveInBtn = await this.getLocator(
       MemberOnboardingLocators.readyDiveIn,

@@ -153,13 +153,15 @@ export class AdminPortalService {
   async createCustomer(customerInfo: CustomerInfo): Promise<any> {
     const path = CREATE_CUSTOMER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
+
     const requestBody = {
       ...customerInfo.accountInfo,
       ...customerInfo.company,
     };
-    const headers = this.authToken
-      ? { Authorization: `Bearer ${this.authToken}` }
-      : undefined;
+
+    const headers = {
+      Authorization: `Bearer ${this.authToken}`,
+    };
 
     const response = await this.apiClient.sendRequest<any>(
       "POST",
@@ -471,9 +473,8 @@ export class AdminPortalService {
       total: number;
       entities: Array<Record<string, any>>;
     }>("GET", url, undefined, 200, headers, {
-      Search: encodeURIComponent(email),
+      Search: email,
     });
-    console.log("Thay doi param thanh cong");
 
     return response; // Return the partner data
   }
