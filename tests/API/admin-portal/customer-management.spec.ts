@@ -269,7 +269,8 @@ test.describe("Partner management", () => {
       .withMembers(1)
       .build();
 
-    let planName = process.env.PLAN_NAME_MORE_THAN_500;
+    let planName = plans[4];
+
     // Check if customer already exists
     let searchedCustomer =
       await adminPortalService.searchCustomerByEmail(customerDataEmail);
