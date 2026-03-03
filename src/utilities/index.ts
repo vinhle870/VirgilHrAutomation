@@ -1,5 +1,6 @@
 export * from './api.client';
 export * from './api.types';
+export * from './collection-utils';
 export * from './constants';
 export * from './data-generate';
 export * from './json-handling';

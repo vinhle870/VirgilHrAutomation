@@ -1,65 +1,68 @@
 import { test as base } from "@playwright/test";
-import { ApiClient } from "../utilities/api.client";
-import { LoginPage } from "../ui/pages/login-page";
-import { HomePage } from "../ui/pages/home-page";
 import dotenv from "dotenv";
 dotenv.config();
-import { LeftMenu } from "../ui/pages/leftmenu";
+import { ApiClient } from "../utilities/api.client";
+import {
+  AdminHomePage,
+  AdminLeftMenu,
+} from "../ui/pages";
+import { AuthFlow, OnboardingFlow, PurchaseFlow } from "../ui/flows";
 import { Authentication } from "../api/services/authentication.service";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { MemberPortalService } from "src/api/services";
-import { PlanPage } from "src/ui/pages/plan-page";
 import { PartnerPortalService } from "src/api/services/partner-portal.services";
-import { YopMailPage } from "src/ui/pages/yopmail-page";
 
-// Declare the types of your fixtures.
 type MyFixtures = {
-  dealerAccount: object;
-  loginPage: LoginPage;
-  homePage: HomePage;
-  leftmenu: LeftMenu;
-  planPage: PlanPage;
+  adminLoggedIn: void;
+  homePage: AdminHomePage;
+  leftmenu: AdminLeftMenu;
+
+  authFlow: AuthFlow;
+  onboardingFlow: OnboardingFlow;
+  purchaseFlow: PurchaseFlow;
 
   apiClient: ApiClient;
   authenticationService: Authentication;
   adminPortalService: AdminPortalService;
   memberPortalService: MemberPortalService;
   partnerPortalService: PartnerPortalService;
-  api_token: string;
-  yopmailPage: YopMailPage;
 };
 
 export const test = base.extend<MyFixtures>({
-  loginPage: async ({ page }, use) => {
-    // Use the fixture value in the test.
+  authFlow: async ({ page }, use) => {
+    await use(new AuthFlow(page));
+  },
 
+  onboardingFlow: async ({ page }, use) => {
+    await use(new OnboardingFlow(page));
+  },
+
+  purchaseFlow: async ({ page }, use) => {
+    await use(new PurchaseFlow(page));
+  },
+
+  adminLoggedIn: async ({ authFlow }, use) => {
     const { BASE_URL, ADMIN_USERNAME, ADMIN_PASSWORD } = process.env;
 
     if (!BASE_URL || !ADMIN_USERNAME || !ADMIN_PASSWORD) {
       throw new Error("Missing environment variables");
     }
 
-    const loginPage = new LoginPage(page);
-
-    await loginPage.loginWithValidAccount(
+    await authFlow.loginWithValidAccount(
       BASE_URL,
       ADMIN_USERNAME,
       ADMIN_PASSWORD,
     );
 
-    await use(loginPage);
+    await use();
   },
 
   homePage: async ({ page }, use) => {
-    await use(new HomePage(page));
+    await use(new AdminHomePage(page));
   },
 
   leftmenu: async ({ page }, use) => {
-    await use(new LeftMenu(page));
-  },
-
-  planPage: async ({ page }, use) => {
-    await use(new PlanPage(page));
+    await use(new AdminLeftMenu(page));
   },
 
   apiClient: async ({}, use) => {
@@ -93,14 +96,10 @@ export const test = base.extend<MyFixtures>({
     const memberPortalService = new MemberPortalService(api);
     await use(memberPortalService);
   },
+
   partnerPortalService: async ({ apiClient: api }, use) => {
     const partnerPortalService = new PartnerPortalService(api);
     await use(partnerPortalService);
-  },
-
-  yopmailPage: async ({ page }, use) => {
-    const yopmailPage = new YopMailPage(page);
-    await use(yopmailPage);
   },
 });
 

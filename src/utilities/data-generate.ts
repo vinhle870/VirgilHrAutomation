@@ -1,27 +1,20 @@
 import { format } from "date-fns";
+import { CollectionUtils } from "./collection-utils";
+
+// Bypass ts-node transpiling dynamic import() to require() for ESM-only packages
+const loadFaker = new Function(
+  'return import("@faker-js/faker")',
+) as () => Promise<typeof import("@faker-js/faker")>;
 
 export class DataGenerate {
-  /**
-   * select Randomly item from given list
-   * @param array
-   * @returns string
-   */
+  /** @deprecated Use `CollectionUtils.pickOne()` instead */
   static selectRandomlyInList(array: any[]): string {
-    const length = array.length;
-    const index = this.getRandomInt(0, length - 1);
-    return array[index];
+    return CollectionUtils.pickOne(array);
   }
 
-  /**
-   * generate randomly the nunber in range
-   * @param min
-   * @param max
-   * @returns
-   */
+  /** @deprecated Use `CollectionUtils.randomInt()` instead */
   static getRandomInt(min: number, max: number): number {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+    return CollectionUtils.randomInt(min, max);
   }
 
   /**
@@ -49,37 +42,37 @@ export class DataGenerate {
    * @returns string
    */
   static async generateDate(dateformat: string): Promise<string> {
-    const { faker } = await import("@faker-js/faker");
+    const { faker } = await loadFaker();
     const futuredate = faker.date.future();
     return format(futuredate, dateformat);
   }
 
   static async generateFirstName(): Promise<string> {
-    const { faker } = await import("@faker-js/faker");
+    const { faker } = await loadFaker();
     return faker.person.firstName();
   }
 
   static async generateLastName(): Promise<string> {
-    const { faker } = await import("@faker-js/faker");
+    const { faker } = await loadFaker();
     return faker.person.lastName();
   }
 
   static async generateEmail(): Promise<string> {
-    const { faker } = await import("@faker-js/faker");
+    const { faker } = await loadFaker();
     return faker.internet.email();
   }
 
   static async generatePhoneNumber(): Promise<string> {
-    const { faker } = await import("@faker-js/faker");
+    const { faker } = await loadFaker();
     return faker.helpers.replaceSymbols("+1##########");
   }
   static async generateCompanyName(): Promise<string> {
-    const { faker } = await import("@faker-js/faker");
+    const { faker } = await loadFaker();
     return faker.company.name().replace(",", "and");
   }
 
   static async generatejobTitle(): Promise<string> {
-    const { faker } = await import("@faker-js/faker");
+    const { faker } = await loadFaker();
     return faker.person.jobTitle();
   }
 
@@ -98,12 +91,9 @@ export class DataGenerate {
 
     return randomValue;
   }
-  //select randomly Department
+  /** @deprecated Use `CollectionUtils.pickOne()` instead */
   public static generateDepartmentID(departmentIDS: string[]): string {
-    const randomValue =
-      departmentIDS[Math.floor(Math.random() * departmentIDS.length)];
-
-    return randomValue;
+    return CollectionUtils.pickOne(departmentIDS);
   }
 
   private static async generateYopMail(): Promise<{

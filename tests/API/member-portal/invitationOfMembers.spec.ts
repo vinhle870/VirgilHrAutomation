@@ -6,6 +6,7 @@ import { TestDataProvider } from "src/test-data";
 import { ProductInfo } from "src/objects/iproduct";
 import { plans } from "src/constant/static-data";
 import { Partner, UserInfo } from "src/objects";
+import delay from "src/utilities/delay";
 
 test.describe("Invite members to a team", () => {
   test("TC54 Verify that a user can invite members to a team in the Member Portal-Organization tab.", async ({
@@ -14,7 +15,7 @@ test.describe("Invite members to a team", () => {
     adminPortalService,
     memberPortalService,
     partnerPortalService,
-    yopmailPage,
+    onboardingFlow,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
@@ -81,6 +82,8 @@ test.describe("Invite members to a team", () => {
     //API Step: Create partner
     const partnerResponse = await adminService.createPartner(partnerInfo);
 
+    delay(20000);
+
     const tempPassword = "Password@123";
 
     const email = partnerInfo.accountInfo?.email!;
@@ -126,7 +129,7 @@ test.describe("Invite members to a team", () => {
     await memberPortalService.inviteMember(token, invitePayload);
     const invitedEmail = invitePayload.recipients[0].email;
 
-    await yopmailPage.acceptInvitation(invitedEmail);
+    await onboardingFlow.acceptInvitation(invitedEmail);
 
     const invitedEmailToken = await authenticationService.getAuthToken(
       invitedEmail,
@@ -260,7 +263,7 @@ test.describe("Invite members to a team", () => {
     adminPortalService,
     partnerPortalService,
     memberPortalService,
-    yopmailPage,
+    onboardingFlow,
   }, testInfo) => {
     // Skip if base url not configured
     testInfo.skip(
@@ -308,6 +311,8 @@ test.describe("Invite members to a team", () => {
 
     // Create partner (Owner)
     const owner = await adminService.createPartner(partnerInfo);
+
+    delay(20000);
 
     const email = partnerInfo.accountInfo?.email ?? "";
 
@@ -368,7 +373,7 @@ test.describe("Invite members to a team", () => {
 
     const adminEmail = adminPayload.recipients[0].email;
 
-    await yopmailPage.acceptInvitation(adminEmail);
+    await onboardingFlow.acceptInvitation(adminEmail);
 
     const adminToken = await authenticationService.getAuthToken(
       adminEmail,
@@ -523,7 +528,7 @@ test.describe("Invite members to a team", () => {
 
     expect(inviteUserResponse).toBeDefined();
 
-    await yopmailPage.acceptInvitation(userEmail);
+    await onboardingFlow.acceptInvitation(userEmail);
 
     const userToken = await authenticationService.getAuthToken(
       userEmail,

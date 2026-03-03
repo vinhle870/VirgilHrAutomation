@@ -16,7 +16,7 @@ test.describe("Partner management", () => {
     authenticationService,
     adminPortalService,
     partnerPortalService,
-    yopmailPage,
+    onboardingFlow,
     memberPortalService,
   }, testInfo) => {
     testInfo.skip(
@@ -61,6 +61,8 @@ test.describe("Partner management", () => {
       .build();
     // Create partner
     const partner = await adminService.createPartner(partnerInfo);
+
+    delay(60000);
 
     const email = partnerInfo.accountInfo?.email!;
     // Create invited member info
@@ -112,7 +114,7 @@ test.describe("Partner management", () => {
 
     const invitedEmail = customerWithMember.members[0].email;
 
-    await yopmailPage.acceptInvitation(invitedEmail);
+    await onboardingFlow.acceptInvitation(invitedEmail);
 
     const invitedMemberToken = await authenticationService.getAuthToken(
       invitedEmail,
@@ -246,7 +248,7 @@ test.describe("Partner management", () => {
     authenticationService,
     adminPortalService,
     partnerPortalService,
-    yopmailPage,
+    onboardingFlow,
     memberPortalService,
   }, testInfo) => {
     testInfo.skip(
@@ -264,7 +266,7 @@ test.describe("Partner management", () => {
 
     const tempPassword = "Password@123";
     const testData = new TestDataProvider(adminPortalService);
-    const paymentProductName: string = "Under 50 Employees";
+    const paymentProductName: string = plans[0];
 
     // Create department id
     const departmentID = await testData.getDepartmentId(
@@ -294,6 +296,8 @@ test.describe("Partner management", () => {
       .build();
 
     const partner = await adminService.createPartner(partnerInfo);
+
+    delay(20000);
 
     const email = partnerInfo.accountInfo?.email ?? "";
 
@@ -348,7 +352,7 @@ test.describe("Partner management", () => {
 
       const invitedEmail = customerWithMember.members[0].email;
 
-      await yopmailPage.acceptInvitation(invitedEmail);
+      await onboardingFlow.acceptInvitation(invitedEmail);
 
       const invitedMember = await authenticationService.getAuthToken(
         invitedEmail,

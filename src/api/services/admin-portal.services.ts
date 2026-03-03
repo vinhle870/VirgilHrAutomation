@@ -11,6 +11,7 @@ import {
   GET_DEPARTMENTS_LIST,
   GET_ALL_DEPARTMENTS_PLANS,
   CUSTOMER_INVITE_MEMBER,
+  UPGRADE_PLATINUM,
 } from "src/api/endpoints/admin-portal.endpoints";
 import { Authentication } from "src/api/services/authentication.service";
 import { CustomerInfo } from "src/objects/customer";
@@ -152,13 +153,15 @@ export class AdminPortalService {
   async createCustomer(customerInfo: CustomerInfo): Promise<any> {
     const path = CREATE_CUSTOMER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
+
     const requestBody = {
       ...customerInfo.accountInfo,
       ...customerInfo.company,
     };
-    const headers = this.authToken
-      ? { Authorization: `Bearer ${this.authToken}` }
-      : undefined;
+
+    const headers = {
+      Authorization: `Bearer ${this.authToken}`,
+    };
 
     const response = await this.apiClient.sendRequest<any>(
       "POST",
@@ -400,7 +403,7 @@ export class AdminPortalService {
   }
 
   async UpgradePlatinum(payload: I500EmployeesPlan) {
-    const url = "https://api.qa.virgilhr.com/v1/Manage/Payment/UpgradePlatinum";
+    const url = `${this.baseUrl}/${UPGRADE_PLATINUM}`;
 
     const headers: Record<string, string> = {
       authorization: `Bearer ${this.authToken}`,
@@ -455,9 +458,8 @@ export class AdminPortalService {
     email: string,
     token?: string,
   ): Promise<{ total: number; entities: Array<Record<string, any>> }> {
-    const query = `AccountStatus=&AccountType=&BillingCycle=&DepartmentId=&Length=12&OrderBy=updatedAt%20desc&PartnerId=&PartnerLevel=&PaymentStatus=&Search=${encodeURIComponent(email)}&SearchString=&Source=&Start=0&StripeProductId=&UserType=`;
     const path = GET_CUSTOMER.replace(/^\/+/, "");
-    const url = `${this.baseUrl}/${path}?${query}`;
+    const url = `${this.baseUrl}/${path}`;
 
     const headers = token
       ? { Authorization: `Bearer ${token}` }
@@ -470,7 +472,9 @@ export class AdminPortalService {
     const response = await this.apiClient.sendRequest<{
       total: number;
       entities: Array<Record<string, any>>;
-    }>("GET", url, undefined, 200, headers);
+    }>("GET", url, undefined, 200, headers, {
+      Search: email,
+    });
 
     return response; // Return the partner data
   }
