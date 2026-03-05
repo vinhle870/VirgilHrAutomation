@@ -1,15 +1,15 @@
 import { Page } from "@playwright/test";
-import { YopMailPage } from "../pages/shared/yopmail.page";
+import { TempEmailFreePage } from "../pages/shared/tempemailfree.page";
 import { MemberOnboardingPage } from "../pages/member-portal/member-onboarding.page";
 
 export class OnboardingFlow {
   private readonly page: Page;
-  private readonly yopMailPage: YopMailPage;
+  private readonly tempEmailFreePage: TempEmailFreePage;
   private readonly memberOnboarding: MemberOnboardingPage;
 
   constructor(page: Page) {
     this.page = page;
-    this.yopMailPage = new YopMailPage(page);
+    this.tempEmailFreePage = new TempEmailFreePage(page);
     this.memberOnboarding = new MemberOnboardingPage(page);
   }
 
@@ -18,9 +18,11 @@ export class OnboardingFlow {
    * and completing the onboarding steps.
    */
   async acceptInvitation(email: string, password = "Password@123") {
-    const invitationUrl = await this.yopMailPage.getInvitationLink(email);
+    await this.tempEmailFreePage.moveToRegisterPage(email);
 
-    await this.page.goto(invitationUrl);
+    const invitationUrl =
+      /https:\/\/member-[^\/]+\/auth\/register\?email=([^&]+)&teamid=([^&]+)&invitetoken=([^&]+)/;
+
     await this.page.waitForURL(invitationUrl, { timeout: 30000 });
 
     await this.memberOnboarding.setPasswordAndJoinTeam(password);
