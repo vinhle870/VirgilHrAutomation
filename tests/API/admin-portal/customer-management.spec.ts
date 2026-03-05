@@ -7,7 +7,6 @@ import { TestDataProvider } from "src/test-data";
 import { CustomerInfo } from "src/objects";
 import { plans } from "src/constant/static-data";
 import { DataGenerate } from "src/utilities";
-import getRole from "src/utilities/get-role";
 
 test.describe("Partner management", () => {
   test("TC56 Verify that the admin can invite members to a team in the Admin Portal - Customer Management.", async ({
@@ -552,14 +551,18 @@ test.describe("Partner management", () => {
     expect(inviteResponse).toBe(true);
 
     const customerInfo = await adminPortalService.getCustomer(consumerId);
-    const roles = getRole(customerInfo, consumerData.members);
 
     for (let i = 0; i < consumerData.members.length; i++) {
       const email = consumerData.members[i].email;
 
       await onboardingFlow.acceptInvitation(email);
 
-      expect(roles[i]).toBe(i + 1);
+      const member = await adminPortalService.getMemberInfo(
+        customerInfo,
+        email,
+      );
+
+      expect(member.role).toBe(i + 1);
     }
   });
 });

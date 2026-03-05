@@ -480,4 +480,10 @@ export class AdminPortalService {
 
     return response; // Return the partner data
   }
+
+  public getMemberInfo(customerInfo: any, email: string) {
+    for (const team of customerInfo.teams)
+      for (const member of team.members)
+        if (member.email === email) return member;
+  }
 }
