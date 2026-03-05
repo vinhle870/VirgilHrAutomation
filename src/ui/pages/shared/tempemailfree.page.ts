@@ -46,8 +46,10 @@ export class TempEmailFreePage extends BasePage {
 
     await newButtonElement.waitFor({ state: "visible" });
 
+    const email = username + (await firstDomain.textContent());
+
     const emailElement = await this.getLocator(
-      TempEmailFreeLocators.getEmail(username),
+      TempEmailFreeLocators.getEmail(email),
     );
 
     return (await emailElement.textContent())!;
