@@ -1,12 +1,13 @@
 import { test, expect } from "src/fixtures";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
-import { CustomerBuilder, DataFactory } from "src/data-factory";
+import { DataFactory } from "src/data-factory";
 import { I500EmployeesPlan } from "src/objects/I500EmployeesPlan";
 import { PlatinumPlan } from "src/data-factory/platinum-data-generator";
 import { TestDataProvider } from "src/test-data";
 import { CustomerInfo } from "src/objects";
 import { plans } from "src/constant/static-data";
 import { DataGenerate } from "src/utilities";
+import getRole from "src/utilities/get-role";
 
 test.describe("Partner management", () => {
   test("TC56 Verify that the admin can invite members to a team in the Admin Portal - Customer Management.", async ({
@@ -450,6 +451,115 @@ test.describe("Partner management", () => {
       expect((paymentSubscriptionResp as any).lms).toHaveProperty(
         "currentPlan",
       );
+    }
+  });
+
+  test("TC60 Verify that after confirming the password, the user is added as a team member with the role assigned during the invitation.", async ({
+    apiClient,
+    authenticationService,
+    adminPortalService,
+    memberPortalService,
+    onboardingFlow,
+  }, testInfo) => {
+    testInfo.skip(
+      !process.env.API_BASE_URL && !process.env.BASE_URL,
+      "API_BASE_URL is not configured",
+    );
+
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+    testInfo.skip(!base, "API_BASE_URL is not configured");
+
+    const adminService = await AdminPortalService.create(
+      apiClient,
+      authenticationService,
+    );
+    const tempPassword = "Password@123";
+
+    const testData = new TestDataProvider(adminPortalService);
+
+    const departmentID = await testData.getDepartmentId(
+      process.env.DEPARTMENT_NAME,
+    );
+
+    const customerDataName = "vinhle32006";
+    const customerDataEmail = "vinhle32006@yopmail.com";
+
+    let email = customerDataEmail;
+    // Build consumer data
+    const consumerData = await DataFactory.customerBuilder()
+      .forAdminPortal()
+      .withEmail(customerDataEmail)
+      .withCompanyName(customerDataName)
+      .withDepartment(departmentID)
+      .withMembers(3)
+      .build();
+
+    let planName = plans[4];
+
+    // Check if customer already exists
+    let searchedCustomer =
+      await adminPortalService.searchCustomerByEmail(customerDataEmail);
+
+    if (searchedCustomer.entities.length === 0) {
+      const resp = await adminService.createCustomer(consumerData);
+      const plan: I500EmployeesPlan = PlatinumPlan.generatePlatinumPlan(
+        resp.id,
+        resp.email,
+      );
+
+      email = resp.email;
+
+      await adminPortalService.UpgradePlatinum(plan);
+
+      await authenticationService.resetPasswordWithoutToken(
+        { username: email, password: tempPassword },
+        undefined,
+        "4",
+      );
+
+      await authenticationService.confirmEmailWithoutToken(
+        email,
+        undefined,
+        "4",
+      );
+
+      planName = plan.restriction.name;
+
+      searchedCustomer =
+        await adminPortalService.searchCustomerByEmail(customerDataEmail);
+    }
+
+    const consumerId = searchedCustomer.entities[0].consumerObjectId;
+
+    const memberToken = await authenticationService.getAuthToken(
+      email,
+      tempPassword,
+      "4",
+    );
+
+    for (let i = 0; i < consumerData.members.length; i++) {
+      if (i === 0) consumerData.members[i].role = 1;
+      else if (i === 1) consumerData.members[i].role = 2;
+      else consumerData.members[i].role = 3;
+    }
+
+    const inviteResponse =
+      await memberPortalService.inviteTeamMemberFromAnOwnerCustomer(
+        memberToken,
+        consumerData.members,
+      );
+
+    expect(inviteResponse).toBe(true);
+
+    const customerInfo = await adminPortalService.getCustomer(consumerId);
+    const roles = getRole(customerInfo, consumerData.members);
+
+    for (let i = 0; i < consumerData.members.length; i++) {
+      const email = consumerData.members[i].email;
+
+      await onboardingFlow.acceptInvitation(email);
+
+      expect(roles[i]).toBe(i + 1);
     }
   });
 });
