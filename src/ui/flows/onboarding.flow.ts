@@ -17,8 +17,8 @@ export class OnboardingFlow {
    * Accepts an invitation for the user by retrieving the link from YopMail
    * and completing the onboarding steps.
    */
-  async acceptInvitation(email: string, password = "Password@123") {
-    await this.tempEmailFreePage.moveToRegisterPage(email);
+  async acceptInvitation(password = "Password@123") {
+    await this.tempEmailFreePage.moveToRegisterPage();
 
     const invitationUrl =
       /https:\/\/member-[^\/]+\/auth\/register\?email=([^&]+)&teamid=([^&]+)&invitetoken=([^&]+)/;

@@ -91,7 +91,7 @@ test.describe("Partner management", () => {
 
     //Process Accept Invitation and get Payment Subscription via Yopmail
     for (let i = 0; i < memberData.length; i++) {
-      await onboardingFlow.acceptInvitation(memberData[i].accountInfo.email);
+      await onboardingFlow.acceptInvitation();
 
       const invitedMember = await authenticationService.getAuthToken(
         memberData[i].accountInfo.email,

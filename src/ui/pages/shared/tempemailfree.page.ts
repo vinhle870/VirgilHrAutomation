@@ -46,33 +46,15 @@ export class TempEmailFreePage extends BasePage {
 
     await newButtonElement.waitFor({ state: "visible" });
 
-    const email = username + (await firstDomain.textContent());
-
-    const emailElement = await this.getLocator(
-      TempEmailFreeLocators.getEmail(email),
-    );
-
-    return (await emailElement.textContent())!;
+    return username + "@" + (await firstDomain.textContent());
   }
 
-  async moveToRegisterPage(email: string): Promise<void> {
+  async moveToRegisterPage(): Promise<void> {
     const url = "https://tempemailfree.com/";
     const timeout = 30000;
 
     await this.page.goto(url);
     await this.page.waitForURL(url, { timeout });
-
-    const emailModalElement = await this.getLocator(
-      TempEmailFreeLocators.emailModal,
-    );
-    //Click to show all existing emails
-    await emailModalElement.click();
-    //Choose an email to get inviting link
-    const choosenEmail = await this.getLocator(
-      TempEmailFreeLocators.choosenEmail(email),
-    );
-
-    await choosenEmail.click();
 
     const joinTeamModalElement = await this.getLocator(
       TempEmailFreeLocators.joinTeamModal,
