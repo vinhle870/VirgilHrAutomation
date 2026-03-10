@@ -7,5 +7,10 @@ export class TempEmailFreeLocators {
   static readonly createEmailButton = "(//input[@value='Create'])[2]";
 
   public static readonly joinTeamModal =
-    "xpath=//div[text()='HR Compliance: Join your team']";
+    "xpath=(//div[contains(text(),'HR Compliance: Join your team')])[1]";
+
+  public static readonly iframeToAcceptIvite = "xpath=//iframe";
+
+  public static readonly acceptInviteButton =
+    "xpath=//a[contains(text(),'Accept Invite')]";
 }

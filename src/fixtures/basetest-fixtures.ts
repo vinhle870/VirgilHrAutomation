@@ -2,15 +2,13 @@ import { test as base } from "@playwright/test";
 import dotenv from "dotenv";
 dotenv.config();
 import { ApiClient } from "../utilities/api.client";
-import {
-  AdminHomePage,
-  AdminLeftMenu,
-} from "../ui/pages";
+import { AdminHomePage, AdminLeftMenu } from "../ui/pages";
 import { AuthFlow, OnboardingFlow, PurchaseFlow } from "../ui/flows";
 import { Authentication } from "../api/services/authentication.service";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { MemberPortalService } from "src/api/services";
 import { PartnerPortalService } from "src/api/services/partner-portal.services";
+import { TempEmailFreePage } from "../ui/pages";
 
 type MyFixtures = {
   adminLoggedIn: void;
@@ -26,6 +24,8 @@ type MyFixtures = {
   adminPortalService: AdminPortalService;
   memberPortalService: MemberPortalService;
   partnerPortalService: PartnerPortalService;
+
+  tempEmailFreePage: TempEmailFreePage;
 };
 
 export const test = base.extend<MyFixtures>({
@@ -100,6 +100,12 @@ export const test = base.extend<MyFixtures>({
   partnerPortalService: async ({ apiClient: api }, use) => {
     const partnerPortalService = new PartnerPortalService(api);
     await use(partnerPortalService);
+  },
+
+  tempEmailFreePage: async ({ page }, use) => {
+    const tempEmailFreePage = new TempEmailFreePage(page);
+
+    await use(tempEmailFreePage);
   },
 });
 

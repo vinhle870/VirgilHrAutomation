@@ -15,6 +15,7 @@ test.describe("Partner management", () => {
     adminPortalService,
     onboardingFlow,
     memberPortalService,
+    tempEmailFreePage,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
@@ -45,7 +46,7 @@ test.describe("Partner management", () => {
       .withEmail(customerDataEmail)
       .withCompanyName(customerDataName)
       .withDepartment(departmentID)
-      .withMembers(1)
+      .withMembers(2)
       .build();
 
     // Check if customer already exists
@@ -89,9 +90,13 @@ test.describe("Partner management", () => {
 
     expect(inviteResponse).toBe(true);
 
-    //Process Accept Invitation and get Payment Subscription via Yopmail
+    //Process Accept Invitation and get Payment Subscription via tempemailfree
     for (let i = 0; i < memberData.length; i++) {
-      await onboardingFlow.acceptInvitation();
+      const email = consumerData.members[i].email;
+
+      const username = email.split("@")[0];
+
+      await onboardingFlow.acceptInvitation(tempEmailFreePage, username);
 
       const invitedMember = await authenticationService.getAuthToken(
         memberData[i].accountInfo.email,
@@ -235,6 +240,7 @@ test.describe("Partner management", () => {
     adminPortalService,
     memberPortalService,
     onboardingFlow,
+    tempEmailFreePage,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
@@ -315,7 +321,11 @@ test.describe("Partner management", () => {
     expect(inviteResponse).toBe(true);
 
     for (let i = 0; i < consumerData.members.length; i++) {
-      await onboardingFlow.acceptInvitation(consumerData.members[i].email);
+      const email = consumerData.members[i].email;
+
+      const username = email.split("@")[0];
+
+      await onboardingFlow.acceptInvitation(tempEmailFreePage, username);
 
       const invitedMember = await authenticationService.getAuthToken(
         consumerData.members[i].email,
@@ -459,6 +469,7 @@ test.describe("Partner management", () => {
     adminPortalService,
     memberPortalService,
     onboardingFlow,
+    tempEmailFreePage,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
@@ -480,8 +491,8 @@ test.describe("Partner management", () => {
       process.env.DEPARTMENT_NAME,
     );
 
-    const customerDataName = "vinhle32006";
-    const customerDataEmail = "vinhle32006@yopmail.com";
+    const customerDataName = "testingvinhlevinhle32006";
+    const customerDataEmail = "testingvinhle32006@polandcampus.edu.pl";
 
     let email = customerDataEmail;
     // Build consumer data
@@ -555,7 +566,9 @@ test.describe("Partner management", () => {
     for (let i = 0; i < consumerData.members.length; i++) {
       const email = consumerData.members[i].email;
 
-      await onboardingFlow.acceptInvitation(email);
+      const username = email.split("@")[0];
+
+      await onboardingFlow.acceptInvitation(tempEmailFreePage, username);
 
       const member = await adminPortalService.getMemberInfo(
         customerInfo,

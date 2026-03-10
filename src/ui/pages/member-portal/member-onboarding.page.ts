@@ -7,6 +7,7 @@ export class MemberOnboardingPage extends BasePage {
     const continueBtn = await this.getLocator(
       MemberOnboardingLocators.continueWithEmail,
     );
+
     await continueBtn.click();
 
     const passwordInput = await this.getLocator(

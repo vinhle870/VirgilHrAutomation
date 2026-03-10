@@ -2,7 +2,7 @@ import { BasePage } from "../base-page";
 import { TempEmailFreeLocators } from "./locators";
 
 export class TempEmailFreePage extends BasePage {
-  async createEmail(username: string): Promise<string> {
+  async acceptJoinTeam(username: string): Promise<void> {
     const logger = (console.debug ?? console.log).bind(console);
     logger(`==================[Yopmail Invitation] email: ${username}\n`);
 
@@ -46,20 +46,19 @@ export class TempEmailFreePage extends BasePage {
 
     await newButtonElement.waitFor({ state: "visible" });
 
-    return username + "@" + (await firstDomain.textContent());
-  }
-
-  async moveToRegisterPage(): Promise<void> {
-    const url = "https://tempemailfree.com/";
-    const timeout = 30000;
-
-    await this.page.goto(url);
-    await this.page.waitForURL(url, { timeout });
-
     const joinTeamModalElement = await this.getLocator(
       TempEmailFreeLocators.joinTeamModal,
     );
 
     await joinTeamModalElement.click();
+
+    const acceptInviteButtonElement = await this.getLocatorInIframe(
+      TempEmailFreeLocators.iframeToAcceptIvite,
+      TempEmailFreeLocators.acceptInviteButton,
+    );
+
+    await acceptInviteButtonElement.scrollIntoViewIfNeeded();
+
+    await acceptInviteButtonElement.click();
   }
 }

@@ -10,7 +10,7 @@ import dotenv from "dotenv";
 // import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-const env = process.env.ENV || "prod";
+const env = process.env.ENV || "qa";
 
 process.env.ENV = env;
 
@@ -44,7 +44,7 @@ export default defineConfig({
     // baseURL: 'http://localhost:3000',
 
     /* Run browsers headed when HEADED=true */
-    headless: !headed,
+    headless: false,
 
     // Let the browser open a real window and use the system window size when headed
     viewport: null,
