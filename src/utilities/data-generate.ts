@@ -59,7 +59,8 @@ export class DataGenerate {
 
   static async generateEmail(): Promise<string> {
     const { faker } = await loadFaker();
-    return faker.internet.email();
+    const email = faker.internet.email();
+    return `Vinh_${email}`;
   }
 
   static async generatePhoneNumber(): Promise<string> {
@@ -94,18 +95,6 @@ export class DataGenerate {
   /** @deprecated Use `CollectionUtils.pickOne()` instead */
   public static generateDepartmentID(departmentIDS: string[]): string {
     return CollectionUtils.pickOne(departmentIDS);
-  }
-
-  private static async generateYopMail(): Promise<{
-    firstName: string;
-    email: string;
-  }> {
-    const seq = DataGenerate.getRandomInt(1, 9999);
-    const firstName = await DataGenerate.generateFirstName();
-    const localPrefix = `${firstName}${seq}`;
-    const email = `${localPrefix}@yopmail.com`;
-
-    return { firstName, email };
   }
 
   /**

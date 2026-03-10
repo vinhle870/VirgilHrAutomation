@@ -302,24 +302,6 @@ export class AdminPortalService {
       ? { Authorization: `Bearer ${this.authToken}` }
       : undefined;
 
-    const params = {
-      AccountStatus: "",
-      AccountType: "",
-      BillingCycle: "",
-      DepartmentId: "",
-      Length: 12,
-      OrderBy: "updatedAt desc",
-      PartnerId: "",
-      PartnerLevel: "",
-      PaymentStatus: "",
-      Search: email,
-      SearchString: "",
-      Source: "",
-      Start: 0,
-      StripeProductId: "",
-      UserType: "",
-    };
-
     const response = await this.apiClient.sendRequest<any>(
       "GET",
       url,
@@ -497,5 +479,11 @@ export class AdminPortalService {
     }>("GET", url, undefined, 200, headers);
 
     return response; // Return the partner data
+  }
+
+  public getMemberInfo(customerInfo: any, email: string) {
+    for (const team of customerInfo.teams)
+      for (const member of team.members)
+        if (member.email === email) return member;
   }
 }

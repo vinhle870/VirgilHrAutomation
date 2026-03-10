@@ -1,13 +1,9 @@
 import { test, expect } from "src/fixtures";
-import {
-  AdminPortalService,
-  InviteMemberWithId,
-} from "src/api/services/admin-portal.services";
+import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { CustomerBuilder, DataFactory } from "src/data-factory";
 import { TestDataProvider } from "src/test-data";
 import { ProductInfo } from "src/objects/iproduct";
 import { plans } from "src/constant/static-data";
-import { UserInfo } from "src/objects";
 import delay from "src/utilities/delay";
 
 test.describe("Partner management", () => {
