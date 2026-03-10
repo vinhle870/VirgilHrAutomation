@@ -46,7 +46,7 @@ test.describe("Partner management", () => {
       .withEmail(customerDataEmail)
       .withCompanyName(customerDataName)
       .withDepartment(departmentID)
-      .withMembers(2)
+      .withMembers(1)
       .build();
 
     // Check if customer already exists
@@ -501,7 +501,7 @@ test.describe("Partner management", () => {
       .withEmail(customerDataEmail)
       .withCompanyName(customerDataName)
       .withDepartment(departmentID)
-      .withMembers(3)
+      .withMembers(1)
       .build();
 
     let planName = plans[4];

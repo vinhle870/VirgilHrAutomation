@@ -46,11 +46,25 @@ export class TempEmailFreePage extends BasePage {
 
     await newButtonElement.waitFor({ state: "visible" });
 
-    const joinTeamModalElement = await this.getLocator(
-      TempEmailFreeLocators.joinTeamModal,
-    );
+    let joinTeamModalElement;
+    try {
+      joinTeamModalElement = await this.getLocator(
+        TempEmailFreeLocators.joinTeamModal,
+      );
+      await joinTeamModalElement.click();
+    } catch (e) {
+      const refreshButtonElement = await this.getLocator(
+        TempEmailFreeLocators.refreshButton,
+      );
+      console.log("Error in tempemailfree:", e);
 
-    await joinTeamModalElement.click();
+      await refreshButtonElement.click();
+
+      joinTeamModalElement = await this.getLocator(
+        TempEmailFreeLocators.joinTeamModal,
+      );
+      await joinTeamModalElement.click();
+    }
 
     const acceptInviteButtonElement = await this.getLocatorInIframe(
       TempEmailFreeLocators.iframeToAcceptIvite,

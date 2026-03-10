@@ -13,4 +13,6 @@ export class TempEmailFreeLocators {
 
   public static readonly acceptInviteButton =
     "xpath=//a[contains(text(),'Accept Invite')]";
+
+  public static readonly refreshButton = "(//div[text()='Refresh'])[2]";
 }
