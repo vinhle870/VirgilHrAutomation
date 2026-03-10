@@ -347,7 +347,7 @@ test.describe("Partner management", () => {
 
     delay(30000);
 
-    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+    const tempPassword = "Password@123";
 
     const email = partnerInfo.accountInfo?.email!;
 
