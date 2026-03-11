@@ -48,7 +48,7 @@ test.describe("Partner management", () => {
       await testData.getProductTypesBasedDepartmentId(departmentID);
     // Create partner info
     const partnerInfo = await DataFactory.partnerBuilder()
-      .withIsPublic(true)
+      .withIsPublic(false)
       .withWhoPay(0)
       .withBankTransfer(true)
       .withFilterProductTypes(productTypesAndNamesToSend)
@@ -283,7 +283,7 @@ test.describe("Partner management", () => {
 
     // Create partner info
     const partnerInfo = await DataFactory.partnerBuilder()
-      .withIsPublic(true)
+      .withIsPublic(false)
       .withWhoPay(0)
       .withBankTransfer(true)
       .withDepartment(departmentID)

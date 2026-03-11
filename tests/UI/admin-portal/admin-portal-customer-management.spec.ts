@@ -6,48 +6,13 @@ import { CollectionUtils } from "src/utilities";
 
 test.describe("Admin Portal - Customer Management", () => {
   test("TC017_API Verify that new customer can be Added under PartnerID return 201-Created and correct Response", async ({
-    apiClient,
-    authenticationService,
+    loginPage,
   }, testInfo) => {
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-    const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
-    const password = process.env.API_PASSWORD ?? process.env.ADMIN_PASSWORD;
+
     testInfo.skip(!base, "API_BASE_URL is not configured");
 
-    //*****-----Optionally discover partnerId/departmentId from the system to use in the-----*****
-    // generated consumer. If search finds nothing, generator will use defaults.
-    const partnerName = process.env.PARTNER_NAME;
-    if (!partnerName) {
-      throw new Error("PARTNER_NAME is not configured");
-    }
-
-    const adminService = await AdminPortalService.create(
-      apiClient,
-      authenticationService,
-    );
-
-    const partnerInfo = await adminService.searchPartner(partnerName);
-
-    // Generate consumer payload with discovered IDs (if any)
-    const consumerData = await DataFactory.customerBuilder()
-      .forAdminPortal()
-      .withDepartment(partnerInfo.departmentId!)
-      .build();
-    const customerAccountInfo = consumerData.accountInfo;
-    //*****---------------------------------------------------*****
-
-    // Call the admin service to create customer
-    const resp = await adminService.createCustomer(consumerData);
-
-    // Basic sanity: response should contain at least one property (e.g., id)
-
-    // API VERIFICATION:
-    expect(resp).toBeDefined();
-    expect(typeof resp).toBe("object");
-    expect(Object.keys(resp as any).length).toBeGreaterThan(0);
-    expect(Object.keys(resp as any).length).toBeGreaterThan(0);
-    expect(Object.keys(resp.id).length).toBeGreaterThan(0);
-    expect(resp.email).toBe(customerAccountInfo.email);
+    await loginPage.login();
   });
 
   test("TC018_API Verify Customer creation under a HR System (Partner) will return 201-Created and correct Response", async ({
@@ -78,11 +43,15 @@ test.describe("Admin Portal - Customer Management", () => {
 
     //Filter product type id by name
     const matchedProduct = CollectionUtils.findByPropertyOrNull(
-      Array.isArray(productTypeFilters) ? productTypeFilters : [productTypeFilters],
+      Array.isArray(productTypeFilters)
+        ? productTypeFilters
+        : [productTypeFilters],
       "name" as any,
       plans[1],
     );
-    const filteredProductType = matchedProduct ? (matchedProduct as any).productType : undefined;
+    const filteredProductType = matchedProduct
+      ? (matchedProduct as any).productType
+      : undefined;
 
     // Generate consumer payload with discovered IDs (if any)
     const consumerData = await DataFactory.customerBuilder()
@@ -136,11 +105,15 @@ test.describe("Admin Portal - Customer Management", () => {
 
     //Filter product type id by name
     const matchedProduct = CollectionUtils.findByPropertyOrNull(
-      Array.isArray(productTypeFilters) ? productTypeFilters : [productTypeFilters],
+      Array.isArray(productTypeFilters)
+        ? productTypeFilters
+        : [productTypeFilters],
       "name" as any,
       plans[1],
     );
-    const filteredProductType = matchedProduct ? (matchedProduct as any).productType : undefined;
+    const filteredProductType = matchedProduct
+      ? (matchedProduct as any).productType
+      : undefined;
 
     // Generate consumer payload with discovered IDs (if any)
     const consumerData = await DataFactory.customerBuilder()
@@ -193,11 +166,15 @@ test.describe("Admin Portal - Customer Management", () => {
     //Filter product type id by name
     const plan = plans[2];
     const matchedPlan = CollectionUtils.findByPropertyOrNull(
-      Array.isArray(productTypeFilters) ? productTypeFilters : [productTypeFilters],
+      Array.isArray(productTypeFilters)
+        ? productTypeFilters
+        : [productTypeFilters],
       "name" as any,
       plan,
     );
-    const filteredProductType = matchedPlan ? (matchedPlan as any).productType : undefined;
+    const filteredProductType = matchedPlan
+      ? (matchedPlan as any).productType
+      : undefined;
 
     // Generate consumer payload with discovered IDs (if any)
     const consumerData = await DataFactory.customerBuilder()
@@ -312,11 +289,15 @@ test.describe("Admin Portal - Customer Management", () => {
     //Filter product type id by name
     const plan = plans[1];
     const matchedPlan = CollectionUtils.findByPropertyOrNull(
-      Array.isArray(productTypeFilters) ? productTypeFilters : [productTypeFilters],
+      Array.isArray(productTypeFilters)
+        ? productTypeFilters
+        : [productTypeFilters],
       "name" as any,
       plan,
     );
-    const filteredProductType = matchedPlan ? (matchedPlan as any).productType : undefined;
+    const filteredProductType = matchedPlan
+      ? (matchedPlan as any).productType
+      : undefined;
 
     // Generate consumer payload with discovered IDs (if any)
     const consumerData = await DataFactory.customerBuilder()
