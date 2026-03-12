@@ -4,7 +4,6 @@ import { CommonLocator } from "../../locators/common.locator";
 import { UserInfo } from "src/objects";
 import { CommonPartnerLocator } from "../../locators/management-category/partner-management/common-partner-management-locator";
 import { CreateNewPartnerModalLocator } from "../../locators/management-category/partner-management/new-partner-locator";
-import delay from "src/utilities/delay";
 
 export class PartnerManagementPage extends BasePage {
   constructor(page: Page) {

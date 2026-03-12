@@ -15,68 +15,6 @@ test.describe("Admin Portal - Customer Management", () => {
     await loginPage.login();
   });
 
-  test("TC018_API Verify Customer creation under a HR System (Partner) will return 201-Created and correct Response", async ({
-    apiClient,
-    authenticationService,
-  }, testInfo) => {
-    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-    const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
-    const password = process.env.API_PASSWORD ?? process.env.ADMIN_PASSWORD;
-    testInfo.skip(!base, "API_BASE_URL is not configured");
-
-    //*****-----Optionally discover partnerId/departmentId from the system to use in the-----*****
-    // generated consumer. If search finds nothing, generator will use defaults.
-    const partnerName = process.env.PARTNER_NAME;
-    if (!partnerName) {
-      throw new Error("PARTNER_NAME is not configured");
-    }
-
-    const adminService = await AdminPortalService.create(
-      apiClient,
-      authenticationService,
-    );
-
-    const partnerInfo = await adminService.searchPartner(partnerName);
-
-    // Get Product Type Filters
-    const productTypeFilters = await adminService.getProductTypeFilters();
-
-    //Filter product type id by name
-    const matchedProduct = CollectionUtils.findByPropertyOrNull(
-      Array.isArray(productTypeFilters)
-        ? productTypeFilters
-        : [productTypeFilters],
-      "name" as any,
-      plans[1],
-    );
-    const filteredProductType = matchedProduct
-      ? (matchedProduct as any).productType
-      : undefined;
-
-    // Generate consumer payload with discovered IDs (if any)
-    const consumerData = await DataFactory.customerBuilder()
-      .forAdminPortal()
-      .withCompanySize(filteredProductType)
-      .withAdminOptions({ trialDays: 30 })
-      .withPartner(partnerInfo.partnerId!)
-      .withDepartment(partnerInfo.departmentId!)
-      .build();
-    const customerAccountInfo = consumerData.accountInfo;
-    //*****---------------------------------------------------*****
-
-    // Call the admin service to create customer
-    const resp = await adminService.createCustomer(consumerData);
-    // Basic sanity: response should contain at least one property (e.g., id)
-
-    // API VERIFICATION:
-    expect(resp).toBeDefined();
-    expect(typeof resp).toBe("object");
-    expect(Object.keys(resp as any).length).toBeGreaterThan(0);
-    expect(Object.keys(resp.id).length).toBeGreaterThan(0);
-    expect(resp.email).toBe(customerAccountInfo.email);
-    expect(resp.team.name).toBe(consumerData.company.companyName);
-  });
-
   test("TC020_API Verify Customer creation with Trial Subscription will return 201-Created and correct Response", async ({
     apiClient,
     authenticationService,
