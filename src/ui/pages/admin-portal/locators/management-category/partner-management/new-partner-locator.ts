@@ -54,28 +54,4 @@ export class CreateNewPartnerModalLocator {
 
   public static readonly createPartnerButton =
     "xpath=//button[contains(text(),'Create')]";
-
-  public static getDepartmentNameLocator(departmentName: string): string {
-    return `xpath=(//span[normalize-space(.)='${departmentName}'])[2]`;
-  }
-
-  public static getPartnerLevelLocator(partnerLevel: string): string {
-    return `xpath=(//span[text()='${partnerLevel}'])[2]`;
-  }
-
-  public static getPaymentOptionLocator(paymentOption: string): string {
-    return `xpath=(//span[text()='${paymentOption}'])[2]`;
-  }
-
-  public static getPlanLocator(plan: string): string {
-    return `xpath=(//span[text()='${plan}'])[2]`;
-  }
-
-  public static getProductTypeLocator(plan: string): string {
-    return `xpath=(//span[text()='${plan}'])[2]`;
-  }
-
-  public static getBillingCyleLocator(billingCyleLocator: string): string {
-    return `xpath=//span[contains( text(),'${billingCyleLocator}')]`;
-  }
 }

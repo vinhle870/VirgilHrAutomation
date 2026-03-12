@@ -38,17 +38,13 @@ export class PartnerManagementPage extends BasePage {
 
       await departmentInputElement.click();
 
-      const departmentName =
-        CreateNewPartnerModalLocator.getDepartmentNameLocator(
+      try {
+        this.selectDropdownOptionByText(
+          CreateNewPartnerModalLocator.department,
           overrides?.department,
         );
-
-      try {
-        const departmentNameElement = await this.getLocator(departmentName);
-
-        await departmentNameElement.click();
       } catch (e) {
-        throw new Error("department name does not exist");
+        throw new Error("Department name does not exist");
       }
     }
 
@@ -59,13 +55,11 @@ export class PartnerManagementPage extends BasePage {
 
       await levelInputElement.click();
 
-      const partnerLevelLocator =
-        CreateNewPartnerModalLocator.getPartnerLevelLocator(overrides?.level);
-
       try {
-        const partnerLevelElement = await this.getLocator(partnerLevelLocator);
-
-        await partnerLevelElement.click();
+        this.selectDropdownOptionByText(
+          CreateNewPartnerModalLocator.partnerLevel,
+          overrides?.level,
+        );
       } catch (error) {
         throw new Error("Partner level does not exist");
       }
@@ -122,16 +116,11 @@ export class PartnerManagementPage extends BasePage {
 
       await paymentOptionElement.click();
 
-      const choosenPaymentOption =
-        CreateNewPartnerModalLocator.getPaymentOptionLocator(
+      try {
+        await this.selectDropdownOptionByText(
+          CreateNewPartnerModalLocator.paymentOption,
           overrides?.paymentOption,
         );
-
-      try {
-        const choosenPaymentOptionElement =
-          await this.getLocator(choosenPaymentOption);
-
-        await choosenPaymentOptionElement.click();
       } catch (error) {
         throw new Error("Payment option does not exist");
       }
@@ -152,18 +141,11 @@ export class PartnerManagementPage extends BasePage {
 
       await productsTypeElement.click();
 
-      const choosenProductTypeLocator =
-        CreateNewPartnerModalLocator.getProductTypeLocator(
+      try {
+        await this.selectDropdownOptionByText(
+          CreateNewPartnerModalLocator.productsType,
           overrides?.productsType,
         );
-      try {
-        const choosenProductTypeElement = await this.getLocator(
-          choosenProductTypeLocator,
-        );
-
-        await choosenProductTypeElement.scrollIntoViewIfNeeded();
-
-        await choosenProductTypeElement.click();
       } catch (error) {
         throw new Error("Product type does not exist");
       }
@@ -184,20 +166,20 @@ export class PartnerManagementPage extends BasePage {
 
       await bankTranferElement.click();
 
-      const planLocator = CreateNewPartnerModalLocator.plan;
-
-      try {
-        if (overrides?.plan) {
-          const planElement = await this.getLocator(planLocator);
+      if (overrides?.plan) {
+        try {
+          const planElement = await this.getLocator(
+            CreateNewPartnerModalLocator.plan,
+          );
 
           await planElement.click();
 
-          const choosenPlanLocator =
-            CreateNewPartnerModalLocator.getPlanLocator(overrides?.plan);
-
-          const choosenPlanElement = await this.getLocator(choosenPlanLocator);
-
-          await choosenPlanElement.click();
+          await this.selectDropdownOptionByText(
+            CreateNewPartnerModalLocator.plan,
+            overrides?.plan,
+          );
+        } catch (error) {
+          throw new Error("Plan does not exist");
         }
 
         const numberOfLabelsInBillingCycle = await this.getLocator(
@@ -207,22 +189,15 @@ export class PartnerManagementPage extends BasePage {
         const numberOfLabel = await numberOfLabelsInBillingCycle.count();
 
         if (overrides?.billingcycle && numberOfLabel == 2) {
-          const billingCyleLocator =
-            CreateNewPartnerModalLocator.getBillingCyleLocator(
+          try {
+            await this.selectDropdownOptionByText(
+              CreateNewPartnerModalLocator.billingCycle,
               overrides?.billingcycle,
             );
-
-          try {
-            const billingCyleElement =
-              await this.getLocator(billingCyleLocator);
-
-            await billingCyleElement.click();
           } catch (error) {
             throw new Error("Billing cycle does not exist");
           }
         }
-      } catch (error) {
-        throw new Error("Plan does not exist");
       }
     }
 

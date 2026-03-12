@@ -1,7 +1,7 @@
 import { test, expect } from "src/fixtures";
-import { DataFactory, CustomerBuilder } from "src/data-factory";
+import { DataFactory } from "src/data-factory";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
-import { plans, validCardInfo } from "src/constant/static-data";
+import { plans } from "src/constant/static-data";
 import { CollectionUtils } from "src/utilities";
 import { UserInfo } from "src/objects";
 import { CustomerFactory } from "src/data-factory/customer-factory";
