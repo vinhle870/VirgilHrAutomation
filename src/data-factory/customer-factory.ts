@@ -102,6 +102,7 @@ export class CustomerFactory {
       lastName: person.lastName,
       jobTitle: person.jobTitle,
       phoneNumber: person.phoneNumber,
+      localPrefix: person.localPrefix,
     };
   }
 }

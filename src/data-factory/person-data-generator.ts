@@ -17,8 +17,7 @@ export class PersonDataGenerator {
 
     const firstName =
       overrides?.firstName ?? (await DataGenerate.generateFirstName());
-    const localPrefix =
-      overrides?.firstName ?? `VinhTesting_${firstName}${seq1}`;
+    const localPrefix = overrides?.firstName ?? `QATesting${firstName}${seq1}`;
     const email = overrides?.email ?? `${localPrefix}@polandcampus.edu.pl`;
     const password = overrides?.password ?? `Pass@${ts.slice(-8)}`;
     const lastName =
@@ -34,6 +33,7 @@ export class PersonDataGenerator {
       firstName,
       lastName,
       jobTitle,
+      localPrefix,
       phoneNumber,
       ...(overrides?.userType !== undefined && {
         userType: overrides.userType,

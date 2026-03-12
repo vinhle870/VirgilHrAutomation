@@ -3,16 +3,27 @@ import { DataFactory, CustomerBuilder } from "src/data-factory";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { plans, validCardInfo } from "src/constant/static-data";
 import { CollectionUtils } from "src/utilities";
+import { UserInfo } from "src/objects";
+import { CustomerFactory } from "src/data-factory/customer-factory";
 
 test.describe("Admin Portal - Customer Management", () => {
   test("TC017_API Verify that new customer can be Added under PartnerID return 201-Created and correct Response", async ({
     loginPage,
+    partnerManagementPage,
   }, testInfo) => {
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
     testInfo.skip(!base, "API_BASE_URL is not configured");
 
     await loginPage.login();
+
+    const userInfo: UserInfo = await CustomerFactory.generateMember();
+
+    const partnerName = await partnerManagementPage.createPartner(userInfo, {
+      department: process.env.DEPARTMENT_NAME,
+    });
+
+    await expect(partnerName).toBeVisible();
   });
 
   test("TC020_API Verify Customer creation with Trial Subscription will return 201-Created and correct Response", async ({

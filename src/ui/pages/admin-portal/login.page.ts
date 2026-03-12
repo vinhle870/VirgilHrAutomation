@@ -2,7 +2,7 @@ import { BasePage } from "../base-page";
 import { LoginLocator } from "./locators/login.locator";
 import { CommonLocator } from "./locators/common.locator";
 
-export class LoginPage extends BasePage {
+export class LoginAdminPage extends BasePage {
   async login(): Promise<void> {
     const url = process.env.ANOTHER_ADMIN_PORTAL_BASE_URL;
 
