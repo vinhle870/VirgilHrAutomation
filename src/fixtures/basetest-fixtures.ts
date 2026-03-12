@@ -10,6 +10,7 @@ import { MemberPortalService } from "src/api/services";
 import { PartnerPortalService } from "src/api/services/partner-portal.services";
 import { TempEmailFreePage } from "../ui/pages";
 
+import { PartnerIntegrationService } from "src/api/services/partner-integration.service";
 type MyFixtures = {
   adminLoggedIn: void;
   homePage: AdminHomePage;
@@ -26,6 +27,7 @@ type MyFixtures = {
   partnerPortalService: PartnerPortalService;
 
   tempEmailFreePage: TempEmailFreePage;
+  partnerIntegrationService: PartnerIntegrationService;
 };
 
 export const test = base.extend<MyFixtures>({
@@ -106,6 +108,10 @@ export const test = base.extend<MyFixtures>({
     const tempEmailFreePage = new TempEmailFreePage(page);
 
     await use(tempEmailFreePage);
+  },
+  partnerIntegrationService: async ({ apiClient: api }, use) => {
+    const partnerIntegrationService = new PartnerIntegrationService(api);
+    await use(partnerIntegrationService);
   },
 });
 

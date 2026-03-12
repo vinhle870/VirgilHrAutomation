@@ -10,9 +10,9 @@ import dotenv from "dotenv";
 // import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-const env = process.env.ENV || "qa";
+const env = process.env.ENV || "uat";
 
-process.env.ENV = env;
+//process.env.ENV = env;
 
 dotenv.config({
   path: path.resolve(__dirname, "profile", `.env.${env.toLocaleLowerCase()}`),
