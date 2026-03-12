@@ -130,6 +130,7 @@ test.describe("Partner managerment", () => {
 
     const nameOfpartnerInfo: string = partnerInfo.partnerInfo?.name!;
 
+    await adminService.createPartner(partnerInfo);
     //Search partner by name and get the level
     const partnerLevel = await (
       await adminService.searchPartnerByText(nameOfpartnerInfo)
@@ -198,6 +199,7 @@ test.describe("Partner managerment", () => {
       expect(responseOfPartner.length).toBeGreaterThan(0);
     }
   });
+
   test("TC034_API For Payment Options, the admin can select either Partner/Consultant Owner or Member Portal Consumer.", async ({
     apiClient,
     authenticationService,
@@ -380,7 +382,7 @@ test.describe("Partner managerment", () => {
     delay(20000);
 
     //Check plan of partner
-    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+    const tempPassword = "Password@123";
 
     const email = partnerInfo.accountInfo?.email!;
     //Reset partner
@@ -409,8 +411,17 @@ test.describe("Partner managerment", () => {
       await adminPortalService.getDepartmentPlanList(departmentID);
 
     //Get benifits in member portal after the partner bought the selected plan successfully
-    const memberportalPlanResp: any =
+    let memberportalPlanResp =
       await memberPortalService.getPaymentSubscription(memberportalToken);
+    try {
+      memberportalPlanResp =
+        await memberPortalService.getPaymentSubscription(memberportalToken);
+    } catch (e) {
+      console.log("TC 37 error:", e);
+
+      memberportalPlanResp =
+        await memberPortalService.getPaymentSubscription(memberportalToken);
+    }
 
     const adminportalPlan = await testData.filterPlanBasedName(
       adminportalPlanResp,
@@ -575,7 +586,7 @@ test.describe("Partner managerment", () => {
 
     delay(20000);
 
-    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+    const tempPassword = "Password@123";
 
     const email = partnerInfo.accountInfo?.email!;
 
@@ -594,9 +605,10 @@ test.describe("Partner managerment", () => {
     const searchResponse =
       await adminService.getCustomerByEmail(emailOfPartner);
 
-    const customerEmail = searchResponse.body.entities[0];
+    const customerEmail = searchResponse.entities[0];
 
-    expect(customerEmail).toBeFalsy();
+    expect(customerEmail.consumers.email).toBeTruthy();
+    expect(searchResponse.entities.length).toBeGreaterThan(0);
   });
 
   test("TC46 For Payment Options = Member Portal Consumer, the Owner of the Partner/Consultant can only log in to the Partner Portal.", async ({

@@ -324,9 +324,7 @@ export class CustomerBuilder {
         ssoProvider: this.memberOptions.ssoProvider ?? null,
         ssoToken: this.memberOptions.ssoToken ?? null,
       };
-    }
-
-    if (this.portal === "admin") {
+    } else if (this.portal === "admin") {
       return {
         ...baseCompany,
         useCredit: this.adminOptions.useCredit ?? false,

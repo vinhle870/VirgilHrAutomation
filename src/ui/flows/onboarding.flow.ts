@@ -1,15 +1,13 @@
 import { Page } from "@playwright/test";
-import { YopMailPage } from "../pages/shared/yopmail.page";
+import { TempEmailFreePage } from "../pages/shared/tempemailfree.page";
 import { MemberOnboardingPage } from "../pages/member-portal/member-onboarding.page";
 
 export class OnboardingFlow {
   private readonly page: Page;
-  private readonly yopMailPage: YopMailPage;
-  private readonly memberOnboarding: MemberOnboardingPage;
+  private memberOnboarding: MemberOnboardingPage;
 
   constructor(page: Page) {
     this.page = page;
-    this.yopMailPage = new YopMailPage(page);
     this.memberOnboarding = new MemberOnboardingPage(page);
   }
 
@@ -17,12 +15,22 @@ export class OnboardingFlow {
    * Accepts an invitation for the user by retrieving the link from YopMail
    * and completing the onboarding steps.
    */
-  async acceptInvitation(email: string, password = "Password@123") {
-    const invitationUrl = await this.yopMailPage.getInvitationLink(email);
+  async acceptInvitation(
+    tempEmailFreePage: TempEmailFreePage,
+    username: string,
+    password = "Password@123",
+  ) {
+    const [newPage] = await Promise.all([
+      this.page.waitForEvent("popup"),
+      tempEmailFreePage.acceptJoinTeam(username),
+    ]);
 
-    await this.page.goto(invitationUrl);
-    await this.page.waitForURL(invitationUrl, { timeout: 30000 });
+    await this.page.waitForLoadState("domcontentloaded");
+
+    this.memberOnboarding = new MemberOnboardingPage(newPage);
 
     await this.memberOnboarding.setPasswordAndJoinTeam(password);
+
+    await newPage.close();
   }
 }
