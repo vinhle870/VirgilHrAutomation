@@ -11,7 +11,7 @@ import { Authentication } from "../api/services/authentication.service";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { MemberPortalService } from "src/api/services";
 import { PartnerPortalService } from "src/api/services/partner-portal.services";
-
+import { PartnerIntegrationService } from "src/api/services/partner-integration.service";
 type MyFixtures = {
   adminLoggedIn: void;
   homePage: AdminHomePage;
@@ -26,6 +26,7 @@ type MyFixtures = {
   adminPortalService: AdminPortalService;
   memberPortalService: MemberPortalService;
   partnerPortalService: PartnerPortalService;
+  partnerIntegrationService: PartnerIntegrationService;
 };
 
 export const test = base.extend<MyFixtures>({
@@ -100,6 +101,10 @@ export const test = base.extend<MyFixtures>({
   partnerPortalService: async ({ apiClient: api }, use) => {
     const partnerPortalService = new PartnerPortalService(api);
     await use(partnerPortalService);
+  },
+  partnerIntegrationService: async ({ apiClient: api }, use) => {
+    const partnerIntegrationService = new PartnerIntegrationService(api);
+    await use(partnerIntegrationService);
   },
 });
 
