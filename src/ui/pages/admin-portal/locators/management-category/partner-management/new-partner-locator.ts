@@ -36,22 +36,20 @@ export class CreateNewPartnerModalLocator {
     "xpath=//span[text()='Contact Number']/parent::label/following-sibling::div/div/div[@class='pos-relative flex-grow-1']/input";
 
   public static readonly bankTranfer =
-    "xpath=//span[text()='Bank Transfer']/parent::label/following-sibling::div/input";
+    "xpath=//span[text()='Bank Transfer']/parent::label/following-sibling::div/input/following-sibling::span";
 
   public static readonly plan =
     "xpath=(//span[contains(text(),'Plan')])[2]/parent::label/following-sibling::div/div/div/input";
 
   public static readonly billingCycle =
-    "xpath=//span[normalize-space(.)='Billing Cycle']/parent::label/following-sibling::div";
-
-  public static readonly numberOfLabelsInBillingCycle = `xpath=count(${CreateNewPartnerModalLocator.billingCycle}/label)`;
-
-  public static readonly external =
-    "xpath=//span[text()='External ']/preceding-sibling::span/input";
+    "xpath=//span[normalize-space(.)='Billing Cycle']/parent::label/following-sibling::div/label/span[@class='b-radio__label']";
 
   public static readonly internal =
-    "xpath=//span[contains(text(),'Internal')]/preceding-sibling::span/input";
+    "xpath=//span[contains(text(),'Internal')]/preceding-sibling::span";
 
   public static readonly createPartnerButton =
     "xpath=//button[contains(text(),'Create')]";
+
+  public static readonly confirmButton =
+    "//button[text()=' Confirm & Create ']";
 }

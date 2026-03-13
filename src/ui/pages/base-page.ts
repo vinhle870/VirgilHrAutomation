@@ -64,4 +64,19 @@ export abstract class BasePage {
       timeout,
     );
   }
+
+  protected async selectRadio(
+    radioText: string,
+    radioSelector?: string,
+    timeout?: number,
+  ) {
+    console.log("Text base-page");
+
+    await LocatorHandling.selectRadio(
+      this.page,
+      radioText,
+      radioSelector,
+      timeout,
+    );
+  }
 }

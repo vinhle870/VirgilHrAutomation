@@ -97,13 +97,39 @@ export class LocatorHandling {
 
     const count = await options.count();
 
-    if (count == 0) throw new Error(`There is no ${optionText} existing`);
-
     const option = options.nth(count - 1);
 
     await expect(option).toBeVisible({ timeout: effectiveTimeout });
 
     await option.click({ force: true });
+  }
+
+  public static async selectRadio(
+    page: Page,
+    radioText: string,
+    radioSelector?: string,
+    timeout?: number,
+  ) {
+    const effectiveTimeout = LocatorHandling.getEffectiveTimeout(timeout);
+    await LocatorHandling.waitForNetworkSettled(page, effectiveTimeout);
+
+    const scope = radioSelector ? page.locator(radioSelector) : page;
+
+    const options = scope.getByText(radioText, { exact: true });
+
+    const count = await options.count();
+
+    for (let i = 0; i < count; i++) {
+      const option = options.nth(i);
+
+      const text = (await option.textContent())?.trim() ?? "";
+
+      if ((await option.isVisible()) && text === radioText) {
+        console.log("Match found:", text);
+        await option.click({ force: true });
+        break;
+      }
+    }
   }
 
   /**

@@ -4,6 +4,8 @@ import { CommonLocator } from "../../locators/common.locator";
 import { UserInfo } from "src/objects";
 import { CommonPartnerLocator } from "../../locators/management-category/partner-management/common-partner-management-locator";
 import { CreateNewPartnerModalLocator } from "../../locators/management-category/partner-management/new-partner-locator";
+import delay from "src/utilities/delay";
+import { de } from "@faker-js/faker/.";
 
 export class PartnerManagementPage extends BasePage {
   constructor(page: Page) {
@@ -31,6 +33,8 @@ export class PartnerManagementPage extends BasePage {
     );
     await createButtonElement.click();
 
+    await delay(5000);
+
     if (overrides?.department) {
       try {
         this.selectDropdownOptionByText(
@@ -42,13 +46,9 @@ export class PartnerManagementPage extends BasePage {
       }
     }
 
+    await delay(5000);
+
     if (overrides?.level) {
-      const levelInputElement = await this.getLocator(
-        CreateNewPartnerModalLocator.partnerLevel,
-      );
-
-      await levelInputElement.click();
-
       try {
         this.selectDropdownOptionByText(
           CreateNewPartnerModalLocator.partnerLevel,
@@ -108,8 +108,6 @@ export class PartnerManagementPage extends BasePage {
 
       await paymentOptionElement.scrollIntoViewIfNeeded();
 
-      await paymentOptionElement.click();
-
       try {
         await this.selectDropdownOptionByText(
           CreateNewPartnerModalLocator.paymentOption,
@@ -133,13 +131,12 @@ export class PartnerManagementPage extends BasePage {
       );
       await productsTypeElement.scrollIntoViewIfNeeded();
 
-      await productsTypeElement.click();
-
       try {
-        await this.selectDropdownOptionByText(
-          CreateNewPartnerModalLocator.productsType,
-          overrides?.productsType,
-        );
+        for (let i = 0; i < overrides?.productsType.length; ++i)
+          await this.selectDropdownOptionByText(
+            CreateNewPartnerModalLocator.productsType,
+            overrides?.productsType[i],
+          );
       } catch (error) {
         throw new Error("Product type does not exist");
       }
@@ -151,7 +148,7 @@ export class PartnerManagementPage extends BasePage {
 
     await emailElement.fill(userInfo.email);
 
-    if (overrides?.bankTranfer == true) {
+    if (overrides?.bankTranfer === true) {
       const bankTranferElement = await this.getLocator(
         CreateNewPartnerModalLocator.bankTranfer,
       );
@@ -160,14 +157,8 @@ export class PartnerManagementPage extends BasePage {
 
       await bankTranferElement.click();
 
-      if (overrides?.plan) {
+      if (overrides?.plan && !overrides?.productsType) {
         try {
-          const planElement = await this.getLocator(
-            CreateNewPartnerModalLocator.plan,
-          );
-
-          await planElement.click();
-
           await this.selectDropdownOptionByText(
             CreateNewPartnerModalLocator.plan,
             overrides?.plan,
@@ -175,33 +166,26 @@ export class PartnerManagementPage extends BasePage {
         } catch (error) {
           throw new Error("Plan does not exist");
         }
+      }
+      const numberOfLabelsInBillingCycle = await this.getLocator(
+        CreateNewPartnerModalLocator.billingCycle,
+      );
 
-        const numberOfLabelsInBillingCycle = await this.getLocator(
-          CreateNewPartnerModalLocator.contactNumber,
-        );
+      const numberOfLabel = await numberOfLabelsInBillingCycle.count();
 
-        const numberOfLabel = await numberOfLabelsInBillingCycle.count();
-
-        if (overrides?.billingcycle && numberOfLabel == 2) {
-          try {
-            await this.selectDropdownOptionByText(
-              CreateNewPartnerModalLocator.billingCycle,
-              overrides?.billingcycle,
-            );
-          } catch (error) {
-            throw new Error("Billing cycle does not exist");
-          }
+      if (overrides?.billingCycle && numberOfLabel == 2) {
+        try {
+          await this.selectRadio(
+            overrides?.billingCycle,
+            CreateNewPartnerModalLocator.billingCycle,
+          );
+        } catch (error) {
+          throw new Error("Billing cycle does not exist");
         }
       }
     }
 
-    if (overrides?.external) {
-      const externalElement = await this.getLocator(
-        CreateNewPartnerModalLocator.external,
-      );
-
-      await externalElement.click();
-    } else if (overrides?.internal) {
+    if (overrides?.internal) {
       const internalElement = await this.getLocator(
         CreateNewPartnerModalLocator.internal,
       );
@@ -215,6 +199,15 @@ export class PartnerManagementPage extends BasePage {
 
     await createNewPartnerButtonElement.click();
 
+    const confirmButtonLocator = CreateNewPartnerModalLocator.confirmButton;
+
+    try {
+      const confirmButtonElement = await this.getLocator(confirmButtonLocator);
+
+      await confirmButtonElement.click();
+    } catch (error) {
+      console.error("There is no confirm button");
+    }
     return nameElement;
   }
 }

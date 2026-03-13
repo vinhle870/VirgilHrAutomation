@@ -21,6 +21,12 @@ test.describe("Admin Portal - Customer Management", () => {
 
     const partnerName = await partnerManagementPage.createPartner(userInfo, {
       department: process.env.DEPARTMENT_NAME,
+      level: "Partner",
+      paymentOption: "Partner/Consultant Owner",
+      productsType: ["101 - 250 Employees"],
+      bankTranfer: true,
+      billingCycle: "Annual",
+      internal: "internal",
     });
 
     await expect(partnerName).toBeVisible();
