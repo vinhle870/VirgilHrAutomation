@@ -1,4 +1,4 @@
-import { Locator, Page } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 
 export class LocatorHandling {
   private static getEffectiveTimeout(timeout?: number): number {
@@ -12,7 +12,7 @@ export class LocatorHandling {
 
   private static async waitForNetworkSettled(
     page: Page,
-    timeout: number
+    timeout: number,
   ): Promise<void> {
     const networkWait = Math.min(3000, timeout);
     try {
@@ -35,7 +35,7 @@ export class LocatorHandling {
     page: Page,
     dropdownSelector: string,
     optionSelector: string,
-    timeout?: number
+    timeout?: number,
   ): Promise<void> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(page, effectiveTimeout);
@@ -69,7 +69,7 @@ export class LocatorHandling {
     dropdownSelector: string,
     optionText: string,
     optionListSelector?: string,
-    timeout?: number
+    timeout?: number,
   ): Promise<void> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(page, effectiveTimeout);
@@ -80,14 +80,30 @@ export class LocatorHandling {
       .waitFor({ state: "visible", timeout: effectiveTimeout });
     await dropdown.first().click();
 
-    const scope = optionListSelector
-      ? page.locator(optionListSelector)
-      : page;
-    const option = scope.getByText(optionText, { exact: true });
-    await option
-      .first()
-      .waitFor({ state: "visible", timeout: effectiveTimeout });
-    await option.first().click();
+    const modalWrapper = page.locator('[data-test-name="modal-wrapper"]');
+    if (await modalWrapper.isVisible()) {
+      const closeButton = modalWrapper.locator(".close-button");
+      if (await closeButton.isVisible()) {
+        await closeButton.click();
+        await expect(modalWrapper).toHaveCount(0, {
+          timeout: effectiveTimeout,
+        });
+      }
+    }
+
+    const scope = optionListSelector ? page.locator(optionListSelector) : page;
+
+    const options = scope.getByText(optionText, { exact: true });
+
+    const count = await options.count();
+
+    if (count == 0) throw new Error(`There is no ${optionText} existing`);
+
+    const option = options.nth(count - 1);
+
+    await expect(option).toBeVisible({ timeout: effectiveTimeout });
+
+    await option.click({ force: true });
   }
 
   /**
@@ -100,7 +116,7 @@ export class LocatorHandling {
   static async getLocator(
     page: Page,
     selector: string,
-    timeout?: number
+    timeout?: number,
   ): Promise<Locator> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(page, effectiveTimeout);
@@ -116,7 +132,7 @@ export class LocatorHandling {
     page: Page,
     iframeSelector: string,
     selector: string,
-    timeout?: number
+    timeout?: number,
   ): Promise<Locator> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(page, effectiveTimeout);

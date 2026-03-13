@@ -32,12 +32,6 @@ export class PartnerManagementPage extends BasePage {
     await createButtonElement.click();
 
     if (overrides?.department) {
-      const departmentInputElement = await this.getLocator(
-        CreateNewPartnerModalLocator.department,
-      );
-
-      await departmentInputElement.click();
-
       try {
         this.selectDropdownOptionByText(
           CreateNewPartnerModalLocator.department,
