@@ -13,6 +13,7 @@ import { LoginAdminPage } from "src/ui/pages/admin-portal/login.page";
 import { PartnerManagementPage } from "src/ui/pages/admin-portal/management-category/partner-management/partner-management";
 
 import { PartnerIntegrationService } from "src/api/services/partner-integration.service";
+import { CustomerManagementPage } from "src/ui/pages/admin-portal/management-category/customer-management/customer-management";
 type MyFixtures = {
   adminLoggedIn: void;
   homePage: AdminHomePage;
@@ -33,6 +34,7 @@ type MyFixtures = {
 
   loginPage: LoginAdminPage;
   partnerManagementPage: PartnerManagementPage;
+  customerManagementPage: CustomerManagementPage;
 };
 
 export const test = base.extend<MyFixtures>({
@@ -124,6 +126,9 @@ export const test = base.extend<MyFixtures>({
   },
   partnerManagementPage: async ({ page }, use) => {
     await use(new PartnerManagementPage(page));
+  },
+  customerManagementPage: async ({ page }, use) => {
+    await use(new CustomerManagementPage(page));
   },
 });
 

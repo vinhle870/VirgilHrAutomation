@@ -70,8 +70,6 @@ export abstract class BasePage {
     radioSelector?: string,
     timeout?: number,
   ) {
-    console.log("Text base-page");
-
     await LocatorHandling.selectRadio(
       this.page,
       radioText,

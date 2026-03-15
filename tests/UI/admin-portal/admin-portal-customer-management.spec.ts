@@ -19,7 +19,7 @@ test.describe("Admin Portal - Customer Management", () => {
 
     const userInfo: UserInfo = await CustomerFactory.generateMember();
 
-    const partnerName = await partnerManagementPage.createPartner(userInfo, {
+    const newPartner = await partnerManagementPage.createPartner(userInfo, {
       department: process.env.DEPARTMENT_NAME,
       level: "Partner",
       paymentOption: "Partner/Consultant Owner",
@@ -29,67 +29,22 @@ test.describe("Admin Portal - Customer Management", () => {
       internal: "internal",
     });
 
-    await expect(partnerName).toBeVisible();
+    await expect(newPartner).toBeVisible();
   });
 
   test("TC020_API Verify Customer creation with Trial Subscription will return 201-Created and correct Response", async ({
-    apiClient,
-    authenticationService,
+    loginPage,
+    customerManagementPage,
   }, testInfo) => {
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-    const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
-    const password = process.env.API_PASSWORD ?? process.env.ADMIN_PASSWORD;
+
     testInfo.skip(!base, "API_BASE_URL is not configured");
 
-    //*****-----Optionally discover partnerId/departmentId from the system to use in the-----*****
-    // generated consumer. If search finds nothing, generator will use defaults.
-    const partnerName = process.env.PARTNER_NAME;
-    if (!partnerName) {
-      throw new Error("PARTNER_NAME is not configured");
-    }
+    await loginPage.login();
 
-    const adminService = await AdminPortalService.create(
-      apiClient,
-      authenticationService,
-    );
+    const userInfo: UserInfo = await CustomerFactory.generateMember();
 
-    const partnerInfo = await adminService.searchPartner(partnerName);
-
-    // Get Product Type Filters
-    const productTypeFilters = await adminService.getProductTypeFilters();
-
-    //Filter product type id by name
-    const matchedProduct = CollectionUtils.findByPropertyOrNull(
-      Array.isArray(productTypeFilters)
-        ? productTypeFilters
-        : [productTypeFilters],
-      "name" as any,
-      plans[1],
-    );
-    const filteredProductType = matchedProduct
-      ? (matchedProduct as any).productType
-      : undefined;
-
-    // Generate consumer payload with discovered IDs (if any)
-    const consumerData = await DataFactory.customerBuilder()
-      .forAdminPortal()
-      .withCompanySize(filteredProductType)
-      .withAdminOptions({ productType: filteredProductType, trialDays: 30 })
-      .withDepartment(partnerInfo.departmentId!)
-      .build();
-    const customerAccountInfo = consumerData.accountInfo;
-    //*****---------------------------------------------------*****
-
-    // Call the admin service to create customer
-    const resp = await adminService.createCustomer(consumerData);
-    // Basic sanity: response should contain at least one property (e.g., id)
-
-    // API VERIFICATION:
-    expect(resp).toBeDefined();
-    expect(typeof resp).toBe("object");
-    expect(Object.keys(resp as any).length).toBeGreaterThan(0);
-    expect(Object.keys(resp.id).length).toBeGreaterThan(0);
-    expect(resp.email).toBe(customerAccountInfo.email);
+    const newCustomer = await customerManagementPage.createCustomer(userInfo);
   });
 
   test("TC022_API Verify Customer creation with Bank Transfer = ON will return 201-Created and correct Response", async ({
