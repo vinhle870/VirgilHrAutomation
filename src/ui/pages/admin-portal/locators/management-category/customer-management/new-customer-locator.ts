@@ -23,7 +23,7 @@ export class CreateNewCustomerModalLocator {
     "xpath=//span[text()='Company Size']/parent::label/following-sibling::div//input";
   public static readonly payYear =
     "xpath=//span[text()='Pay Yearly']/parent::label/following-sibling::div//span";
-  public static readonly state =
+  public static readonly statesOfcustomer =
     "xpath=//span[text()='State']/parent::label/following-sibling::div//input";
   public static readonly external =
     "xpath=//span[text()='User Type']/parent::label/following-sibling::div//span[contains(text(),'External')]";
@@ -37,7 +37,7 @@ export class CreateNewCustomerModalLocator {
     "xpath=//span[text()='Industry']/parent::label/following-sibling::div//input";
   public static readonly numberOfEmployee =
     "xpath=//span[text()='Total Number of Employees']/parent::label/following-sibling::div//input";
-  public static readonly states =
+  public static readonly statesOfCompany =
     "xpath=//span[text()='State(s)']/parent::label/following-sibling::div//input";
   public static readonly numberOfEmployeesPerState =
     "//p[text()='Alabama']/parent::div/following-sibling::div//input";

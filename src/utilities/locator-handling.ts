@@ -130,39 +130,6 @@ export class LocatorHandling {
       }
     }
   }
-  public static async fillInputByState(
-    page: Page,
-    stateText: string,
-    value: string,
-    stateSelector?: string,
-    timeout?: number,
-  ) {
-    const effectiveTimeout = LocatorHandling.getEffectiveTimeout(timeout);
-    await LocatorHandling.waitForNetworkSettled(page, effectiveTimeout);
-
-    const scope = stateSelector ? page.locator(stateSelector) : page;
-
-    const options = scope.getByText(stateText, { exact: true });
-
-    const count = await options.count();
-
-    for (let i = 0; i < count; i++) {
-      const option = options.nth(i);
-
-      const text = (await option.textContent())?.trim() ?? "";
-
-      if ((await option.isVisible()) && text === stateText) {
-        // Từ <p> đi lên cha <div>, rồi sang sibling để lấy input
-        const input = option.locator(
-          "xpath=parent::div/following-sibling::div//input",
-        );
-        await input.fill(value);
-        return;
-      }
-    }
-
-    throw new Error(`Input for state "${stateText}" not found`);
-  }
 
   /**
    * Find and return the UI Field's locator and wait until it's visible.

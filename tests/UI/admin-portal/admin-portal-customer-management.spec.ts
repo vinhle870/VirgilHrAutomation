@@ -44,7 +44,12 @@ test.describe("Admin Portal - Customer Management", () => {
 
     const userInfo: UserInfo = await CustomerFactory.generateMember();
 
-    const newCustomer = await customerManagementPage.createCustomer(userInfo);
+    const newCustomer = await customerManagementPage.createCustomer(userInfo, {
+      department: process.env.DEPARTMENT_NAME,
+      industries: ["Administrative and Support Services"],
+    });
+
+    expect(newCustomer).toBeVisible();
   });
 
   test("TC022_API Verify Customer creation with Bank Transfer = ON will return 201-Created and correct Response", async ({
