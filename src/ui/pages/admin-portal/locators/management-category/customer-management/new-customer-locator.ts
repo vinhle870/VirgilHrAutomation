@@ -23,7 +23,7 @@ export class CreateNewCustomerModalLocator {
     "xpath=//span[text()='Company Size']/parent::label/following-sibling::div//input";
   public static readonly payYear =
     "xpath=//span[text()='Pay Yearly']/parent::label/following-sibling::div//span";
-  public static readonly statesOfcustomer =
+  public static readonly statesOfCustomer =
     "xpath=//span[text()='State']/parent::label/following-sibling::div//input";
   public static readonly external =
     "xpath=//span[text()='User Type']/parent::label/following-sibling::div//span[contains(text(),'External')]";
@@ -40,7 +40,11 @@ export class CreateNewCustomerModalLocator {
   public static readonly statesOfCompany =
     "xpath=//span[text()='State(s)']/parent::label/following-sibling::div//input";
   public static readonly numberOfEmployeesPerState =
-    "//p[text()='Alabama']/parent::div/following-sibling::div//input";
+    "xpath=//p[text()='Alabama']/parent::div/following-sibling::div//input";
+  public static readonly separateEmployeeButton =
+    "xpath=//p[contains(text(),'+ Specify Number of Employees Per State')]";
   public static readonly createButton =
     "xpath=//h2[text()='New Customer']/parent::div/parent::div/following-sibling::div//button[contains(text(),'Create')]";
+  public static readonly confirmButton =
+    "xpath=//button[contains(text(),'Confirm & Create')]";
 }

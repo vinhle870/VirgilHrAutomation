@@ -68,8 +68,9 @@ export class LocatorHandling {
     page: Page,
     dropdownSelector: string,
     optionText: string,
+    isLastElement = true,
     optionListSelector?: string,
-    timeout?: number,
+    timeout = 3000,
   ): Promise<void> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(page, effectiveTimeout);
@@ -80,28 +81,29 @@ export class LocatorHandling {
       .waitFor({ state: "visible", timeout: effectiveTimeout });
     await dropdown.first().click();
 
-    const modalWrapper = page.locator('[data-test-name="modal-wrapper"]');
-    if (await modalWrapper.isVisible()) {
-      const closeButton = modalWrapper.locator(".close-button");
-      if (await closeButton.isVisible()) {
-        await closeButton.click();
-        await expect(modalWrapper).toHaveCount(0, {
-          timeout: effectiveTimeout,
-        });
-      }
-    }
-
     const scope = optionListSelector ? page.locator(optionListSelector) : page;
 
     const options = scope.getByText(optionText, { exact: true });
 
     const count = await options.count();
 
-    const option = options.nth(count - 1);
+    if (count === 0) {
+      throw new Error("the option does not exist");
+    }
 
-    await expect(option).toBeVisible({ timeout: effectiveTimeout });
+    let option = options.nth(count - 1);
+    if (await option.isVisible()) {
+      await option.click({ force: true });
+      return;
+    }
 
-    await option.click({ force: true });
+    for (let i = 0; i < count; i++) {
+      const option = options.nth(i);
+      if (await option.isVisible()) {
+        await option.click({ force: true });
+        return;
+      }
+    }
   }
 
   public static async selectRadio(

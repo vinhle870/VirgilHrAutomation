@@ -2,11 +2,9 @@ import { Locator, Page } from "@playwright/test";
 import { BasePage } from "src/ui/pages/base-page";
 import { CommonLocator } from "../../locators/common.locator";
 import { UserInfo } from "src/objects";
-import { CommonPartnerLocator } from "../../locators/management-category/partner-management/common-partner-management-locator";
 import { CommonCustomerLocator } from "../../locators/management-category/customer-management/common-member-management-locator";
 import delay from "src/utilities/delay";
 import { CreateNewCustomerModalLocator } from "../../locators/management-category/customer-management/new-customer-locator";
-import { LocatorHandling } from "src/utilities";
 import { CreateNewPartnerModalLocator } from "../../locators/management-category/partner-management/new-partner-locator";
 
 export class CustomerManagementPage extends BasePage {
@@ -84,86 +82,120 @@ export class CustomerManagementPage extends BasePage {
 
     await delay(5000);
 
-    if (overrides?.freeTrial) await this.selectRadio(overrides?.freeTrial);
-
-    if (overrides?.bankTranfer === true) {
-      (await this.getLocator(CreateNewPartnerModalLocator.bankTranfer)).click();
-
+    if (overrides?.stateOfCustomer) {
       try {
-        this.selectDropdownOptionByText(
-          CreateNewCustomerModalLocator.companySize,
-          overrides?.companySize,
+        await this.selectDropdownOptionByText(
+          CreateNewCustomerModalLocator.statesOfCustomer,
+          overrides?.stateOfCustomer,
         );
       } catch (e) {
-        throw new Error("Company size name does not exist");
+        throw new Error("The state does not exist");
       }
 
-      if (overrides?.payYear === false)
-        (await this.getLocator(CreateNewCustomerModalLocator.payYear)).click();
+      await delay(5000);
+    }
 
-      try {
-        for (let i = 0; i < overrides?.statesOfcustomer.length; i++)
-          this.selectDropdownOptionByText(
-            CreateNewCustomerModalLocator.statesOfcustomer,
-            overrides?.statesOfcustomer[i],
+    if (overrides?.freeTrial === true)
+      await this.selectRadio(overrides?.freeTrial);
+
+    if (overrides?.bankTranfer) {
+      await (
+        await this.getLocator(CreateNewPartnerModalLocator.bankTranfer)
+      ).click();
+
+      if (overrides?.bankTranfer?.companySize)
+        try {
+          await this.selectDropdownOptionByText(
+            CreateNewCustomerModalLocator.companySize,
+            overrides?.bankTranfer?.companySize,
           );
+        } catch (e) {
+          throw new Error("Company size is incorrect");
+        }
+
+      if (overrides?.bankTranfer?.payYear === false)
+        await (
+          await this.getLocator(CreateNewCustomerModalLocator.payYear)
+        ).click();
+    }
+
+    if (overrides?.internal === true)
+      (await this.getLocator(CreateNewCustomerModalLocator.internal)).click();
+
+    if (overrides?.consultant === true)
+      (await this.getLocator(CreateNewCustomerModalLocator.consultant)).click();
+
+    if (overrides?.industries) {
+      try {
+        for (let i = 0; i < overrides?.industries.length; i++) {
+          this.selectDropdownOptionByText(
+            CreateNewCustomerModalLocator.industry,
+            overrides?.industries[i],
+          );
+        }
+      } catch (e) {
+        throw new Error("Industry is incorrect");
+      }
+
+      await delay(3000);
+    }
+
+    if (overrides?.totalNumberOfEmployee) {
+      if (typeof overrides?.totalNumberOfEmployee !== "number")
+        throw new Error("totalNumberOfEmployee must be a digit");
+
+      const numberOfEmployeeEl = await this.getLocator(
+        CreateNewCustomerModalLocator.numberOfEmployee,
+      );
+
+      numberOfEmployeeEl.fill(overrides?.totalNumberOfEmployee.toString());
+
+      await delay(3000);
+    }
+
+    if (overrides?.statesOfCompany) {
+      try {
+        for (let i = 0; i < overrides?.statesOfCompany.length; i++)
+          if (overrides?.statesOfCompany[i]?.state)
+            this.selectDropdownOptionByText(
+              CreateNewCustomerModalLocator.statesOfCompany,
+              overrides?.statesOfCompany[i]?.state,
+            );
       } catch (e) {
         throw new Error("State does not exist");
       }
     }
 
-    if (overrides?.internal)
-      (await this.getLocator(CreateNewCustomerModalLocator.internal)).click();
-
-    if (overrides?.consultant)
-      (await this.getLocator(CreateNewCustomerModalLocator.consultant)).click();
-
-    try {
-      for (let i = 0; i < overrides?.industries.length; i++)
-        this.selectDropdownOptionByText(
-          CreateNewCustomerModalLocator.industry,
-          overrides?.industries[i],
-        );
-    } catch (e) {
-      throw new Error("Industry is incorrect");
-    }
-
-    try {
-      (
+    if (!overrides?.consultant && overrides?.statesOfCompany) {
+      await (
         await this.getLocator(
-          CreateNewCustomerModalLocator.numberOfEmployeesPerState,
+          CreateNewCustomerModalLocator.separateEmployeeButton,
         )
-      ).fill(overrides?.numberOfEmployeesPerState);
-    } catch (e) {
-      throw new Error(
-        "numberOfEmployeesPerState must be a digit or does not have any value",
-      );
-    }
+      ).click();
 
-    try {
-      for (let i = 0; i < overrides?.statesOfCompany.length; i++)
-        this.selectDropdownOptionByText(
-          CreateNewCustomerModalLocator.statesOfCompany,
-          overrides?.statesOfCompany[i],
-        );
-    } catch (e) {
-      throw new Error("State does not exist");
-    }
+      for (let i = 0; i < overrides?.statesOfCompany.length; i++) {
+        let numberOfPerState = 0;
 
-    if (!overrides?.consultant)
-      try {
-        for (let i = 0; i < overrides?.statesOfCompany.length; i++)
+        if (typeof overrides?.statesOfCompany[i]?.number !== "number")
+          throw new Error("number must be a digit");
+
+        if (overrides?.statesOfCompany[i]?.number)
+          numberOfPerState = overrides?.statesOfCompany[i]?.number;
+
+        if (overrides?.statesOfCompany[i]?.state)
           this.fillNumberOfEmployeesPerState(
-            overrides?.statesOfCompany[i],
-            overrides?.numberOfEmployeesOfOneState,
+            overrides?.statesOfCompany[i]?.state,
+            numberOfPerState,
           );
-      } catch (e) {
-        throw new Error(
-          "NumberOfEmployeesOfOneState must be a digit or does not have any value or greater than total number of employees",
-        );
       }
+    }
 
     (await this.getLocator(CreateNewCustomerModalLocator.createButton)).click();
+
+    if (overrides?.bankTranfer && overrides?.bankTranfer?.companySize)
+      await (
+        await this.getLocator(CreateNewCustomerModalLocator.confirmButton)
+      ).click();
 
     return firstNameElelemt;
   }
@@ -172,14 +204,12 @@ export class CustomerManagementPage extends BasePage {
     state: string,
     numberOfEmployeesPerState: number,
   ) {
-    const choosenState =
+    const originLocator =
       CreateNewCustomerModalLocator.numberOfEmployeesPerState;
 
-    choosenState.replace("Alabama", state);
+    const newLocator = originLocator.replace("Alabama", state);
 
-    const numberOfEmployee = await this.getLocator(
-      CreateNewCustomerModalLocator.numberOfEmployeesPerState,
-    );
+    const numberOfEmployee = await this.getLocator(newLocator);
 
     await numberOfEmployee.fill(numberOfEmployeesPerState.toString());
   }

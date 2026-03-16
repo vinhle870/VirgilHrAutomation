@@ -46,7 +46,16 @@ test.describe("Admin Portal - Customer Management", () => {
 
     const newCustomer = await customerManagementPage.createCustomer(userInfo, {
       department: process.env.DEPARTMENT_NAME,
+      stateOfCustomer: "Alabama",
       industries: ["Administrative and Support Services"],
+      totalNumberOfEmployee: 1,
+      bankTranfer: { companySize: "Under 50 Employees test", payYear: false },
+      statesOfCompany: [
+        {
+          state: "Alaska",
+          number: 1,
+        },
+      ],
     });
 
     expect(newCustomer).toBeVisible();
