@@ -2,10 +2,10 @@ import { Locator, Page } from "@playwright/test";
 import { BasePage } from "src/ui/pages/base-page";
 import { CommonLocator } from "../locators/common.locator";
 import { UserInfo } from "src/objects";
-import { CommonCustomerLocator } from "../locators/management-category/customer-management/commonlocator";
+import { CommonCustomerLocator } from "../locators/customer-management/commonlocator";
 import delay from "src/utilities/delay";
-import { CreateNewCustomerModalLocator } from "../locators/management-category/customer-management/new-customer-locator";
-import { CreateNewPartnerModalLocator } from "../locators/management-category/partner-management/new-partner-locator";
+import { CreateNewCustomerModalLocator } from "../locators/customer-management/new-customer-locator";
+import { CreateNewPartnerModalLocator } from "../locators/partner-management/new-partner";
 
 export class CustomerManagementPage extends BasePage {
   constructor(page: Page) {

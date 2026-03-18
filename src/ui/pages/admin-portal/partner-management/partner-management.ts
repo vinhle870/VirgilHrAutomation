@@ -1,10 +1,12 @@
 import { Locator, Page } from "@playwright/test";
 import { BasePage } from "src/ui/pages/base-page";
 import { CommonLocator } from "../locators/common.locator";
-import { CommonPartnerLocator } from "../locators/management-category/partner-management/common-locator";
-import { CreateNewPartnerModalLocator } from "../locators/management-category/partner-management/new-partner-locator";
-import { Partner } from "src/objects";
+import { CommonPartnerLocator } from "../locators/partner-management/common";
+import { CreateNewPartnerModalLocator } from "../locators/partner-management/new-partner";
+import { Partner, UserInfo } from "src/objects";
 import delay from "src/utilities/delay";
+import { TeamAddition } from "../locators/partner-management/team-addition";
+import { DetailOfPartnerLocator } from "../locators/partner-management/detail";
 
 export class PartnerManagementPage extends BasePage {
   constructor(page: Page) {
@@ -208,5 +210,93 @@ export class PartnerManagementPage extends BasePage {
     }
 
     return nameElement;
+  }
+
+  public async addMoreMembers(partner: Partner, invitedMembers: UserInfo[]) {
+    if (invitedMembers?.length === 0)
+      throw new Error("There is no any member to add");
+
+    const managementCategory = await this.getLocator(
+      CommonLocator.managementCategory,
+    );
+
+    await managementCategory.click();
+
+    const partnerManagementCategory = await this.getLocator(
+      CommonLocator.partnerManagement,
+    );
+
+    await partnerManagementCategory.click();
+
+    const partnerPhoneNumber = partner.accountInfo?.phoneNumber;
+
+    if (!partnerPhoneNumber) {
+      throw new Error("Partner phone number is missing");
+    }
+
+    const rawDetailLocator = CommonPartnerLocator.detailButton;
+
+    const detailButtonLocator = rawDetailLocator.replace(
+      "phoneNumberValue",
+      partnerPhoneNumber!,
+    );
+
+    const btn = this.page.locator(detailButtonLocator).last();
+
+    await btn.click();
+
+    const addMembersButtonEl = this.getLocator(
+      DetailOfPartnerLocator.addMemberButton,
+    );
+
+    (await addMembersButtonEl).click();
+
+    let emailEl = await this.getLocator(TeamAddition.emailInput);
+    let firstNameElement = await this.getLocator(TeamAddition.firstNameInput);
+    let lastNameElement = await this.getLocator(TeamAddition.lastNameInput);
+    let phoneNumberElement = await this.getLocator(
+      TeamAddition.phoneNumberInput,
+    );
+    let jobTitleElement = await this.getLocator(TeamAddition.jobTitleInput);
+
+    if (invitedMembers?.length === 1) {
+      await emailEl.fill(invitedMembers[0].email);
+
+      await firstNameElement.fill(invitedMembers[0].firstName!);
+
+      await lastNameElement.fill(invitedMembers[0].lastName!);
+
+      await phoneNumberElement.fill(invitedMembers[0].phoneNumber!);
+
+      await jobTitleElement.fill(invitedMembers[0].jobTitle!);
+
+      await this.selectDropdownOptionByText(
+        TeamAddition.roleInput,
+        invitedMembers[0].invitedRole!,
+      );
+    } else if (invitedMembers?.length > 1) {
+      const addMoreButton = TeamAddition.addMoreButton;
+      const addMoreButtonEl = await this.getLocator(addMoreButton);
+
+      for (let i = 0; i < invitedMembers?.length; i++) {
+        if (i < invitedMembers?.length - 1) await addMoreButtonEl.click();
+
+        await emailEl.nth(i).fill(invitedMembers[i].email!);
+
+        await firstNameElement.nth(i).fill(invitedMembers[i].firstName!);
+
+        await lastNameElement.nth(i).fill(invitedMembers[i].lastName!);
+
+        await phoneNumberElement.nth(i).fill(invitedMembers[i].phoneNumber!);
+
+        await jobTitleElement.nth(i).fill(invitedMembers[i].jobTitle!);
+
+        await this.selectDropdownOptionByText(
+          TeamAddition.roleInput,
+          invitedMembers[i].invitedRole!,
+        );
+      }
+    }
+    await (await this.getLocator(TeamAddition.sendInviteButton)).click();
   }
 }

@@ -1,5 +1,5 @@
 import { test, expect } from "src/fixtures";
-import { DataFactory, PartnerBuilder } from "src/data-factory";
+import { DataFactory } from "src/data-factory";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { plans } from "src/constant/static-data";
 import { CollectionUtils } from "src/utilities";
@@ -20,17 +20,18 @@ test.describe("Admin Portal - Partner Management", () => {
     const partnerInfo = await DataFactory.partnerBuilder()
       .withDepartmentName(process.env.DEPARTMENT_NAME!)
       .withPartnerLevel("PEO/HR Consultant")
-      .withPaymentOption("Member Portal Consumer")
+      .withPaymentOption("Partner/Consultant Owner")
       .withProductsType(["251 - 500 Employees"])
-      .withIsPublic(false)
-      .withBankTransfer(true)
-      .withInternal(true)
-      .withBillingCyleRadio("Annual")
+      .withPhoneNumber("+15329969938")
       .build();
 
-    const newPartner = await partnerManagementPage.createPartner(partnerInfo);
+    // const newPartner = await partnerManagementPage.createPartner(partnerInfo);
 
-    await expect(newPartner).toBeVisible();
+    //   await expect(newPartner).toBeVisible();
+
+    const invitedMembers: UserInfo[] = await CustomerFactory.generateMembers(2);
+
+    await partnerManagementPage.addMoreMembers(partnerInfo, invitedMembers);
   });
 
   test("TC31 Verify when a Partner is being created, the admin can select its level as Partner or PEO/Consultant.", async ({

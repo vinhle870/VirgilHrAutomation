@@ -221,6 +221,7 @@ export class PartnerBuilder {
     this.feFilterProductTypesValue = productTypeIds;
     return this;
   }
+  //Invite members
 
   // ── Build ────────────────────────────────────────────────────
 
@@ -266,6 +267,7 @@ export class PartnerBuilder {
       productsType: o.productsType,
       billingCycleRadio: o.billingCycleRadio,
       internal: o.internal,
+
       restriction,
       apiEnable: o.apiEnable ?? false,
       departmentId: o.departmentId ?? "688897d5eb52b4af5573def4",

@@ -14,4 +14,5 @@ export default interface UserInfo {
   role?: number; // 0: Owner, 1: Admin, 3: User
   partnerConsumerType?: number;
   localPrefix?: string;
+  invitedRole?: string;
 }
