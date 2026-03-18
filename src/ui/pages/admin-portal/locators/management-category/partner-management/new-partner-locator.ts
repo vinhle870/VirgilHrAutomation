@@ -35,7 +35,7 @@ export class CreateNewPartnerModalLocator {
   public static readonly contactNumber =
     "xpath=//span[text()='Contact Number']/parent::label/following-sibling::div/div/div[@class='pos-relative flex-grow-1']/input";
 
-  public static readonly bankTranfer =
+  public static readonly bankTransfer =
     "xpath=//span[text()='Bank Transfer']/parent::label/following-sibling::div/input/following-sibling::span";
 
   public static readonly plan =

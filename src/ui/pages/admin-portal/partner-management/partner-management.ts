@@ -1,21 +1,17 @@
-import { expect, Locator, Page } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 import { BasePage } from "src/ui/pages/base-page";
-import { CommonLocator } from "../../locators/common.locator";
-import { UserInfo } from "src/objects";
-import { CommonPartnerLocator } from "../../locators/management-category/partner-management/common-partner-management-locator";
-import { CreateNewPartnerModalLocator } from "../../locators/management-category/partner-management/new-partner-locator";
+import { CommonLocator } from "../locators/common.locator";
+import { CommonPartnerLocator } from "../locators/management-category/partner-management/common-locator";
+import { CreateNewPartnerModalLocator } from "../locators/management-category/partner-management/new-partner-locator";
+import { Partner } from "src/objects";
 import delay from "src/utilities/delay";
-import { de } from "@faker-js/faker/.";
 
 export class PartnerManagementPage extends BasePage {
   constructor(page: Page) {
     super(page);
   }
 
-  public async createPartner(
-    userInfo: UserInfo,
-    overrides?: Partial<Record<string, any>>,
-  ): Promise<Locator> {
+  public async createPartner(partnerInfo: Partner): Promise<Locator> {
     const managementCategory = await this.getLocator(
       CommonLocator.managementCategory,
     );
@@ -33,26 +29,22 @@ export class PartnerManagementPage extends BasePage {
     );
     await createButtonElement.click();
 
-    await delay(5000);
-
-    if (overrides?.department) {
-      try {
-        this.selectDropdownOptionByText(
-          CreateNewPartnerModalLocator.department,
-          overrides?.department,
-        );
-      } catch (e) {
-        throw new Error("Department name does not exist");
-      }
+    if (!partnerInfo.partnerInfo || !partnerInfo.partnerInfo.departmentName) {
+      throw new Error("Department name does not exist or is empty");
     }
 
+    this.selectDropdownOptionByText(
+      CreateNewPartnerModalLocator.department,
+      partnerInfo.partnerInfo.departmentName,
+    );
+
     await delay(5000);
 
-    if (overrides?.level) {
+    if (partnerInfo.partnerInfo!.partnerLevel) {
       try {
         this.selectDropdownOptionByText(
           CreateNewPartnerModalLocator.partnerLevel,
-          overrides?.level,
+          partnerInfo.partnerInfo!.partnerLevel,
         );
       } catch (error) {
         throw new Error("Partner level does not exist");
@@ -63,12 +55,13 @@ export class PartnerManagementPage extends BasePage {
       CreateNewPartnerModalLocator.nameOfPartner,
     );
 
-    await nameElement.fill(userInfo.localPrefix!);
+    await nameElement.fill(partnerInfo.accountInfo!.firstName);
 
     const subDomainElement = await this.getLocator(
       CreateNewPartnerModalLocator.subDomain,
     );
-    const standardSubdomain = userInfo.localPrefix!.replace(
+
+    const standardSubdomain = partnerInfo.partnerInfo!.subDomain.replace(
       /[^a-zA-Z0-9]/g,
       "",
     );
@@ -81,27 +74,27 @@ export class PartnerManagementPage extends BasePage {
 
     await firstNameElement.scrollIntoViewIfNeeded();
 
-    await firstNameElement.fill(userInfo.firstName);
+    await firstNameElement.fill(partnerInfo.accountInfo!.firstName!);
 
     const lastNameElement = await this.getLocator(
       CreateNewPartnerModalLocator.lastName,
     );
 
-    await lastNameElement.fill(userInfo.lastName);
+    await lastNameElement.fill(partnerInfo.accountInfo!.lastName);
 
     const phoneNumberElement = await this.getLocator(
       CreateNewPartnerModalLocator.contactNumber,
     );
 
-    await phoneNumberElement.fill(userInfo.phoneNumber);
+    await phoneNumberElement.fill(partnerInfo.accountInfo!.phoneNumber);
 
     const jobTitleElement = await this.getLocator(
       CreateNewPartnerModalLocator.jobTitle,
     );
 
-    await jobTitleElement.fill(userInfo.jobTitle);
+    await jobTitleElement.fill(partnerInfo.accountInfo!.jobTitle);
 
-    if (overrides?.paymentOption) {
+    if (partnerInfo.partnerInfo!.paymentOption) {
       const paymentOptionElement = await this.getLocator(
         CreateNewPartnerModalLocator.paymentOption,
       );
@@ -111,31 +104,34 @@ export class PartnerManagementPage extends BasePage {
       try {
         await this.selectDropdownOptionByText(
           CreateNewPartnerModalLocator.paymentOption,
-          overrides?.paymentOption,
+          partnerInfo.partnerInfo!.paymentOption,
         );
       } catch (error) {
         throw new Error("Payment option does not exist");
       }
     }
-    const isPublic = await this.getLocator(
-      CreateNewPartnerModalLocator.isPublic,
-    );
 
-    await isPublic.scrollIntoViewIfNeeded();
+    if (!partnerInfo.partnerInfo?.isPublic) {
+      const isPublic = await this.getLocator(
+        CreateNewPartnerModalLocator.isPublic,
+      );
 
-    await isPublic.click();
+      await isPublic.scrollIntoViewIfNeeded();
 
-    if (overrides?.productsType) {
+      await isPublic.click();
+    }
+
+    if (partnerInfo.partnerInfo!.productsType) {
       const productsTypeElement = await this.getLocator(
         CreateNewPartnerModalLocator.productsType,
       );
       await productsTypeElement.scrollIntoViewIfNeeded();
 
       try {
-        for (let i = 0; i < overrides?.productsType.length; ++i)
+        for (let i = 0; i < partnerInfo.partnerInfo!.productsType.length; ++i)
           await this.selectDropdownOptionByText(
             CreateNewPartnerModalLocator.productsType,
-            overrides?.productsType[i],
+            partnerInfo.partnerInfo!.productsType[i],
           );
       } catch (error) {
         throw new Error("Product type does not exist");
@@ -146,22 +142,25 @@ export class PartnerManagementPage extends BasePage {
       CreateNewPartnerModalLocator.email,
     );
 
-    await emailElement.fill(userInfo.email);
+    await emailElement.fill(partnerInfo.accountInfo!.email);
 
-    if (overrides?.bankTranfer === true) {
+    if (partnerInfo.partnerInfo!.bankTransfer === true) {
       const bankTranferElement = await this.getLocator(
-        CreateNewPartnerModalLocator.bankTranfer,
+        CreateNewPartnerModalLocator.bankTransfer,
       );
 
       await bankTranferElement.scrollIntoViewIfNeeded();
 
       await bankTranferElement.click();
 
-      if (overrides?.plan && !overrides?.productsType) {
+      if (
+        partnerInfo.partnerInfo!.plan &&
+        !partnerInfo.partnerInfo!.productsType
+      ) {
         try {
           await this.selectDropdownOptionByText(
             CreateNewPartnerModalLocator.plan,
-            overrides?.plan,
+            partnerInfo.partnerInfo!.plan,
           );
         } catch (error) {
           throw new Error("Plan does not exist");
@@ -173,10 +172,10 @@ export class PartnerManagementPage extends BasePage {
 
       const numberOfLabel = await numberOfLabelsInBillingCycle.count();
 
-      if (overrides?.billingCycle && numberOfLabel == 2) {
+      if (partnerInfo.partnerInfo!.billingCycleRadio && numberOfLabel == 2) {
         try {
           await this.selectRadio(
-            overrides?.billingCycle,
+            partnerInfo.partnerInfo!.billingCycleRadio,
             CreateNewPartnerModalLocator.billingCycle,
           );
         } catch (error) {
@@ -185,7 +184,7 @@ export class PartnerManagementPage extends BasePage {
       }
     }
 
-    if (overrides?.internal) {
+    if (partnerInfo.partnerInfo!.internal === true) {
       const internalElement = await this.getLocator(
         CreateNewPartnerModalLocator.internal,
       );
@@ -201,13 +200,13 @@ export class PartnerManagementPage extends BasePage {
 
     const confirmButtonLocator = CreateNewPartnerModalLocator.confirmButton;
 
-    try {
-      const confirmButtonElement = await this.getLocator(confirmButtonLocator);
+    if (partnerInfo.partnerInfo.bankTransfer === true) {
+      let confirmButtonElement;
 
+      confirmButtonElement = await this.getLocator(confirmButtonLocator);
       await confirmButtonElement.click();
-    } catch (error) {
-      console.error("There is no confirm button");
     }
+
     return nameElement;
   }
 }

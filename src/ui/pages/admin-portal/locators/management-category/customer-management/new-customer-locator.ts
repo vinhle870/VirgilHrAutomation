@@ -40,7 +40,7 @@ export class CreateNewCustomerModalLocator {
   public static readonly statesOfCompany =
     "xpath=//span[text()='State(s)']/parent::label/following-sibling::div//input";
   public static readonly numberOfEmployeesPerState =
-    "xpath=//p[text()='Alabama']/parent::div/following-sibling::div//input";
+    "xpath=//p[text()='stateValue']/parent::div/following-sibling::div//input";
   public static readonly separateEmployeeButton =
     "xpath=//p[contains(text(),'+ Specify Number of Employees Per State')]";
   public static readonly createButton =

@@ -1,13 +1,13 @@
 import { test, expect } from "src/fixtures";
-import { DataFactory } from "src/data-factory";
+import { DataFactory, PartnerBuilder } from "src/data-factory";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { plans } from "src/constant/static-data";
 import { CollectionUtils } from "src/utilities";
 import { UserInfo } from "src/objects";
 import { CustomerFactory } from "src/data-factory/customer-factory";
 
-test.describe("Admin Portal - Customer Management", () => {
-  test("TC017_API Verify that new customer can be Added under PartnerID return 201-Created and correct Response", async ({
+test.describe("Admin Portal - Partner Management", () => {
+  test("TC30 Verify that a partner account can only be created in the Admin Portal – Partner Management.", async ({
     loginPage,
     partnerManagementPage,
   }, testInfo) => {
@@ -17,17 +17,58 @@ test.describe("Admin Portal - Customer Management", () => {
 
     await loginPage.login();
 
-    const userInfo: UserInfo = await CustomerFactory.generateMember();
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withDepartmentName(process.env.DEPARTMENT_NAME!)
+      .withPartnerLevel("PEO/HR Consultant")
+      .withPaymentOption("Member Portal Consumer")
+      .withProductsType(["251 - 500 Employees"])
+      .withIsPublic(false)
+      .withBankTransfer(true)
+      .withInternal(true)
+      .withBillingCyleRadio("Annual")
+      .build();
 
-    const newPartner = await partnerManagementPage.createPartner(userInfo, {
-      department: process.env.DEPARTMENT_NAME,
-      level: "Partner",
-      paymentOption: "Partner/Consultant Owner",
-      productsType: ["101 - 250 Employees"],
-      bankTranfer: true,
-      billingCycle: "Annual",
-      internal: "internal",
-    });
+    const newPartner = await partnerManagementPage.createPartner(partnerInfo);
+
+    await expect(newPartner).toBeVisible();
+  });
+
+  test("TC31 Verify when a Partner is being created, the admin can select its level as Partner or PEO/Consultant.", async ({
+    loginPage,
+    partnerManagementPage,
+  }, testInfo) => {
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+    testInfo.skip(!base, "API_BASE_URL is not configured");
+
+    await loginPage.login();
+
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withDepartment(process.env.DEPARTMENT_NAME!)
+      .withIsPublic(false)
+      .build();
+
+    const newPartner = await partnerManagementPage.createPartner(partnerInfo);
+
+    await expect(newPartner).toBeVisible();
+  });
+
+  test("TC32 Verify when a Partner is being created, the admin can select its level as Partner or PEO/Consultant.", async ({
+    loginPage,
+    partnerManagementPage,
+  }, testInfo) => {
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+    testInfo.skip(!base, "API_BASE_URL is not configured");
+
+    await loginPage.login();
+
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withDepartmentName(process.env.DEPARTMENT_NAME!)
+      .withIsPublic(false)
+      .build();
+
+    const newPartner = await partnerManagementPage.createPartner(partnerInfo);
 
     await expect(newPartner).toBeVisible();
   });

@@ -10,10 +10,10 @@ import { MemberPortalService } from "src/api/services";
 import { PartnerPortalService } from "src/api/services/partner-portal.services";
 import { TempEmailFreePage } from "../ui/pages";
 import { LoginAdminPage } from "src/ui/pages/admin-portal/login.page";
-import { PartnerManagementPage } from "src/ui/pages/admin-portal/management-category/partner-management/partner-management";
+import { PartnerManagementPage } from "src/ui/pages/admin-portal/partner-management/partner-management";
 
 import { PartnerIntegrationService } from "src/api/services/partner-integration.service";
-import { CustomerManagementPage } from "src/ui/pages/admin-portal/management-category/customer-management/customer-management";
+import { CustomerManagementPage } from "src/ui/pages/admin-portal/customer-management/customer-management";
 type MyFixtures = {
   adminLoggedIn: void;
   homePage: AdminHomePage;

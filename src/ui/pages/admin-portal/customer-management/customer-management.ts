@@ -1,11 +1,11 @@
 import { Locator, Page } from "@playwright/test";
 import { BasePage } from "src/ui/pages/base-page";
-import { CommonLocator } from "../../locators/common.locator";
+import { CommonLocator } from "../locators/common.locator";
 import { UserInfo } from "src/objects";
-import { CommonCustomerLocator } from "../../locators/management-category/customer-management/common-member-management-locator";
+import { CommonCustomerLocator } from "../locators/management-category/customer-management/commonlocator";
 import delay from "src/utilities/delay";
-import { CreateNewCustomerModalLocator } from "../../locators/management-category/customer-management/new-customer-locator";
-import { CreateNewPartnerModalLocator } from "../../locators/management-category/partner-management/new-partner-locator";
+import { CreateNewCustomerModalLocator } from "../locators/management-category/customer-management/new-customer-locator";
+import { CreateNewPartnerModalLocator } from "../locators/management-category/partner-management/new-partner-locator";
 
 export class CustomerManagementPage extends BasePage {
   constructor(page: Page) {
@@ -100,7 +100,7 @@ export class CustomerManagementPage extends BasePage {
 
     if (overrides?.bankTranfer) {
       await (
-        await this.getLocator(CreateNewPartnerModalLocator.bankTranfer)
+        await this.getLocator(CreateNewPartnerModalLocator.bankTransfer)
       ).click();
 
       if (overrides?.bankTranfer?.companySize)
@@ -204,12 +204,13 @@ export class CustomerManagementPage extends BasePage {
     state: string,
     numberOfEmployeesPerState: number,
   ) {
-    const originLocator =
-      CreateNewCustomerModalLocator.numberOfEmployeesPerState;
+    const stateLocator =
+      CreateNewCustomerModalLocator.numberOfEmployeesPerState.replace(
+        "stateValue",
+        state,
+      );
 
-    const newLocator = originLocator.replace("Alabama", state);
-
-    const numberOfEmployee = await this.getLocator(newLocator);
+    const numberOfEmployee = await this.getLocator(stateLocator);
 
     await numberOfEmployee.fill(numberOfEmployeesPerState.toString());
   }
