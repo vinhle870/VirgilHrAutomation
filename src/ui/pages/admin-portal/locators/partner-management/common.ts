@@ -5,4 +5,6 @@ export class CommonPartnerLocator {
     "xpath=//button[text()=' Filter ']";
   public static readonly detailButton =
     "//tr[td//p[text()='phoneNumberValue']]//button[normalize-space()='Details']";
+  public static readonly sortingButton =
+    "xpath=//button[contains(text(),'Sort by')]";
 }

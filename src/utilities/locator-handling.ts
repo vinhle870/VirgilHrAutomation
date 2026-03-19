@@ -1,4 +1,5 @@
 import { expect, Locator, Page } from "@playwright/test";
+import delay from "./delay";
 
 export class LocatorHandling {
   private static getEffectiveTimeout(timeout?: number): number {
@@ -133,6 +134,48 @@ export class LocatorHandling {
     }
   }
 
+  static async selectDropDownViaElement(
+    page: Page,
+    dropdownSelector: string,
+    selectionLocator: string,
+    optionListSelector?: string,
+    timeout = 3000,
+  ): Promise<void> {
+    const effectiveTimeout = this.getEffectiveTimeout(timeout);
+    await this.waitForNetworkSettled(page, effectiveTimeout);
+
+    const dropdown = page.locator(dropdownSelector);
+    await dropdown
+      .first()
+      .waitFor({ state: "visible", timeout: effectiveTimeout });
+    await dropdown.first().click();
+
+    const scope = optionListSelector ? page.locator(optionListSelector) : page;
+
+    const options = scope.locator(selectionLocator);
+
+    console.log("options:", options);
+
+    const count = await options.count();
+
+    if (count === 0) {
+      throw new Error("the option does not exist");
+    }
+
+    let option = options.nth(count - 1);
+    if (await option.isVisible()) {
+      await option.click({ force: true });
+      return;
+    }
+
+    for (let i = 0; i < count; i++) {
+      const option = options.nth(i);
+      if (await option.isVisible()) {
+        await option.click({ force: true });
+        return;
+      }
+    }
+  }
   /**
    * Find and return the UI Field's locator and wait until it's visible.
    * Call sites in the repo already `await` this method.

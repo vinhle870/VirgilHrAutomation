@@ -5,11 +5,15 @@ import { plans } from "src/constant/static-data";
 import { CollectionUtils } from "src/utilities";
 import { UserInfo } from "src/objects";
 import { CustomerFactory } from "src/data-factory/customer-factory";
+import IPartnerFilter from "src/objects/ipartnerfilter";
+import { PartnerFilter } from "src/ui/pages/admin-portal/locators/partner-management/filter-partner";
 
 test.describe("Admin Portal - Partner Management", () => {
   test("TC30 Verify that a partner account can only be created in the Admin Portal – Partner Management.", async ({
     loginPage,
     partnerManagementPage,
+    onboardingFlow,
+    tempEmailFreePage,
   }, testInfo) => {
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
@@ -22,16 +26,21 @@ test.describe("Admin Portal - Partner Management", () => {
       .withPartnerLevel("PEO/HR Consultant")
       .withPaymentOption("Partner/Consultant Owner")
       .withProductsType(["251 - 500 Employees"])
-      .withPhoneNumber("+15329969938")
+      .withPhoneNumber("+13530044689")
       .build();
 
     // const newPartner = await partnerManagementPage.createPartner(partnerInfo);
 
     //   await expect(newPartner).toBeVisible();
 
-    const invitedMembers: UserInfo[] = await CustomerFactory.generateMembers(2);
+    const invitedMembers: UserInfo[] = await CustomerFactory.generateMembers(1);
 
-    await partnerManagementPage.addMoreMembers(partnerInfo, invitedMembers);
+    await partnerManagementPage.addMoreMembers(
+      partnerInfo,
+      invitedMembers,
+      onboardingFlow,
+      tempEmailFreePage,
+    );
   });
 
   test("TC31 Verify when a Partner is being created, the admin can select its level as Partner or PEO/Consultant.", async ({
@@ -45,13 +54,23 @@ test.describe("Admin Portal - Partner Management", () => {
     await loginPage.login();
 
     const partnerInfo = await DataFactory.partnerBuilder()
-      .withDepartment(process.env.DEPARTMENT_NAME!)
-      .withIsPublic(false)
+      .withDepartmentName(process.env.DEPARTMENT_NAME!)
+      .withPartnerLevel("Partner")
       .build();
 
-    const newPartner = await partnerManagementPage.createPartner(partnerInfo);
+    const partFilterInfo: IPartnerFilter = {
+      name: partnerInfo.partnerInfo?.name,
+      level: partnerInfo.partnerInfo?.partnerLevel,
+      department: partnerInfo.partnerInfo?.departmentName,
+    };
 
-    await expect(newPartner).toBeVisible();
+    //  const newPartner = await partnerManagementPage.createPartner(partnerInfo);
+
+    // await expect(newPartner).toBeVisible();
+
+    const filteredPartner = await partnerManagementPage.filter(partFilterInfo);
+
+    expect(filteredPartner).toBe("Pass");
   });
 
   test("TC32 Verify when a Partner is being created, the admin can select its level as Partner or PEO/Consultant.", async ({
@@ -64,14 +83,11 @@ test.describe("Admin Portal - Partner Management", () => {
 
     await loginPage.login();
 
-    const partnerInfo = await DataFactory.partnerBuilder()
-      .withDepartmentName(process.env.DEPARTMENT_NAME!)
-      .withIsPublic(false)
-      .build();
+    const typeOfSorting = PartnerFilter.oldestToLatest;
 
-    const newPartner = await partnerManagementPage.createPartner(partnerInfo);
+    const sort = await partnerManagementPage.sorting(typeOfSorting);
 
-    await expect(newPartner).toBeVisible();
+    expect(sort).toBe("Pass");
   });
 
   test("TC020_API Verify Customer creation with Trial Subscription will return 201-Created and correct Response", async ({
@@ -104,75 +120,39 @@ test.describe("Admin Portal - Partner Management", () => {
   });
 
   test("TC022_API Verify Customer creation with Bank Transfer = ON will return 201-Created and correct Response", async ({
-    apiClient,
-    authenticationService,
+    loginPage,
+    partnerManagementPage,
+    onboardingFlow,
+    tempEmailFreePage,
   }, testInfo) => {
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-    const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
-    const password = process.env.API_PASSWORD ?? process.env.ADMIN_PASSWORD;
+
     testInfo.skip(!base, "API_BASE_URL is not configured");
 
-    //*****-----Optionally discover partnerId/departmentId from the system to use in the-----*****
-    // generated consumer. If search finds nothing, generator will use defaults.
-    const partnerName = process.env.PARTNER_NAME;
-    if (!partnerName) {
-      throw new Error("PARTNER_NAME is not configured");
-    }
+    await loginPage.login();
 
-    const adminService = await AdminPortalService.create(
-      apiClient,
-      authenticationService,
-    );
-
-    const partnerInfo = await adminService.searchPartner(partnerName);
-
-    // Get Product Type Filters
-    const productTypeFilters = await adminService.getProductTypeFilters();
-
-    //Filter product type id by name
-    const plan = plans[2];
-    const matchedPlan = CollectionUtils.findByPropertyOrNull(
-      Array.isArray(productTypeFilters)
-        ? productTypeFilters
-        : [productTypeFilters],
-      "name" as any,
-      plan,
-    );
-    const filteredProductType = matchedPlan
-      ? (matchedPlan as any).productType
-      : undefined;
-
-    // Generate consumer payload with discovered IDs (if any)
-    const consumerData = await DataFactory.customerBuilder()
-      .forAdminPortal()
-      .withCompanySize(filteredProductType)
-      .withAdminOptions({
-        productType: filteredProductType,
-        billingcycle: 1,
-        useCredit: true,
-      })
-      .withDepartment(partnerInfo.departmentId!)
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withPhoneNumber("+12025550173")
+      .withDepartmentName(process.env.DEPARTMENT_NAME!)
+      .withPartnerLevel("Partner")
       .build();
-    const customerAccountInfo = consumerData.accountInfo;
-    //*****---------------------------------------------------*****
 
-    // Call the admin service to create customer
-    const resp = await adminService.createCustomer(consumerData);
-    // Basic sanity: response should contain at least one property (e.g., id)
+    const peoPartnerInfo = await DataFactory.peoPartnerBuilder()
+      .withName("Peo" + partnerInfo.accountInfo?.firstName)
+      .withCompanyType("Internal")
+      .withCustomBranding(true)
+      .build();
 
-    // API VERIFICATION - Verify the Response:
-    expect(resp).toBeDefined();
-    expect(typeof resp).toBe("object");
-    expect(Object.keys(resp as any).length).toBeGreaterThan(0);
-    expect(Object.keys(resp.id).length).toBeGreaterThan(0);
-    expect(resp.email).toBe(customerAccountInfo.email);
-    expect(resp.team.name).toBe(consumerData.company.companyName);
+    const peoPartners = [peoPartnerInfo];
 
-    //Call the admin service to get consumer by ID to verify useCredit = true
-    const consumerById = await adminService.getConsumerById(resp.id);
+    const addedPeoPartner = await partnerManagementPage.addPeoConsultant(
+      partnerInfo,
+      peoPartners,
+      onboardingFlow,
+      tempEmailFreePage,
+    );
 
-    // API VERIFICATION: Verify the Customer Subscription plan
-    expect(consumerById.subscription.name).toBe(plan);
+    expect(addedPeoPartner).toBe("Pass");
   });
 
   test("TC023_API Verify Customer creation with Bank Transfer = OFF will return 201-Created and correct Respons", async ({

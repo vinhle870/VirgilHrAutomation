@@ -7,6 +7,12 @@ import { Partner, UserInfo } from "src/objects";
 import delay from "src/utilities/delay";
 import { TeamAddition } from "../locators/partner-management/team-addition";
 import { DetailOfPartnerLocator } from "../locators/partner-management/detail";
+import { OnboardingFlow } from "src/ui/flows";
+import { TempEmailFreePage } from "../../shared";
+import IPartnerFilter from "src/objects/ipartnerfilter";
+import { PartnerFilter } from "../locators/partner-management/filter-partner";
+import { PeoPartner } from "src/objects/ipeopartner";
+import { PeoConsultantAddition } from "../locators/partner-management/peo-consultant-addition";
 
 export class PartnerManagementPage extends BasePage {
   constructor(page: Page) {
@@ -212,21 +218,26 @@ export class PartnerManagementPage extends BasePage {
     return nameElement;
   }
 
-  public async addMoreMembers(partner: Partner, invitedMembers: UserInfo[]) {
+  public async addMoreMembers(
+    partner: Partner,
+    invitedMembers: UserInfo[],
+    onboardingFlow: OnboardingFlow,
+    tempEmailFreePage: TempEmailFreePage,
+  ) {
     if (invitedMembers?.length === 0)
       throw new Error("There is no any member to add");
 
     const managementCategory = await this.getLocator(
       CommonLocator.managementCategory,
-    );
+    ); //Erase
 
-    await managementCategory.click();
+    await managementCategory.click(); //Erase
 
     const partnerManagementCategory = await this.getLocator(
       CommonLocator.partnerManagement,
-    );
+    ); //Erase
 
-    await partnerManagementCategory.click();
+    await partnerManagementCategory.click(); //Erase
 
     const partnerPhoneNumber = partner.accountInfo?.phoneNumber;
 
@@ -241,9 +252,9 @@ export class PartnerManagementPage extends BasePage {
       partnerPhoneNumber!,
     );
 
-    const btn = this.page.locator(detailButtonLocator).last();
+    const detailButtonel = this.page.locator(detailButtonLocator).last();
 
-    await btn.click();
+    await detailButtonel.click();
 
     const addMembersButtonEl = this.getLocator(
       DetailOfPartnerLocator.addMemberButton,
@@ -298,5 +309,212 @@ export class PartnerManagementPage extends BasePage {
       }
     }
     await (await this.getLocator(TeamAddition.sendInviteButton)).click();
+
+    for (const member of invitedMembers) {
+      const localPart = member.email.split("@")[0];
+      await onboardingFlow.acceptInvitation(tempEmailFreePage, localPart);
+    }
+  }
+  async filter(partFilterInfo: IPartnerFilter): Promise<string> {
+    try {
+      const managementCategory = await this.getLocator(
+        CommonLocator.managementCategory,
+      ); //Erase
+
+      await managementCategory.click(); //Erase
+
+      const partnerManagementCategory = await this.getLocator(
+        CommonLocator.partnerManagement,
+      ); //Erase
+
+      await partnerManagementCategory.click(); //Erase
+
+      const filterButtonEl = await this.getLocator(
+        CommonPartnerLocator.filterPartnerButton,
+      );
+
+      await filterButtonEl.click();
+
+      if (partFilterInfo.name)
+        await (
+          await this.getLocator(PartnerFilter.searchedName)
+        ).fill(partFilterInfo.name);
+
+      if (partFilterInfo.level)
+        await this.selectDropdownOptionByText(
+          PartnerFilter.searchedLevel,
+          partFilterInfo.level,
+        );
+
+      await delay(5000);
+
+      if (partFilterInfo.department)
+        await this.selectDropdownOptionByText(
+          PartnerFilter.searchedDepartment,
+          partFilterInfo.department,
+        );
+      await delay(5000);
+
+      await (await this.getLocator(PartnerFilter.applyButton)).click();
+    } catch (error) {
+      return "Failed";
+    }
+
+    return "Pass";
+  }
+
+  public async sorting(typeOfSorting: string): Promise<string> {
+    try {
+      const managementCategory = await this.getLocator(
+        CommonLocator.managementCategory,
+      ); //Erase
+
+      await managementCategory.click(); //Erase
+
+      const partnerManagementCategory = await this.getLocator(
+        CommonLocator.partnerManagement,
+      ); //Erase
+
+      await partnerManagementCategory.click(); //Erase
+
+      await this.selectDropDownViaElement(
+        CommonPartnerLocator.sortingButton,
+        typeOfSorting,
+      );
+    } catch (error) {
+      return "Failed";
+    }
+    return "Pass";
+  }
+
+  public async addPeoConsultant(
+    partner: Partner,
+    peoPartners: PeoPartner[],
+    onboardingFlow: OnboardingFlow,
+    tempEmailFreePage: TempEmailFreePage,
+  ): Promise<string> {
+    if (partner.partnerInfo!.partnerLevel !== "Partner")
+      throw new Error("Partner must be a partner not PEO");
+
+    const partnerPhoneNumber = partner.accountInfo?.phoneNumber;
+
+    if (!partnerPhoneNumber) {
+      throw new Error("Partner phone number is missing");
+    }
+
+    const managementCategory = await this.getLocator(
+      CommonLocator.managementCategory,
+    ); //Erase
+
+    await managementCategory.click(); //Erase
+
+    const partnerManagementCategory = await this.getLocator(
+      CommonLocator.partnerManagement,
+    ); //Erase
+
+    await partnerManagementCategory.click(); //Erase
+    const rawDetailLocator = CommonPartnerLocator.detailButton;
+
+    const detailButtonLocator = rawDetailLocator.replace(
+      "phoneNumberValue",
+      partnerPhoneNumber!,
+    );
+
+    const detailButtonEl = this.page.locator(detailButtonLocator).last();
+
+    await detailButtonEl.click();
+
+    const addPeoConsultantButtonEl = await this.getLocator(
+      DetailOfPartnerLocator.addPeoConsultantButton,
+    );
+
+    await addPeoConsultantButtonEl.click();
+
+    const nameEl = await this.getLocator(PeoConsultantAddition.nameInput);
+
+    const emailInputEl = await this.getLocator(
+      PeoConsultantAddition.emailInput,
+    );
+
+    const firstNameInputEl = await this.getLocator(
+      PeoConsultantAddition.firstNameInput,
+    );
+
+    const lastNameInputEl = await this.getLocator(
+      PeoConsultantAddition.lastNameInput,
+    );
+
+    const phoneNumberInputEl = this.page
+      .locator(PeoConsultantAddition.phoneNumberInput)
+      .last();
+
+    const jobTitleInputEl = await this.getLocator(
+      PeoConsultantAddition.jobTitleInput,
+    );
+
+    const customBrandingEl = await this.getLocator(
+      PeoConsultantAddition.customBranding,
+    );
+
+    const customBenefitsPlanEl = await this.getLocator(
+      PeoConsultantAddition.customBenefitsPlan,
+    );
+
+    const internalEl = await this.getLocator(PeoConsultantAddition.internal);
+
+    const externalEl = await this.getLocator(PeoConsultantAddition.external);
+
+    const backURLEl = await this.getLocator(PeoConsultantAddition.backURL);
+
+    const backTextEl = await this.getLocator(PeoConsultantAddition.backText);
+
+    const createButtonEl = await this.getLocator(
+      PeoConsultantAddition.createButton,
+    );
+
+    for (let i = 0; i < peoPartners.length; i++) {
+      if (i !== 0 && i < peoPartners.length - 1)
+        await addPeoConsultantButtonEl.click();
+
+      await nameEl.fill(peoPartners[i].peoPartnerInfo?.name!);
+
+      await emailInputEl.fill(peoPartners[i].accountInfo?.email!);
+
+      await firstNameInputEl.fill(peoPartners[i].accountInfo?.firstName!);
+
+      await lastNameInputEl.fill(peoPartners[i].accountInfo?.lastName!);
+
+      await phoneNumberInputEl.fill(peoPartners[i].accountInfo?.phoneNumber!);
+
+      await jobTitleInputEl.fill(peoPartners[i].accountInfo?.jobTitle!);
+
+      if (peoPartners[i].peoPartnerInfo?.customBranding === true) {
+        await customBrandingEl.click();
+      }
+
+      if (peoPartners[i].peoPartnerInfo?.companyType === "Internal") {
+        await internalEl.click();
+      } else await externalEl.click();
+
+      if (peoPartners[i].peoPartnerInfo?.customBenefitsPlans === true)
+        await customBenefitsPlanEl.click();
+
+      if (peoPartners[i].peoPartnerInfo?.backURL !== "")
+        await backURLEl.click();
+
+      if (peoPartners[i].peoPartnerInfo?.backText !== "")
+        await backTextEl.click();
+
+      await createButtonEl.click();
+    }
+
+    await delay(10000);
+
+    for (const member of peoPartners) {
+      const localPart = member.accountInfo!.email.split("@")[0];
+      await onboardingFlow.credential(tempEmailFreePage, localPart);
+    }
+
+    return "Pass";
   }
 }

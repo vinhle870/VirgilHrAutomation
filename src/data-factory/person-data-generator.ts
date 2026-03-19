@@ -12,14 +12,13 @@ import UserInfo from "src/objects/user-info";
  */
 export class PersonDataGenerator {
   static async generate(overrides?: Partial<UserInfo>): Promise<UserInfo> {
-    const ts = format(new Date(), "yyyyMMddHHmmss");
     const seq1 = DataGenerate.getRandomInt(1, 999);
 
     const firstName =
       overrides?.firstName ?? (await DataGenerate.generateFirstName());
-    const localPrefix = overrides?.firstName ?? `QATesting${firstName}${seq1}`;
+    const localPrefix = overrides?.firstName ?? `${firstName}${seq1}`;
     const email = overrides?.email ?? `${localPrefix}@polandcampus.edu.pl`;
-    const password = overrides?.password ?? `Pass@${ts.slice(-8)}`;
+    const password = overrides?.password ?? `Pass@123`;
     const lastName =
       overrides?.lastName ?? (await DataGenerate.generateLastName());
     const jobTitle =

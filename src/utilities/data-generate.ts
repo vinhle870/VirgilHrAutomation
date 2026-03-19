@@ -85,6 +85,14 @@ export class DataGenerate {
     return randomValue;
   }
 
+  static generateCompanyType(): string {
+    const values: string[] = ["External", "Internal "];
+
+    const randomValue = values[Math.floor(Math.random() * values.length)];
+
+    return randomValue;
+  }
+
   static generateDecimal(): number {
     const values: number[] = [0, 1];
 

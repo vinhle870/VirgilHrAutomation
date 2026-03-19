@@ -46,6 +46,21 @@ export abstract class BasePage {
     );
   }
 
+  protected async selectDropDownViaElement(
+    dropdownSelector: string,
+    optionSelector: string,
+    optionListSelector?: string,
+    timeout?: number,
+  ) {
+    return LocatorHandling.selectDropDownViaElement(
+      this.page,
+      dropdownSelector,
+      optionSelector,
+      optionListSelector,
+      timeout,
+    );
+  }
+
   /**
    * Open a dropdown and select an option by its visible text.
    * Supports portals/overlays where options may not be children of the dropdown.
