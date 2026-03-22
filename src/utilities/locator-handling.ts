@@ -69,18 +69,18 @@ export class LocatorHandling {
     page: Page,
     dropdownSelector: string,
     optionText: string,
-    isLastElement = true,
+    i = 0,
     optionListSelector?: string,
     timeout = 3000,
   ): Promise<void> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(page, effectiveTimeout);
-
     const dropdown = page.locator(dropdownSelector);
     await dropdown
       .first()
       .waitFor({ state: "visible", timeout: effectiveTimeout });
-    await dropdown.first().click();
+
+    if (i === 0) await dropdown.first().click();
 
     const scope = optionListSelector ? page.locator(optionListSelector) : page;
 
@@ -95,6 +95,7 @@ export class LocatorHandling {
     let option = options.nth(count - 1);
     if (await option.isVisible()) {
       await option.click({ force: true });
+      //   await page.keyboard.press("Escape");
       return;
     }
 
@@ -102,6 +103,7 @@ export class LocatorHandling {
       const option = options.nth(i);
       if (await option.isVisible()) {
         await option.click({ force: true });
+        // await page.keyboard.press("Escape");
         return;
       }
     }

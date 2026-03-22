@@ -1,7 +1,7 @@
 import { Locator, Page } from "@playwright/test";
 import { BasePage } from "src/ui/pages/base-page";
 import { CommonLocator } from "../locators/common.locator";
-import { UserInfo } from "src/objects";
+import { CustomerInfo, UserInfo } from "src/objects";
 import { CommonCustomerLocator } from "../locators/customer-management/commonlocator";
 import delay from "src/utilities/delay";
 import { CreateNewCustomerModalLocator } from "../locators/customer-management/new-customer-locator";
@@ -12,10 +12,7 @@ export class CustomerManagementPage extends BasePage {
     super(page);
   }
 
-  public async createCustomer(
-    userInfo: UserInfo,
-    overrides?: Partial<Record<string, any>>,
-  ): Promise<Locator> {
+  public async createCustomer(customer: CustomerInfo): Promise<Locator> {
     const managementCategory = await this.getLocator(
       CommonLocator.managementCategory,
     );
@@ -39,98 +36,96 @@ export class CustomerManagementPage extends BasePage {
       CreateNewCustomerModalLocator.firstName,
     );
 
-    await firstNameElelemt.fill(userInfo.firstName);
+    await firstNameElelemt.fill(customer.accountInfo.firstName);
 
     const lastNameElement = await this.getLocator(
       CreateNewCustomerModalLocator.lastName,
     );
 
-    await lastNameElement.fill(userInfo.lastName);
+    await lastNameElement.fill(customer.accountInfo.lastName);
 
     const emailElement = await this.getLocator(
       CreateNewCustomerModalLocator.email,
     );
 
-    await emailElement.fill(userInfo.email);
+    await emailElement.fill(customer.accountInfo.email);
 
     const companyNameElement = await this.getLocator(
       CreateNewCustomerModalLocator.companyName,
     );
 
-    await companyNameElement.fill(userInfo.firstName + "Company");
+    await companyNameElement.fill(customer.accountInfo.firstName + "Company");
 
     const jobTitleElement = await this.getLocator(
       CreateNewCustomerModalLocator.jobTitle,
     );
 
-    await jobTitleElement.fill(userInfo.jobTitle);
+    await jobTitleElement.fill(customer.accountInfo.jobTitle);
 
     const contactNumberElement = await this.getLocator(
       CreateNewCustomerModalLocator.contactNumber,
     );
 
-    await contactNumberElement.fill(userInfo.phoneNumber);
+    await contactNumberElement.fill(customer.accountInfo.phoneNumber);
 
     try {
       this.selectDropdownOptionByText(
         CreateNewCustomerModalLocator.department,
-        overrides?.department,
+        customer.departmentName,
       );
     } catch (e) {
       throw new Error("Department name does not exist");
     }
 
-    await delay(5000);
+    await delay(3000);
 
-    if (overrides?.stateOfCustomer) {
+    if (customer.stateOfCustomer) {
       try {
         await this.selectDropdownOptionByText(
           CreateNewCustomerModalLocator.statesOfCustomer,
-          overrides?.stateOfCustomer,
+          customer.stateOfCustomer,
         );
       } catch (e) {
         throw new Error("The state does not exist");
       }
 
-      await delay(5000);
+      await delay(3000);
     }
 
-    if (overrides?.freeTrial === true)
-      await this.selectRadio(overrides?.freeTrial);
+    if (customer.freeTrial === true) await this.selectRadio("Free Trial");
 
-    if (overrides?.bankTranfer) {
+    if (customer.bankStranfer!.bankStranfer === true) {
       await (
         await this.getLocator(CreateNewPartnerModalLocator.bankTransfer)
       ).click();
 
-      if (overrides?.bankTranfer?.companySize)
+      if (customer.company.companySize)
         try {
           await this.selectDropdownOptionByText(
             CreateNewCustomerModalLocator.companySize,
-            overrides?.bankTranfer?.companySize,
+            customer.company.companySize,
           );
         } catch (e) {
           throw new Error("Company size is incorrect");
         }
 
-      if (overrides?.bankTranfer?.payYear === false)
+      if (customer?.bankStranfer?.payYearly === false)
         await (
           await this.getLocator(CreateNewCustomerModalLocator.payYear)
         ).click();
     }
 
-    if (overrides?.internal === true)
+    if (customer?.internal === true)
       (await this.getLocator(CreateNewCustomerModalLocator.internal)).click();
 
-    if (overrides?.consultant === true)
+    if (customer.company.consultant === true)
       (await this.getLocator(CreateNewCustomerModalLocator.consultant)).click();
-
-    if (overrides?.industries) {
+    else if (customer.company.industry) {
       try {
-        for (let i = 0; i < overrides?.industries.length; i++) {
-          this.selectDropdownOptionByText(
+        for (let i = 0; i < customer.company.industry.length; i++) {
+          await this.selectDropdownOptionByText(
             CreateNewCustomerModalLocator.industry,
-            overrides?.industries[i],
+            customer.company.industry[i].value,
           );
         }
       } catch (e) {
@@ -140,59 +135,67 @@ export class CustomerManagementPage extends BasePage {
       await delay(3000);
     }
 
-    if (overrides?.totalNumberOfEmployee) {
-      if (typeof overrides?.totalNumberOfEmployee !== "number")
+    if (customer.company.totalEmployees) {
+      if (typeof customer.company.totalEmployees !== "number")
         throw new Error("totalNumberOfEmployee must be a digit");
 
       const numberOfEmployeeEl = await this.getLocator(
         CreateNewCustomerModalLocator.numberOfEmployee,
       );
 
-      numberOfEmployeeEl.fill(overrides?.totalNumberOfEmployee.toString());
+      numberOfEmployeeEl.fill(customer.company.totalEmployees.toString());
 
       await delay(3000);
     }
 
-    if (overrides?.statesOfCompany) {
+    if (customer.company.statesEmployee) {
       try {
-        for (let i = 0; i < overrides?.statesOfCompany.length; i++)
-          if (overrides?.statesOfCompany[i]?.state)
-            this.selectDropdownOptionByText(
-              CreateNewCustomerModalLocator.statesOfCompany,
-              overrides?.statesOfCompany[i]?.state,
-            );
+        for (let i = 0; i < customer.company.statesEmployee.length; i++)
+          await this.selectDropdownOptionByText(
+            CreateNewCustomerModalLocator.statesOfCompany,
+            customer.company.statesEmployee[i],
+            i,
+          );
       } catch (e) {
         throw new Error("State does not exist");
       }
     }
 
-    if (!overrides?.consultant && overrides?.statesOfCompany) {
+    if (
+      customer?.company.consultant === false &&
+      customer.company.statesEmployeeInfor
+    ) {
       await (
         await this.getLocator(
           CreateNewCustomerModalLocator.separateEmployeeButton,
         )
       ).click();
 
-      for (let i = 0; i < overrides?.statesOfCompany.length; i++) {
+      if (typeof customer.company.totalEmployees !== "number")
+        throw new Error("total employee must be a digit");
+
+      for (let i = 0; i < customer.company.statesEmployeeInfor.length; i++) {
         let numberOfPerState = 0;
 
-        if (typeof overrides?.statesOfCompany[i]?.number !== "number")
+        if (typeof customer.company.statesEmployeeInfor![i].number !== "number")
           throw new Error("number must be a digit");
 
-        if (overrides?.statesOfCompany[i]?.number)
-          numberOfPerState = overrides?.statesOfCompany[i]?.number;
+        if (customer.company.statesEmployeeInfor![i]?.number)
+          numberOfPerState = customer.company.statesEmployeeInfor![i]?.number;
 
-        if (overrides?.statesOfCompany[i]?.state)
-          this.fillNumberOfEmployeesPerState(
-            overrides?.statesOfCompany[i]?.state,
+        if (customer.company.statesEmployeeInfor![i]?.state)
+          await this.fillNumberOfEmployeesPerState(
+            customer.company.statesEmployeeInfor![i]?.state,
             numberOfPerState,
           );
       }
     }
 
-    (await this.getLocator(CreateNewCustomerModalLocator.createButton)).click();
+    await (
+      await this.getLocator(CreateNewCustomerModalLocator.createButton)
+    ).click();
 
-    if (overrides?.bankTranfer && overrides?.bankTranfer?.companySize)
+    if (customer.bankStranfer?.bankStranfer === true)
       await (
         await this.getLocator(CreateNewCustomerModalLocator.confirmButton)
       ).click();

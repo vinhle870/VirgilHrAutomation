@@ -100,23 +100,26 @@ test.describe("Admin Portal - Partner Management", () => {
 
     await loginPage.login();
 
-    const userInfo: UserInfo = await CustomerFactory.generateMember();
+    const customerInfo = await DataFactory.customerBuilder()
+      .withCompanyName("Company")
+      .withCompanySize("All Features and Handbook Only Bigin 1")
+      .forAdminPortal()
+      .withTotalEmployees(3)
+      .withStatesEmployee(["Alaska", "Arizona"])
+      .withStatesEmployeeInfo([
+        { state: "Alaska", number: 1 },
+        { state: "Arizona", number: 2 },
+      ])
+      .withDepartmentName(process.env.DEPARTMENT_NAME!)
+      .withBankStranfer(true)
+      .withPayYearly(false)
+      .withConsultant(false)
+      .withStateOfCustomer("Alaska")
+      .withIndustry([{ value: "Administrative and Support Services" }])
+      .build();
 
-    const newCustomer = await customerManagementPage.createCustomer(userInfo, {
-      department: process.env.DEPARTMENT_NAME,
-      stateOfCustomer: "Alabama",
-      industries: ["Administrative and Support Services"],
-      totalNumberOfEmployee: 1,
-      bankTranfer: { companySize: "Under 50 Employees test", payYear: false },
-      statesOfCompany: [
-        {
-          state: "Alaska",
-          number: 1,
-        },
-      ],
-    });
-
-    expect(newCustomer).toBeVisible();
+    const newCustomer =
+      await customerManagementPage.createCustomer(customerInfo);
   });
 
   test("TC022_API Verify Customer creation with Bank Transfer = ON will return 201-Created and correct Response", async ({

@@ -68,6 +68,7 @@ export abstract class BasePage {
   protected async selectDropdownOptionByText(
     dropdownSelector: string,
     optionText: string,
+    i = 0,
     isLastElement?: boolean,
     optionListSelector?: string,
     timeout?: number,
@@ -76,6 +77,7 @@ export abstract class BasePage {
       this.page,
       dropdownSelector,
       optionText,
+      i,
       isLastElement,
       optionListSelector,
       timeout,
