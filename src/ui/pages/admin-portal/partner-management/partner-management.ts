@@ -227,18 +227,6 @@ export class PartnerManagementPage extends BasePage {
     if (invitedMembers?.length === 0)
       throw new Error("There is no any member to add");
 
-    const managementCategory = await this.getLocator(
-      CommonLocator.managementCategory,
-    ); //Erase
-
-    await managementCategory.click(); //Erase
-
-    const partnerManagementCategory = await this.getLocator(
-      CommonLocator.partnerManagement,
-    ); //Erase
-
-    await partnerManagementCategory.click(); //Erase
-
     const partnerPhoneNumber = partner.accountInfo?.phoneNumber;
 
     if (!partnerPhoneNumber) {
@@ -317,18 +305,6 @@ export class PartnerManagementPage extends BasePage {
   }
   async filter(partFilterInfo: IPartnerFilter): Promise<string> {
     try {
-      const managementCategory = await this.getLocator(
-        CommonLocator.managementCategory,
-      ); //Erase
-
-      await managementCategory.click(); //Erase
-
-      const partnerManagementCategory = await this.getLocator(
-        CommonLocator.partnerManagement,
-      ); //Erase
-
-      await partnerManagementCategory.click(); //Erase
-
       const filterButtonEl = await this.getLocator(
         CommonPartnerLocator.filterPartnerButton,
       );
@@ -367,15 +343,15 @@ export class PartnerManagementPage extends BasePage {
     try {
       const managementCategory = await this.getLocator(
         CommonLocator.managementCategory,
-      ); //Erase
+      );
 
-      await managementCategory.click(); //Erase
+      await managementCategory.click();
 
       const partnerManagementCategory = await this.getLocator(
         CommonLocator.partnerManagement,
-      ); //Erase
+      );
 
-      await partnerManagementCategory.click(); //Erase
+      await partnerManagementCategory.click();
 
       await this.selectDropDownViaElement(
         CommonPartnerLocator.sortingButton,
@@ -402,17 +378,6 @@ export class PartnerManagementPage extends BasePage {
       throw new Error("Partner phone number is missing");
     }
 
-    const managementCategory = await this.getLocator(
-      CommonLocator.managementCategory,
-    ); //Erase
-
-    await managementCategory.click(); //Erase
-
-    const partnerManagementCategory = await this.getLocator(
-      CommonLocator.partnerManagement,
-    ); //Erase
-
-    await partnerManagementCategory.click(); //Erase
     const rawDetailLocator = CommonPartnerLocator.detailButton;
 
     const detailButtonLocator = rawDetailLocator.replace(
