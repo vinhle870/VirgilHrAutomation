@@ -11,4 +11,6 @@ export class CommonCustomerLocator {
     "xpath=//input[@placeholder='Search name, email, company name']/ancestor::form//button";
   public static readonly exportExcelFileButton =
     "xpath=//button[contains(text(),'Export CSV file')]";
+  public static readonly detailButton =
+    "xpath=//span[contains(text(),'phoneNumberValue')]/ancestor::td/following-sibling::td//button[contains(text(),'Details')]";
 }

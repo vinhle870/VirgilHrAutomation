@@ -1,18 +1,18 @@
 import { Locator, Page } from "@playwright/test";
 import { BasePage } from "src/ui/pages/base-page";
-import { CommonLocator } from "../locators/common.locator";
-import { CommonPartnerLocator } from "../locators/partner-management/common";
-import { CreateNewPartnerModalLocator } from "../locators/partner-management/new-partner";
-import { Partner, UserInfo } from "src/objects";
+import { CommonLocator } from "./locators/common.locator";
+import { CommonPartnerLocator } from "./locators/partner-management/common";
+import { CreateNewPartnerModalLocator } from "./locators/partner-management/new-partner";
 import delay from "src/utilities/delay";
-import { TeamAddition } from "../locators/partner-management/team-addition";
-import { DetailOfPartnerLocator } from "../locators/partner-management/detail";
+import { TeamAddition } from "./locators/partner-management/team-addition";
+import { DetailOfPartnerLocator } from "./locators/partner-management/detail";
 import { OnboardingFlow } from "src/ui/flows";
-import { TempEmailFreePage } from "../../shared";
+import { TempEmailFreePage } from "../shared";
 import IPartnerFilter from "src/objects/ipartnerfilter";
-import { PartnerFilter } from "../locators/partner-management/filter-partner";
+import { PartnerFilter } from "./locators/partner-management/filter-partner";
 import { PeoPartner } from "src/objects/ipeopartner";
-import { PeoConsultantAddition } from "../locators/partner-management/peo-consultant-addition";
+import { PeoConsultantAddition } from "./locators/partner-management/peo-consultant-addition";
+import { Partner, UserInfo } from "src/objects";
 
 export class PartnerManagementPage extends BasePage {
   constructor(page: Page) {
@@ -240,9 +240,9 @@ export class PartnerManagementPage extends BasePage {
       partnerPhoneNumber!,
     );
 
-    const detailButtonel = this.page.locator(detailButtonLocator).last();
+    const detailButtonEl = this.page.locator(detailButtonLocator).last();
 
-    await detailButtonel.click();
+    await detailButtonEl.click();
 
     const addMembersButtonEl = this.getLocator(
       DetailOfPartnerLocator.addMemberButton,

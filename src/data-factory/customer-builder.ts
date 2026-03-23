@@ -86,6 +86,7 @@ export class CustomerBuilder {
   private internal?: boolean;
   private consultant?: boolean;
   private stateEmployeeInfo?: Company["statesEmployeeInfor"];
+  private bankStranferToUpgradePlan = false;
 
   // ── Portal selection ─────────────────────────────────────────
 
@@ -326,6 +327,11 @@ export class CustomerBuilder {
     return this;
   }
 
+  withBankStranferToUpgradePlan(bankStranferToUpgradePlan: boolean): this {
+    this.bankStranferToUpgradePlan = bankStranferToUpgradePlan;
+    return this;
+  }
+
   // ── Build ────────────────────────────────────────────────────
 
   async build(): Promise<CustomerInfo> {
@@ -366,6 +372,9 @@ export class CustomerBuilder {
       const member = await PersonDataGenerator.generate(memberOverrides);
       customer.addMember(member);
     }
+
+    if (this.bankStranferToUpgradePlan === true)
+      customer.bankStranferToUpgradePlan = true;
 
     return customer;
   }

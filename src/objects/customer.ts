@@ -9,6 +9,7 @@ export class CustomerInfo {
   stateOfCustomer?: string = "Alaska";
   freeTrial?: boolean = false;
   internal?: boolean = false;
+  bankStranferToUpgradePlan = false;
   plan: string = plans[0];
   company: Company = {} as Company;
   readonly members: UserInfo[] = [];
