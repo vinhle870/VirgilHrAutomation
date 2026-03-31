@@ -9,6 +9,90 @@ import IPartnerFilter from "src/objects/ipartnerfilter";
 import { PartnerFilter } from "src/ui/pages/admin-portal/locators/partner-management/filter-partner";
 
 test.describe("Admin Portal - Partner Management", () => {
+  test("TC30 Verify that a partner account can only be created in the Admin Portal – Partner Management.", async ({
+    loginPage,
+    partnerManagementPage,
+  }, testInfo) => {
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+    testInfo.skip(!base, "API_BASE_URL is not configured");
+
+    await loginPage.login();
+
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withDepartmentName(process.env.DEPARTMENT_NAME!)
+      .withPaymentOption("Partner/Consultant Owner")
+      .withProductsType(["251 - 500 Employees"])
+      .build();
+
+    const newPartner = await partnerManagementPage.createPartner(partnerInfo);
+
+    await expect(newPartner).toBeVisible();
+  });
+
+  test("TC31 Verify when a Partner is being created, the admin can select its level as Partner or PEO/Consultant.", async ({
+    loginPage,
+    partnerManagementPage,
+  }, testInfo) => {
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+    testInfo.skip(!base, "API_BASE_URL is not configured");
+
+    await loginPage.login();
+
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withDepartmentName(process.env.DEPARTMENT_NAME!)
+      .withPaymentOption("Partner/Consultant Owner")
+      .withProductsType(["251 - 500 Employees"])
+      .withPartnerLevel("PEO/HR Consultant")
+      .build();
+
+    const newPartner = await partnerManagementPage.createPartner(partnerInfo);
+
+    await expect(newPartner).toBeVisible();
+  });
+
+  test("TC32 Verify that a Partner is at a higher level than a PEO/Consultant, meaning one Partner can contain one or multiple PEOs/Consultants.", async ({
+    loginPage,
+    partnerManagementPage,
+    onboardingFlow,
+    tempEmailFreePage,
+  }, testInfo) => {
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+    testInfo.skip(!base, "API_BASE_URL is not configured");
+
+    await loginPage.login();
+
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withDepartmentName(process.env.DEPARTMENT_NAME!)
+      .withPaymentOption("Partner/Consultant Owner")
+      .withProductsType(["251 - 500 Employees"])
+      .withPartnerLevel("Partner")
+      .build();
+
+    const newPartner = await partnerManagementPage.createPartner(partnerInfo);
+
+    await expect(newPartner).toBeVisible();
+
+    const peoPartnerInfo = await DataFactory.peoPartnerBuilder()
+      .withName("Peo" + partnerInfo.accountInfo?.firstName)
+      .withCompanyType("Internal")
+      .withCustomBranding(true)
+      .build();
+
+    const peoPartners = [peoPartnerInfo];
+
+    const addedPeoPartner = await partnerManagementPage.addPeoConsultant(
+      partnerInfo,
+      peoPartners,
+      onboardingFlow,
+      tempEmailFreePage,
+    );
+
+    expect(addedPeoPartner).toBe("Pass");
+  });
+
   test("Invite members in partner management", async ({
     loginPage,
     partnerManagementPage,

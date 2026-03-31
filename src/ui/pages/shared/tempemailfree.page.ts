@@ -51,23 +51,28 @@ export class TempEmailFreePage extends BasePage {
     await this.createNewEmail(username);
 
     let joinTeamModalElement;
+    let emptyInbox;
+
     try {
       joinTeamModalElement = await this.getLocator(
         TempEmailFreeLocators.joinTeamModal,
       );
       await joinTeamModalElement.click();
     } catch (e) {
-      const refreshButtonElement = await this.getLocator(
-        TempEmailFreeLocators.refreshButton,
-      );
-      console.log("Error in tempemailfree:", e);
+      emptyInbox = this.page.locator(TempEmailFreeLocators.emptyInbox);
 
-      await refreshButtonElement.click();
+      while (await emptyInbox.isVisible()) {
+        const refreshButtonElement = await this.getLocator(
+          TempEmailFreeLocators.refreshButton,
+        );
 
-      joinTeamModalElement = await this.getLocator(
-        TempEmailFreeLocators.joinTeamModal,
-      );
-      await joinTeamModalElement.click();
+        await refreshButtonElement.click();
+
+        joinTeamModalElement = await this.getLocator(
+          TempEmailFreeLocators.joinTeamModal,
+        );
+        await joinTeamModalElement.click();
+      }
     }
 
     const acceptInviteButtonElement = await this.getLocatorInIframe(
@@ -80,17 +85,24 @@ export class TempEmailFreePage extends BasePage {
     await acceptInviteButtonElement.click();
   }
 
-  async credential(username: string): Promise<any> {
+  public async credential(username: string): Promise<any> {
     await this.createNewEmail(username);
 
     let partnerCredentialEl;
 
     try {
-      partnerCredentialEl = await this.getLocator(
-        TempEmailFreeLocators.partnerCredential,
-      );
+      if (process.env.ENV === "prod") {
+        partnerCredentialEl = await this.getLocator(
+          TempEmailFreeLocators.partnerCredentialPRO,
+        );
 
-      await partnerCredentialEl.click();
+        await partnerCredentialEl.first().click();
+      } else if (process.env.ENV === "qa") {
+        partnerCredentialEl = await this.getLocator(
+          TempEmailFreeLocators.partnerCredentialQA,
+        );
+        await partnerCredentialEl.click();
+      }
     } catch (e) {
       const refreshButtonElement = await this.getLocator(
         TempEmailFreeLocators.refreshButton,
@@ -98,11 +110,18 @@ export class TempEmailFreePage extends BasePage {
 
       await refreshButtonElement.click();
 
-      partnerCredentialEl = await this.getLocator(
-        TempEmailFreeLocators.partnerCredential,
-      );
+      if (process.env.ENV === "prod") {
+        partnerCredentialEl = await this.getLocator(
+          TempEmailFreeLocators.partnerCredentialPRO,
+        );
 
-      await partnerCredentialEl.click();
+        await partnerCredentialEl.first().click();
+      } else if (process.env.ENV === "qa") {
+        partnerCredentialEl = await this.getLocator(
+          TempEmailFreeLocators.partnerCredentialQA,
+        );
+        await partnerCredentialEl.click();
+      }
     }
 
     const credentialFrame = this.page

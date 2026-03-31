@@ -80,6 +80,8 @@ export class LocatorHandling {
       .first()
       .waitFor({ state: "visible", timeout: effectiveTimeout });
 
+    await delay(3000);
+
     if (i === 0) await dropdown.first().click();
 
     const scope = optionListSelector ? page.locator(optionListSelector) : page;

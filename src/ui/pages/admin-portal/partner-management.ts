@@ -473,7 +473,7 @@ export class PartnerManagementPage extends BasePage {
       await createButtonEl.click();
     }
 
-    await delay(10000);
+    await delay(5000);
 
     for (const member of peoPartners) {
       const localPart = member.accountInfo!.email.split("@")[0];

@@ -16,11 +16,15 @@ export class TempEmailFreeLocators {
 
   public static readonly refreshButton = "(//div[text()='Refresh'])[2]";
 
-  public static readonly partnerCredential =
+  public static readonly partnerCredentialQA =
     "xpath=//div[text()='HR Compliance - Partner Credential']";
+
+  public static readonly partnerCredentialPRO =
+    "xpath=//div[contains(text(),'Your Partner Portal Credentials')]";
 
   public static readonly credentialIframe = "iframe.min-h-tm-half";
 
   public static readonly credentialUsername = "p:has-text('Username')";
   public static readonly credentialPassword = "p:has-text('Password')";
+  public static readonly emptyInbox = "xpath=//div[text()='Empty Inbox']";
 }
