@@ -2,6 +2,11 @@ import { Country } from "./country";
 import { Industry } from "./industry";
 import { State } from "./state";
 
+interface IStateInfo {
+  state: string;
+  number: number;
+}
+
 export interface Company {
   // Common Info
   companyName?: string;
@@ -27,4 +32,6 @@ export interface Company {
   productType?: number | string;
   state?: State;
   billingcycle?: number;
+  consultant?: boolean;
+  statesEmployeeInfor?: IStateInfo[];
 }

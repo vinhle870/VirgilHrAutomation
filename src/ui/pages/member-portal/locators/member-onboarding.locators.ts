@@ -7,4 +7,9 @@ export class MemberOnboardingLocators {
   static readonly closeGuide = "//button[@class='_pendo-close-guide']";
   static readonly readyDiveIn =
     "xpath=//span[text()='I\u2019m ready to dive in']";
+
+  public static readonly emailInput = "//input[@type='text']";
+  public static readonly passwordInput = "//input[@type='password']";
+  public static readonly SignInButton =
+    "//button[.//span[normalize-space()='Sign In']]";
 }

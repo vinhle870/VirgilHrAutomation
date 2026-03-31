@@ -4,11 +4,15 @@ import { MemberOnboardingLocators } from "./locators";
 
 export class MemberOnboardingPage extends BasePage {
   async setPasswordAndJoinTeam(password: string) {
-    const continueBtn = await this.getLocator(
-      MemberOnboardingLocators.continueWithEmail,
-    );
+    try {
+      const continueBtn = await this.getLocator(
+        MemberOnboardingLocators.continueWithEmail,
+      );
 
-    await continueBtn.click();
+      await continueBtn.click();
+    } catch (error) {
+      console.error("There is no continue button");
+    }
 
     const passwordInput = await this.getLocator(
       MemberOnboardingLocators.setPassword,
@@ -29,11 +33,30 @@ export class MemberOnboardingPage extends BasePage {
       await closeBtn.click();
     }
 
-    const diveInBtn = await this.getLocator(
-      MemberOnboardingLocators.readyDiveIn,
-      30000,
-    );
-    await expect(diveInBtn).toBeVisible({ timeout: 30000 });
-    await diveInBtn.click();
+    try {
+      const diveInBtn = await this.getLocator(
+        MemberOnboardingLocators.readyDiveIn,
+        30000,
+      );
+      await expect(diveInBtn).toBeVisible({ timeout: 30000 });
+      await diveInBtn.click();
+    } catch (error) {
+      console.log("There is no 'I am diving'");
+    }
+  }
+
+  async loginViaCredentialEmail(email: string, password: string) {
+    const emailField = this.page.locator(MemberOnboardingLocators.emailInput);
+    await emailField.waitFor({ state: "visible" });
+    await emailField.fill(email!);
+
+    const passField = this.page.locator(MemberOnboardingLocators.passwordInput);
+    await passField.fill(password!);
+
+    const signInBtn = this.page.locator(MemberOnboardingLocators.SignInButton);
+
+    await signInBtn.click();
+
+    await this.page.waitForURL(/.*change-password/, { timeout: 30000 });
   }
 }

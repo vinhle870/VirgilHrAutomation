@@ -1,4 +1,5 @@
-import { Locator, Page } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
+import delay from "./delay";
 
 export class LocatorHandling {
   private static getEffectiveTimeout(timeout?: number): number {
@@ -12,7 +13,7 @@ export class LocatorHandling {
 
   private static async waitForNetworkSettled(
     page: Page,
-    timeout: number
+    timeout: number,
   ): Promise<void> {
     const networkWait = Math.min(3000, timeout);
     try {
@@ -35,7 +36,7 @@ export class LocatorHandling {
     page: Page,
     dropdownSelector: string,
     optionSelector: string,
-    timeout?: number
+    timeout?: number,
   ): Promise<void> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(page, effectiveTimeout);
@@ -68,8 +69,79 @@ export class LocatorHandling {
     page: Page,
     dropdownSelector: string,
     optionText: string,
+    i = 0,
     optionListSelector?: string,
-    timeout?: number
+    timeout = 3000,
+  ): Promise<void> {
+    const effectiveTimeout = this.getEffectiveTimeout(timeout);
+    await this.waitForNetworkSettled(page, effectiveTimeout);
+    const dropdown = page.locator(dropdownSelector);
+    await dropdown
+      .first()
+      .waitFor({ state: "visible", timeout: effectiveTimeout });
+
+    if (i === 0) await dropdown.first().click();
+
+    const scope = optionListSelector ? page.locator(optionListSelector) : page;
+
+    const options = scope.getByText(optionText, { exact: true });
+
+    const count = await options.count();
+
+    if (count === 0) {
+      throw new Error("the option does not exist");
+    }
+
+    let option = options.nth(count - 1);
+    if (await option.isVisible()) {
+      await option.click({ force: true });
+      //   await page.keyboard.press("Escape");
+      return;
+    }
+
+    for (let i = 0; i < count; i++) {
+      const option = options.nth(i);
+      if (await option.isVisible()) {
+        await option.click({ force: true });
+        // await page.keyboard.press("Escape");
+        return;
+      }
+    }
+  }
+
+  public static async selectRadio(
+    page: Page,
+    radioText: string,
+    radioSelector?: string,
+    timeout?: number,
+  ) {
+    const effectiveTimeout = LocatorHandling.getEffectiveTimeout(timeout);
+    await LocatorHandling.waitForNetworkSettled(page, effectiveTimeout);
+
+    const scope = radioSelector ? page.locator(radioSelector) : page;
+
+    const options = scope.getByText(radioText, { exact: true });
+
+    const count = await options.count();
+
+    for (let i = 0; i < count; i++) {
+      const option = options.nth(i);
+
+      const text = (await option.textContent())?.trim() ?? "";
+
+      if ((await option.isVisible()) && text === radioText) {
+        await option.click({ force: true });
+        break;
+      }
+    }
+  }
+
+  static async selectDropDownViaElement(
+    page: Page,
+    dropdownSelector: string,
+    selectionLocator: string,
+    optionListSelector?: string,
+    timeout = 3000,
   ): Promise<void> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(page, effectiveTimeout);
@@ -80,16 +152,32 @@ export class LocatorHandling {
       .waitFor({ state: "visible", timeout: effectiveTimeout });
     await dropdown.first().click();
 
-    const scope = optionListSelector
-      ? page.locator(optionListSelector)
-      : page;
-    const option = scope.getByText(optionText, { exact: true });
-    await option
-      .first()
-      .waitFor({ state: "visible", timeout: effectiveTimeout });
-    await option.first().click();
-  }
+    const scope = optionListSelector ? page.locator(optionListSelector) : page;
 
+    const options = scope.locator(selectionLocator);
+
+    console.log("options:", options);
+
+    const count = await options.count();
+
+    if (count === 0) {
+      throw new Error("the option does not exist");
+    }
+
+    let option = options.nth(count - 1);
+    if (await option.isVisible()) {
+      await option.click({ force: true });
+      return;
+    }
+
+    for (let i = 0; i < count; i++) {
+      const option = options.nth(i);
+      if (await option.isVisible()) {
+        await option.click({ force: true });
+        return;
+      }
+    }
+  }
   /**
    * Find and return the UI Field's locator and wait until it's visible.
    * Call sites in the repo already `await` this method.
@@ -100,7 +188,7 @@ export class LocatorHandling {
   static async getLocator(
     page: Page,
     selector: string,
-    timeout?: number
+    timeout?: number,
   ): Promise<Locator> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(page, effectiveTimeout);
@@ -116,7 +204,7 @@ export class LocatorHandling {
     page: Page,
     iframeSelector: string,
     selector: string,
-    timeout?: number
+    timeout?: number,
   ): Promise<Locator> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(page, effectiveTimeout);

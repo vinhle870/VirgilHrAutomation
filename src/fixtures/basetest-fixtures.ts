@@ -9,8 +9,11 @@ import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { MemberPortalService } from "src/api/services";
 import { PartnerPortalService } from "src/api/services/partner-portal.services";
 import { TempEmailFreePage } from "../ui/pages";
+import { LoginAdminPage } from "src/ui/pages/admin-portal/login.page";
+import { PartnerManagementPage } from "src/ui/pages/admin-portal/partner-management";
 
 import { PartnerIntegrationService } from "src/api/services/partner-integration.service";
+import { CustomerManagementPage } from "src/ui/pages/admin-portal/customer-management";
 type MyFixtures = {
   adminLoggedIn: void;
   homePage: AdminHomePage;
@@ -28,6 +31,10 @@ type MyFixtures = {
 
   tempEmailFreePage: TempEmailFreePage;
   partnerIntegrationService: PartnerIntegrationService;
+
+  loginPage: LoginAdminPage;
+  partnerManagementPage: PartnerManagementPage;
+  customerManagementPage: CustomerManagementPage;
 };
 
 export const test = base.extend<MyFixtures>({
@@ -112,6 +119,16 @@ export const test = base.extend<MyFixtures>({
   partnerIntegrationService: async ({ apiClient: api }, use) => {
     const partnerIntegrationService = new PartnerIntegrationService(api);
     await use(partnerIntegrationService);
+  },
+
+  loginPage: async ({ page }, use) => {
+    await use(new LoginAdminPage(page));
+  },
+  partnerManagementPage: async ({ page }, use) => {
+    await use(new PartnerManagementPage(page));
+  },
+  customerManagementPage: async ({ page }, use) => {
+    await use(new CustomerManagementPage(page));
   },
 });
 

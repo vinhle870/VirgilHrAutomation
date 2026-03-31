@@ -143,6 +143,34 @@ export class PartnerBuilder {
     return this;
   }
 
+  withProductsType(productsType: string[]): this {
+    this.partnerOverrides.productsType = productsType;
+    return this;
+  }
+
+  withDepartmentName(departmentName: string): this {
+    this.partnerOverrides.departmentName = departmentName;
+    return this;
+  }
+
+  withPartnerLevel(partnerLevel: string): this {
+    this.partnerOverrides.partnerLevel = partnerLevel;
+    return this;
+  }
+
+  withPaymentOption(paymentOption: string): this {
+    this.partnerOverrides.paymentOption = paymentOption;
+    return this;
+  }
+
+  withBillingCyleRadio(billingCycleRadio: string): this {
+    this.partnerOverrides.billingCycleRadio = billingCycleRadio;
+    return this;
+  }
+  withInternal(internal: boolean) {
+    this.partnerOverrides.internal = internal;
+    return this;
+  }
   /**
    * Set the who pay value for the partner.
    * @param whoPay - The who pay value (0: Partner, 1: Customer) UI Field: Payment Options
@@ -155,6 +183,11 @@ export class PartnerBuilder {
 
   withPlanId(planId: string): this {
     this.partnerOverrides.planId = planId;
+    return this;
+  }
+
+  withPlan(plan: string): this {
+    this.partnerOverrides.plan = plan;
     return this;
   }
 
@@ -188,6 +221,7 @@ export class PartnerBuilder {
     this.feFilterProductTypesValue = productTypeIds;
     return this;
   }
+  //Invite members
 
   // ── Build ────────────────────────────────────────────────────
 
@@ -227,6 +261,13 @@ export class PartnerBuilder {
 
     partner.partnerInfo = {
       whoPay: o.whoPay ?? DataGenerate.generateDecimal(),
+      departmentName: o.departmentName,
+      partnerLevel: o.partnerLevel,
+      paymentOption: o.paymentOption,
+      productsType: o.productsType,
+      billingCycleRadio: o.billingCycleRadio,
+      internal: o.internal,
+
       restriction,
       apiEnable: o.apiEnable ?? false,
       departmentId: o.departmentId ?? "688897d5eb52b4af5573def4",

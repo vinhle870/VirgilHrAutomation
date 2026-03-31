@@ -46,6 +46,21 @@ export abstract class BasePage {
     );
   }
 
+  protected async selectDropDownViaElement(
+    dropdownSelector: string,
+    optionSelector: string,
+    optionListSelector?: string,
+    timeout?: number,
+  ) {
+    return LocatorHandling.selectDropDownViaElement(
+      this.page,
+      dropdownSelector,
+      optionSelector,
+      optionListSelector,
+      timeout,
+    );
+  }
+
   /**
    * Open a dropdown and select an option by its visible text.
    * Supports portals/overlays where options may not be children of the dropdown.
@@ -53,6 +68,8 @@ export abstract class BasePage {
   protected async selectDropdownOptionByText(
     dropdownSelector: string,
     optionText: string,
+    i = 0,
+    isLastElement?: boolean,
     optionListSelector?: string,
     timeout?: number,
   ) {
@@ -60,7 +77,22 @@ export abstract class BasePage {
       this.page,
       dropdownSelector,
       optionText,
+      i,
+      isLastElement,
       optionListSelector,
+      timeout,
+    );
+  }
+
+  protected async selectRadio(
+    radioText: string,
+    radioSelector?: string,
+    timeout?: number,
+  ) {
+    await LocatorHandling.selectRadio(
+      this.page,
+      radioText,
+      radioSelector,
       timeout,
     );
   }

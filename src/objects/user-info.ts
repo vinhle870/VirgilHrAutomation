@@ -13,4 +13,6 @@ export default interface UserInfo {
   //info to be added on Member Portal as role
   role?: number; // 0: Owner, 1: Admin, 3: User
   partnerConsumerType?: number;
+  localPrefix?: string;
+  invitedRole?: string;
 }
