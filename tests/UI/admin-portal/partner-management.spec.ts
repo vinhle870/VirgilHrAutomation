@@ -22,7 +22,7 @@ test.describe("Admin Portal - Partner Management", () => {
     const partnerInfo = await DataFactory.partnerBuilder()
       .withDepartmentName(process.env.DEPARTMENT_NAME!)
       .withPaymentOption("Partner/Consultant Owner")
-      .withProductsType(["251 - 500 Employees"])
+      .withProductsType([process.env.PLAN!])
       .build();
 
     const newPartner = await partnerManagementPage.createPartner(partnerInfo);
@@ -43,7 +43,7 @@ test.describe("Admin Portal - Partner Management", () => {
     const partnerInfo = await DataFactory.partnerBuilder()
       .withDepartmentName(process.env.DEPARTMENT_NAME!)
       .withPaymentOption("Partner/Consultant Owner")
-      .withProductsType(["251 - 500 Employees"])
+      .withProductsType([process.env.PLAN!])
       .withPartnerLevel("PEO/HR Consultant")
       .build();
 
@@ -67,7 +67,7 @@ test.describe("Admin Portal - Partner Management", () => {
     const partnerInfo = await DataFactory.partnerBuilder()
       .withDepartmentName(process.env.DEPARTMENT_NAME!)
       .withPaymentOption("Partner/Consultant Owner")
-      .withProductsType(["251 - 500 Employees"])
+      .withProductsType([process.env.PLAN!])
       .withPartnerLevel("Partner")
       .build();
 
@@ -135,7 +135,7 @@ test.describe("Admin Portal - Partner Management", () => {
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption(paymentOption!)
-        .withProductsType(["251 - 500 Employees"])
+        .withProductsType([process.env.PLAN!])
         .withPartnerLevel("Partner")
         .build();
 
@@ -151,6 +151,9 @@ test.describe("Admin Portal - Partner Management", () => {
   test("TC35 With Payment Options = Partner/Consultant Owner, the user will make payments in the Partner Portal, and the Partner account will be the owner of all Businesses.", async ({
     loginPage,
     partnerManagementPage,
+    onboardingFlow,
+    tempEmailFreePage,
+    purchaseFlow,
   }, testInfo) => {
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
@@ -161,7 +164,7 @@ test.describe("Admin Portal - Partner Management", () => {
     const partnerInfo = await DataFactory.partnerBuilder()
       .withDepartmentName(process.env.DEPARTMENT_NAME!)
       .withPaymentOption("Partner/Consultant Owner")
-      .withProductsType(["251 - 500 Employees"])
+      .withProductsType([process.env.PLAN!])
       .withPartnerLevel("Partner")
       .withBankTransfer(false)
       .build();
@@ -169,6 +172,17 @@ test.describe("Admin Portal - Partner Management", () => {
     const newPartner = await partnerManagementPage.createPartner(partnerInfo);
 
     await expect(newPartner).toBeVisible();
+
+    const newPage = await onboardingFlow.buyPlanInPartnerPortal(
+      tempEmailFreePage,
+      purchaseFlow,
+      partnerInfo.accountInfo?.email!,
+      true,
+    );
+
+    const owner = await onboardingFlow.createBusiness(newPage);
+
+    await expect(owner).toBeVisible();
   });
 
   test("Invite members in partner management", async ({

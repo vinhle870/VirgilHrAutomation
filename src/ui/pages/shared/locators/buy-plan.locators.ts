@@ -13,6 +13,4 @@ export class BuyPlanLocators {
   static readonly billingCity = "//*[@id='billingLocality']";
   static readonly subscribe = "//*[text()='Subscribe']";
   static readonly readyDiveIn = "//*[text()='I\u2019m ready to dive in']";
-
-
 }

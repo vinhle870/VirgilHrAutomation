@@ -58,5 +58,25 @@ export class MemberOnboardingPage extends BasePage {
     await signInBtn.click();
 
     await this.page.waitForURL(/.*change-password/, { timeout: 30000 });
+
+    await (
+      await this.getLocator(MemberOnboardingLocators.currentPasswordInput)
+    ).fill(password);
+
+    await (
+      await this.getLocator(MemberOnboardingLocators.newPassword)
+    ).fill("Password@123");
+
+    await (
+      await this.getLocator(MemberOnboardingLocators.continueButton)
+    ).click();
+
+    await (
+      await this.getLocator(MemberOnboardingLocators.completedSafely)
+    ).isVisible();
+
+    await (
+      await this.getLocator(MemberOnboardingLocators.continueButton)
+    ).click();
   }
 }

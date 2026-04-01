@@ -12,4 +12,15 @@ export class MemberOnboardingLocators {
   public static readonly passwordInput = "//input[@type='password']";
   public static readonly SignInButton =
     "//button[.//span[normalize-space()='Sign In']]";
+
+  public static readonly currentPasswordInput =
+    "xpath=//input[@placeholder='Current password']";
+
+  public static readonly continueButton =
+    "xpath=//button/span[text()='Continue']";
+
+  public static readonly newPassword =
+    "xpath=//input[@placeholder='New password']";
+
+  public static readonly completedSafely = "xpath=//h3";
 }

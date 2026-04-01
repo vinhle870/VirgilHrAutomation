@@ -2,7 +2,7 @@ import { Page } from "@playwright/test";
 import { LocatorHandling } from "../../utilities/locator-handling";
 
 export abstract class BasePage {
-  protected readonly page: Page;
+  protected page: Page;
 
   constructor(page: Page) {
     this.page = page;

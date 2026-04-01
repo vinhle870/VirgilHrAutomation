@@ -17,16 +17,25 @@ export class PurchaseFlow {
     url: string,
     email: string,
     password: string,
-    cardinfo: object,
+    cardinfo?: object,
+    newPage?: Page,
   ) {
+    if (!newPage) {
+      await new BuyPlanPage(this.page).fillBuyPlanForm(
+        url,
+        email,
+        password,
+        cardinfo,
+      );
 
-    await new BuyPlanPage(this.page).fillBuyPlanForm(
-      url,
-      email,
-      password,
-      cardinfo,
-    );
-
-    await new WelcomeModal(this.page).closeModalWithOption("readyDiveIn");
+      await new WelcomeModal(this.page).closeModalWithOption("readyDiveIn");
+    } else {
+      await new BuyPlanPage(newPage).fillBuyPlanForm(
+        url,
+        email,
+        password,
+        cardinfo,
+      );
+    }
   }
 }

@@ -2,7 +2,7 @@ import { test as base } from "@playwright/test";
 import dotenv from "dotenv";
 dotenv.config();
 import { ApiClient } from "../utilities/api.client";
-import { AdminHomePage, AdminLeftMenu } from "../ui/pages";
+import { AdminHomePage, AdminLeftMenu, BuyPlanPage } from "../ui/pages";
 import { AuthFlow, OnboardingFlow, PurchaseFlow } from "../ui/flows";
 import { Authentication } from "../api/services/authentication.service";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
