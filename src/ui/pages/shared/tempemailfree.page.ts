@@ -91,18 +91,10 @@ export class TempEmailFreePage extends BasePage {
     let partnerCredentialEl;
 
     try {
-      if (process.env.ENV === "prod") {
-        partnerCredentialEl = await this.getLocator(
-          TempEmailFreeLocators.partnerCredentialPRO,
-        );
-
-        await partnerCredentialEl.first().click();
-      } else if (process.env.ENV === "qa") {
-        partnerCredentialEl = await this.getLocator(
-          TempEmailFreeLocators.partnerCredentialQA,
-        );
-        await partnerCredentialEl.click();
-      }
+      partnerCredentialEl = await this.getLocator(
+        TempEmailFreeLocators.partnerCredential,
+      );
+      await partnerCredentialEl.first().click();
     } catch (e) {
       const refreshButtonElement = await this.getLocator(
         TempEmailFreeLocators.refreshButton,
@@ -110,18 +102,10 @@ export class TempEmailFreePage extends BasePage {
 
       await refreshButtonElement.click();
 
-      if (process.env.ENV === "prod") {
-        partnerCredentialEl = await this.getLocator(
-          TempEmailFreeLocators.partnerCredentialPRO,
-        );
-
-        await partnerCredentialEl.first().click();
-      } else if (process.env.ENV === "qa") {
-        partnerCredentialEl = await this.getLocator(
-          TempEmailFreeLocators.partnerCredentialQA,
-        );
-        await partnerCredentialEl.click();
-      }
+      partnerCredentialEl = await this.getLocator(
+        TempEmailFreeLocators.partnerCredential,
+      );
+      await partnerCredentialEl.first().click();
     }
 
     const credentialFrame = this.page

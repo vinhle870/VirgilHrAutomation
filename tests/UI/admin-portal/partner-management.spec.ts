@@ -93,6 +93,84 @@ test.describe("Admin Portal - Partner Management", () => {
     expect(addedPeoPartner).toBe("Pass");
   });
 
+  test("TC33 When creating a new Partner, the admin can choose to assign a sub-domain to that Partner, or not.", async ({
+    loginPage,
+    partnerManagementPage,
+  }, testInfo) => {
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+    testInfo.skip(!base, "API_BASE_URL is not configured");
+
+    await loginPage.login();
+
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withDepartmentName(process.env.DEPARTMENT_NAME!)
+      .withPaymentOption("Partner/Consultant Owner")
+      .withProductsType(["251 - 500 Employees"])
+      .withPartnerLevel("Partner")
+      .withSubDomain("")
+      .build();
+
+    const newPartner = await partnerManagementPage.createPartner(partnerInfo);
+
+    await expect(newPartner).toBeVisible();
+  });
+
+  test("TC34 For Payment Options, the admin can select either Partner/Consultant Owner or Member Portal Consumer.", async ({
+    loginPage,
+    partnerManagementPage,
+  }, testInfo) => {
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+    testInfo.skip(!base, "API_BASE_URL is not configured");
+
+    await loginPage.login();
+
+    let paymentOption;
+
+    for (let i = 0; i < 2; i++) {
+      if (i === 0) paymentOption = "Partner/Consultant Owner";
+      else paymentOption = "Member Portal Consumer";
+
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption(paymentOption!)
+        .withProductsType(["251 - 500 Employees"])
+        .withPartnerLevel("Partner")
+        .build();
+
+      const newPartner = await partnerManagementPage.createPartner(
+        partnerInfo,
+        i,
+      );
+
+      await expect(newPartner).toBeVisible();
+    }
+  });
+
+  test("TC35 With Payment Options = Partner/Consultant Owner, the user will make payments in the Partner Portal, and the Partner account will be the owner of all Businesses.", async ({
+    loginPage,
+    partnerManagementPage,
+  }, testInfo) => {
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+    testInfo.skip(!base, "API_BASE_URL is not configured");
+
+    await loginPage.login();
+
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withDepartmentName(process.env.DEPARTMENT_NAME!)
+      .withPaymentOption("Partner/Consultant Owner")
+      .withProductsType(["251 - 500 Employees"])
+      .withPartnerLevel("Partner")
+      .withBankTransfer(false)
+      .build();
+
+    const newPartner = await partnerManagementPage.createPartner(partnerInfo);
+
+    await expect(newPartner).toBeVisible();
+  });
+
   test("Invite members in partner management", async ({
     loginPage,
     partnerManagementPage,
