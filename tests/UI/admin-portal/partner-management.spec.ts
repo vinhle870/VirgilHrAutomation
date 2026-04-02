@@ -1,5 +1,5 @@
 import { test, expect } from "src/fixtures";
-import { DataFactory } from "src/data-factory";
+import { DataFactory, PersonDataGenerator } from "src/data-factory";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { plans } from "src/constant/static-data";
 import { CollectionUtils } from "src/utilities";
@@ -7,8 +7,9 @@ import { UserInfo } from "src/objects";
 import { CustomerFactory } from "src/data-factory/customer-factory";
 import IPartnerFilter from "src/objects/ipartnerfilter";
 import { PartnerFilter } from "src/ui/pages/admin-portal/locators/partner-management/filter-partner";
+import delay from "src/utilities/delay";
 
-test.describe("Admin Portal - Partner Management", () => {
+test.describe("E2E -> Admin Portal -> Partner Management", () => {
   test("TC30 Verify that a partner account can only be created in the Admin Portal – Partner Management.", async ({
     loginPage,
     partnerManagementPage,
@@ -176,11 +177,52 @@ test.describe("Admin Portal - Partner Management", () => {
     const newPage = await onboardingFlow.buyPlanInPartnerPortal(
       tempEmailFreePage,
       purchaseFlow,
-      partnerInfo.accountInfo?.email!,
+      partnerInfo,
       true,
     );
 
-    const owner = await onboardingFlow.createBusiness(newPage);
+    const owner = await onboardingFlow.createBusiness(newPage, partnerInfo);
+
+    await expect(owner).toBeVisible();
+  });
+
+  test("TC36 With Payment Options = Member Portal Consumer, the user does not handle payments, and each Business will have its own owner.", async ({
+    loginPage,
+    partnerManagementPage,
+    onboardingFlow,
+    tempEmailFreePage,
+  }, testInfo) => {
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+    testInfo.skip(!base, "API_BASE_URL is not configured");
+
+    await loginPage.login();
+
+    const partnerInfo = await DataFactory.partnerBuilder()
+      .withDepartmentName(process.env.DEPARTMENT_NAME!)
+      .withPaymentOption("Member Portal Consumer")
+      .withProductsType([process.env.PLAN!])
+      .withPartnerLevel("Partner")
+      .withBankTransfer(false)
+      .build();
+
+    const newPartner = await partnerManagementPage.createPartner(partnerInfo);
+
+    await expect(newPartner).toBeVisible();
+
+    const newPage = await onboardingFlow.credential(
+      tempEmailFreePage,
+      partnerInfo,
+      true,
+    );
+
+    const ownerAccount = await PersonDataGenerator.generate();
+
+    const owner = await onboardingFlow.createBusiness(
+      newPage,
+      partnerInfo,
+      ownerAccount,
+    );
 
     await expect(owner).toBeVisible();
   });

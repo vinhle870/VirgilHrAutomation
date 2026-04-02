@@ -3,9 +3,11 @@ import { BasePage } from "../base-page";
 import { TempEmailFreeLocators } from "./locators";
 
 export class TempEmailFreePage extends BasePage {
-  async createNewEmail(username: string) {
+  private async createNewEmail(username: string) {
     const logger = (console.debug ?? console.log).bind(console);
     logger(`==================[Yopmail Invitation] email: ${username}\n`);
+
+    await delay(10000);
 
     const url = "https://tempemailfree.com/";
     const timeout = 30000;
@@ -57,7 +59,10 @@ export class TempEmailFreePage extends BasePage {
       );
       await joinTeamModalElement.click();
     } catch (e) {
-      await this.clickJoinTeam();
+      const joinTeamModalElement = await this.getLocator(
+        TempEmailFreeLocators.joinTeamModal,
+      );
+      await joinTeamModalElement.click();
     }
 
     const acceptInviteButtonElement = await this.getLocatorInIframe(
@@ -69,33 +74,18 @@ export class TempEmailFreePage extends BasePage {
 
     await acceptInviteButtonElement.click();
   }
-  private async clickJoinTeam() {
-    const emptyInbox = this.page.locator(TempEmailFreeLocators.emptyInbox);
 
-    while (await emptyInbox.isVisible()) {
-      const refreshButtonElement = await this.getLocator(
-        TempEmailFreeLocators.refreshButton,
-      );
-
-      await refreshButtonElement.click();
-
-      const joinTeamModalElement = await this.getLocator(
-        TempEmailFreeLocators.joinTeamModal,
-      );
-      await joinTeamModalElement.click();
-    }
-  }
-
-  public async credential(username: string): Promise<any> {
+  public async credential(username: string, portal = "Partner"): Promise<any> {
     await this.createNewEmail(username);
 
     try {
-      const partnerCredentialEl = await this.getLocator(
-        TempEmailFreeLocators.partnerCredential,
-      );
-      await partnerCredentialEl.first().click();
+      await (
+        await this.getLocator(TempEmailFreeLocators.refreshButton)
+      ).click();
     } catch (e) {
-      await this.clickRefreshButton();
+      await (
+        await this.getLocator(TempEmailFreeLocators.refreshButton)
+      ).click();
     }
 
     const credentialFrame = this.page
@@ -126,34 +116,5 @@ export class TempEmailFreePage extends BasePage {
     await newPage.waitForLoadState();
 
     return { email, password, newPage };
-  }
-
-  private async clickRefreshButton() {
-    let partnerCredentialEl;
-    const refreshButtonElement = await this.getLocator(
-      TempEmailFreeLocators.refreshButton,
-    );
-
-    await refreshButtonElement.click();
-    try {
-      partnerCredentialEl = await this.getLocator(
-        TempEmailFreeLocators.partnerCredential,
-      );
-      await partnerCredentialEl.first().click();
-    } catch (error) {
-      partnerCredentialEl = await this.getLocator(
-        TempEmailFreeLocators.partnerCredential,
-      );
-
-      for (let i = 0; i < 5; i++) {
-        if (await partnerCredentialEl.first().isVisible()) {
-          break;
-        }
-        await refreshButtonElement.click();
-        await delay(1000);
-      }
-
-      await partnerCredentialEl.first().click();
-    }
   }
 }

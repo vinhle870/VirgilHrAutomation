@@ -478,8 +478,7 @@ export class PartnerManagementPage extends BasePage {
     await delay(5000);
 
     for (const member of peoPartners) {
-      const localPart = member.accountInfo!.email.split("@")[0];
-      await onboardingFlow.credential(tempEmailFreePage, localPart);
+      await onboardingFlow.credential(tempEmailFreePage, member);
     }
 
     return "Pass";
