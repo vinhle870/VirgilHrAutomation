@@ -5,6 +5,7 @@ import { PurchaseFlow } from "./purchase.flow";
 import { CommonPartnerPortalLocator } from "../pages/shared/locators/commonPartnerPortal";
 import { BusinessLocator } from "../pages/shared/locators/business";
 import { Partner, UserInfo } from "src/objects";
+import delay from "src/utilities/delay";
 
 export class OnboardingFlow {
   private readonly page: Page;
@@ -40,10 +41,10 @@ export class OnboardingFlow {
 
   public async credential(
     tempEmailFreePage: TempEmailFreePage,
-    partnerInfo: Partner,
+    emailOfPartner: string,
     isClose = false,
   ) {
-    const localPart = partnerInfo.accountInfo?.email.split("@")[0];
+    const localPart = emailOfPartner.split("@")[0];
 
     const { email, password, newPage } = await tempEmailFreePage.credential(
       localPart!,
@@ -73,7 +74,11 @@ export class OnboardingFlow {
     if (partnerInfo.partnerInfo?.paymentOption !== "Partner/Consultant Owner")
       throw new Error("Payment option must be Partner/Consultant Owner");
 
-    const newPage = await this.credential(tempEmailFreePage, partnerInfo, true);
+    const newPage = await this.credential(
+      tempEmailFreePage,
+      partnerInfo.accountInfo?.email!,
+      true,
+    );
 
     await purchaseFlow.buyPlan(
       "",
@@ -105,6 +110,8 @@ export class OnboardingFlow {
         .locator(CommonPartnerPortalLocator.closeButton)
         .waitFor({ state: "visible", timeout: 30000 });
 
+      await delay(300);
+
       await newPage.locator(CommonPartnerPortalLocator.closeButton).click();
     } catch (error) {
       console.log("There is no closing button");
@@ -115,6 +122,8 @@ export class OnboardingFlow {
         .locator(CommonPartnerPortalLocator.closeTestModal)
         .first()
         .waitFor({ state: "visible", timeout: 30000 });
+
+      await delay(300);
 
       await newPage
         .locator(CommonPartnerPortalLocator.closeTestModal)

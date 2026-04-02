@@ -107,7 +107,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     const partnerInfo = await DataFactory.partnerBuilder()
       .withDepartmentName(process.env.DEPARTMENT_NAME!)
       .withPaymentOption("Partner/Consultant Owner")
-      .withProductsType(["251 - 500 Employees"])
+      .withProductsType([process.env.PLAN!])
       .withPartnerLevel("Partner")
       .withSubDomain("")
       .build();
@@ -204,6 +204,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       .withProductsType([process.env.PLAN!])
       .withPartnerLevel("Partner")
       .withBankTransfer(false)
+      .withEmail("QATest_Shyanne434@polandcampus.edu.pl ")
       .build();
 
     const newPartner = await partnerManagementPage.createPartner(partnerInfo);
@@ -212,7 +213,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
     const newPage = await onboardingFlow.credential(
       tempEmailFreePage,
-      partnerInfo,
+      partnerInfo.accountInfo?.email!,
       true,
     );
 

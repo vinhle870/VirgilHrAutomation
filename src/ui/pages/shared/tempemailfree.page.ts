@@ -79,13 +79,17 @@ export class TempEmailFreePage extends BasePage {
     await this.createNewEmail(username);
 
     try {
-      await (
-        await this.getLocator(TempEmailFreeLocators.refreshButton)
-      ).click();
+      await (await this.getLocator(TempEmailFreeLocators.partnerCredential))
+        .first()
+        .click();
     } catch (e) {
       await (
         await this.getLocator(TempEmailFreeLocators.refreshButton)
       ).click();
+
+      await (await this.getLocator(TempEmailFreeLocators.partnerCredential))
+        .first()
+        .click();
     }
 
     const credentialFrame = this.page
