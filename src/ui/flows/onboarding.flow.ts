@@ -110,7 +110,7 @@ export class OnboardingFlow {
         .locator(CommonPartnerPortalLocator.closeButton)
         .waitFor({ state: "visible", timeout: 30000 });
 
-      await delay(300);
+      await delay(3000);
 
       await newPage.locator(CommonPartnerPortalLocator.closeButton).click();
     } catch (error) {
@@ -123,7 +123,7 @@ export class OnboardingFlow {
         .first()
         .waitFor({ state: "visible", timeout: 30000 });
 
-      await delay(300);
+      await delay(3000);
 
       await newPage
         .locator(CommonPartnerPortalLocator.closeTestModal)
