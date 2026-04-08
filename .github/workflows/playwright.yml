@@ -4,55 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Environment name (used to pick env vars)'
-        required: false
-        default: 'qa'
-      browser:
-        description: 'Browser to run (all|chromium|firefox|webkit)'
-        required: false
-        default: 'all'
-  push:
-    branches: [ main ]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    env:
-      # Optional: override with repository secrets or workflow inputs
-      API_BASE_URL: ${{ secrets.API_BASE_URL }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright browsers
-        run: npm run install:browsers
-
-      - name: Run Playwright tests
-        # Use the npm script that preloads ts-node and tsconfig-paths
-        run: npm run test:playwright
-
-      - name: Upload Playwright HTML report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: playwright-report
-name: Playwright Tests
-
-on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'The environment to execute (e.g., qa, uat, staging)'
+        description: "GitHub Environment (qa, uat, staging) — used for vars and profile/.env via ENV"
         required: true
         type: choice
         options:
@@ -60,7 +12,7 @@ on:
           - uat
           - staging
       browser:
-        description: 'The browser to execute tests on (e.g., chromium, firefox, webkit)'
+        description: "Browser — all runs every configured Playwright project"
         required: true
         type: choice
         options:
@@ -68,66 +20,80 @@ on:
           - chromium
           - firefox
           - webkit
+  push:
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    environment: ${{ github.event.inputs.environment }}
+    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'qa' }}
+
+    env:
+      API_BASE_URL: ${{ secrets.API_BASE_URL }}
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 18
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+          run_install: false
 
-    - name: Set environment variables
-      env:
-        BASE_URL: ${{ vars.BASE_URL }}
-        ADMIN_USERNAME: ${{ vars.ADMIN_USERNAME }}
-        ADMIN_PASSWORD: ${{ vars.ADMIN_PASSWORD }}
-      run: |
-        echo "Execute Environment: ${{ github.event.inputs.environment }}"
-        echo "BASE_URL=${BASE_URL}"
-        echo "ADMIN_USERNAME=${ADMIN_USERNAME}"
-        echo "ADMIN_PASSWORD=${ADMIN_PASSWORD}"
-        echo "BASE_URL=${BASE_URL}" >> $GITHUB_ENV
-        echo "ADMIN_USERNAME=${ADMIN_USERNAME}" >> $GITHUB_ENV
-        echo "ADMIN_PASSWORD=${ADMIN_PASSWORD}" >> $GITHUB_ENV
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Set environment variables
+        env:
+          BASE_URL: ${{ vars.BASE_URL }}
+          ADMIN_USERNAME: ${{ vars.ADMIN_USERNAME }}
+          ADMIN_PASSWORD: ${{ vars.ADMIN_PASSWORD }}
+        run: |
+          TARGET_ENV="${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'qa' }}"
+          TARGET_BROWSER="${{ github.event_name == 'workflow_dispatch' && github.event.inputs.browser || 'all' }}"
+          echo "ENV=${TARGET_ENV}" >> $GITHUB_ENV
+          echo "TARGET_BROWSER=${TARGET_BROWSER}" >> $GITHUB_ENV
+          echo "BASE_URL=${BASE_URL}" >> $GITHUB_ENV
+          echo "ADMIN_USERNAME=${ADMIN_USERNAME}" >> $GITHUB_ENV
+          echo "ADMIN_PASSWORD=${ADMIN_PASSWORD}" >> $GITHUB_ENV
+          echo "Execute ENV=${TARGET_ENV}, browser=${TARGET_BROWSER}"
 
-    - name: Install Playwright browsers
-      run: npx playwright install --with-deps
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-    - name: Run Playwright tests
-      env:
-        BASE_URL: ${{ env.BASE_URL }}
-        ADMIN_USERNAME: ${{ env.ADMIN_USERNAME }}
-        ADMIN_PASSWORD: ${{ env.ADMIN_PASSWORD }}
-      run: |
-        echo "Running Playwright tests for environment: ${{ github.event.inputs.environment }}"
-        echo "Selected browser: ${{ github.event.inputs.browser }}"
+      - name: Install Playwright browsers
+        run: pnpm run install:browsers
 
-        if [ "${{ github.event.inputs.browser }}" == "chromium" ]; then
-          npx playwright test --project=chromium
-        elif [ "${{ github.event.inputs.browser }}" == "firefox" ]; then
-          npx playwright test --project=firefox
-        elif [ "${{ github.event.inputs.browser }}" == "webkit" ]; then
-          npx playwright test --project=webkit
-        else
-          echo "Invalid browser option selected"
-          exit 1
-        fi
+      - name: Run Playwright tests
+        env:
+          ENV: ${{ env.ENV }}
+          BASE_URL: ${{ env.BASE_URL }}
+          ADMIN_USERNAME: ${{ env.ADMIN_USERNAME }}
+          ADMIN_PASSWORD: ${{ env.ADMIN_PASSWORD }}
+        run: |
+          echo "Running Playwright tests — ENV=${ENV}, browser=${TARGET_BROWSER}"
+          case "${TARGET_BROWSER}" in
+            all)
+              pnpm run test:playwright
+              ;;
+            chromium|firefox|webkit)
+              pnpm exec playwright test --project="${TARGET_BROWSER}"
+              ;;
+            *)
+              echo "Unknown browser: ${TARGET_BROWSER}"
+              exit 1
+              ;;
+          esac
 
-    - name: Upload Playwright report
-      if: ${{ success() && !cancelled() }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
