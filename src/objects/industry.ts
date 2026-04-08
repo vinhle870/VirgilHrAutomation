@@ -1,4 +1,4 @@
 export interface Industry {
-  code: string;
+  code?: string;
   value: string;
 }

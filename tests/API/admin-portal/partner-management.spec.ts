@@ -44,7 +44,7 @@ test.describe("Partner managerment", () => {
       await testData.getProductTypesBasedDepartmentId(departmentID);
     //Create a new partner with Payment Options = Partner/Consultant Owner
     const partnerInfo = await DataFactory.partnerBuilder()
-      .withIsPublic(true)
+      .withIsPublic(false)
       .withWhoPay(0)
       .withBankTransfer(true)
       .withFilterProductTypes(productTypesAndNamesToSend)
@@ -96,7 +96,7 @@ test.describe("Partner managerment", () => {
       await testData.getProductTypesBasedDepartmentId(departmentID);
     //Create a new partner with Payment Options = Partner/Consultant Owner
     const peoInfo = await DataFactory.partnerBuilder()
-      .withIsPublic(true)
+      .withIsPublic(false)
       .withWhoPay(0)
       .withBankTransfer(true)
       .withFilterProductTypes(productTypesAndNamesToSend)
@@ -113,7 +113,7 @@ test.describe("Partner managerment", () => {
     delay(20000);
 
     const partnerInfo = await DataFactory.partnerBuilder()
-      .withIsPublic(true)
+      .withIsPublic(false)
       .withWhoPay(0)
       .withBankTransfer(true)
       .withFilterProductTypes(productTypesAndNamesToSend)
@@ -181,7 +181,7 @@ test.describe("Partner managerment", () => {
         await testData.getProductTypesBasedDepartmentId(departmentID);
       //Create a new partner with Payment Options = Partner/Consultant Owner
       const partnerInfo = await DataFactory.partnerBuilder()
-        .withIsPublic(true)
+        .withIsPublic(false)
         .withWhoPay(0)
         .withBankTransfer(true)
         .withFilterProductTypes(productTypesAndNamesToSend)
@@ -237,7 +237,7 @@ test.describe("Partner managerment", () => {
         await testData.getProductTypesBasedDepartmentId(departmentID);
       //Create a new partner with Payment Options = Partner/Consultant Owner
       const partnerInfo = await DataFactory.partnerBuilder()
-        .withIsPublic(true)
+        .withIsPublic(false)
         .withWhoPay(0)
         .withBankTransfer(true)
         .withFilterProductTypes(productTypesAndNamesToSend)
@@ -296,7 +296,7 @@ test.describe("Partner managerment", () => {
       await testData.getProductTypesBasedDepartmentId(departmentID);
     //Create a new partner with Payment Options = Partner/Consultant Owner
     const partnerInfo = await DataFactory.partnerBuilder()
-      .withIsPublic(true)
+      .withIsPublic(false)
       .withWhoPay(0)
       .withBankTransfer(true)
       .withFilterProductTypes(productTypesAndNamesToSend)
@@ -369,7 +369,7 @@ test.describe("Partner managerment", () => {
       await testData.getProductTypesBasedDepartmentId(departmentID);
     //Create partner info
     const partnerInfo = await DataFactory.partnerBuilder()
-      .withIsPublic(true)
+      .withIsPublic(false)
       .withWhoPay(0)
       .withBankTransfer(true)
       .withDepartment(departmentID)
@@ -466,7 +466,7 @@ test.describe("Partner managerment", () => {
       await testData.getProductTypesBasedDepartmentId(departmentID);
     //Create partner info
     const partnerInfo = await DataFactory.partnerBuilder()
-      .withIsPublic(true)
+      .withIsPublic(false)
       .withDepartment(departmentID)
       .withFilterProductTypes(productTypesAndNamesToSend)
       .withWhoPay(0)
@@ -511,7 +511,7 @@ test.describe("Partner managerment", () => {
       await testData.getProductTypesBasedDepartmentId(departmentID);
     //Create a new partner with Payment Options = Partner/Consultant Owner
     const partnerInfo = await DataFactory.partnerBuilder()
-      .withIsPublic(true)
+      .withIsPublic(false)
       .withWhoPay(0)
       .withBankTransfer(true)
       .withFilterProductTypes(productTypesAndNamesToSend)
@@ -578,7 +578,7 @@ test.describe("Partner managerment", () => {
     );
 
     const partnerInfo = await DataFactory.partnerBuilder()
-      .withIsPublic(true)
+      .withIsPublic(false)
       .withWhoPay(1)
       .build();
 
@@ -629,7 +629,7 @@ test.describe("Partner managerment", () => {
     );
 
     const partnerInfo = await DataFactory.partnerBuilder()
-      .withIsPublic(true)
+      .withIsPublic(false)
       .withWhoPay(1)
       .build();
 
@@ -677,7 +677,7 @@ test.describe("Partner managerment", () => {
   //   );
 
   //   const partnerInfo = await DataFactory.partnerBuilder()
-  //     .withIsPublic(true)
+  //     .withIsPublic(false)
   //     .withWhoPay(1)
   //     .build();
 

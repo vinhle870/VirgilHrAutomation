@@ -14,6 +14,7 @@ test.describe("Partner management", () => {
     partnerPortalService,
     onboardingFlow,
     memberPortalService,
+    tempEmailFreePage,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
@@ -48,7 +49,7 @@ test.describe("Partner management", () => {
       await testData.getProductTypesBasedDepartmentId(departmentID);
     // Create partner info
     const partnerInfo = await DataFactory.partnerBuilder()
-      .withIsPublic(true)
+      .withIsPublic(false)
       .withWhoPay(0)
       .withBankTransfer(true)
       .withFilterProductTypes(productTypesAndNamesToSend)
@@ -110,7 +111,9 @@ test.describe("Partner management", () => {
 
     const invitedEmail = customerWithMember.members[0].email;
 
-    await onboardingFlow.acceptInvitation(invitedEmail);
+    const username = invitedEmail.split("@")[0];
+
+    await onboardingFlow.acceptInvitation(tempEmailFreePage, username);
 
     const invitedMemberToken = await authenticationService.getAuthToken(
       invitedEmail,
@@ -246,6 +249,7 @@ test.describe("Partner management", () => {
     partnerPortalService,
     onboardingFlow,
     memberPortalService,
+    tempEmailFreePage,
   }, testInfo) => {
     testInfo.skip(
       !process.env.API_BASE_URL && !process.env.BASE_URL,
@@ -283,7 +287,7 @@ test.describe("Partner management", () => {
 
     // Create partner info
     const partnerInfo = await DataFactory.partnerBuilder()
-      .withIsPublic(true)
+      .withIsPublic(false)
       .withWhoPay(0)
       .withBankTransfer(true)
       .withDepartment(departmentID)
@@ -348,7 +352,9 @@ test.describe("Partner management", () => {
 
       const invitedEmail = customerWithMember.members[0].email;
 
-      await onboardingFlow.acceptInvitation(invitedEmail);
+      const username = invitedEmail.split("@")[0];
+
+      await onboardingFlow.acceptInvitation(tempEmailFreePage, username);
 
       const invitedMember = await authenticationService.getAuthToken(
         invitedEmail,

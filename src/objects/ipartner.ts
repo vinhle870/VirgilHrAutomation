@@ -25,6 +25,13 @@ export default interface IPartnerInfo {
   subDomain: string;
   billingCycle?: number;
   planId?: string;
+  paymentOption?: string;
+  productsType?: string[];
+  plan?: string;
+  internal?: boolean;
+  departmentName?: string;
+  partnerLevel?: string;
+  billingCycleRadio?: string;
 }
 
 export interface IPartnerInfoWithDepartmentAndProductTypes {

@@ -2,7 +2,7 @@ import { BasePage } from "../base-page";
 import { TempEmailFreeLocators } from "./locators";
 
 export class TempEmailFreePage extends BasePage {
-  async acceptJoinTeam(username: string): Promise<void> {
+  async createNewEmail(username: string) {
     const logger = (console.debug ?? console.log).bind(console);
     logger(`==================[Yopmail Invitation] email: ${username}\n`);
 
@@ -45,6 +45,10 @@ export class TempEmailFreePage extends BasePage {
     await createEmailButtonElement.click();
 
     await newButtonElement.waitFor({ state: "visible" });
+  }
+
+  async acceptJoinTeam(username: string): Promise<void> {
+    await this.createNewEmail(username);
 
     let joinTeamModalElement;
     try {
@@ -74,5 +78,60 @@ export class TempEmailFreePage extends BasePage {
     await acceptInviteButtonElement.scrollIntoViewIfNeeded();
 
     await acceptInviteButtonElement.click();
+  }
+
+  async credential(username: string): Promise<any> {
+    await this.createNewEmail(username);
+
+    let partnerCredentialEl;
+
+    try {
+      partnerCredentialEl = await this.getLocator(
+        TempEmailFreeLocators.partnerCredential,
+      );
+
+      await partnerCredentialEl.click();
+    } catch (e) {
+      const refreshButtonElement = await this.getLocator(
+        TempEmailFreeLocators.refreshButton,
+      );
+
+      await refreshButtonElement.click();
+
+      partnerCredentialEl = await this.getLocator(
+        TempEmailFreeLocators.partnerCredential,
+      );
+
+      await partnerCredentialEl.click();
+    }
+
+    const credentialFrame = this.page
+      .frameLocator(TempEmailFreeLocators.credentialIframe)
+      .first();
+
+    const usernameRaw = await credentialFrame
+      .locator(TempEmailFreeLocators.credentialUsername)
+      .first()
+      .textContent();
+
+    const email = usernameRaw?.replace(/Username\s*:/i, "").trim();
+
+    const passwordRaw = await credentialFrame
+      .locator(TempEmailFreeLocators.credentialPassword)
+      .first()
+      .textContent();
+
+    const password = passwordRaw?.replace(/Password\s*:/i, "").trim();
+
+    const loginbutton = credentialFrame.getByRole("link", { name: "Login" });
+
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+      loginbutton.click(),
+    ]);
+
+    await newPage.waitForLoadState();
+
+    return { email, password, newPage };
   }
 }

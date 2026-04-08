@@ -33,4 +33,17 @@ export class OnboardingFlow {
 
     await newPage.close();
   }
+
+  async credential(tempEmailFreePage: TempEmailFreePage, username: string) {
+    const { email, password, newPage } =
+      await tempEmailFreePage.credential(username);
+
+    await newPage.waitForLoadState("domcontentloaded");
+
+    this.memberOnboarding = new MemberOnboardingPage(newPage);
+
+    await this.memberOnboarding.loginViaCredentialEmail(email, password);
+
+    await newPage.close();
+  }
 }

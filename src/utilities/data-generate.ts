@@ -49,7 +49,7 @@ export class DataGenerate {
 
   static async generateFirstName(): Promise<string> {
     const { faker } = await loadFaker();
-    return faker.person.firstName();
+    return "QATest_" + faker.person.firstName();
   }
 
   static async generateLastName(): Promise<string> {
@@ -60,7 +60,7 @@ export class DataGenerate {
   static async generateEmail(): Promise<string> {
     const { faker } = await loadFaker();
     const email = faker.internet.email();
-    return `Vinh_${email}`;
+    return `QATest${email}`;
   }
 
   static async generatePhoneNumber(): Promise<string> {
@@ -69,7 +69,7 @@ export class DataGenerate {
   }
   static async generateCompanyName(): Promise<string> {
     const { faker } = await loadFaker();
-    return faker.company.name().replace(",", "and");
+    return "QATest_" + faker.company.name().replace(",", "and");
   }
 
   static async generatejobTitle(): Promise<string> {
@@ -79,6 +79,14 @@ export class DataGenerate {
 
   static generateBoolean(): boolean {
     const values: boolean[] = [true, false];
+
+    const randomValue = values[Math.floor(Math.random() * values.length)];
+
+    return randomValue;
+  }
+
+  static generateCompanyType(): string {
+    const values: string[] = ["External", "Internal "];
 
     const randomValue = values[Math.floor(Math.random() * values.length)];
 

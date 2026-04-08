@@ -486,4 +486,8 @@ export class AdminPortalService {
       for (const member of team.members)
         if (member.email === email) return member;
   }
+
+  public getBaseURL(): string {
+    return this.baseUrl;
+  }
 }
