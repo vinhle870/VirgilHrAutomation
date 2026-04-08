@@ -1,11 +1,14 @@
 import { Page } from "@playwright/test";
 import { LocatorHandling } from "../../utilities/locator-handling";
+import { DropdownComponent } from "../../utilities/components";
 
 export abstract class BasePage {
   protected readonly page: Page;
+  protected readonly dropdown: DropdownComponent;
 
   constructor(page: Page) {
     this.page = page;
+    this.dropdown = new DropdownComponent(page);
   }
 
   get currentPage(): Page {
@@ -25,42 +28,6 @@ export abstract class BasePage {
       this.page,
       iframeSelector,
       selector,
-      timeout,
-    );
-  }
-
-  /**
-   * Open a dropdown and click a child option within its DOM subtree.
-   * Works for custom dropdowns where options are descendants of the container.
-   */
-  protected async selectDropdownOption(
-    dropdownSelector: string,
-    optionSelector: string,
-    timeout?: number,
-  ) {
-    return LocatorHandling.selectDropdownOption(
-      this.page,
-      dropdownSelector,
-      optionSelector,
-      timeout,
-    );
-  }
-
-  /**
-   * Open a dropdown and select an option by its visible text.
-   * Supports portals/overlays where options may not be children of the dropdown.
-   */
-  protected async selectDropdownOptionByText(
-    dropdownSelector: string,
-    optionText: string,
-    optionListSelector?: string,
-    timeout?: number,
-  ) {
-    return LocatorHandling.selectDropdownOptionByText(
-      this.page,
-      dropdownSelector,
-      optionText,
-      optionListSelector,
       timeout,
     );
   }
