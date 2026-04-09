@@ -1,18 +1,39 @@
-import { ApiClient, HTTPMethod } from "src/utilities";
+import { ApiClient } from "src/utilities";
 import {
   CREATE_CUSTOMER,
   CREATE_PARTNER,
   GET_CONSUMER_BY_ID,
   GET_PRODUCTTYPEFILTERS,
   SEARCH_PARTNER_BY_TEXT,
-  SEARCH_CUSTOMER_BY_EMAIL,
-  ADMIN_GET_PLANS,
+  GET_CUSTOMER,
+  GET_DEPARTMENT_PLAN,
+  GET_DEPARTMENT_PAYMENT_PRODUCT,
+  GET_DEPARTMENTS_LIST,
+  GET_ALL_DEPARTMENTS_PLANS,
+  CUSTOMER_INVITE_MEMBER,
+  UPGRADE_PLATINUM,
 } from "src/api/endpoints/admin-portal.endpoints";
 import { Authentication } from "src/api/services/authentication.service";
 import { CustomerInfo } from "src/objects/customer";
 import { Partner } from "src/objects/ipartner";
-import { APIResponse } from "@playwright/test";
-import { IInviteMember } from "src/objects/iInviteMember";
+import { I500EmployeesPlan } from "src/objects/i500EmployeesPlan";
+import { UserInfo } from "src/objects";
+
+export interface RecipientInfo {
+  email: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  jobTitle: string;
+  role: number;
+  partnerConsumerType: number;
+  consultantRole: number;
+}
+
+export interface InviteMemberWithId {
+  id: string;
+  recipients: RecipientInfo[];
+}
 
 export class AdminPortalService {
   private apiClient: ApiClient;
@@ -63,16 +84,19 @@ export class AdminPortalService {
    */
   async searchPartnerByText(
     partnername: string,
+    token?: string,
   ): Promise<{ total: number; entities: Array<Record<string, any>> }> {
     const query = `SearchString=${encodeURIComponent(partnername)}`;
     const path = SEARCH_PARTNER_BY_TEXT.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}?${query}`;
 
-    let tokenToUse = this.authToken ?? this.apiClient.getAuthToken();
-
-    const headers = tokenToUse
-      ? { Authorization: `Bearer ${tokenToUse}` }
-      : undefined;
+    const headers = token
+      ? { Authorization: `Bearer ${token}` }
+      : this.authToken
+        ? { Authorization: `Bearer ${this.authToken}` }
+        : this.apiClient.getAuthToken()
+          ? { Authorization: `Bearer ${this.apiClient.getAuthToken()}` }
+          : undefined;
 
     const response = await this.apiClient.sendRequest<{
       total: number;
@@ -121,16 +145,23 @@ export class AdminPortalService {
     return {};
   }
 
+  /**
+   * POST /Manage/Consumers: Create a new consumer
+   * @param customerInfo - The information of the consumer
+   * @returns The response from the API
+   */
   async createCustomer(customerInfo: CustomerInfo): Promise<any> {
     const path = CREATE_CUSTOMER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
+
     const requestBody = {
       ...customerInfo.accountInfo,
       ...customerInfo.company,
     };
-    const headers = this.authToken
-      ? { Authorization: `Bearer ${this.authToken}` }
-      : undefined;
+
+    const headers = {
+      Authorization: `Bearer ${this.authToken}`,
+    };
 
     const response = await this.apiClient.sendRequest<any>(
       "POST",
@@ -143,6 +174,10 @@ export class AdminPortalService {
     return response;
   }
 
+  /**
+   * GET /Manage/Plan/ProductTypeFilter: Get the information of the product type filters
+   * @returns The response from the API
+   */
   async getProductTypeFilters(): Promise<any> {
     const path = GET_PRODUCTTYPEFILTERS.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
@@ -159,6 +194,11 @@ export class AdminPortalService {
     return response;
   }
 
+  /**
+   * GET /Manage/Consumers: Get the information of the consumer by id
+   * @param id - The id of the consumer
+   * @returns The response from the API
+   */
   async getConsumerById(id: string): Promise<any> {
     const path = GET_CONSUMER_BY_ID.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}/${id}`;
@@ -175,6 +215,11 @@ export class AdminPortalService {
     return response;
   }
 
+  /**
+   * POST /Partner/Manage/Partner: Create a new partner
+   * @param partnerInfo - The information of the partner
+   * @returns The response from the API
+   */
   async createPartner(partnerInfo: Partner): Promise<any> {
     const path = CREATE_PARTNER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
@@ -188,7 +233,7 @@ export class AdminPortalService {
       ? { Authorization: `Bearer ${this.authToken}` }
       : undefined;
 
-    const response = await this.apiClient.sendPartnerRequest<any>(
+    const response = await this.apiClient.sendRequest<any>(
       "POST",
       url,
       requestBody,
@@ -199,16 +244,21 @@ export class AdminPortalService {
     return response;
   }
 
-  async getDepartmentInfo(): Promise<any> {
-    const url = "https://api.qa.virgilhr.com/v1/Configuration/Department";
+  /**
+   * GET /Configuration/Department: Get the information of the department
+   * @returns The response from the API
+   */
+  async getDepartmentsList(): Promise<any> {
+    const url = `${this.baseUrl}/${GET_DEPARTMENTS_LIST}`;
 
     const headers = this.authToken
       ? { Authorization: `Bearer ${this.authToken}` }
       : undefined;
 
-    const response = await this.apiClient.sendToGetDepartmentInfor<any>(
+    const response = await this.apiClient.sendRequest<any>(
       "GET",
       url,
+      undefined,
       200,
       headers,
     );
@@ -216,16 +266,21 @@ export class AdminPortalService {
     return response;
   }
 
-  async getProductTypes(): Promise<any> {
-    const url = `https://api.qa.virgilhr.com/v1/Manage/Plan/Departments`;
+  /**
+   * GET /Manage/Plan/Departments: Get the information of the product types
+   * @returns The response from the API
+   */
+  async getAllDepartmentsPlans(): Promise<any> {
+    const url = `${this.baseUrl}/${GET_ALL_DEPARTMENTS_PLANS}`;
 
     const headers = this.authToken
       ? { Authorization: `Bearer ${this.authToken}` }
       : undefined;
 
-    const response = await this.apiClient.sendToGetProductTypes<any>(
+    const response = await this.apiClient.sendRequest<any>(
       "GET",
       url,
+      undefined,
       200,
       headers,
     );
@@ -233,54 +288,48 @@ export class AdminPortalService {
     return response;
   }
 
-  async getCustomerIdByEmail(email: string): Promise<any> {
-    const path = SEARCH_CUSTOMER_BY_EMAIL.replace(/^\/+/, "");
+  //===========================================================================
+  /**
+   * GET /Manage/CustomerManagement: Get the id of the customer by email
+   * @param email - The email of the customer
+   * @returns The response from the API
+   */
+  async getCustomerByEmail(email: string): Promise<any> {
+    const path = GET_CUSTOMER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
 
     const headers = this.authToken
       ? { Authorization: `Bearer ${this.authToken}` }
       : undefined;
 
-    const params = {
-      AccountStatus: "",
-      AccountType: "",
-      BillingCycle: "",
-      DepartmentId: "",
-      Length: 12,
-      OrderBy: "updatedAt desc",
-      PartnerId: "",
-      PartnerLevel: "",
-      PaymentStatus: "",
-      Search: email,
-      SearchString: "",
-      Source: "",
-      Start: 0,
-      StripeProductId: "",
-      UserType: "",
-    };
-
-    const response = await this.apiClient.sendRequestToGetCusomterId<any>(
+    const response = await this.apiClient.sendRequest<any>(
       "GET",
       url,
+      undefined,
       200,
       headers,
-      params,
     );
 
     return response;
   }
 
-  async getRoleOfCustomer(id: string): Promise<any> {
-    const path = SEARCH_CUSTOMER_BY_EMAIL.replace(/^\/+/, "");
+  /**
+   * GET /Manage/Consumers: Get the role of the customer by id
+   * @param id - The id of the customer
+   * @returns The response from the API
+   */
+  async getCustomer(id: string): Promise<any> {
+    const path = GET_CUSTOMER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}/${id}`;
 
     const headers = this.authToken
       ? { Authorization: `Bearer ${this.authToken}` }
       : undefined;
 
-    const response = await this.apiClient.sendRequestToGetCustomerRole<any>(
+    const response = await this.apiClient.sendRequest<any>(
       "GET",
       url,
+      undefined,
       200,
       headers,
     );
@@ -288,22 +337,23 @@ export class AdminPortalService {
     return response;
   }
 
-  async getPlan(
-    apiClient: ApiClient,
-    nameOfPlan: string,
-    departmentId?: string,
-  ): Promise<object> {
-    const path = ADMIN_GET_PLANS.replace(/^\/+/, "");
+  /**
+   * GET /Manage/Plan?DepartmentId=: Get the list of plans for a department
+   * @param departmentId - The id of the department
+   * @returns The response from the API
+   */
+  async getDepartmentPlanList(departmentId?: string): Promise<object> {
+    const path = GET_DEPARTMENT_PLAN.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}${departmentId}`;
 
     const headers = this.authToken
       ? { Authorization: `Bearer ${this.authToken}` }
       : undefined;
 
-    const response = await this.sendRequestToGetPlans<any>(
-      nameOfPlan,
+    const response = await this.apiClient.sendRequest<any>(
+      "GET",
       url,
-      apiClient,
+      undefined,
       200,
       headers,
     );
@@ -311,254 +361,133 @@ export class AdminPortalService {
     return response;
   }
 
-  private async sendRequestToGetPlans<T>(
-    nameOfPlan: string,
-    url: string,
-    apiClient: ApiClient,
-    expectedStatus = 200,
-    headers?: Record<string, string>,
-  ): Promise<{ status: number; body: T }> {
-    const fullUrl = url.startsWith("http") ? url : `${this.baseUrl}/${url}`;
+  public async getDepartmentPaymentProduct(
+    departmentID: string,
+  ): Promise<object[]> {
+    const url = `${this.baseUrl}/${GET_DEPARTMENT_PAYMENT_PRODUCT}${departmentID}`;
+
+    let tokenToUse = this.authToken ?? this.apiClient.getAuthToken();
 
     const mergedHeaders: Record<string, string> = {
-      ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
+      Authorization: `Bearer ${tokenToUse}`,
+      "Content-Type": "application/json",
     };
 
-    const requestOptions: any = { headers: mergedHeaders };
-
-    const response: APIResponse = await apiClient
-      .getApiContext()
-      .get(fullUrl, requestOptions);
-
-    const status = response.status();
-    if (status !== expectedStatus) {
-      throw new Error(
-        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
-      );
-    }
-
-    const contentType = response.headers()["content-type"] || "";
-    const rawBody =
-      contentType.includes("application/json") && status !== 204
-        ? await response.json()
-        : await response.text();
-
-    let filteredBody: any = rawBody;
-    if (Array.isArray(rawBody)) {
-      filteredBody = rawBody.find((plan: any) => plan.name === nameOfPlan);
-      if (!filteredBody) {
-        throw new Error(`Plan with name "${nameOfPlan}" not found`);
-      }
-    }
-
-    return { status, body: filteredBody as T };
-  }
-
-  public async createBussiness(
-    teamName: string,
-    partnerId: string,
-    planId: string,
-    token: string,
-  ): Promise<any> {
-    const url = `https://api.qa.virgilhr.com/v1/Partner/Manage/Partner/Business`;
-
-    const response = await this.sendRequestToCreateBusiness(
-      teamName,
-      partnerId,
-      planId,
+    const response = await this.apiClient.sendRequest<any>(
+      "GET",
       url,
-      token,
+      undefined,
+      200,
+      mergedHeaders,
     );
 
     return response;
   }
 
-  private async sendRequestToCreateBusiness(
-    teamName: string,
-    partnerId: string,
-    planId: string,
-    url: string,
-    token: string,
-    expectedStatus = 200,
-  ): Promise<any> {
-    const fullUrl = url.startsWith("http") ? url : `${this.baseUrl}/${url}`;
+  async UpgradePlatinum(payload: I500EmployeesPlan) {
+    const url = `${this.baseUrl}/${UPGRADE_PLATINUM}`;
 
-    const mergedHeaders: Record<string, string> = {
-      Authorization: `Bearer ${token}`,
+    const headers: Record<string, string> = {
+      authorization: `Bearer ${this.authToken}`,
     };
 
-    const requestOptions: any = { headers: mergedHeaders };
-    requestOptions.data = {
-      request: {},
-      teamName,
-      partnerId,
-      assignedIds: [],
-      recipients: [],
-      useCredit: true,
-    };
-
-    const response: APIResponse = await this.apiClient
-      .getApiContext()
-      .post(fullUrl, requestOptions);
-
-    const status = response.status();
-    if (status !== expectedStatus) {
-      throw new Error(
-        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
-      );
-    }
-
-    const contentType = response.headers()["content-type"] || "";
-    const rawBody =
-      contentType.includes("application/json") && status !== 204
-        ? await response.json()
-        : await response.text();
-
-    let filteredBody: any = rawBody;
-    if (Array.isArray(rawBody)) {
-      filteredBody = rawBody.find((plan: any) => plan.id === planId);
-      if (!filteredBody) {
-        throw new Error(`Plan with name "${planId}" not found`);
-      }
-    }
-
-    return { status, body: filteredBody };
+    const response = await this.apiClient.sendRequest<object>(
+      "POST",
+      url,
+      payload,
+      200, // Assuming 200 OK is the expected status code
+      headers,
+    );
+    return response; // Return the checkout plan response
   }
 
-  public async inviteMembers(invitedMember: IInviteMember): Promise<boolean> {
-    const url = `https://api.qa.virgilhr.com/v1/Manage/Organization/Partner/Invite`;
+  async inviteTeamMember(teamID: string, members: UserInfo[]): Promise<any> {
+    const path = CUSTOMER_INVITE_MEMBER.replace(/^\/+/, "");
 
-    const response = await this.sendRequestToInviteMembers(url, invitedMember);
+    const url = `${this.baseUrl}/${path}`;
+
+    const headers = { Authorization: `Bearer ${this.authToken}` };
+
+    const requestBody = {
+      id: teamID,
+      recipients: [
+        ...members.map((member) => ({
+          ...{
+            email: member.email,
+            firstName: member.firstName,
+            lastName: member.lastName,
+            phoneNumber: member.phoneNumber,
+            jobTitle: member.jobTitle,
+            role: member.role,
+            partnerConsumerType: 1,
+          },
+        })),
+      ],
+    };
+
+    const response = await this.apiClient.sendRequest<any>(
+      "POST",
+      url,
+      requestBody,
+      200,
+      headers,
+    );
 
     return response;
   }
 
-  private async sendRequestToInviteMembers(
-    url: string,
-    invitedMember: IInviteMember,
-    expectedStatus = 200,
-  ): Promise<boolean> {
-    const fullUrl = url.startsWith("http") ? url : `${this.baseUrl}/${url}`;
+  async searchCustomerByEmail(
+    email: string,
+    token?: string,
+  ): Promise<{ total: number; entities: Array<Record<string, any>> }> {
+    const path = GET_CUSTOMER.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}`;
 
-    let tokenToUse = this.authToken ?? this.apiClient.getAuthToken();
-    if (!tokenToUse || tokenToUse === "undefined") {
-      throw new Error("Auth token is missing or invalid");
-    }
+    const headers = token
+      ? { Authorization: `Bearer ${token}` }
+      : this.authToken
+        ? { Authorization: `Bearer ${this.authToken}` }
+        : this.apiClient.getAuthToken()
+          ? { Authorization: `Bearer ${this.apiClient.getAuthToken()}` }
+          : undefined;
 
-    const mergedHeaders: Record<string, string> = {
-      accept: "application/json, text/plain, */*",
-      authorization: `Bearer ${tokenToUse}`,
-      "content-type": "application/json",
-      origin: "https://admin.qa.virgilhr.com",
-      referer: "https://admin.qa.virgilhr.com/",
-      "user-agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
-    };
-
-    const response = await this.apiClient.getApiContext().post(fullUrl, {
-      headers: mergedHeaders,
-      data: invitedMember,
+    const response = await this.apiClient.sendRequest<{
+      total: number;
+      entities: Array<Record<string, any>>;
+    }>("GET", url, undefined, 200, headers, {
+      Search: email,
     });
 
-    const status = response.status();
-    if (status !== expectedStatus) {
-      throw new Error(
-        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
-      );
-    }
+    return response; // Return the partner data
+  }
 
-    const body = await response.json();
-    return body === true;
+  async getCustomerInfo(customerID: string, token?: string): Promise<any> {
+    const path = GET_CUSTOMER.replace(/^\/+/, "");
+    const url = `${this.baseUrl}/${path}/${customerID}`;
+
+    const headers = token
+      ? { Authorization: `Bearer ${token}` }
+      : this.authToken
+        ? { Authorization: `Bearer ${this.authToken}` }
+        : this.apiClient.getAuthToken()
+          ? { Authorization: `Bearer ${this.apiClient.getAuthToken()}` }
+          : undefined;
+
+    const response = await this.apiClient.sendRequest<{
+      total: number;
+      entities: Array<Record<string, any>>;
+    }>("GET", url, undefined, 200, headers);
+
+    return response; // Return the partner data
+  }
+
+  public getMemberInfo(customerInfo: any, email: string) {
+    for (const team of customerInfo.teams)
+      for (const member of team.members)
+        if (member.email === email) return member;
+  }
+
+  public getBaseURL(): string {
+    return this.baseUrl;
   }
 }
-
-/***
- * SAMPLE API RESPONSE
- * {
-    "total": 1,
-    "entities": [
-        {
-            "partnerName": null,
-            "departmentName": "VirgilHR",
-            "name": "VinhPartner01",
-            "apiEnable": false,
-            "apiId": "HMHA-5QJT-JQU2-QFVW-AUSE-YDPV-2GAQ-ZWJ4",
-            "apiSecret": "vb8M7ebjr&ytF2i3^@gp4D6nXVWqGpSr",
-            "paymentEnable": true,
-            "isPublic": true,
-            "restriction": {
-                "eSignEnable": true,
-                "productSupport": true,
-                "resourceRequest": true,
-                "contactExpert": true,
-                "ssoEnable": true,
-                "lmsEnable": true,
-                "hrToolsEnable": true,
-                "feFilterProductTypes": [
-                    19,
-                    15,
-                    16,
-                    2,
-                    4,
-                    6
-                ],
-                "productTypes": [
-                    19,
-                    1,
-                    17,
-                    3,
-                    5,
-                    6,
-                    19,
-                    15,
-                    16,
-                    2,
-                    4,
-                    6
-                ]
-            },
-            "externalConfig": {
-                "pendoApiKey": null
-            },
-            "level": 0,
-            "email": "VinhPartner01@yopmail.com",
-            "firstName": "VinhP",
-            "lastName": "Le",
-            "phoneNumber": "9288383333",
-            "jobTitle": "Test",
-            "partnerId": null,
-            "whoPay": 0,
-            "bankTransfer": null,
-            "billingCycle": null,
-            "companyType": 1,
-            "planId": null,
-            "planRestriction": null,
-            "consultantRestriction": {
-                "customBranding": true
-            },
-            "backUrl": null,
-            "backText": null,
-            "isActive": true,
-            "assignedIds": [],
-            "allowAssignOnMember": null,
-            "country": null,
-            "state": null,
-            "subDomain": "vinhpartner01",
-            "normalizedSubDomain": "VINHPARTNER01",
-            "convertFromConsumer": false,
-            "departmentId": "6886e0e940323d31fb74bd20",
-            "source": "virgilhr",
-            "externalPartnerId": null,
-            "isSso": false,
-            "canCustomUpdatePlan": false,
-            "version": 0,
-            "createdAt": "2025-11-17T15:48:37.309Z",
-            "updatedAt": "2025-11-17T15:48:37.309Z",
-            "createdBy": null,
-            "updatedBy": null,
-            "isDeleted": false,
-            "id": "691b43d63732af5f6c74d2c7"
-        }
-    ]
-}
- */

@@ -143,6 +143,39 @@ export class PartnerBuilder {
     return this;
   }
 
+  withProductsType(productsType: string[]): this {
+    this.partnerOverrides.productsType = productsType;
+    return this;
+  }
+
+  withDepartmentName(departmentName: string): this {
+    this.partnerOverrides.departmentName = departmentName;
+    return this;
+  }
+
+  withPartnerLevel(partnerLevel: string): this {
+    this.partnerOverrides.partnerLevel = partnerLevel;
+    return this;
+  }
+
+  withPaymentOption(paymentOption: string): this {
+    this.partnerOverrides.paymentOption = paymentOption;
+    return this;
+  }
+
+  withBillingCyleRadio(billingCycleRadio: string): this {
+    this.partnerOverrides.billingCycleRadio = billingCycleRadio;
+    return this;
+  }
+  withInternal(internal: boolean) {
+    this.partnerOverrides.internal = internal;
+    return this;
+  }
+  /**
+   * Set the who pay value for the partner.
+   * @param whoPay - The who pay value (0: Partner, 1: Customer) UI Field: Payment Options
+   * @returns The partner builder
+   */
   withWhoPay(whoPay: number): this {
     this.partnerOverrides.whoPay = whoPay;
     return this;
@@ -150,6 +183,11 @@ export class PartnerBuilder {
 
   withPlanId(planId: string): this {
     this.partnerOverrides.planId = planId;
+    return this;
+  }
+
+  withPlan(plan: string): this {
+    this.partnerOverrides.plan = plan;
     return this;
   }
 
@@ -183,6 +221,7 @@ export class PartnerBuilder {
     this.feFilterProductTypesValue = productTypeIds;
     return this;
   }
+  //Invite members
 
   // ── Build ────────────────────────────────────────────────────
 
@@ -203,19 +242,11 @@ export class PartnerBuilder {
     const bankTransfer = o.bankTransfer ?? DataGenerate.generateBoolean();
 
     // Build user info block for partner payload
-    const userInfo: UserInfo = {
-      email: accountInfo.email,
-      firstName: accountInfo.firstName,
-      lastName: accountInfo.lastName,
-      jobTitle: accountInfo.jobTitle,
-      phoneNumber: accountInfo.phoneNumber,
-    };
 
     // Build restriction from provided values (no API calls)
-    const feFilterProductTypes =
-      this.restrictionOptions.feFilterProductTypes
-        ? this.restrictionOptions.feFilterProductTypes.map((p) => p.productType)
-        : this.feFilterProductTypesValue;
+    const feFilterProductTypes = this.restrictionOptions.feFilterProductTypes
+      ? this.restrictionOptions.feFilterProductTypes.map((p) => p.productType)
+      : this.feFilterProductTypesValue;
 
     const restriction = {
       eSignEnable: this.restrictionOptions.eSignEnable ?? true,
@@ -230,21 +261,27 @@ export class PartnerBuilder {
 
     partner.partnerInfo = {
       whoPay: o.whoPay ?? DataGenerate.generateDecimal(),
+      departmentName: o.departmentName,
+      partnerLevel: o.partnerLevel,
+      paymentOption: o.paymentOption,
+      productsType: o.productsType,
+      billingCycleRadio: o.billingCycleRadio,
+      internal: o.internal,
+
       restriction,
       apiEnable: o.apiEnable ?? false,
       departmentId: o.departmentId ?? "688897d5eb52b4af5573def4",
       bankTransfer,
       canCustomUpdatePlan:
         o.canCustomUpdatePlan ?? DataGenerate.generateBoolean(),
-      companyType:
-        o.companyType ?? (DataGenerate.generateBoolean() ? 1 : 0),
+      companyType: o.companyType ?? (DataGenerate.generateBoolean() ? 1 : 0),
       isPublic: o.isPublic ?? DataGenerate.generateBoolean(),
       level: o.level ?? 0,
       name,
       partnerType: o.partnerType ?? DataGenerate.generateDecimal(),
       paymentEnable: o.paymentEnable ?? DataGenerate.generateBoolean(),
       subDomain,
-      userInfo,
+
       ...(bankTransfer && {
         billingCycle: o.billingCycle ?? 1,
       }),

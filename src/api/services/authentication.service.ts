@@ -120,4 +120,39 @@ export class Authentication {
 
     return response;
   }
+
+
+/**
+ * Get the auth token with API credentials
+ * @param apiCredentials - The API credentials
+ * @returns The auth token
+ */
+  async getAuthTokenWithApiCredentials(
+    apiCredentials: { apiKey: string; apiSecret: string },
+  ): Promise<string> {
+    const data = {
+      grant_type: "client_credentials",
+      client_id: apiCredentials.apiKey,
+      client_secret: apiCredentials.apiSecret,
+      scope: "client",
+    };
+
+    const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+    if (!base)
+      throw new Error(
+        "API base URL not configured. Set API_BASE_URL or BASE_URL.",
+      );
+
+    const url = GET_AUTH_TOKEN.replace(/^\/+/, "");
+
+    const response = await this.apiClient.sendRequest<{ access_token: string }>(
+      "POST",
+      url,
+      data,
+      200,
+      undefined,
+    );
+
+    return response.access_token;
+  }
 }
