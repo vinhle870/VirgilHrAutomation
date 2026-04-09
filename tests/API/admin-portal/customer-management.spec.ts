@@ -1,7 +1,7 @@
 import { test, expect } from "src/fixtures";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { DataFactory } from "src/data-factory";
-import { I500EmployeesPlan } from "src/objects/I500EmployeesPlan";
+import { I500EmployeesPlan } from "src/objects/i500EmployeesPlan";
 import { PlatinumPlan } from "src/data-factory/platinum-data-generator";
 import { TestDataProvider } from "src/test-data";
 import { CustomerInfo } from "src/objects";

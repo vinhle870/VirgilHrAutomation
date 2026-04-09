@@ -1,11 +1,14 @@
 import { Page } from "@playwright/test";
 import { LocatorHandling } from "../../utilities/locator-handling";
+import { DropdownComponent } from "../../utilities/components";
 
 export abstract class BasePage {
   protected readonly page: Page;
+  protected readonly dropdown: DropdownComponent;
 
   constructor(page: Page) {
     this.page = page;
+    this.dropdown = new DropdownComponent(page);
   }
 
   get currentPage(): Page {
@@ -30,70 +33,23 @@ export abstract class BasePage {
   }
 
   /**
-   * Open a dropdown and click a child option within its DOM subtree.
-   * Works for custom dropdowns where options are descendants of the container.
+   * Click a radio option by accessible name. Optionally scope to a container.
    */
-  protected async selectDropdownOption(
-    dropdownSelector: string,
-    optionSelector: string,
-    timeout?: number,
-  ) {
-    return LocatorHandling.selectDropdownOption(
-      this.page,
-      dropdownSelector,
-      optionSelector,
-      timeout,
-    );
-  }
-
-  protected async selectDropDownViaElement(
-    dropdownSelector: string,
-    optionSelector: string,
-    optionListSelector?: string,
-    timeout?: number,
-  ) {
-    return LocatorHandling.selectDropDownViaElement(
-      this.page,
-      dropdownSelector,
-      optionSelector,
-      optionListSelector,
-      timeout,
-    );
-  }
-
-  /**
-   * Open a dropdown and select an option by its visible text.
-   * Supports portals/overlays where options may not be children of the dropdown.
-   */
-  protected async selectDropdownOptionByText(
-    dropdownSelector: string,
-    optionText: string,
-    i = 0,
-    isLastElement?: boolean,
-    optionListSelector?: string,
-    timeout?: number,
-  ) {
-    return LocatorHandling.selectDropdownOptionByText(
-      this.page,
-      dropdownSelector,
-      optionText,
-      i,
-      isLastElement,
-      optionListSelector,
-      timeout,
-    );
-  }
-
   protected async selectRadio(
-    radioText: string,
-    radioSelector?: string,
+    label: string,
+    scopeSelector?: string,
     timeout?: number,
-  ) {
-    await LocatorHandling.selectRadio(
-      this.page,
-      radioText,
-      radioSelector,
-      timeout,
-    );
+  ): Promise<void> {
+    const effectiveTimeout =
+      timeout ??
+      (process.env.UI_ELEMENT_TIMEOUT_MS
+        ? Number(process.env.UI_ELEMENT_TIMEOUT_MS)
+        : 60000);
+    const scope = scopeSelector
+      ? this.page.locator(scopeSelector)
+      : this.page;
+    const radio = scope.getByRole("radio", { name: label, exact: true });
+    await radio.first().waitFor({ state: "visible", timeout: effectiveTimeout });
+    await radio.first().click();
   }
 }

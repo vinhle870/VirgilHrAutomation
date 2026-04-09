@@ -14,6 +14,7 @@ An automation framework built with [Playwright](https://playwright.dev/) for end
 | **Separation of Concerns** | Locators, pages, flows, API services, and test data are in separate layers |
 | **Portal-Based Organization** | UI and API layers are grouped by portal (admin, member, partner) |
 | **Base Page Abstraction** | All pages extend `BasePage` to avoid repeated boilerplate |
+| **UI Component Helpers** | Shared interactions (dropdown, etc.) live under `src/utilities/components/` and are composed on `BasePage` |
 | **Flow Layer** | Cross-page workflows are separated from individual page objects |
 | **Fixture Injection** | Pages, flows, and API services are provided to tests via Playwright fixtures |
 | **Builder Pattern** | Test data is generated through builder classes in the data factory |
@@ -27,7 +28,8 @@ An automation framework built with [Playwright](https://playwright.dev/) for end
 ├── .github/workflows/           # GitHub Actions CI/CD workflows
 ├── profile/                     # Environment-specific config files
 │   ├── .env.prod
-│   └── .env.qa
+│   ├── .env.qa
+│   └── .env.uat
 │
 ├── src/                         # Framework source code
 │   ├── api/                     # API layer
@@ -42,32 +44,31 @@ An automation framework built with [Playwright](https://playwright.dev/) for end
 │   │       └── authentication.service.ts
 │   │
 │   ├── ui/                      # UI layer (Page Object Model)
-│   │   ├── flows/               # Cross-portal workflows
-│   │   │   └── account-activation.flow.ts
+│   │   ├── flows/               # Cross-portal workflows (auth, onboarding, purchase)
 │   │   └── pages/
-│   │       ├── base-page.ts     # Abstract base class for all pages
-│   │       ├── admin/           # Admin Portal
-│   │       │   ├── locators/    # Admin page locators
+│   │       ├── base-page.ts     # Abstract base class; composes UI helpers (e.g. dropdown)
+│   │       ├── admin-portal/    # Admin Portal
+│   │       │   ├── locators/    # Page locators (nested by feature where needed)
 │   │       │   ├── flows/       # Admin-only workflows
-│   │       │   ├── admin-login.page.ts
 │   │       │   ├── admin-home.page.ts
 │   │       │   ├── admin-leftmenu.page.ts
-│   │       │   └── admin-plan.page.ts
-│   │       ├── member/          # Member Portal
-│   │       │   ├── locators/    # Member page locators
-│   │       │   ├── flows/       # Member-only workflows
+│   │       │   └── ...
+│   │       ├── member-portal/   # Member Portal
+│   │       │   ├── locators/
+│   │       │   ├── flows/
 │   │       │   └── member-onboarding.page.ts
-│   │       ├── partner/         # Partner Portal
-│   │       │   ├── locators/    # Partner page locators
-│   │       │   └── flows/       # Partner-only workflows
-│   │       └── shared/          # External tools (Yopmail, etc.)
+│   │       ├── partner-portal/  # Partner Portal
+│   │       │   ├── locators/
+│   │       │   └── flows/
+│   │       └── shared/          # Cross-portal pages (login, buy plan, email helpers)
 │   │           ├── locators/
-│   │           └── yopmail.page.ts
+│   │           └── ...
 │   │
 │   ├── data-factory/            # Test data builders (Builder pattern)
 │   ├── objects/                 # Data models and interfaces
 │   ├── fixtures/                # Playwright test fixtures (DI)
 │   ├── utilities/               # Shared helpers (API client, locator handling, etc.)
+│   │   └── components/          # Reusable UI interactions (BaseComponent, DropdownComponent, …)
 │   ├── constant/                # Static data and constants
 │   ├── enum/                    # Shared enums
 │   ├── test-data/               # Test data providers
@@ -77,7 +78,8 @@ An automation framework built with [Playwright](https://playwright.dev/) for end
 │   ├── API/                     # API tests
 │   │   ├── admin-portal/
 │   │   ├── member-portal/
-│   │   └── partner-portal/
+│   │   ├── partner-portal/
+│   │   └── partner-integration/
 │   └── UI/                      # UI tests
 │       ├── e2e/
 │       ├── smoke/
@@ -97,7 +99,7 @@ An automation framework built with [Playwright](https://playwright.dev/) for end
 1. **Create the locator file** in the portal's `locators/` folder:
 
 ```typescript
-// src/ui/pages/admin/locators/admin-settings.locators.ts
+// src/ui/pages/admin-portal/locators/admin-settings.locators.ts
 export class AdminSettingsLocators {
   static readonly saveButton = "//button[text()='Save']";
   static readonly nameInput = "//input[@id='name']";
@@ -107,7 +109,7 @@ export class AdminSettingsLocators {
 2. **Create the page file** in the portal's folder:
 
 ```typescript
-// src/ui/pages/admin/admin-settings.page.ts
+// src/ui/pages/admin-portal/admin-settings.page.ts
 import { BasePage } from "../base-page";
 import { AdminSettingsLocators } from "./locators";
 
@@ -125,10 +127,10 @@ export class AdminSettingsPage extends BasePage {
 3. **Export** from `locators/index.ts` and portal `index.ts`:
 
 ```typescript
-// src/ui/pages/admin/locators/index.ts
+// src/ui/pages/admin-portal/locators/index.ts
 export * from "./admin-settings.locators";
 
-// src/ui/pages/admin/index.ts
+// src/ui/pages/admin-portal/index.ts
 export * from "./admin-settings.page";
 ```
 
@@ -139,23 +141,23 @@ export * from "./admin-settings.page";
 **Portal-specific flow** (uses pages from one portal only):
 
 ```typescript
-// src/ui/pages/admin/flows/customer-setup.flow.ts
+// src/ui/pages/admin-portal/flows/customer-setup.flow.ts
 import { Page } from "@playwright/test";
-import { AdminLoginPage } from "../admin-login.page";
-import { AdminPlanPage } from "../admin-plan.page";
+import { LoginPage } from "../../shared/login.page";
+import { BuyPlanPage } from "../../shared/buy-plan.page";
 
 export class CustomerSetupFlow {
-  private readonly loginPage: AdminLoginPage;
-  private readonly planPage: AdminPlanPage;
+  private readonly loginPage: LoginPage;
+  private readonly buyPlanPage: BuyPlanPage;
 
   constructor(page: Page) {
-    this.loginPage = new AdminLoginPage(page);
-    this.planPage = new AdminPlanPage(page);
+    this.loginPage = new LoginPage(page);
+    this.buyPlanPage = new BuyPlanPage(page);
   }
 
   async setupCustomerWithPlan(url: string, email: string, password: string) {
-    await this.loginPage.loginWithValidAccount(url, email, password);
-    await this.planPage.buyPlan(url, email, password, {});
+    await this.loginPage.fillLoginForm(url, email, password);
+    await this.buyPlanPage.fillBuyPlanForm(url, email, password, {});
   }
 }
 ```
@@ -165,12 +167,13 @@ export class CustomerSetupFlow {
 ```typescript
 // src/ui/flows/full-onboarding.flow.ts
 import { Page } from "@playwright/test";
-import { YopMailPage } from "../pages/shared/yopmail.page";
-import { MemberOnboardingPage } from "../pages/member/member-onboarding.page";
+import { MemberOnboardingPage } from "../pages/member-portal/member-onboarding.page";
 
 export class FullOnboardingFlow {
   // Compose pages from different portals
-  constructor(page: Page) { /* ... */ }
+  constructor(page: Page) {
+    /* ... */
+  }
 }
 ```
 
@@ -200,7 +203,7 @@ Follow the existing pattern in `src/api/`:
 
 | What you're adding | Where it goes |
 |-------------------|---------------|
-| Page for a single portal | `src/ui/pages/<portal>/` |
+| Page for a single portal | `src/ui/pages/<portal>/` (e.g. `admin-portal`, `member-portal`) |
 | Locators for a page | `src/ui/pages/<portal>/locators/` |
 | Flow within one portal | `src/ui/pages/<portal>/flows/` |
 | Flow spanning 2+ portals | `src/ui/flows/` |
@@ -209,6 +212,23 @@ Follow the existing pattern in `src/api/`:
 | Data model / interface | `src/objects/` |
 | Test data builder | `src/data-factory/` |
 | Reusable utility | `src/utilities/` |
+| Reusable UI interaction (dropdown, date picker, …) | `src/utilities/components/` — extend `BaseComponent`, export from `components/index.ts`, add a property on `BasePage` |
+
+### Reusable UI components
+
+Shared interactions that appear on many pages (custom dropdowns, date pickers, etc.) should not live on `BasePage` as dozens of one-off methods. Use **composition**:
+
+- **`BaseComponent`** (`src/utilities/components/base-component.ts`) — shared timeout and wait helpers.
+- **Concrete helpers** — e.g. `DropdownComponent` (`dropdown.component.ts`) with methods like `selectOption` and `selectByText`.
+- **`BasePage`** exposes helpers as properties (e.g. `this.dropdown`) so page objects stay readable:
+
+```typescript
+// Inside any page extending BasePage
+await this.dropdown.selectByText(MyLocators.countryDropdown, "United States");
+await this.dropdown.selectOption(MyLocators.roleDropdown, MyLocators.roleOptionEngineering);
+```
+
+Add new component types by creating `src/utilities/components/<name>.component.ts`, exporting from `components/index.ts`, and wiring `new MyComponent(page)` on `BasePage`.
 
 ---
 
@@ -333,18 +353,42 @@ export class PartnerDataProvider {
 
 ## Setup
 
+### Package manager
+
+This repo uses **[pnpm](https://pnpm.io/)**. The intended version is pinned in `package.json`:
+
+- **`packageManager`** — `pnpm@10.33.0` (used by [Corepack](https://nodejs.org/api/corepack.html) when enabled)
+- **`devDependencies.pnpm`** — local CLI so you can run the same version via `pnpm exec pnpm` or `npx pnpm` without a global install
+
+**Enable Corepack (optional, recommended on Node 16.13+):**
+
+```bash
+corepack enable
+```
+
+Then installs in this repo use the pinned pnpm version automatically.
+
 ### Prerequisites
 
 1. **Node.js** v18 or higher ([download](https://nodejs.org/))
 2. Install dependencies:
+
    ```bash
-   npm install
+   pnpm install
    ```
+
+   If you use npm only: `npm install` still works, but prefer pnpm for consistency with `pnpm-lock.yaml`.
+
 3. Install Playwright browsers:
+
    ```bash
-   npx playwright install --with-deps
+   pnpm exec playwright install --with-deps
    ```
-4. Configure environment variables in `profile/.env.<env>`:
+
+   Or: `pnpm run install:browsers`
+
+4. Configure environment variables in `profile/.env.<env>` (e.g. `.env.qa`, `.env.uat`, `.env.prod`):
+
    - `BASE_URL`
    - `API_BASE_URL`
    - `ADMIN_USERNAME`
@@ -358,52 +402,53 @@ export class PartnerDataProvider {
 
 ```bash
 # Run all tests
-npx playwright test
+pnpm exec playwright test
 
 # Run specific browser
-npx playwright test --project=chromium
+pnpm exec playwright test --project=chromium
 
 # Run specific environment (PowerShell)
-$env:ENV="qa"; npx playwright test
+$env:ENV="qa"; pnpm exec playwright test
 
 # Run specific environment (CMD)
-set ENV=qa && npx playwright test
+set ENV=qa && pnpm exec playwright test
 
 # Run API tests only
-npm run test:playwright:api
+pnpm run test:playwright:api
 
-# Run with path aliases (recommended)
-npm run test:playwright
+# Run with path aliases (recommended — same as npm run test:playwright)
+pnpm run test:playwright
 ```
 
 ### Path Aliases
 
-If using `paths` in `tsconfig.json` (e.g., `"src/*": ["src/*"]`), preload `ts-node` and `tsconfig-paths`:
-
-```bash
-npm install -D ts-node tsconfig-paths cross-env
-```
+If using `paths` in `tsconfig.json` (e.g., `"src/*": ["src/*"]`), preload `ts-node` and `tsconfig-paths`. Dependencies are already listed in `package.json`; use:
 
 ```powershell
 $env:NODE_OPTIONS = "--require ts-node/register --require tsconfig-paths/register"
-npx playwright test
+pnpm exec playwright test
 ```
 
-Or use the npm script: `npm run test:playwright`
+Or use: `pnpm run test:playwright`
 
 ### View Reports
 
 ```bash
-npx playwright show-report
+pnpm exec playwright show-report
 ```
 
 ---
 
 ## Running Tests via GitHub Actions
 
-1. Go to **Actions** tab > **Playwright Tests** workflow > **Run workflow**
-2. Select `environment` (qa, uat, staging) and `browser` (all, chromium, firefox, webkit)
-3. View results and download `playwright-report` artifact from the workflow run
+The workflow [`.github/workflows/playwright.yml`](.github/workflows/playwright.yml) uses **pnpm** (pinned in `package.json` via `pnpm/action-setup`), **Node 20**, `pnpm install --frozen-lockfile`, `pnpm run install:browsers`, and `pnpm run test:playwright` (or `pnpm exec playwright test --project=…` for a single browser).
+
+1. **Manual run:** **Actions** → **Playwright Tests** → **Run workflow**
+2. Choose **environment** (qa, uat, staging — selects the [GitHub Environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) and sets `ENV` for `profile/.env.<env>`) and **browser** (`all` runs the full suite; otherwise one Playwright project)
+3. **Push to `main`** also runs the same workflow (defaults: environment `qa`, browser `all`)
+4. Open the run → **Artifacts** → download **playwright-report** (uploaded even when tests fail)
+
+Configure repository/environment **Variables** (e.g. `BASE_URL`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`) and **Secrets** (e.g. `API_BASE_URL`) as referenced in the workflow.
 
 ---
 
@@ -412,12 +457,13 @@ npx playwright show-report
 | Issue | Solution |
 |-------|----------|
 | Environment variables not set | Configure in `profile/.env.<env>` or GitHub Settings > Environments |
-| Dependencies not installed | Run `npm install` |
-| Browsers not installed | Run `npx playwright install --with-deps` |
-| Path alias errors (`src/...` not found) | Use `npm run test:playwright` to preload path resolvers |
+| Dependencies not installed | Run `pnpm install` (or `npm install`) |
+| Browsers not installed | Run `pnpm exec playwright install --with-deps` or `pnpm run install:browsers` |
+| Path alias errors (`src/...` not found) | Use `pnpm run test:playwright` to preload path resolvers |
+| Wrong pnpm version | Run `corepack enable` or use `pnpm exec pnpm` from this repo |
 
 ---
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+This project is licensed under the **ISC** License. See `package.json` (`license` field) for details.

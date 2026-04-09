@@ -16,7 +16,7 @@ import {
 import { Authentication } from "src/api/services/authentication.service";
 import { CustomerInfo } from "src/objects/customer";
 import { Partner } from "src/objects/ipartner";
-import { I500EmployeesPlan } from "src/objects/I500EmployeesPlan";
+import { I500EmployeesPlan } from "src/objects/i500EmployeesPlan";
 import { UserInfo } from "src/objects";
 
 export interface RecipientInfo {
