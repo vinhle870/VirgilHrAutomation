@@ -52,8 +52,6 @@ export class CustomerFactory {
     if (overrides?.ssoProvider && overrides?.ssoToken) {
       builder.withSso(overrides.ssoProvider, overrides.ssoToken);
     }
-    const inviteToken = overrides?.inviteToken ?? null;
-    const teamId = overrides?.teamId ?? null;
 
     // Admin-specific
     if (portal === "admin") {
@@ -102,32 +100,6 @@ export class CustomerFactory {
       lastName: person.lastName,
       jobTitle: person.jobTitle,
       phoneNumber: person.phoneNumber,
-      localPrefix: person.localPrefix,
     };
-  }
-  static async generateMembers(
-    numberOfInvitedMembers: number,
-    overrides?: Partial<UserInfo>,
-  ) {
-    const users: UserInfo[] = [];
-    const roles = ["User", "Admin", "Supervisor"];
-
-    for (let i = 0; i < numberOfInvitedMembers; i++) {
-      const person = await PersonDataGenerator.generate(overrides);
-      const index = Math.floor(Math.random() * roles.length);
-
-      const userInfo: UserInfo = {
-        email: person.email,
-        password: person.password,
-        firstName: person.firstName,
-        lastName: person.lastName,
-        jobTitle: person.jobTitle,
-        phoneNumber: person.phoneNumber,
-        invitedRole: roles[index],
-      };
-
-      users.push(userInfo);
-    }
-    return users;
   }
 }
