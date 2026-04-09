@@ -55,4 +55,29 @@ export class DropdownComponent extends BaseComponent {
     const option = scope.getByText(optionText, { exact: true });
     await this.waitAndClick(option, effectiveTimeout);
   }
+
+  /**
+   * Same as {@link selectByText}, but when several dropdowns share one selector,
+   * opens the instance at `dropdownIndex` (0-based).
+   */
+  async selectByTextForNthDropdown(
+    dropdownSelector: string,
+    optionText: string,
+    dropdownIndex: number,
+    optionListSelector?: string,
+    timeout?: number,
+  ): Promise<void> {
+    const effectiveTimeout = this.getEffectiveTimeout(timeout);
+    await this.waitForNetworkSettled(effectiveTimeout);
+
+    const dropdown = this.page.locator(dropdownSelector).nth(dropdownIndex);
+    await dropdown.waitFor({ state: "visible", timeout: effectiveTimeout });
+    await dropdown.click();
+
+    const scope = optionListSelector
+      ? this.page.locator(optionListSelector)
+      : this.page;
+    const option = scope.getByText(optionText, { exact: true });
+    await this.waitAndClick(option, effectiveTimeout);
+  }
 }

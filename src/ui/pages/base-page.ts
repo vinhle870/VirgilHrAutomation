@@ -31,4 +31,25 @@ export abstract class BasePage {
       timeout,
     );
   }
+
+  /**
+   * Click a radio option by accessible name. Optionally scope to a container.
+   */
+  protected async selectRadio(
+    label: string,
+    scopeSelector?: string,
+    timeout?: number,
+  ): Promise<void> {
+    const effectiveTimeout =
+      timeout ??
+      (process.env.UI_ELEMENT_TIMEOUT_MS
+        ? Number(process.env.UI_ELEMENT_TIMEOUT_MS)
+        : 60000);
+    const scope = scopeSelector
+      ? this.page.locator(scopeSelector)
+      : this.page;
+    const radio = scope.getByRole("radio", { name: label, exact: true });
+    await radio.first().waitFor({ state: "visible", timeout: effectiveTimeout });
+    await radio.first().click();
+  }
 }
