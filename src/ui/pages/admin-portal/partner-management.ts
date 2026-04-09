@@ -43,7 +43,7 @@ export class PartnerManagementPage extends BasePage {
       throw new Error("Department name does not exist or is empty");
     }
 
-    this.selectDropdownOptionByText(
+    await this.dropdown.selectByText(
       CreateNewPartnerModalLocator.department,
       partnerInfo.partnerInfo.departmentName,
     );
@@ -52,7 +52,7 @@ export class PartnerManagementPage extends BasePage {
 
     if (partnerInfo.partnerInfo!.partnerLevel) {
       try {
-        this.selectDropdownOptionByText(
+        await this.dropdown.selectByText(
           CreateNewPartnerModalLocator.partnerLevel,
           partnerInfo.partnerInfo!.partnerLevel,
         );
@@ -112,7 +112,7 @@ export class PartnerManagementPage extends BasePage {
       await paymentOptionElement.scrollIntoViewIfNeeded();
 
       try {
-        await this.selectDropdownOptionByText(
+        await this.dropdown.selectByText(
           CreateNewPartnerModalLocator.paymentOption,
           partnerInfo.partnerInfo!.paymentOption,
         );
@@ -139,7 +139,7 @@ export class PartnerManagementPage extends BasePage {
 
       try {
         for (let i = 0; i < partnerInfo.partnerInfo!.productsType.length; ++i)
-          await this.selectDropdownOptionByText(
+          await this.dropdown.selectByText(
             CreateNewPartnerModalLocator.productsType,
             partnerInfo.partnerInfo!.productsType[i],
           );
@@ -168,7 +168,7 @@ export class PartnerManagementPage extends BasePage {
         !partnerInfo.partnerInfo!.productsType
       ) {
         try {
-          await this.selectDropdownOptionByText(
+          await this.dropdown.selectByText(
             CreateNewPartnerModalLocator.plan,
             partnerInfo.partnerInfo!.plan,
           );
@@ -271,7 +271,7 @@ export class PartnerManagementPage extends BasePage {
 
       await jobTitleElement.fill(invitedMembers[0].jobTitle!);
 
-      await this.selectDropdownOptionByText(
+      await this.dropdown.selectByText(
         TeamAddition.roleInput,
         invitedMembers[0].invitedRole!,
       );
@@ -292,7 +292,7 @@ export class PartnerManagementPage extends BasePage {
 
         await jobTitleElement.nth(i).fill(invitedMembers[i].jobTitle!);
 
-        await this.selectDropdownOptionByText(
+        await this.dropdown.selectByText(
           TeamAddition.roleInput,
           invitedMembers[i].invitedRole!,
         );
@@ -319,7 +319,7 @@ export class PartnerManagementPage extends BasePage {
         ).fill(partFilterInfo.name);
 
       if (partFilterInfo.level)
-        await this.selectDropdownOptionByText(
+        await this.dropdown.selectByText(
           PartnerFilter.searchedLevel,
           partFilterInfo.level,
         );
@@ -327,7 +327,7 @@ export class PartnerManagementPage extends BasePage {
       await delay(5000);
 
       if (partFilterInfo.department)
-        await this.selectDropdownOptionByText(
+        await this.dropdown.selectByText(
           PartnerFilter.searchedDepartment,
           partFilterInfo.department,
         );
@@ -355,7 +355,7 @@ export class PartnerManagementPage extends BasePage {
 
       await partnerManagementCategory.click();
 
-      await this.selectDropDownViaElement(
+      await this.dropdown.selectByText(
         CommonPartnerLocator.sortingButton,
         typeOfSorting,
       );

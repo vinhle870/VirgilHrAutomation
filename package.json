@@ -1,23 +1,41 @@
 {
-  "name": "orangehrm",
+  "name": "VirgilHR Automation Framework",
   "version": "1.0.0",
-  "description": "End-to-End test automation",
+  "packageManager": "pnpm@10.33.0",
+  "description": "End-to-End test automation for VirgilHR",
   "main": "index.js",
   "scripts": {
-    "install:browsers": "npx playwright install --with-deps",
-    "test:playwright": "cross-env NODE_OPTIONS=--require ts-node/register --require tsconfig-paths/register npx playwright test",
-    "test:playwright:api": "cross-env NODE_OPTIONS=--require ts-node/register --require tsconfig-paths/register npx playwright test tests/API"
+    "install:browsers": "pnpm exec playwright install --with-deps",
+    "test:playwright": "cross-env NODE_OPTIONS=--require ts-node/register --require tsconfig-paths/register pnpm exec playwright test",
+    "test:playwright:api": "cross-env NODE_OPTIONS=--require ts-node/register --require tsconfig-paths/register pnpm exec playwright test tests/API",
+    "test:playwright:ui": "cross-env NODE_OPTIONS=--require ts-node/register --require tsconfig-paths/register pnpm exec playwright test tests/UI",
+    "test:playwright:chromium": "cross-env NODE_OPTIONS=--require ts-node/register --require tsconfig-paths/register pnpm exec playwright test --project=chromium",
+    "playwright:report": "pnpm exec playwright show-report",
+    "playwright:codegen": "pnpm exec playwright codegen",
+    "lint": "pnpm exec tsc --noEmit --pretty"
+  },
+  "scriptDescriptions": {
+    "install:browsers": "Install Playwright browser binaries and system dependencies (run after install or when Playwright is upgraded).",
+    "test:playwright": "Run the full Playwright suite under tests/ with ts-node and tsconfig-paths so src/* imports resolve.",
+    "test:playwright:api": "Run only API specs under tests/API with the same TypeScript path setup as test:playwright.",
+    "test:playwright:ui": "Run only UI specs under tests/UI with the same TypeScript path setup as test:playwright.",
+    "test:playwright:chromium": "Run Playwright tests for the chromium project only (faster local/CI smoke).",
+    "playwright:report": "Open the last HTML test report (run after a test run that produced playwright-report/).",
+    "playwright:codegen": "Launch Playwright codegen to record locators and flows against a URL.",
+    "lint": "Type-check the project with tsc --noEmit (no emit); fails on TS errors in src, tests, and playwright.config.ts."
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "pnpm": "^10.33.0",
     "@playwright/test": "^1.52.0",
     "@types/node": "^22.15.21",
     "cross-env": "^7.0.3",
     "playwright": "^1.57.0",
     "ts-node": "^10.9.1",
-    "tsconfig-paths": "^3.14.0"
+    "tsconfig-paths": "^3.14.0",
+    "typescript": "^5.8.3"
   },
   "dependencies": {
     "@faker-js/faker": "^10.1.0",

@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { DataGenerate } from "src/utilities";
 import UserInfo from "src/objects/user-info";
-import { I500EmployeesPlan } from "src/objects/I500EmployeesPlan";
+import { I500EmployeesPlan } from "src/objects/i500EmployeesPlan";
 
 /**
  * Shared utility that generates person/account data with sensible defaults.

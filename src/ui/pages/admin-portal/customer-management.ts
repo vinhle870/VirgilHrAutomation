@@ -8,7 +8,6 @@ import { CreateNewCustomerModalLocator } from "./locators/customer-management/ne
 import { CreateNewPartnerModalLocator } from "./locators/partner-management/new-partner";
 import { CustomerDetailLocator } from "./locators/customer-management/detail";
 import { UpgradePlanLocator } from "./locators/customer-management/upgrade-plan";
-import { error } from "console";
 
 export class CustomerManagementPage extends BasePage {
   constructor(page: Page) {
@@ -72,7 +71,7 @@ export class CustomerManagementPage extends BasePage {
     await contactNumberElement.fill(customer.accountInfo.phoneNumber);
 
     try {
-      this.selectDropdownOptionByText(
+      await this.dropdown.selectByText(
         CreateNewCustomerModalLocator.department,
         customer.departmentName,
       );
@@ -84,7 +83,7 @@ export class CustomerManagementPage extends BasePage {
 
     if (customer.stateOfCustomer) {
       try {
-        await this.selectDropdownOptionByText(
+        await this.dropdown.selectByText(
           CreateNewCustomerModalLocator.statesOfCustomer,
           customer.stateOfCustomer,
         );
@@ -104,7 +103,7 @@ export class CustomerManagementPage extends BasePage {
 
       if (customer.company.companySize)
         try {
-          await this.selectDropdownOptionByText(
+          await this.dropdown.selectByText(
             CreateNewCustomerModalLocator.companySize,
             customer.company.companySize,
           );
@@ -126,7 +125,7 @@ export class CustomerManagementPage extends BasePage {
     else if (customer.company.industry) {
       try {
         for (let i = 0; i < customer.company.industry.length; i++) {
-          await this.selectDropdownOptionByText(
+          await this.dropdown.selectByText(
             CreateNewCustomerModalLocator.industry,
             customer.company.industry[i].value,
           );
@@ -154,7 +153,7 @@ export class CustomerManagementPage extends BasePage {
     if (customer.company.statesEmployee) {
       try {
         for (let i = 0; i < customer.company.statesEmployee.length; i++)
-          await this.selectDropdownOptionByText(
+          await this.dropdown.selectByTextForNthDropdown(
             CreateNewCustomerModalLocator.statesOfCompany,
             customer.company.statesEmployee[i],
             i,
