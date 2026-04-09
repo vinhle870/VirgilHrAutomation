@@ -1,4 +1,4 @@
-import { expect } from "@playwright/test";
+import { expect, Locator } from "@playwright/test";
 import { BasePage } from "../base-page";
 import { MemberOnboardingLocators } from "./locators";
 
@@ -57,26 +57,38 @@ export class MemberOnboardingPage extends BasePage {
 
     await signInBtn.click();
 
-    await this.page.waitForURL(/.*change-password/, { timeout: 30000 });
+    if (password !== "Password@123")
+      try {
+        await this.page.waitForURL(/.*change-password/, { timeout: 30000 });
 
-    await (
-      await this.getLocator(MemberOnboardingLocators.currentPasswordInput)
-    ).fill(password);
+        await (
+          await this.getLocator(MemberOnboardingLocators.currentPasswordInput)
+        ).fill(password);
 
-    await (
-      await this.getLocator(MemberOnboardingLocators.newPassword)
-    ).fill("Password@123");
+        await (
+          await this.getLocator(MemberOnboardingLocators.newPassword)
+        ).fill("Password@123");
 
-    await (
-      await this.getLocator(MemberOnboardingLocators.continueButton)
-    ).click();
+        await (
+          await this.getLocator(MemberOnboardingLocators.continueButton)
+        ).click();
 
-    await (
-      await this.getLocator(MemberOnboardingLocators.completedSafely)
-    ).isVisible();
+        await (
+          await this.getLocator(MemberOnboardingLocators.completedSafely)
+        ).isVisible();
 
-    await (
-      await this.getLocator(MemberOnboardingLocators.continueButton)
-    ).click();
+        await (
+          await this.getLocator(MemberOnboardingLocators.continueButton)
+        ).click();
+      } catch (error) {
+        console.log("Do not need to change password");
+      }
+  }
+
+  async getBenifits(email: string): Promise<Locator> {
+    await this.loginViaCredentialEmail(email, "Password@123");
+    // await this.page.waitForLoadState("networkidle");
+
+    return this.page.locator("h2.text-h2", { hasText: "Home" }).first();
   }
 }

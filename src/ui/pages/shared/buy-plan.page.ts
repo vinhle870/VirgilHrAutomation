@@ -2,6 +2,7 @@ import { Page } from "@playwright/test";
 import { BasePage } from "../base-page";
 import { BuyPlanLocators } from "./locators";
 import { CommonPartnerPortalLocator } from "./locators/commonPartnerPortal";
+import delay from "src/utilities/delay";
 
 export class BuyPlanPage extends BasePage {
   constructor(page: Page) {
@@ -15,16 +16,11 @@ export class BuyPlanPage extends BasePage {
    * @param password: string
    * @param cardinfo: object
    */
-  public async fillBuyPlanForm(
-    url: string,
-    email: string,
-    password?: string,
-    cardinfo?: object,
-  ): Promise<void> {
+  public async fillBuyPlanForm(url: string, email: string): Promise<void> {
     const logger = (console.debug ?? console.log).bind(console);
     logger(`==================[Plan Purchase] url: ${url}, email: ${email}\n`);
 
-    await this.page.waitForURL("**/register-success");
+    await this.page.waitForURL("**/register-success", { timeout: 30000 });
 
     const divFirstPlan = await this.getLocator(BuyPlanLocators.firstPlan);
     await divFirstPlan.click();
@@ -91,5 +87,7 @@ export class BuyPlanPage extends BasePage {
       );
       await btnSubscribe.click();
     }
+
+    await delay(10000);
   }
 }

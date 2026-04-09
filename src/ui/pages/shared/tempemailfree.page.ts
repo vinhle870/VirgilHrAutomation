@@ -78,23 +78,33 @@ export class TempEmailFreePage extends BasePage {
   public async credential(username: string, portal = "Partner"): Promise<any> {
     await this.createNewEmail(username);
 
-    try {
-      await (await this.getLocator(TempEmailFreeLocators.partnerCredential))
-        .first()
-        .click();
-    } catch (e) {
-      await (
-        await this.getLocator(TempEmailFreeLocators.refreshButton)
-      ).click();
+    if (portal !== "Partner" && portal !== "Member")
+      throw new Error("Wrong portal");
 
-      await (await this.getLocator(TempEmailFreeLocators.partnerCredential))
-        .first()
-        .click();
+    if (portal === "Partner")
+      TempEmailFreeLocators.portalCredential =
+        TempEmailFreeLocators.portalCredential.replace(
+          "portalValue",
+          "Partner",
+        );
+    else {
+      if (TempEmailFreeLocators.portalCredential.includes("Partner"))
+        TempEmailFreeLocators.portalCredential =
+          TempEmailFreeLocators.portalCredential.replace("Partner", "User");
+      else
+        TempEmailFreeLocators.portalCredential =
+          TempEmailFreeLocators.portalCredential.replace("portalValue", "User");
     }
 
-    const credentialFrame = this.page
+    await (await this.getLocator(TempEmailFreeLocators.portalCredential))
+      .first()
+      .click();
+
+    let credentialFrame;
+
+    credentialFrame = this.page
       .frameLocator(TempEmailFreeLocators.credentialIframe)
-      .first();
+      .last();
 
     const usernameRaw = await credentialFrame
       .locator(TempEmailFreeLocators.credentialUsername)
@@ -107,15 +117,23 @@ export class TempEmailFreePage extends BasePage {
       .locator(TempEmailFreeLocators.credentialPassword)
       .first()
       .textContent();
-
     const password = passwordRaw?.replace(/Password\s*:/i, "").trim();
 
-    const loginbutton = credentialFrame.getByRole("link", { name: "Login" });
+    let loginbutton = credentialFrame.getByRole("link", { name: "Login" });
 
-    const [newPage] = await Promise.all([
-      this.page.context().waitForEvent("page"),
-      loginbutton.click(),
-    ]);
+    try {
+      await loginbutton.click({ timeout: 3000 });
+    } catch (error) {
+      credentialFrame = this.page
+        .frameLocator(TempEmailFreeLocators.credentialIframe)
+        .first();
+
+      loginbutton = credentialFrame.getByRole("link", { name: "Login" });
+
+      await loginbutton.click({ timeout: 3000 });
+    }
+
+    const newPage = await this.page.context().waitForEvent("page");
 
     await newPage.waitForLoadState();
 

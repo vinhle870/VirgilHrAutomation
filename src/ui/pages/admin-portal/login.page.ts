@@ -5,11 +5,11 @@ import { Page } from "@playwright/test";
 
 export class LoginAdminPage extends BasePage {
   async login(newPage?: Page): Promise<void> {
-    const url = process.env.ANOTHER_ADMIN_PORTAL_BASE_URL;
+    const url = process.env.ADMIN_PORTAL_BASE_URL;
 
     if (newPage) this.page = newPage;
 
-    this.page.goto(url!);
+    await this.page.goto(url!);
 
     const usernameElement = await this.getLocator(LoginLocator.username);
     const passwordElement = await this.getLocator(LoginLocator.password);

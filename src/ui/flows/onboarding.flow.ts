@@ -6,6 +6,7 @@ import { CommonPartnerPortalLocator } from "../pages/shared/locators/commonPartn
 import { BusinessLocator } from "../pages/shared/locators/business";
 import { Partner, UserInfo } from "src/objects";
 import delay from "src/utilities/delay";
+import { MemberOnboardingLocators } from "../pages/member-portal/locators";
 
 export class OnboardingFlow {
   private readonly page: Page;
@@ -43,22 +44,61 @@ export class OnboardingFlow {
     tempEmailFreePage: TempEmailFreePage,
     emailOfPartner: string,
     isClose = false,
+    portal = "Partner",
   ) {
     const localPart = emailOfPartner.split("@")[0];
 
-    const { email, password, newPage } = await tempEmailFreePage.credential(
-      localPart!,
+    let credentialEmail;
+    let credentialPassword;
+    let credentialNewPage;
+
+    if (portal === "Partner") {
+      const { email, password, newPage } = await tempEmailFreePage.credential(
+        localPart!,
+      );
+      credentialEmail = email;
+      credentialPassword = password;
+      credentialNewPage = newPage;
+    } else {
+      const { email, password, newPage } = await tempEmailFreePage.credential(
+        localPart!,
+        "Member",
+      );
+      credentialEmail = email;
+      credentialPassword = password;
+      credentialNewPage = newPage;
+    }
+
+    await credentialNewPage.waitForLoadState("domcontentloaded");
+
+    this.memberOnboarding = new MemberOnboardingPage(credentialNewPage);
+
+    await this.memberOnboarding.loginViaCredentialEmail(
+      credentialEmail,
+      credentialPassword,
     );
 
-    await newPage.waitForLoadState("domcontentloaded");
+    if (portal === "Member") {
+      try {
+        await credentialNewPage
+          .locator(MemberOnboardingLocators.readyDiveIn)
+          .click({ timeout: 3000 });
+      } catch (error) {
+        console.log("There is no popup 'I am ready to divin'");
+      }
 
-    this.memberOnboarding = new MemberOnboardingPage(newPage);
+      try {
+        for (let i = 0; i < 4; i++)
+          await credentialNewPage
+            .locator(MemberOnboardingLocators.gotItButton)
+            .click({ timeout: 3000 });
+      } catch (error) {
+        console.log("There is no popup 'Got it'");
+      }
+    }
 
-    await this.memberOnboarding.loginViaCredentialEmail(email, password);
-
-    if (!isClose) await newPage.close();
-
-    return newPage;
+    if (!isClose) await credentialNewPage.close();
+    else return credentialNewPage;
   }
 
   public async buyPlanInPartnerPortal(
@@ -66,7 +106,6 @@ export class OnboardingFlow {
     purchaseFlow: PurchaseFlow,
     partnerInfo: Partner,
     isClose = false,
-    password = "Password@123",
   ) {
     if (partnerInfo.partnerInfo?.bankTransfer === true)
       throw new Error("Making payment is done in admin portal");
@@ -80,13 +119,11 @@ export class OnboardingFlow {
       true,
     );
 
-    await purchaseFlow.buyPlan(
-      "",
-      partnerInfo.accountInfo!.email,
-      password,
-      {},
-      newPage,
-    );
+    try {
+      await purchaseFlow.buyPlan("", partnerInfo.accountInfo!.email, newPage);
+    } catch (error) {
+      console.log("Already bought a plan");
+    }
 
     if (!isClose) await newPage.close();
     else return newPage;
@@ -200,5 +237,15 @@ export class OnboardingFlow {
       .waitFor({ state: "visible", timeout: 30000 });
 
     return newPage.locator(BusinessLocator.ownerText);
+  }
+
+  async getBenifits(email: string): Promise<any> {
+    this.memberOnboarding = new MemberOnboardingPage(this.page);
+
+    const localPart = email.split("@")[0];
+
+    await this.page.goto(`https://${localPart}.member.qa.virgilhr.com/`);
+
+    return await this.memberOnboarding.getBenifits(email);
   }
 }
