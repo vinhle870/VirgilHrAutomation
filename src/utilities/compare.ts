@@ -18,7 +18,7 @@ export default class Comparison {
 
   public static async comparePlan(benifitResponse: any, boughtPlan: any) {
     // Main plan info
-    expect(benifitResponse.main.name).toBe(boughtPlan.name);
+    expect(benifitResponse.main.name).toBe(boughtPlan.body.name);
 
     // Chatbot
     const chatbot = await this.waitForField(

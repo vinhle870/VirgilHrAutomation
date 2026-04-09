@@ -1,6 +1,5 @@
 import { CustomerBuilder } from "./customer-builder";
 import { PartnerBuilder } from "./partner-builder";
-import { PeoPartnerBuilder } from "./peopartner-builder";
 
 /**
  * Entry point for creating typed test data builders.
@@ -28,9 +27,5 @@ export class DataFactory {
 
   static partnerBuilder(): PartnerBuilder {
     return new PartnerBuilder();
-  }
-
-  static peoPartnerBuilder(): PeoPartnerBuilder {
-    return new PeoPartnerBuilder();
   }
 }

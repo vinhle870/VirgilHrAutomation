@@ -2,11 +2,12 @@ import { ApiClient } from "src/utilities";
 import {
   CHECK_OUT_PLAN,
   GET_CURRENT_SUBSCRIBED_PLAN,
-  GET_PAYMENT_STATUS,
-  GET_PAYMENT_PRODUCTS,
+  GET_PAYMENTSTATUS,
+  MEMBER_GET_PLANS,
   GET_PAYMENT_SUBSCRIPTION,
   SIGN_UP_CONSUMER,
-  COMSUMER_INVITE_MEMBER,
+  MEMBER_LOGIN,
+  INVITE_MEMBER,
 } from "src/api/endpoints/member-portal.endpoints";
 import { CustomerInfo } from "src/objects/customer";
 import UserInfo from "src/objects/user-info";
@@ -109,13 +110,13 @@ export class MemberPortalService {
       200, // Assuming 200 OK is the expected status code
       headers,
     );
-    return response; // Return the plans list response
+    return response; // Return the checkout plan response
   }
 
   async getPlansList(departmentId: string, token?: string): Promise<object> {
     const baseurl = this.baseUrl;
     const paramters = `departmentId=${departmentId}`;
-    const url = `${baseurl}/${GET_PAYMENT_PRODUCTS}${paramters}`;
+    const url = `${baseurl}/${MEMBER_GET_PLANS}${paramters}`;
 
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
@@ -131,7 +132,7 @@ export class MemberPortalService {
 
   async checkPaymentStatus(guid: string, token?: string): Promise<object> {
     //const paramters = `guid=${guid}`;
-    let temp_url = GET_PAYMENT_STATUS;
+    let temp_url = GET_PAYMENTSTATUS;
     temp_url = temp_url.replace("${guid}", guid);
     const url = `${this.baseUrl}/${temp_url}`;
 
@@ -147,6 +148,55 @@ export class MemberPortalService {
     return response; // Return the checkout plan response
   }
 
+  async getBenifit<T>(email: string, token: string): Promise<T> {
+    const url = `${this.baseUrl}${GET_PAYMENT_SUBSCRIPTION}`;
+    return (await this.sendRequestToGetBenifit<object>(
+      url,
+      email.split("@")[0],
+      token,
+    )) as T;
+  }
+
+  private async sendRequestToGetBenifit<T>(
+    url: string,
+    name: string,
+    token: string,
+    expectedStatus = 200,
+  ): Promise<object> {
+    const fullUrl = url.startsWith("http") ? url : `${this.baseUrl}/${url}`;
+
+    const mergedHeaders: Record<string, string> = {
+      Authorization: `Bearer ${token}`,
+      accept: "*/*",
+      "accept-language": "en-US,en;q=0.9,vi;q=0.8",
+      origin: `https://${name}.member-virgilhr-qa.bigin.top`,
+      priority: "u=1, i",
+      referer: `https://${name}.member-virgilhr-qa.bigin.top/`,
+      "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0",
+    };
+
+    const requestOptions: any = { headers: mergedHeaders };
+
+    const response = await this.apiClient
+      .getApiContext()
+      .get(fullUrl, requestOptions);
+    const status = response.status();
+    if (status !== expectedStatus) {
+      throw new Error(
+        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
+      );
+    }
+
+    const contentType = response.headers()["content-type"] || "";
+    const body =
+      contentType.includes("application/json") && status !== 204
+        ? await response.json()
+        : await response.text();
+
+    return body;
+  }
+
   /**
    * Invite a member to a team from Admin Portal
    * @param token - The token to authenticate the request
@@ -154,11 +204,9 @@ export class MemberPortalService {
    * @param name - The name of the team
    * @returns The invite member response
    */
-  public async inviteMember(
-    token: string,
-    member: InviteMemberPayload,
+  public async inviteMember(token: string, member: InviteMemberPayload, name: string,
   ): Promise<object> {
-    const url = `${this.baseUrl}/${COMSUMER_INVITE_MEMBER}`;
+    const url = `${this.baseUrl}/${INVITE_MEMBER}`;
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
     const response = await this.apiClient.sendRequest<object>(
@@ -169,6 +217,7 @@ export class MemberPortalService {
       headers,
     );
     return response; // Return the checkout plan response
+   
   }
 
   /**
@@ -181,7 +230,7 @@ export class MemberPortalService {
 
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
-    return (await this.apiClient.sendRequest<object>(
+    return ( await this.apiClient.sendRequest<object>(
       "GET",
       url,
       undefined,
@@ -190,40 +239,5 @@ export class MemberPortalService {
     )) as T;
   }
 
-  async inviteTeamMemberFromAnOwnerCustomer(
-    memberToken: string,
-    members: UserInfo[],
-  ): Promise<any> {
-    const path = COMSUMER_INVITE_MEMBER.replace(/^\/+/, "");
-
-    const url = `${this.baseUrl}/${path}`;
-
-    const headers = { Authorization: `Bearer ${memberToken}` };
-
-    const requestBody = {
-      recipients: [
-        ...members.map((member) => ({
-          ...{
-            email: member.email,
-            firstName: member.firstName,
-            lastName: member.lastName,
-            phoneNumber: member.phoneNumber,
-            jobTitle: member.jobTitle,
-            role: member.role,
-            partnerConsumerType: 1,
-          },
-        })),
-      ],
-    };
-
-    const response = await this.apiClient.sendRequest<any>(
-      "POST",
-      url,
-      requestBody,
-      200,
-      headers,
-    );
-
-    return response;
-  }
+  
 }

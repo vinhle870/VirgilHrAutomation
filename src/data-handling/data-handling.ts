@@ -1,29 +1,21 @@
-import { JsonHandling } from "../utilities/json-handling";
+import { JsonHandling } from '../utilities/json-handling';
 import { Constants } from "../utilities/constants";
-import { CollectionUtils } from "../utilities/collection-utils";
 
 export class DataHandling {
-  static async parseDataFromFile(
-    filename: string,
-  ): Promise<object | undefined> {
-    return await JsonHandling.parseJsonTextToObject(
-      Constants.BUSINESS_ENTITY_FOLDER + filename,
-    );
+
+
+  /**
+   * Parse Dealer Info from file
+   * @param filename
+   * @returns dealer object
+   */
+  static async parseDataFromFile(filename: string): Promise<object | undefined> {
+    return await JsonHandling.parseJsonTextToObject(Constants.BUSINESS_ENTITY_FOLDER + filename);
   }
 
-  /** @deprecated Use `CollectionUtils.findByProperty()` instead */
-  static async filterProductTypeFiltersByName(
-    productTypeFilters: any,
-    filterName: string,
-  ): Promise<any> {
-    const dataArray = Array.isArray(productTypeFilters)
-      ? productTypeFilters
-      : [productTypeFilters];
-    const product = CollectionUtils.findByPropertyOrNull(
-      dataArray,
-      "name",
-      filterName,
-    );
-    return product ? (product as any).productType : undefined;
+  static async filterProductTypeFiltersByName(productTypeFilters: any, filterName: string): Promise<any> {
+    const dataArray = Array.isArray(productTypeFilters  ) ? productTypeFilters : [productTypeFilters];
+    const product = dataArray.find(item => item.name === filterName);
+    return product ? product.productType : undefined;
   }
 }

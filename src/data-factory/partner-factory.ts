@@ -4,7 +4,6 @@ import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { ProductInfo } from "src/objects/iproduct";
 import { localHR } from "src/constant/static-data";
 import { PartnerBuilder } from "./partner-builder";
-import { AdminPortalDataProvider } from "src/test-data";
 
 /**
  * Service utility for partner-related operations.
@@ -51,7 +50,7 @@ export class PartnerFactory {
     builder.withFilterProductTypes(
       overrides?.restriction?.feFilterProductTypes
         ? [] // will be overridden by withRestriction below
-        : AdminPortalDataProvider.filterProductType(productTypes),
+        : DataGenerate.generateProductType(productTypes),
     );
 
     // Account overrides
@@ -101,7 +100,7 @@ export class PartnerFactory {
     adminService: AdminPortalService,
     departmentName?: string,
   ): Promise<string> {
-    PartnerFactory.departmentInfor = await adminService.getDepartmentsList();
+    PartnerFactory.departmentInfor = await adminService.getDepartmentInfo();
 
     if (departmentName) {
       const dept = PartnerFactory.departmentInfor.body.find(
@@ -115,7 +114,9 @@ export class PartnerFactory {
       }
     }
 
-    const ids = PartnerFactory.departmentInfor.body.map((dept: any) => dept.id);
+    const ids = PartnerFactory.departmentInfor.body.map(
+      (dept: any) => dept.id,
+    );
     let id = DataGenerate.generateDepartmentID(ids);
 
     while (id == localHR) {
@@ -138,7 +139,7 @@ export class PartnerFactory {
     adminService: AdminPortalService,
     departmentId: string,
   ): Promise<ProductInfo[]> {
-    const productTypesResponse = await adminService.getAllDepartmentsPlans();
+    const productTypesResponse = await adminService.getProductTypes();
     if (!productTypesResponse?.body) {
       return [];
     }

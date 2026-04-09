@@ -1,20 +1,29 @@
 import { format } from "date-fns";
-import { CollectionUtils } from "./collection-utils";
-
-// Bypass ts-node transpiling dynamic import() to require() for ESM-only packages
-const loadFaker = new Function(
-  'return import("@faker-js/faker")',
-) as () => Promise<typeof import("@faker-js/faker")>;
+import { IMemberInvitation } from "src/objects/imemberinviation";
+import { ProductInfo } from "src/objects/iproduct";
 
 export class DataGenerate {
-  /** @deprecated Use `CollectionUtils.pickOne()` instead */
+  /**
+   * select Randomly item from given list
+   * @param array
+   * @returns string
+   */
   static selectRandomlyInList(array: any[]): string {
-    return CollectionUtils.pickOne(array);
+    const length = array.length;
+    const index = this.getRandomInt(0, length - 1);
+    return array[index];
   }
 
-  /** @deprecated Use `CollectionUtils.randomInt()` instead */
+  /**
+   * generate randomly the nunber in range
+   * @param min
+   * @param max
+   * @returns
+   */
   static getRandomInt(min: number, max: number): number {
-    return CollectionUtils.randomInt(min, max);
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
   /**
@@ -42,51 +51,42 @@ export class DataGenerate {
    * @returns string
    */
   static async generateDate(dateformat: string): Promise<string> {
-    const { faker } = await loadFaker();
+    const { faker } = await import("@faker-js/faker");
     const futuredate = faker.date.future();
     return format(futuredate, dateformat);
   }
 
   static async generateFirstName(): Promise<string> {
-    const { faker } = await loadFaker();
-    return "QATest_" + faker.person.firstName();
+    const { faker } = await import("@faker-js/faker");
+    return faker.person.firstName();
   }
 
   static async generateLastName(): Promise<string> {
-    const { faker } = await loadFaker();
+    const { faker } = await import("@faker-js/faker");
     return faker.person.lastName();
   }
 
   static async generateEmail(): Promise<string> {
-    const { faker } = await loadFaker();
-    const email = faker.internet.email();
-    return `QATest${email}`;
+    const { faker } = await import("@faker-js/faker");
+    return faker.internet.email();
   }
 
   static async generatePhoneNumber(): Promise<string> {
-    const { faker } = await loadFaker();
+    const { faker } = await import("@faker-js/faker");
     return faker.helpers.replaceSymbols("+1##########");
   }
   static async generateCompanyName(): Promise<string> {
-    const { faker } = await loadFaker();
-    return "QATest_" + faker.company.name().replace(",", "and");
+    const { faker } = await import("@faker-js/faker");
+    return faker.company.name();
   }
 
   static async generatejobTitle(): Promise<string> {
-    const { faker } = await loadFaker();
+    const { faker } = await import("@faker-js/faker");
     return faker.person.jobTitle();
   }
 
   static generateBoolean(): boolean {
     const values: boolean[] = [true, false];
-
-    const randomValue = values[Math.floor(Math.random() * values.length)];
-
-    return randomValue;
-  }
-
-  static generateCompanyType(): string {
-    const values: string[] = ["External", "Internal "];
 
     const randomValue = values[Math.floor(Math.random() * values.length)];
 
@@ -100,9 +100,59 @@ export class DataGenerate {
 
     return randomValue;
   }
-  /** @deprecated Use `CollectionUtils.pickOne()` instead */
+  //select randomly Department
   public static generateDepartmentID(departmentIDS: string[]): string {
-    return CollectionUtils.pickOne(departmentIDS);
+    const randomValue =
+      departmentIDS[Math.floor(Math.random() * departmentIDS.length)];
+
+    return randomValue;
+  }
+
+  public static generateProductType(values: ProductInfo[]): ProductInfo[] {
+    const result: ProductInfo[] = [];
+    const used = new Set<number>();
+
+    while (result.length < 2 && used.size < values.length) {
+      const randomValue = values[Math.floor(Math.random() * values.length)];
+
+      if (randomValue.productName.includes("500+ Employees")) {
+        continue;
+      }
+
+      if (!used.has(randomValue.productType)) {
+        used.add(randomValue.productType);
+        result.push({
+          productType: randomValue.productType,
+          productName: randomValue.productName,
+          planId: randomValue.planId,
+        });
+      }
+    }
+
+    return result;
+  }
+
+  public static async generateInvitedMember(
+    partnerID: string,
+    role = 3,
+  ): Promise<IMemberInvitation> {
+    const invitedMember: IMemberInvitation = {
+      id: partnerID,
+      recipients: [
+        {
+          email: await DataGenerate.generateEmail(),
+          firstName: await DataGenerate.generateFirstName(),
+          lastName: await DataGenerate.generateLastName(),
+          phoneNumber: await DataGenerate.generatePhoneNumber(),
+          jobTitle: await DataGenerate.generatejobTitle(),
+          role: role,
+          partnerConsumerType: 1,
+          consultantRole: role,
+        },
+      ],
+    };
+
+    return invitedMember;
   }
 
   /**

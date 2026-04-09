@@ -1,77 +1,61 @@
 import { test as base } from "@playwright/test";
+import { ApiClient } from "../utilities/api.client";
+import { LoginPage } from "../ui/pages/login-page";
+import { HomePage } from "../ui/pages/home-page";
 import dotenv from "dotenv";
 dotenv.config();
-import { ApiClient } from "../utilities/api.client";
-import { AdminHomePage, AdminLeftMenu } from "../ui/pages";
-import { AuthFlow, OnboardingFlow, PurchaseFlow } from "../ui/flows";
+import { LeftMenu } from "../ui/pages/leftmenu";
 import { Authentication } from "../api/services/authentication.service";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { MemberPortalService } from "src/api/services";
-import { PartnerPortalService } from "src/api/services/partner-portal.services";
-import { TempEmailFreePage } from "../ui/pages";
-import { LoginAdminPage } from "src/ui/pages/admin-portal/login.page";
-import { PartnerManagementPage } from "src/ui/pages/admin-portal/partner-management";
+import { PlanPage } from "src/ui/pages/plan-page";
 
-import { PartnerIntegrationService } from "src/api/services/partner-integration.service";
-import { CustomerManagementPage } from "src/ui/pages/admin-portal/customer-management";
+// Declare the types of your fixtures.
 type MyFixtures = {
-  adminLoggedIn: void;
-  homePage: AdminHomePage;
-  leftmenu: AdminLeftMenu;
-
-  authFlow: AuthFlow;
-  onboardingFlow: OnboardingFlow;
-  purchaseFlow: PurchaseFlow;
+  dealerAccount: object;
+  loginPage: LoginPage;
+  homePage: HomePage;
+  leftmenu: LeftMenu;
+  planPage: PlanPage;
 
   apiClient: ApiClient;
   authenticationService: Authentication;
   adminPortalService: AdminPortalService;
   memberPortalService: MemberPortalService;
-  partnerPortalService: PartnerPortalService;
-
-  tempEmailFreePage: TempEmailFreePage;
-  partnerIntegrationService: PartnerIntegrationService;
-
-  loginPage: LoginAdminPage;
-  partnerManagementPage: PartnerManagementPage;
-  customerManagementPage: CustomerManagementPage;
+  api_token: string;
 };
 
 export const test = base.extend<MyFixtures>({
-  authFlow: async ({ page }, use) => {
-    await use(new AuthFlow(page));
-  },
+  loginPage: async ({ page }, use) => {
+    // Use the fixture value in the test.
 
-  onboardingFlow: async ({ page }, use) => {
-    await use(new OnboardingFlow(page));
-  },
-
-  purchaseFlow: async ({ page }, use) => {
-    await use(new PurchaseFlow(page));
-  },
-
-  adminLoggedIn: async ({ authFlow }, use) => {
     const { BASE_URL, ADMIN_USERNAME, ADMIN_PASSWORD } = process.env;
 
     if (!BASE_URL || !ADMIN_USERNAME || !ADMIN_PASSWORD) {
       throw new Error("Missing environment variables");
     }
 
-    await authFlow.loginWithValidAccount(
+    const loginPage = new LoginPage(page);
+
+    await loginPage.loginWithValidAccount(
       BASE_URL,
       ADMIN_USERNAME,
       ADMIN_PASSWORD,
     );
 
-    await use();
+    await use(loginPage);
   },
 
   homePage: async ({ page }, use) => {
-    await use(new AdminHomePage(page));
+    await use(new HomePage(page));
   },
 
   leftmenu: async ({ page }, use) => {
-    await use(new AdminLeftMenu(page));
+    await use(new LeftMenu(page));
+  },
+
+  planPage: async ({ page }, use) => {
+    await use(new PlanPage(page));
   },
 
   apiClient: async ({}, use) => {
@@ -104,31 +88,6 @@ export const test = base.extend<MyFixtures>({
   memberPortalService: async ({ apiClient: api }, use) => {
     const memberPortalService = new MemberPortalService(api);
     await use(memberPortalService);
-  },
-
-  partnerPortalService: async ({ apiClient: api }, use) => {
-    const partnerPortalService = new PartnerPortalService(api);
-    await use(partnerPortalService);
-  },
-
-  tempEmailFreePage: async ({ page }, use) => {
-    const tempEmailFreePage = new TempEmailFreePage(page);
-
-    await use(tempEmailFreePage);
-  },
-  partnerIntegrationService: async ({ apiClient: api }, use) => {
-    const partnerIntegrationService = new PartnerIntegrationService(api);
-    await use(partnerIntegrationService);
-  },
-
-  loginPage: async ({ page }, use) => {
-    await use(new LoginAdminPage(page));
-  },
-  partnerManagementPage: async ({ page }, use) => {
-    await use(new PartnerManagementPage(page));
-  },
-  customerManagementPage: async ({ page }, use) => {
-    await use(new CustomerManagementPage(page));
   },
 });
 

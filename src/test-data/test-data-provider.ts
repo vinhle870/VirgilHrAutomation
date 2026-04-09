@@ -1,6 +1,7 @@
 import { AdminPortalService } from "src/api/services/admin-portal.services";
 import { ProductInfo } from "src/objects/iproduct";
-import { CollectionUtils } from "src/utilities/collection-utils";
+import { DataGenerate } from "src/utilities";
+import { localHR } from "src/constant/static-data";
 
 /**
  * Pre-condition data provider for tests.
@@ -39,112 +40,79 @@ export class TestDataProvider {
 
   // ── Department ──────────────────────────────────────────────
 
+  /**
+   * Get a department ID by name.
+   * If no name is given, picks a random department (excluding localHR).
+   */
   async getDepartmentId(departmentName?: string): Promise<string> {
     await this.ensureDepartmentCache();
 
     if (departmentName) {
-      const dept = CollectionUtils.findByName(
-        this.departmentCache,
-        departmentName,
+      const dept = this.departmentCache.body.find(
+        (d: any) => d.name.toLowerCase() === departmentName.toLowerCase(),
       );
-      return (dept as any).id;
+      if (dept) return dept.id;
+      throw new Error(`Department with name "${departmentName}" not found`);
     }
 
     const ids: string[] = this.departmentCache.body.map(
       (dept: any) => dept.id,
     );
-    return CollectionUtils.pickOne(ids);
+    let id = DataGenerate.generateDepartmentID(ids);
+    while (id === localHR) {
+      id = DataGenerate.generateDepartmentID(ids);
+    }
+    return id;
   }
 
+  /**
+   * Get the partner portal domain for a given department ID.
+   */
   async getDepartmentDomain(departmentId: string): Promise<string> {
     await this.ensureDepartmentCache();
 
-    const matchedDept = CollectionUtils.findByProperty(
-      this.departmentCache.body,
-      "id",
-      departmentId,
+    const matchedDept = this.departmentCache.body.find(
+      (dept: any) => dept.id === departmentId,
     );
-    return (matchedDept as any)?.domain?.partner ?? null;
+    return matchedDept?.domain?.partner ?? null;
   }
 
   // ── Product types ───────────────────────────────────────────
 
-  async getProductTypesBasedDepartmentId(
-    departmentId: string,
-  ): Promise<ProductInfo[]> {
-    const productTypesResponse =
-      await this.adminService.getAllDepartmentsPlans();
-    if (!productTypesResponse) return [];
+  /**
+   * Get unique product types and names for a given department.
+   */
+  async getProductTypes(departmentId: string): Promise<ProductInfo[]> {
+    const productTypesResponse = await this.adminService.getProductTypes();
+    if (!productTypesResponse?.body) return [];
 
-    const department = CollectionUtils.findByPropertyOrNull(
-      productTypesResponse as any[],
-      "departmentId",
-      departmentId,
+    const department = productTypesResponse.body.find(
+      (d: any) => d.departmentId === departmentId,
     );
-    if (!(department as any)?.plans) return [];
+    if (!department?.plans) return [];
 
     const seenProductTypes = new Set<number>();
-    const products: ProductInfo[] = (department as any).plans.flatMap(
-      (plan: any) =>
-        plan.products
-          .filter((p: any) => {
-            if (seenProductTypes.has(p.productType)) return false;
-            seenProductTypes.add(p.productType);
-            return true;
-          })
-          .map((p: any) => ({
-            productType: p.productType,
-            productName: plan.name,
-            planId: plan.id,
-          })),
+    const products: ProductInfo[] = department.plans.flatMap((plan: any) =>
+      plan.products
+        .filter((p: any) => {
+          if (seenProductTypes.has(p.productType)) return false;
+          seenProductTypes.add(p.productType);
+          return true;
+        })
+        .map((p: any) => ({
+          productType: p.productType,
+          productName: plan.name,
+          planId: plan.id,
+        })),
     );
     return products;
-  }
-
-  async filterProductInfoListBasedName(
-    departmentId: string,
-    productNameList: string[],
-  ): Promise<ProductInfo[]> {
-    const products = await this.getProductTypesBasedDepartmentId(departmentId);
-    return CollectionUtils.filterByNames(
-      products.map((p) => ({ ...p, name: p.productName })),
-      productNameList,
-    ).map(({ name, ...rest }) => rest as unknown as ProductInfo);
-  }
-
-  async filterMasterPlanBasedName(
-    departmentId: string,
-    planName: string,
-  ): Promise<any> {
-    const masterPlans: any[] =
-      await this.adminService.getDepartmentPaymentProduct(departmentId);
-    return CollectionUtils.findByName(masterPlans, planName);
-  }
-
-  async filterPartnerPaymentProductBasedName(
-    partnerPaymentProductsList: any[],
-    planName: string,
-  ): Promise<any> {
-    return CollectionUtils.findByName(partnerPaymentProductsList, planName);
-  }
-
-  async filterPartnerPlanBasedName(
-    partnerPlansList: any[],
-    planName: string,
-  ): Promise<any> {
-    return CollectionUtils.findByName(partnerPlansList, planName);
-  }
-
-  async filterPlanBasedName(planList: any[], planName: string): Promise<any> {
-    if (!Array.isArray(planList)) return planList;
-    return CollectionUtils.findByProperty(planList, "name", planName);
   }
 
   // ── Internal ────────────────────────────────────────────────
 
   private async ensureDepartmentCache(): Promise<void> {
     if (!this.departmentCache) {
-      this.departmentCache = await this.adminService.getDepartmentsList();
+      this.departmentCache = await this.adminService.getDepartmentInfo();
     }
   }
 }

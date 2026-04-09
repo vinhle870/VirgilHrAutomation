@@ -11,9 +11,6 @@ import dotenv from "dotenv";
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 const env = process.env.ENV || "qa";
-
-//process.env.ENV = env;
-
 dotenv.config({
   path: path.resolve(__dirname, "profile", `.env.${env.toLocaleLowerCase()}`),
 });
@@ -29,11 +26,11 @@ export default defineConfig({
   timeout: 180000,
   testDir: "./tests",
   /* Run tests in files in parallel */
-  fullyParallel: false,
+  fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: 1,
+  retries: 5,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
@@ -44,7 +41,7 @@ export default defineConfig({
     // baseURL: 'http://localhost:3000',
 
     /* Run browsers headed when HEADED=true */
-    headless: false,
+    headless: !headed,
 
     // Let the browser open a real window and use the system window size when headed
     viewport: null,

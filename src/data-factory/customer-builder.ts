@@ -4,7 +4,6 @@ import { DataGenerate } from "src/utilities";
 import { validCountry, validIndustry } from "src/constant/static-data";
 import UserInfo from "src/objects/user-info";
 import { PersonDataGenerator } from "./person-data-generator";
-import { Country, Industry } from "src/objects";
 
 type PortalType = "member" | "admin";
 
@@ -34,11 +33,6 @@ interface AdminCompanyOptions {
   trialDays?: number;
 }
 
-export interface IBankStranfer {
-  payYearly?: boolean;
-  bankStranfer: boolean;
-  companySize: string;
-}
 /**
  * Fluent builder for creating CustomerInfo test data.
  *
@@ -74,19 +68,6 @@ export class CustomerBuilder {
   private memberOptions: MemberCompanyOptions = {};
   private adminOptions: AdminCompanyOptions = {};
   private memberOverridesList: Partial<UserInfo>[] = [];
-  private inviteTokenOverride?: string | undefined | null;
-  private teamIdOverride?: string | undefined | null;
-  private bankStranfer: IBankStranfer = {
-    bankStranfer: false,
-    companySize: "",
-    payYearly: true,
-  };
-  private departmentName: string = "BiginHR";
-  private stateOfCustomer?: string;
-  private internal?: boolean;
-  private consultant?: boolean;
-  private stateEmployeeInfo?: Company["statesEmployeeInfor"];
-  private bankStranferToUpgradePlan = false;
 
   // ── Portal selection ─────────────────────────────────────────
 
@@ -137,27 +118,7 @@ export class CustomerBuilder {
     this.accountOverrides.phoneNumber = phoneNumber;
     return this;
   }
-  //Bankstranfer infor
-  withBankStranfer(bankStranfer: boolean): this {
-    this.bankStranfer!.bankStranfer = bankStranfer;
-    return this;
-  }
 
-  withPayYearly(payYearly: boolean): this {
-    this.bankStranfer!.payYearly = payYearly;
-    return this;
-  }
-
-  //State of customer
-  withStateOfCustomer(stateOfCustomer: string): this {
-    this.stateOfCustomer = stateOfCustomer;
-    return this;
-  }
-  //Department name
-  withDepartmentName(departmentName: string): this {
-    this.departmentName = departmentName;
-    return this;
-  }
   // ── Company info (shared) ────────────────────────────────────
 
   withCompanyName(companyName: string): this {
@@ -255,27 +216,12 @@ export class CustomerBuilder {
     return this;
   }
 
-  withInviteToken(inviteToken: string): this {
-    this.inviteTokenOverride = inviteToken;
-    return this;
-  }
-
-  withTeamId(teamId: string): this {
-    this.teamIdOverride = teamId;
-    return this;
-  }
-
   /**
    * Bulk-set admin-specific options at once.
    * Useful when you have a pre-built options object.
    */
   withAdminOptions(options: AdminCompanyOptions): this {
     Object.assign(this.adminOptions, options);
-    return this;
-  }
-
-  withConsultant(consultant: boolean) {
-    this.consultant = consultant;
     return this;
   }
 
@@ -317,21 +263,6 @@ export class CustomerBuilder {
     return this;
   }
 
-  withInternal(internal: boolean): this {
-    this.internal = internal;
-    return this;
-  }
-
-  withStatesEmployeeInfo(stateEmployeeInfo: Company["statesEmployeeInfor"]) {
-    this.stateEmployeeInfo = stateEmployeeInfo;
-    return this;
-  }
-
-  withBankStranferToUpgradePlan(bankStranferToUpgradePlan: boolean): this {
-    this.bankStranferToUpgradePlan = bankStranferToUpgradePlan;
-    return this;
-  }
-
   // ── Build ────────────────────────────────────────────────────
 
   async build(): Promise<CustomerInfo> {
@@ -345,36 +276,17 @@ export class CustomerBuilder {
 
     // Generate company info
     customer.company = await this.buildCompany();
-    // Generate department
-    customer.departmentName = this.departmentName;
-    //IBankStranfer
 
-    customer.company.companySize = this.companySizeOverride;
-    customer.company.totalEmployees = this.adminOptions.totalEmployees;
-    customer.company.statesEmployee = this.adminOptions.statesEmployee;
-    customer.company.statesEmployeeInfor = this.stateEmployeeInfo;
     // Generate plan info
-    if (this.planOverride) customer.plan = this.planOverride;
-
-    if (this.bankStranfer?.bankStranfer === true)
-      customer.bankStranfer = this.bankStranfer;
-    else customer.bankStranfer!.bankStranfer = false;
-
-    if (this.stateOfCustomer) customer.stateOfCustomer = this.stateOfCustomer;
-
-    if (this.internal === true) customer.internal = true;
-
-    if (this.consultant === true) customer.company.consultant = true;
-    else customer.company.consultant = false;
+    if (this.planOverride) {
+      customer.plan = this.planOverride;
+    }
 
     // Generate members with faker data
     for (const memberOverrides of this.memberOverridesList) {
       const member = await PersonDataGenerator.generate(memberOverrides);
       customer.addMember(member);
     }
-
-    if (this.bankStranferToUpgradePlan === true)
-      customer.bankStranferToUpgradePlan = true;
 
     return customer;
   }
@@ -399,7 +311,9 @@ export class CustomerBuilder {
         ssoProvider: this.memberOptions.ssoProvider ?? null,
         ssoToken: this.memberOptions.ssoToken ?? null,
       };
-    } else if (this.portal === "admin") {
+    }
+
+    if (this.portal === "admin") {
       return {
         ...baseCompany,
         useCredit: this.adminOptions.useCredit ?? false,

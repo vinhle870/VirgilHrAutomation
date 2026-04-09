@@ -1,9 +1,3 @@
 {
-    "playwright.showTrace": true,
-    "playwright.reuseBrowser": false,
-    "playwright.env": {},
-    "playwright.configs": [
-        "playwright.config.ts"
-    ],
-    "playwright.runGlobalSetupOnEachRun": true
+    "playwright.showTrace": true
 }

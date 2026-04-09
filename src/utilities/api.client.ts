@@ -72,7 +72,6 @@ export class ApiClient {
     data?: object,
     expectedStatus = 200,
     headers?: Record<string, string>,
-    params?: Record<string, string | number>,
   ): Promise<T> {
     let response: APIResponse;
 
@@ -81,7 +80,6 @@ export class ApiClient {
     try {
       const requestOptions: any = {};
       if (data) requestOptions.data = data;
-      if (params) requestOptions.params = params;
 
       // Merge headers: prefer explicit `headers` passed for this call,
       // but include the stored auth token if present. This avoids calling
@@ -151,7 +149,8 @@ export class ApiClient {
     // Read response body once to use for both logging and return value
     const status = response.status();
     const contentType = response.headers()["content-type"] || "";
-    const isJson = contentType.includes("application/json") && status !== 204;
+    const isJson =
+      contentType.includes("application/json") && status !== 204;
     const responseBody = isJson
       ? await response.json()
       : status === 204
@@ -191,6 +190,353 @@ export class ApiClient {
 
     if (isJson) return responseBody as T;
     if (status === 204) return {} as T;
-    return responseBody ? (responseBody as unknown as T) : ({} as T);
+    return (responseBody ? (responseBody as unknown as T) : ({} as T));
+  }
+
+  public async sendPartnerRequest<T>(
+    method: HTTPMethod,
+    url: string,
+    data?: object,
+    expectedStatus = 200,
+    headers?: Record<string, string>,
+  ): Promise<{ status: number; data: T }> {
+    let response: APIResponse;
+
+    const fullUrl = url.startsWith("http") ? url : `${this.baseURL}/${url}`;
+
+    try {
+      const requestOptions: any = {};
+      if (data) requestOptions.data = data;
+
+      const mergedHeaders: Record<string, string> = {
+        ...(this.authToken
+          ? { Authorization: `Bearer ${this.authToken}` }
+          : {}),
+        ...(headers || {}),
+      };
+      if (Object.keys(mergedHeaders).length)
+        requestOptions.headers = mergedHeaders;
+
+      switch (method) {
+        case "GET":
+          response = await this.apiContext.get(fullUrl, requestOptions);
+          break;
+        case "POST":
+          response = await this.apiContext.post(fullUrl, requestOptions);
+          break;
+        case "PUT":
+          response = await this.apiContext.put(fullUrl, requestOptions);
+          break;
+        case "DELETE":
+          response = await this.apiContext.delete(fullUrl, requestOptions);
+          break;
+        default:
+          throw new Error(`Unsupported HTTP method: ${method}`);
+      }
+    } catch (error) {
+      console.error(`Request to ${fullUrl} failed:`, error);
+      throw error;
+    }
+
+    const status = response.status();
+
+    if (status !== expectedStatus) {
+      const errorBody = await response.text();
+      throw new Error(
+        `API call failed for ${method} ${fullUrl}. ` +
+          `Expected status: ${expectedStatus}, Actual status: ${status}. ` +
+          `Response body: ${errorBody}`,
+      );
+    }
+
+    const contentType = response.headers()["content-type"] || "";
+    let dataResult: any = {};
+
+    if (contentType.includes("application/json") && status !== 204) {
+      dataResult = await response.json();
+    }
+
+    return { status, data: dataResult as T };
+  }
+  public async sendToGetDepartmentInfor<T>(
+    method: HTTPMethod,
+    url: string,
+    expectedStatus = 200,
+    headers?: Record<string, string>,
+  ): Promise<{ status: number; body: any }> {
+    let response: APIResponse;
+
+    const fullUrl = url.startsWith("http") ? url : `${this.baseURL}/${url}`;
+
+    try {
+      const requestOptions: any = {};
+
+      const mergedHeaders: Record<string, string> = {
+        ...(this.authToken
+          ? { authorization: `Bearer ${this.authToken}` }
+          : {}),
+        origin: "https://admin.qa.virgilhr.com",
+        referer: "https://admin.qa.virgilhr.com/",
+        priority: "u=1, i",
+        ...(headers || {}),
+      };
+
+      if (Object.keys(mergedHeaders).length) {
+        requestOptions.headers = mergedHeaders;
+      }
+
+      switch (method) {
+        case "GET":
+          response = await this.apiContext.get(fullUrl, requestOptions);
+          break;
+        case "POST":
+          response = await this.apiContext.post(fullUrl, requestOptions);
+          break;
+        case "PUT":
+          response = await this.apiContext.put(fullUrl, requestOptions);
+          break;
+        case "DELETE":
+          response = await this.apiContext.delete(fullUrl, requestOptions);
+          break;
+        default:
+          throw new Error(`Unsupported HTTP method: ${method}`);
+      }
+    } catch (error) {
+      console.error(`Request to ${fullUrl} failed:`, error);
+      throw error;
+    }
+
+    const status = response.status();
+
+    if (status !== expectedStatus) {
+      const errorBody = await response.text();
+      throw new Error(
+        `API call failed for ${method} ${fullUrl}. ` +
+          `Expected status: ${expectedStatus}, Actual status: ${status}. ` +
+          `Response body: ${errorBody}`,
+      );
+    }
+
+    const contentType = response.headers()["content-type"] || "";
+    let body: any;
+
+    if (contentType.includes("application/json") && status !== 204) {
+      body = await response.json();
+    } else {
+      body = await response.text();
+    }
+
+    return { status, body };
+  }
+
+  public async sendToGetProductTypes<T>(
+    method: HTTPMethod,
+    url: string,
+    expectedStatus = 200,
+    headers?: Record<string, string>,
+  ): Promise<{ status: number; body: any }> {
+    let response: APIResponse;
+
+    const fullUrl = url.startsWith("http") ? url : `${this.baseURL}/${url}`;
+
+    try {
+      const requestOptions: any = {};
+
+      const mergedHeaders: Record<string, string> = {
+        ...(this.authToken
+          ? { authorization: `Bearer ${this.authToken}` }
+          : {}),
+
+        ...(headers || {}),
+      };
+
+      if (Object.keys(mergedHeaders).length) {
+        requestOptions.headers = mergedHeaders;
+      }
+
+      switch (method) {
+        case "GET":
+          response = await this.apiContext.get(fullUrl, requestOptions);
+          break;
+        case "POST":
+          response = await this.apiContext.post(fullUrl, requestOptions);
+          break;
+        case "PUT":
+          response = await this.apiContext.put(fullUrl, requestOptions);
+          break;
+        case "DELETE":
+          response = await this.apiContext.delete(fullUrl, requestOptions);
+          break;
+        default:
+          throw new Error(`Unsupported HTTP method: ${method}`);
+      }
+    } catch (error) {
+      console.error(`Request to ${fullUrl} failed:`, error);
+      throw error;
+    }
+
+    const status = response.status();
+
+    if (status !== expectedStatus) {
+      const errorBody = await response.text();
+      throw new Error(
+        `API call failed for ${method} ${fullUrl}. ` +
+          `Expected status: ${expectedStatus}, Actual status: ${status}. ` +
+          `Response body: ${errorBody}`,
+      );
+    }
+
+    const contentType = response.headers()["content-type"] || "";
+    let body: any;
+
+    if (contentType.includes("application/json") && status !== 204) {
+      body = await response.json();
+    } else {
+      body = await response.text();
+    }
+
+    return { status, body };
+  }
+
+  public async sendRequestToGetCusomterId<T>(
+    method: HTTPMethod,
+    url: string,
+    expectedStatus = 200,
+    headers?: Record<string, string>,
+    params?: Record<string, string | number>,
+  ): Promise<{ status: number; body: T }> {
+    const fullUrl = url.startsWith("http") ? url : `${this.baseURL}/${url}`;
+    const mergedHeaders: Record<string, string> = {
+      ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
+      ...(headers || {}),
+    };
+    const requestOptions: any = { headers: mergedHeaders, params };
+    let response: APIResponse;
+    switch (method) {
+      case "GET":
+        response = await this.apiContext.get(fullUrl, requestOptions);
+        break;
+      case "POST":
+        response = await this.apiContext.post(fullUrl, requestOptions);
+        break;
+      case "PUT":
+        response = await this.apiContext.put(fullUrl, requestOptions);
+        break;
+      case "DELETE":
+        response = await this.apiContext.delete(fullUrl, requestOptions);
+        break;
+      default:
+        throw new Error(`Unsupported HTTP method: ${method}`);
+    }
+    const status = response.status();
+    if (status !== expectedStatus) {
+      throw new Error(
+        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
+      );
+    }
+    const contentType = response.headers()["content-type"] || "";
+    const body =
+      contentType.includes("application/json") && status !== 204
+        ? await response.json()
+        : await response.text();
+    return { status, body };
+  }
+
+  public async sendRequestToGetCustomerRole<T>(
+    method: HTTPMethod,
+    url: string,
+    expectedStatus = 200,
+    headers?: Record<string, string>,
+  ): Promise<{ status: number; body: T }> {
+    const fullUrl = url.startsWith("http") ? url : `${this.baseURL}/${url}`;
+
+    const mergedHeaders: Record<string, string> = {
+      ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
+      ...(headers || {}),
+    };
+
+    const requestOptions: any = { headers: mergedHeaders };
+
+    let response: APIResponse;
+    switch (method) {
+      case "GET":
+        response = await this.apiContext.get(fullUrl, requestOptions);
+        break;
+      case "POST":
+        response = await this.apiContext.post(fullUrl, requestOptions);
+        break;
+      case "PUT":
+        response = await this.apiContext.put(fullUrl, requestOptions);
+        break;
+      case "DELETE":
+        response = await this.apiContext.delete(fullUrl, requestOptions);
+        break;
+      default:
+        throw new Error(`Unsupported HTTP method: ${method}`);
+    }
+
+    const status = response.status();
+    if (status !== expectedStatus) {
+      throw new Error(
+        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
+      );
+    }
+
+    const contentType = response.headers()["content-type"] || "";
+    const body =
+      contentType.includes("application/json") && status !== 204
+        ? await response.json()
+        : await response.text();
+
+    return { status, body: body as T };
+  }
+
+  public async sendRequestToLogin<T>(
+    method: HTTPMethod,
+    url: string,
+    expectedStatus = 200,
+    headers?: Record<string, string>,
+  ): Promise<{ status: number; body: T }> {
+    const fullUrl = url.startsWith("http") ? url : `${this.baseURL}/${url}`;
+
+    const mergedHeaders: Record<string, string> = {
+      ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
+      ...(headers || {}),
+    };
+
+    const requestOptions: any = { headers: mergedHeaders };
+
+    let response: APIResponse;
+    switch (method) {
+      case "GET":
+        response = await this.apiContext.get(fullUrl, requestOptions);
+        break;
+      case "POST":
+        response = await this.apiContext.post(fullUrl, requestOptions);
+        break;
+      case "PUT":
+        response = await this.apiContext.put(fullUrl, requestOptions);
+        break;
+      case "DELETE":
+        response = await this.apiContext.delete(fullUrl, requestOptions);
+        break;
+      default:
+        throw new Error(`Unsupported HTTP method: ${method}`);
+    }
+
+    const status = response.status();
+    if (status !== expectedStatus) {
+      throw new Error(
+        `Expected ${expectedStatus}, got ${status}. Body: ${await response.text()}`,
+      );
+    }
+
+    const contentType = response.headers()["content-type"] || "";
+    const body =
+      contentType.includes("application/json") && status !== 204
+        ? await response.json()
+        : await response.text();
+
+    return { status, body: body as T };
   }
 }

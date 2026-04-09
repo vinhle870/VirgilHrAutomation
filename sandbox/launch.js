@@ -1,0 +1,91 @@
+{
+    "id": "698009f7aa427f51a6e909aa",
+    "name": "Test PI",
+    "apiEnable": true,
+    "paymentEnable": true,
+    "isPublic": true,
+    "level": 0,
+    "email": "testpixyz@yopmail.com",
+    "firstName": "a",
+    "lastName": "a",
+    "phoneNumber": "123123123",
+    "partnerId": null,
+    "companyType": 1,
+    "whoPay": 0,
+    "partner": null,
+    "members": [
+        {
+            "id": "698009f7aa427f51a6e909ab",
+            "email": "testpixyz@yopmail.com",
+            "normalizedEmail": null,
+            "firstName": "a",
+            "normalizedFirstName": null,
+            "lastName": "a",
+            "normalizedLastName": null,
+            "fullName": "a a",
+            "normalizedFullName": null,
+            "phoneNumber": "123123123",
+            "jobTitle": "a",
+            "consultantRole": 0,
+            "isActive": true,
+            "isAccepted": true,
+            "partnerConsultantId": null,
+            "partnerConsumerType": 1,
+            "createdAt": "2026-02-02T02:20:39.557Z",
+            "updatedAt": "2026-02-02T02:20:39.557Z"
+        }
+    ],
+    "backUrl": null,
+    "backText": null,
+    "isActive": true,
+    "assignedIds": [],
+    "createdBy": null,
+    "createdByFullName": null,
+    "country": null,
+    "state": null,
+    "restriction": {
+        "eSignEnable": true,
+        "productSupport": true,
+        "resourceRequest": true,
+        "profileEnable": true,
+        "contactExpert": true,
+        "ssoEnable": true,
+        "lmsEnable": true,
+        "hrToolsEnable": true,
+        "feFilterProductTypes": [
+            4,
+            19,
+            15,
+            16,
+            2,
+            6
+        ],
+        "productTypes": [
+            5,
+            19,
+            1,
+            17,
+            3,
+            6,
+            4,
+            19,
+            15,
+            16,
+            2,
+            6
+        ]
+    },
+    "externalConfig": {
+        "pendoApiKey": null
+    },
+    "consultantRestriction": {
+        "customBranding": true
+    },
+    "subDomain": "testpi",
+    "convertFromConsumer": false,
+    "departmentId": "688897d5eb52b4af5573def4",
+    "canCustomUpdatePlan": false,
+    "partnerType": 1,
+    "createdAt": "2026-02-02T02:20:39.47Z",
+    "updatedAt": "2026-02-02T02:20:39.47Z"
+}

@@ -1,4 +1,3 @@
-export * from "./base-page";
-export * from "./admin-portal";
-export * from "./member-portal";
-export * from "./shared";
+export * from './home-page';
+export * from './leftmenu';
+export * from './login-page';
