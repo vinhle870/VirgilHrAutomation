@@ -1,13 +1,12 @@
 import { Page } from "@playwright/test";
 import { BasePage } from "../base-page";
-import { BuyPlanLocators  } from "./locators";
-
+import { BuyPlanLocators } from "./locators";
+import { CommonPartnerPortalLocator } from "./locators/commonPartnerPortal";
+import delay from "src/utilities/delay";
 
 export class BuyPlanPage extends BasePage {
-
   constructor(page: Page) {
     super(page);
-
   }
 
   /**
@@ -17,16 +16,11 @@ export class BuyPlanPage extends BasePage {
    * @param password: string
    * @param cardinfo: object
    */
-  async fillBuyPlanForm(
-    url: string,
-    email: string,
-    password: string,
-    cardinfo: object,
-  ): Promise<void> {
+  public async fillBuyPlanForm(url: string, email: string): Promise<void> {
     const logger = (console.debug ?? console.log).bind(console);
     logger(`==================[Plan Purchase] url: ${url}, email: ${email}\n`);
 
-    await this.page.waitForURL("**/register-success");
+    await this.page.waitForURL("**/register-success", { timeout: 30000 });
 
     const divFirstPlan = await this.getLocator(BuyPlanLocators.firstPlan);
     await divFirstPlan.click();
@@ -39,26 +33,61 @@ export class BuyPlanPage extends BasePage {
 
     const iframe = BuyPlanLocators.paymentIframe;
 
-    const txtCardNumb = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardNumber);
+    const txtCardNumb = await this.getLocatorInIframe(
+      iframe,
+      BuyPlanLocators.cardNumber,
+    );
     await txtCardNumb.fill("4242 4242 4242 4242");
 
-    const txtCardExp = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardExpiry);
+    const txtCardExp = await this.getLocatorInIframe(
+      iframe,
+      BuyPlanLocators.cardExpiry,
+    );
     await txtCardExp.fill("12/34");
 
-    const txtCardCvc = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardCvc);
+    const txtCardCvc = await this.getLocatorInIframe(
+      iframe,
+      BuyPlanLocators.cardCvc,
+    );
     await txtCardCvc.fill("123");
 
-    const txtHolder = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardHolderName);
+    const txtHolder = await this.getLocatorInIframe(
+      iframe,
+      BuyPlanLocators.cardHolderName,
+    );
     await txtHolder.fill("Test User");
 
-    const txtAddress = await this.getLocatorInIframe(iframe, BuyPlanLocators.billingAddress);
+    const txtAddress = await this.getLocatorInIframe(
+      iframe,
+      BuyPlanLocators.billingAddress,
+    );
     await txtAddress.fill("123 Test St");
 
-    const txtCity = await this.getLocatorInIframe(iframe, BuyPlanLocators.billingCity);
+    const txtCity = await this.getLocatorInIframe(
+      iframe,
+      BuyPlanLocators.billingCity,
+    );
     await txtCity.fill("Test City");
 
-    const btnSubscribe = await this.getLocatorInIframe(iframe, BuyPlanLocators.subscribe);
-    await btnSubscribe.click();
+    let btnSubscribe;
+    try {
+      btnSubscribe = await this.getLocatorInIframe(
+        iframe,
+        BuyPlanLocators.subscribe,
+      );
+      await btnSubscribe.click();
 
+      await (
+        await this.getLocator(CommonPartnerPortalLocator.closeButton)
+      ).isVisible();
+    } catch (error) {
+      btnSubscribe = await this.getLocatorInIframe(
+        iframe,
+        BuyPlanLocators.subscribe,
+      );
+      await btnSubscribe.click();
+    }
+
+    await delay(10000);
   }
 }

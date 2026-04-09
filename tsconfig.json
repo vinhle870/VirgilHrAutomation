@@ -9,10 +9,11 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
+    "baseUrl": ".", 
     "paths": {
       "src/*": ["src/*"]
-    }
+    },
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src", "tests", "playwright.config.ts"],
   "exclude": ["node_modules", "playwright-report"]

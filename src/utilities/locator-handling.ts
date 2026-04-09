@@ -17,7 +17,7 @@ export class LocatorHandling {
 
   private static async waitForNetworkSettled(
     page: Page,
-    timeout: number
+    timeout: number,
   ): Promise<void> {
     const networkWait = Math.min(3000, timeout);
     try {
@@ -36,7 +36,7 @@ export class LocatorHandling {
   static async getLocator(
     page: Page,
     selector: string,
-    timeout?: number
+    timeout?: number,
   ): Promise<Locator> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(page, effectiveTimeout);
@@ -52,7 +52,7 @@ export class LocatorHandling {
     page: Page,
     iframeSelector: string,
     selector: string,
-    timeout?: number
+    timeout?: number,
   ): Promise<Locator> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(page, effectiveTimeout);

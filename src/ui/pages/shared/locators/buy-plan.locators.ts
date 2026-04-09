@@ -1,6 +1,5 @@
 export class BuyPlanLocators {
-  static readonly firstPlan =
-    "//p[contains(text(),'Under 50 Employees')]/../../..";
+  static readonly firstPlan = "//p[contains(text(),'ASO Expert')]/../../..";
   static readonly buyNow = "//span[text()='Buy Now']";
   static readonly confirm = "//span[text()='Confirm']";
 
@@ -13,6 +12,4 @@ export class BuyPlanLocators {
   static readonly billingCity = "//*[@id='billingLocality']";
   static readonly subscribe = "//*[text()='Subscribe']";
   static readonly readyDiveIn = "//*[text()='I\u2019m ready to dive in']";
-
-
 }

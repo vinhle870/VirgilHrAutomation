@@ -12,7 +12,7 @@ import dotenv from "dotenv";
 
 const env = process.env.ENV || "qa";
 
-//process.env.ENV = env;
+process.env.ENV = env;
 
 dotenv.config({
   path: path.resolve(__dirname, "profile", `.env.${env.toLocaleLowerCase()}`),

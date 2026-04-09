@@ -19,18 +19,20 @@ export class PartnerManagementPage extends BasePage {
     super(page);
   }
 
-  public async createPartner(partnerInfo: Partner): Promise<Locator> {
+  public async createPartner(partnerInfo: Partner, i = 0): Promise<Locator> {
     const managementCategory = await this.getLocator(
       CommonLocator.managementCategory,
     );
 
     await managementCategory.click();
 
-    const partnerManagementCategory = await this.getLocator(
-      CommonLocator.partnerManagement,
-    );
+    if (i === 0) {
+      const partnerManagementCategory = await this.getLocator(
+        CommonLocator.partnerManagement,
+      );
 
-    await partnerManagementCategory.click();
+      await partnerManagementCategory.click();
+    }
 
     const createButtonElement = await this.getLocator(
       CommonPartnerLocator.createNewPartnerButton,
@@ -473,11 +475,13 @@ export class PartnerManagementPage extends BasePage {
       await createButtonEl.click();
     }
 
-    await delay(10000);
+    await delay(5000);
 
     for (const member of peoPartners) {
-      const localPart = member.accountInfo!.email.split("@")[0];
-      await onboardingFlow.credential(tempEmailFreePage, localPart);
+      await onboardingFlow.credential(
+        tempEmailFreePage,
+        member.accountInfo?.email!,
+      );
     }
 
     return "Pass";
