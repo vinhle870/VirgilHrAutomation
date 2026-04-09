@@ -25,6 +25,4 @@ export class MemberOnboardingLocators {
   public static readonly completedSafely = "xpath=//h3";
 
   public static readonly gotItButton = "xpath=//span[text()='Got it']";
-
-  public static readonly homeTitle = "xpath=//h2[text()='Home']";
 }
