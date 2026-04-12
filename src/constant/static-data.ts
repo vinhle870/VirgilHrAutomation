@@ -1,10 +1,6 @@
-const plans = [
-  "Under 50 Employees",
-  "50 - 100 Employees",
-  "101 - 250 Employees",
-  "251 - 500 Employees",
-  "500+ Employees & HR Consultants",
-];
+import {
+  getPlansForDepartment,
+} from "./department-plans";
 
 const validCardInfo = {
   cardNumber: "4242 4242 4242 4242",
@@ -41,12 +37,21 @@ const paymentOptions = [
 
 const localHR = "6891c8c2b34bb84b18eae816";
 
+/**
+ * Plan names for the current `process.env.DEPARTMENT_NAME` and `process.env.ENV`.
+ * Prefer {@link getPlansForDepartment} when the department is not the active env default.
+ */
+const plans = getPlansForDepartment(
+  process.env.DEPARTMENT_NAME ?? "BiginHR",
+);
+
 export {
-  plans,
   validCardInfo,
   inValidCardInfo,
   validIndustry,
   validCountry,
   paymentOptions,
   localHR,
+  plans,
+  getPlansForDepartment,
 };
