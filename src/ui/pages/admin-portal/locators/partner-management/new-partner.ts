@@ -52,4 +52,9 @@ export class CreateNewPartnerModalLocator {
 
   public static readonly confirmButton =
     "//button[text()=' Confirm & Create ']";
+
+  public static readonly duplicatedEmailText =
+    " //p[contains(text(),'Email is existed')]";
+
+   
 }
