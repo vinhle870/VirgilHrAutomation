@@ -57,11 +57,7 @@ export const test = base.extend<MyFixtures>({
       throw new Error("Missing environment variables");
     }
 
-    await authFlow.loginWithValidAccount(
-      BASE_URL,
-      ADMIN_USERNAME,
-      ADMIN_PASSWORD,
-    );
+    await authFlow.loginWithValidAccount(BASE_URL, ADMIN_USERNAME, ADMIN_PASSWORD);
 
     await use();
   },
@@ -79,9 +75,7 @@ export const test = base.extend<MyFixtures>({
     const token = process.env.API_TOKEN;
 
     if (!baseURL) {
-      throw new Error(
-        "Missing API_BASE_URL or BASE_URL environment variable for API fixture",
-      );
+      throw new Error("Missing API_BASE_URL or BASE_URL environment variable for API fixture");
     }
 
     const apiClient = await ApiClient.create(baseURL, token);
@@ -93,10 +87,7 @@ export const test = base.extend<MyFixtures>({
     await use(authenticationService);
   },
 
-  adminPortalService: async (
-    { apiClient: api, authenticationService: auth },
-    use,
-  ) => {
+  adminPortalService: async ({ apiClient: api, authenticationService: auth }, use) => {
     const adminPortalService = await AdminPortalService.create(api, auth);
     await use(adminPortalService);
   },

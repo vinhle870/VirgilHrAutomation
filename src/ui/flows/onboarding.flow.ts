@@ -21,16 +21,16 @@ export class OnboardingFlow {
    * Accepts an invitation for the user by retrieving the link from YopMail
    * and completing the onboarding steps.
    */
-  async acceptInvitation(tempEmailFreePage: TempEmailFreePage, username: string, password = "Password@123") {
-    const [tempEmailPage] = await Promise.all([this.page.waitForEvent("popup"), tempEmailFreePage.acceptJoinTeam(username)]);
+  async acceptInvitation(tempEmailFreePage: TempEmailFreePage, username: string) {
+    const [virgilPage] = await Promise.all([this.page.waitForEvent("popup"), tempEmailFreePage.acceptJoinTeam(username)]);
 
     await this.page.waitForLoadState("domcontentloaded");
 
-    this.memberOnboarding = new MemberOnboardingPage(tempEmailPage);
+    this.memberOnboarding = new MemberOnboardingPage(virgilPage);
 
-    await this.memberOnboarding.setPasswordAndJoinTeam(password);
+    await this.memberOnboarding.setPasswordAndJoinTeam();
 
-    await tempEmailPage.close();
+    await virgilPage.close();
   }
 
   public async credential(tempEmailFreePage: TempEmailFreePage, emailOfPartner: string, isClose = false, portal = "Partner") {
