@@ -676,6 +676,49 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     },
   );
 
+  test(
+    "TC46",
+    {
+      tag: "@For Payment Options = Member Portal Consumer, the Owner of the Partner/Consultant can only log in to the Partner Portal.",
+    },
+    async ({ loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage }, testInfo) => {
+      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+      testInfo.skip(!base, "API_BASE_URL is not configured");
+
+      await test.step("Login to Admin portal", async () => {
+        await loginPage.login();
+      });
+
+      let partnerInfo;
+      await test.step("Create partner info", async () => {
+        partnerInfo = await DataFactory.partnerBuilder()
+          .withDepartmentName(process.env.DEPARTMENT_NAME!)
+          .withPaymentOption("Member Portal Consumer")
+          .withProductsType([process.env.PLAN!])
+          .withBankTransfer(true)
+          .build();
+      });
+
+      let newPartner;
+      await test.step("Create a new partner with payment option = 'Member Portal Consumer'", async () => {
+        newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+      });
+
+      await test.step("Verify newPartner is created successfully", async () => {
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
+      });
+
+      await test.step("Verify login only partner portal", async () => {
+        const tempEmailPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!, true);
+
+        const homeTitle = tempEmailPage.locator("h2.text-h2", { hasText: "Home" }).first();
+
+        await expect(homeTitle).toBeVisible({ timeout: 30000 });
+      });
+    },
+  );
+
   test("Invite members in partner management", async ({ loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage }, testInfo) => {
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
