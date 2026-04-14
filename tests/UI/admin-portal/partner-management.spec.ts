@@ -5,7 +5,8 @@ import { CustomerFactory } from "src/data-factory/customer-factory";
 import IPartnerFilter from "src/objects/ipartnerfilter";
 import { PartnerFilter } from "src/ui/pages/admin-portal/locators/partner-management/filter-partner";
 import { CreateNewPartnerModalLocator } from "src/ui/pages/admin-portal/locators/partner-management/new-partner";
-import { BuyPlanLocators } from "src/ui/pages/shared/locators";
+import { BuyPlanLocators, TempEmailFreeLocators } from "src/ui/pages/shared/locators";
+import { Page } from "playwright/test";
 
 test.describe("E2E -> Admin Portal -> Partner Management", () => {
   test(
@@ -24,11 +25,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let partnerInfo;
       await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
-          .build();
+        partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Partner/Consultant Owner").withProductsType([process.env.PLAN!]).build();
       });
 
       let newPartner;
@@ -58,11 +55,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let partnerInfo;
       await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
-          .build();
+        partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Partner/Consultant Owner").withProductsType([process.env.PLAN!]).build();
       });
 
       let newPartner;
@@ -92,11 +85,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let partnerInfo;
       await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
-          .build();
+        partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Partner/Consultant Owner").withProductsType([process.env.PLAN!]).build();
       });
 
       let newPartner;
@@ -120,12 +109,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let addedPeoPartner;
       await test.step("Add peo ", async () => {
-        addedPeoPartner = await partnerManagementPage.addPeoConsultant(
-          partnerInfo!,
-          peoPartners!,
-          onboardingFlow,
-          tempEmailFreePage,
-        );
+        addedPeoPartner = await partnerManagementPage.addPeoConsultant(partnerInfo!, peoPartners!, onboardingFlow, tempEmailFreePage);
       });
 
       await test.step("Verify peoes are added successfully", async () => {
@@ -150,11 +134,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let partnerInfo;
       await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
-          .build();
+        partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Partner/Consultant Owner").withProductsType([process.env.PLAN!]).build();
       });
 
       let newPartner;
@@ -210,11 +190,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           }
 
           await test.step(`${stepText}`, async () => {
-            partnerInfo = await DataFactory.partnerBuilder()
-              .withDepartmentName(process.env.DEPARTMENT_NAME!)
-              .withPaymentOption(paymentOption!)
-              .withProductsType([process.env.PLAN!])
-              .build();
+            partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption(paymentOption!).withProductsType([process.env.PLAN!]).build();
           });
 
           test.step(`${createPartnerText}`, async () => {
@@ -247,11 +223,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let partnerInfo;
       await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
-          .build();
+        partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Partner/Consultant Owner").withProductsType([process.env.PLAN!]).build();
       });
 
       let newPartner;
@@ -293,11 +265,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let partnerInfo;
       await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
-          .build();
+        partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Partner/Consultant Owner").withProductsType([process.env.PLAN!]).build();
       });
 
       let newPartner;
@@ -392,11 +360,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let partnerInfo;
       await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
-          .build();
+        partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Partner/Consultant Owner").withProductsType([process.env.PLAN!]).build();
       });
 
       let newPartner;
@@ -426,11 +390,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let partnerInfo;
       await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
-          .build();
+        partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Partner/Consultant Owner").withProductsType([process.env.PLAN!]).build();
       });
 
       let newPartner;
@@ -468,11 +428,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let partnerInfo;
       await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
-          .build();
+        partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Partner/Consultant Owner").withProductsType([process.env.PLAN!]).build();
       });
 
       let newPartner;
@@ -562,7 +518,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
       });
 
-      await test.step("Partner needs to make a payment through tripe", async () => {
+      await test.step("Verify partner needs to make a payment through tripe", async () => {
         const newPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!, true);
 
         const plan = newPage.locator(BuyPlanLocators.firstPlan);
@@ -576,12 +532,54 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     },
   );
 
-  test("Invite members in partner management", async ({
-    loginPage,
-    partnerManagementPage,
-    onboardingFlow,
-    tempEmailFreePage,
-  }, testInfo) => {
+  test(
+    "TC43",
+    {
+      tag: "@With Payment Options = Partner/Consultant Owner, after successfully creating a Partner account, the user receives two credential emails — one for the Partner Portal and one for the Member Portal.",
+    },
+    async ({ loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage }, testInfo) => {
+      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+      testInfo.skip(!base, "API_BASE_URL is not configured");
+
+      await test.step("Login to Admin portal", async () => {
+        await loginPage.login();
+      });
+
+      let partnerInfo;
+      await test.step("Create partner info", async () => {
+        partnerInfo = await DataFactory.partnerBuilder()
+          .withDepartmentName(process.env.DEPARTMENT_NAME!)
+          .withPaymentOption("Partner/Consultant Owner")
+          .withProductsType([process.env.PLAN!])
+          .withBankTransfer(false)
+          .withEmail("QATest_Brycen124@polandcampus.edu.pl")
+          .build();
+      });
+
+      let newPartner;
+      await test.step("Create a new partner", async () => {
+        newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+      });
+
+      await test.step("Verify newPartner is created successfully", async () => {
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
+      });
+
+      await test.step("Verify With Payment Options = Partner/Consultant Owner, after successfully creating a Partner account, the user receives two credential emails", async () => {
+        const page = await onboardingFlow.createNewEmail(tempEmailFreePage, partnerInfo!.accountInfo?.email!, true);
+
+        const partnerEmail = page.locator(TempEmailFreeLocators.portalCredential.replace("portalValue", "Partner")).first();
+
+        await expect(partnerEmail).toBeVisible({ timeout: 30000 });
+
+        const memberEmail = page.locator(TempEmailFreeLocators.portalCredential.replace("portalValue", "User")).first();
+
+        await expect(memberEmail).toBeVisible();
+      });
+    },
+  );
+  test("Invite members in partner management", async ({ loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage }, testInfo) => {
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
     testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -612,10 +610,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
     await loginPage.login();
 
-    const partnerInfo = await DataFactory.partnerBuilder()
-      .withDepartmentName(process.env.DEPARTMENT_NAME!)
-      .withPartnerLevel("Partner")
-      .build();
+    const partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPartnerLevel("Partner").build();
 
     const partFilterInfo: IPartnerFilter = {
       name: partnerInfo.partnerInfo?.name,
@@ -675,23 +670,14 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     const newCustomer = await customerManagementPage.createCustomer(customerInfo);
   });
 
-  test("Add peo in partner management", async ({
-    loginPage,
-    partnerManagementPage,
-    onboardingFlow,
-    tempEmailFreePage,
-  }, testInfo) => {
+  test("Add peo in partner management", async ({ loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage }, testInfo) => {
     const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
     testInfo.skip(!base, "API_BASE_URL is not configured");
 
     await loginPage.login();
 
-    const partnerInfo = await DataFactory.partnerBuilder()
-      .withPhoneNumber("+12025550173")
-      .withDepartmentName(process.env.DEPARTMENT_NAME!)
-      .withPartnerLevel("Partner")
-      .build();
+    const partnerInfo = await DataFactory.partnerBuilder().withPhoneNumber("+12025550173").withDepartmentName(process.env.DEPARTMENT_NAME!).withPartnerLevel("Partner").build();
 
     const peoPartnerInfo = await DataFactory.peoPartnerBuilder()
       .withName("Peo" + partnerInfo.accountInfo?.firstName)
@@ -701,12 +687,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
     const peoPartners = [peoPartnerInfo];
 
-    const addedPeoPartner = await partnerManagementPage.addPeoConsultant(
-      partnerInfo,
-      peoPartners,
-      onboardingFlow,
-      tempEmailFreePage,
-    );
+    const addedPeoPartner = await partnerManagementPage.addPeoConsultant(partnerInfo, peoPartners, onboardingFlow, tempEmailFreePage);
 
     expect(addedPeoPartner).toBe("Pass");
   });

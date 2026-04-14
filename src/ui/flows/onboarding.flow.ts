@@ -33,12 +33,7 @@ export class OnboardingFlow {
     await newPage.close();
   }
 
-  public async credential(
-    tempEmailFreePage: TempEmailFreePage,
-    emailOfPartner: string,
-    isClose = false,
-    portal = "Partner",
-  ) {
+  public async credential(tempEmailFreePage: TempEmailFreePage, emailOfPartner: string, isClose = false, portal = "Partner") {
     const localPart = emailOfPartner.split("@")[0];
 
     let credentialEmail;
@@ -71,8 +66,7 @@ export class OnboardingFlow {
       }
 
       try {
-        for (let i = 0; i < 4; i++)
-          await credentialNewPage.locator(MemberOnboardingLocators.gotItButton).click({ timeout: 3000 });
+        for (let i = 0; i < 4; i++) await credentialNewPage.locator(MemberOnboardingLocators.gotItButton).click({ timeout: 3000 });
       } catch (error) {
         console.log("There is no popup 'Got it'");
       }
@@ -82,16 +76,10 @@ export class OnboardingFlow {
     else return credentialNewPage;
   }
 
-  public async buyPlanInPartnerPortal(
-    tempEmailFreePage: TempEmailFreePage,
-    purchaseFlow: PurchaseFlow,
-    partnerInfo: Partner,
-    isClose = false,
-  ) {
+  public async buyPlanInPartnerPortal(tempEmailFreePage: TempEmailFreePage, purchaseFlow: PurchaseFlow, partnerInfo: Partner, isClose = false) {
     if (partnerInfo.partnerInfo?.bankTransfer === true) throw new Error("Making payment is done in admin portal");
 
-    if (partnerInfo.partnerInfo?.paymentOption !== "Partner/Consultant Owner")
-      throw new Error("Payment option must be Partner/Consultant Owner");
+    if (partnerInfo.partnerInfo?.paymentOption !== "Partner/Consultant Owner") throw new Error("Payment option must be Partner/Consultant Owner");
 
     const newPage = await this.credential(tempEmailFreePage, partnerInfo.accountInfo?.email!, true);
 
@@ -106,10 +94,7 @@ export class OnboardingFlow {
   }
 
   public async createBusiness(newPage: Page, partnerInfo: Partner, owner?: UserInfo) {
-    if (
-      partnerInfo.partnerInfo?.paymentOption !== "Member Portal Consumer" &&
-      partnerInfo.partnerInfo?.paymentOption !== "Partner/Consultant Owner"
-    )
+    if (partnerInfo.partnerInfo?.paymentOption !== "Member Portal Consumer" && partnerInfo.partnerInfo?.paymentOption !== "Partner/Consultant Owner")
       throw new Error("Payment option must be Member Portal Consumer or Partner/Consultant Owner");
 
     try {
@@ -123,10 +108,7 @@ export class OnboardingFlow {
     }
 
     try {
-      await newPage
-        .locator(CommonPartnerPortalLocator.closeTestModal)
-        .first()
-        .waitFor({ state: "visible", timeout: 30000 });
+      await newPage.locator(CommonPartnerPortalLocator.closeTestModal).first().waitFor({ state: "visible", timeout: 30000 });
 
       await delay(3000);
 
@@ -197,5 +179,13 @@ export class OnboardingFlow {
     await this.page.goto(`https://${localPart}.member.qa.virgilhr.com/`);
 
     return await this.memberOnboarding.getBenifits(email);
+  }
+
+  public async createNewEmail(tempEmailFreePage: TempEmailFreePage, email: string, pageStatus = false): Promise<Page> {
+    const username = email.split("@")[0];
+
+    const page = await tempEmailFreePage.createNewEmail(username, pageStatus);
+
+    return page!;
   }
 }

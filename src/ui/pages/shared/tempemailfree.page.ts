@@ -3,7 +3,7 @@ import { BasePage } from "../base-page";
 import { TempEmailFreeLocators } from "./locators";
 
 export class TempEmailFreePage extends BasePage {
-  private async createNewEmail(username: string) {
+  public async createNewEmail(username: string, pageStatus = false) {
     const logger = (console.debug ?? console.log).bind(console);
     logger(`==================[Yopmail Invitation] email: ${username}\n`);
 
@@ -15,60 +15,45 @@ export class TempEmailFreePage extends BasePage {
     await this.page.goto(url);
     await this.page.waitForURL(url, { timeout });
 
-    const newButtonElement = await this.getLocator(
-      TempEmailFreeLocators.newButton,
-    );
+    const newButtonElement = await this.getLocator(TempEmailFreeLocators.newButton);
 
     await newButtonElement.click();
 
-    const usernameInputElement = await this.getLocator(
-      TempEmailFreeLocators.usernameInput,
-    );
+    const usernameInputElement = await this.getLocator(TempEmailFreeLocators.usernameInput);
 
     await usernameInputElement.waitFor({ state: "visible" });
 
     await usernameInputElement.fill(username);
 
-    const selectDomainDropdownElement = await this.getLocator(
-      TempEmailFreeLocators.selectDomainDropdown,
-    );
+    const selectDomainDropdownElement = await this.getLocator(TempEmailFreeLocators.selectDomainDropdown);
 
     await selectDomainDropdownElement.click();
 
-    const firstDomain = await this.getLocator(
-      TempEmailFreeLocators.domainOption,
-    );
+    const firstDomain = await this.getLocator(TempEmailFreeLocators.domainOption);
 
     await firstDomain.click();
 
-    const createEmailButtonElement = await this.getLocator(
-      TempEmailFreeLocators.createEmailButton,
-    );
+    const createEmailButtonElement = await this.getLocator(TempEmailFreeLocators.createEmailButton);
 
     await createEmailButtonElement.click();
 
     await newButtonElement.waitFor({ state: "visible" });
+
+    if (pageStatus) return this.page;
   }
 
   public async acceptJoinTeam(username: string): Promise<void> {
     await this.createNewEmail(username);
 
     try {
-      const joinTeamModalElement = await this.getLocator(
-        TempEmailFreeLocators.joinTeamModal,
-      );
+      const joinTeamModalElement = await this.getLocator(TempEmailFreeLocators.joinTeamModal);
       await joinTeamModalElement.click();
     } catch (e) {
-      const joinTeamModalElement = await this.getLocator(
-        TempEmailFreeLocators.joinTeamModal,
-      );
+      const joinTeamModalElement = await this.getLocator(TempEmailFreeLocators.joinTeamModal);
       await joinTeamModalElement.click();
     }
 
-    const acceptInviteButtonElement = await this.getLocatorInIframe(
-      TempEmailFreeLocators.iframeToAcceptIvite,
-      TempEmailFreeLocators.acceptInviteButton,
-    );
+    const acceptInviteButtonElement = await this.getLocatorInIframe(TempEmailFreeLocators.iframeToAcceptIvite, TempEmailFreeLocators.acceptInviteButton);
 
     await acceptInviteButtonElement.scrollIntoViewIfNeeded();
 
@@ -78,45 +63,25 @@ export class TempEmailFreePage extends BasePage {
   public async credential(username: string, portal = "Partner"): Promise<any> {
     await this.createNewEmail(username);
 
-    if (portal !== "Partner" && portal !== "Member")
-      throw new Error("Wrong portal");
+    if (portal !== "Partner" && portal !== "Member") throw new Error("Wrong portal");
 
-    if (portal === "Partner")
-      TempEmailFreeLocators.portalCredential =
-        TempEmailFreeLocators.portalCredential.replace(
-          "portalValue",
-          "Partner",
-        );
+    if (portal === "Partner") TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("portalValue", "Partner");
     else {
-      if (TempEmailFreeLocators.portalCredential.includes("Partner"))
-        TempEmailFreeLocators.portalCredential =
-          TempEmailFreeLocators.portalCredential.replace("Partner", "User");
-      else
-        TempEmailFreeLocators.portalCredential =
-          TempEmailFreeLocators.portalCredential.replace("portalValue", "User");
+      if (TempEmailFreeLocators.portalCredential.includes("Partner")) TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("Partner", "User");
+      else TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("portalValue", "User");
     }
 
-    await (await this.getLocator(TempEmailFreeLocators.portalCredential))
-      .first()
-      .click();
+    await (await this.getLocator(TempEmailFreeLocators.portalCredential)).first().click();
 
     let credentialFrame;
 
-    credentialFrame = this.page
-      .frameLocator(TempEmailFreeLocators.credentialIframe)
-      .last();
+    credentialFrame = this.page.frameLocator(TempEmailFreeLocators.credentialIframe).last();
 
-    const usernameRaw = await credentialFrame
-      .locator(TempEmailFreeLocators.credentialUsername)
-      .first()
-      .textContent();
+    const usernameRaw = await credentialFrame.locator(TempEmailFreeLocators.credentialUsername).first().textContent();
 
     const email = usernameRaw?.replace(/Username\s*:/i, "").trim();
 
-    const passwordRaw = await credentialFrame
-      .locator(TempEmailFreeLocators.credentialPassword)
-      .first()
-      .textContent();
+    const passwordRaw = await credentialFrame.locator(TempEmailFreeLocators.credentialPassword).first().textContent();
     const password = passwordRaw?.replace(/Password\s*:/i, "").trim();
 
     let loginbutton = credentialFrame.getByRole("link", { name: "Login" });
@@ -124,19 +89,17 @@ export class TempEmailFreePage extends BasePage {
     try {
       await loginbutton.click({ timeout: 3000 });
     } catch (error) {
-      credentialFrame = this.page
-        .frameLocator(TempEmailFreeLocators.credentialIframe)
-        .first();
+      credentialFrame = this.page.frameLocator(TempEmailFreeLocators.credentialIframe).first();
 
       loginbutton = credentialFrame.getByRole("link", { name: "Login" });
 
       await loginbutton.click({ timeout: 3000 });
     }
 
-    const newPage = await this.page.context().waitForEvent("page");
+    const tempEmailPage = await this.page.context().waitForEvent("page");
 
-    await newPage.waitForLoadState();
+    await tempEmailPage.waitForLoadState();
 
-    return { email, password, newPage };
+    return { email, password, tempEmailPage };
   }
 }
