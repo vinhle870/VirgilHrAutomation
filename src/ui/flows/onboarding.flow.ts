@@ -21,15 +21,8 @@ export class OnboardingFlow {
    * Accepts an invitation for the user by retrieving the link from YopMail
    * and completing the onboarding steps.
    */
-  async acceptInvitation(
-    tempEmailFreePage: TempEmailFreePage,
-    username: string,
-    password = "Password@123",
-  ) {
-    const [newPage] = await Promise.all([
-      this.page.waitForEvent("popup"),
-      tempEmailFreePage.acceptJoinTeam(username),
-    ]);
+  async acceptInvitation(tempEmailFreePage: TempEmailFreePage, username: string, password = "Password@123") {
+    const [newPage] = await Promise.all([this.page.waitForEvent("popup"), tempEmailFreePage.acceptJoinTeam(username)]);
 
     await this.page.waitForLoadState("domcontentloaded");
 
@@ -53,17 +46,12 @@ export class OnboardingFlow {
     let credentialNewPage;
 
     if (portal === "Partner") {
-      const { email, password, newPage } = await tempEmailFreePage.credential(
-        localPart!,
-      );
+      const { email, password, newPage } = await tempEmailFreePage.credential(localPart!);
       credentialEmail = email;
       credentialPassword = password;
       credentialNewPage = newPage;
     } else {
-      const { email, password, newPage } = await tempEmailFreePage.credential(
-        localPart!,
-        "Member",
-      );
+      const { email, password, newPage } = await tempEmailFreePage.credential(localPart!, "Member");
       credentialEmail = email;
       credentialPassword = password;
       credentialNewPage = newPage;
@@ -73,25 +61,18 @@ export class OnboardingFlow {
 
     this.memberOnboarding = new MemberOnboardingPage(credentialNewPage);
 
-    await this.memberOnboarding.loginViaCredentialEmail(
-      credentialEmail,
-      credentialPassword,
-    );
+    await this.memberOnboarding.loginViaCredentialEmail(credentialEmail, credentialPassword);
 
     if (portal === "Member") {
       try {
-        await credentialNewPage
-          .locator(MemberOnboardingLocators.readyDiveIn)
-          .click({ timeout: 3000 });
+        await credentialNewPage.locator(MemberOnboardingLocators.readyDiveIn).click({ timeout: 3000 });
       } catch (error) {
         console.log("There is no popup 'I am ready to divin'");
       }
 
       try {
         for (let i = 0; i < 4; i++)
-          await credentialNewPage
-            .locator(MemberOnboardingLocators.gotItButton)
-            .click({ timeout: 3000 });
+          await credentialNewPage.locator(MemberOnboardingLocators.gotItButton).click({ timeout: 3000 });
       } catch (error) {
         console.log("There is no popup 'Got it'");
       }
@@ -107,17 +88,12 @@ export class OnboardingFlow {
     partnerInfo: Partner,
     isClose = false,
   ) {
-    if (partnerInfo.partnerInfo?.bankTransfer === true)
-      throw new Error("Making payment is done in admin portal");
+    if (partnerInfo.partnerInfo?.bankTransfer === true) throw new Error("Making payment is done in admin portal");
 
     if (partnerInfo.partnerInfo?.paymentOption !== "Partner/Consultant Owner")
       throw new Error("Payment option must be Partner/Consultant Owner");
 
-    const newPage = await this.credential(
-      tempEmailFreePage,
-      partnerInfo.accountInfo?.email!,
-      true,
-    );
+    const newPage = await this.credential(tempEmailFreePage, partnerInfo.accountInfo?.email!, true);
 
     try {
       await purchaseFlow.buyPlan("", partnerInfo.accountInfo!.email, newPage);
@@ -129,23 +105,15 @@ export class OnboardingFlow {
     else return newPage;
   }
 
-  public async createBusiness(
-    newPage: Page,
-    partnerInfo: Partner,
-    owner?: UserInfo,
-  ) {
+  public async createBusiness(newPage: Page, partnerInfo: Partner, owner?: UserInfo) {
     if (
       partnerInfo.partnerInfo?.paymentOption !== "Member Portal Consumer" &&
       partnerInfo.partnerInfo?.paymentOption !== "Partner/Consultant Owner"
     )
-      throw new Error(
-        "Payment option must be Member Portal Consumer or Partner/Consultant Owner",
-      );
+      throw new Error("Payment option must be Member Portal Consumer or Partner/Consultant Owner");
 
     try {
-      await newPage
-        .locator(CommonPartnerPortalLocator.closeButton)
-        .waitFor({ state: "visible", timeout: 30000 });
+      await newPage.locator(CommonPartnerPortalLocator.closeButton).waitFor({ state: "visible", timeout: 30000 });
 
       await delay(3000);
 
@@ -162,34 +130,23 @@ export class OnboardingFlow {
 
       await delay(3000);
 
-      await newPage
-        .locator(CommonPartnerPortalLocator.closeTestModal)
-        .first()
-        .click();
+      await newPage.locator(CommonPartnerPortalLocator.closeTestModal).first().click();
     } catch (error) {
       console.log("There is no modal");
     }
 
-    await newPage
-      .locator(CommonPartnerPortalLocator.clientButton)
-      .waitFor({ state: "visible", timeout: 30000 });
+    await newPage.locator(CommonPartnerPortalLocator.clientButton).waitFor({ state: "visible", timeout: 30000 });
     await newPage.locator(CommonPartnerPortalLocator.clientButton).click();
 
-    await newPage
-      .locator(BusinessLocator.businessTab)
-      .waitFor({ state: "visible", timeout: 30000 });
+    await newPage.locator(BusinessLocator.businessTab).waitFor({ state: "visible", timeout: 30000 });
 
     await newPage.locator(BusinessLocator.businessTab).click();
 
-    await newPage
-      .locator(BusinessLocator.addBussinessButton)
-      .waitFor({ state: "visible", timeout: 30000 });
+    await newPage.locator(BusinessLocator.addBussinessButton).waitFor({ state: "visible", timeout: 30000 });
 
     await newPage.locator(BusinessLocator.addBussinessButton).click();
 
-    await newPage
-      .locator(BusinessLocator.teamNameInput)
-      .waitFor({ state: "visible", timeout: 30000 });
+    await newPage.locator(BusinessLocator.teamNameInput).waitFor({ state: "visible", timeout: 30000 });
 
     await newPage.locator(BusinessLocator.teamNameInput).fill("Team");
 
@@ -219,22 +176,15 @@ export class OnboardingFlow {
 
     await newPage.locator(BusinessLocator.firstAddButton).click();
 
-    await newPage
-      .locator(BusinessLocator.seccondAddButton)
-      .first()
-      .waitFor({ state: "visible", timeout: 30000 });
+    await newPage.locator(BusinessLocator.seccondAddButton).first().waitFor({ state: "visible", timeout: 30000 });
 
     await newPage.locator(BusinessLocator.seccondAddButton).first().click();
 
-    await newPage
-      .locator(BusinessLocator.viewButton)
-      .waitFor({ state: "visible", timeout: 30000 });
+    await newPage.locator(BusinessLocator.viewButton).waitFor({ state: "visible", timeout: 30000 });
 
     await newPage.locator(BusinessLocator.viewButton).click();
 
-    await newPage
-      .locator(BusinessLocator.ownerText)
-      .waitFor({ state: "visible", timeout: 30000 });
+    await newPage.locator(BusinessLocator.ownerText).waitFor({ state: "visible", timeout: 30000 });
 
     return newPage.locator(BusinessLocator.ownerText);
   }
