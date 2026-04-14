@@ -614,7 +614,17 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify With Payment Options = Partner/Consultant Owner, after successfully creating a Partner account, the user receives two credential emails", async () => {
-        const partner = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!, true);
+        const partnerPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!, true);
+
+        const homeTitlePartnerPage = partnerPage.locator("h2.text-h2", { hasText: "Home" }).first();
+
+        await expect(homeTitlePartnerPage).toBeVisible({ timeout: 30000 });
+
+        const memberPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!, true, "Member");
+
+        const homeTitleMemberPage = memberPage.locator("h2.text-h2", { hasText: "Home" }).first();
+
+        await expect(homeTitleMemberPage).toBeVisible({ timeout: 30000 });
       });
     },
   );
