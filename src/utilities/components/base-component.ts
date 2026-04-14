@@ -13,12 +13,7 @@ export abstract class BaseComponent {
   }
 
   protected getEffectiveTimeout(timeout?: number): number {
-    return (
-      timeout ??
-      (process.env.UI_ELEMENT_TIMEOUT_MS
-        ? Number(process.env.UI_ELEMENT_TIMEOUT_MS)
-        : 60000)
-    );
+    return timeout ?? (process.env.UI_ELEMENT_TIMEOUT_MS ? Number(process.env.UI_ELEMENT_TIMEOUT_MS) : 60000);
   }
 
   protected async waitForNetworkSettled(timeout: number): Promise<void> {
@@ -30,11 +25,13 @@ export abstract class BaseComponent {
     }
   }
 
-  protected async waitAndClick(
-    locator: Locator,
-    timeout: number
-  ): Promise<void> {
-    await locator.first().waitFor({ state: "visible", timeout });
-    await locator.first().click();
+  protected async waitAndClick(locator: Locator, timeout: number): Promise<void> {
+    try {
+      await locator.first().waitFor({ state: "visible", timeout });
+      await locator.first().click({ timeout: 3000 });
+    } catch (error) {
+      await locator.last().waitFor({ state: "visible", timeout });
+      await locator.last().click();
+    }
   }
 }

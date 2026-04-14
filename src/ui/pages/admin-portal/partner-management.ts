@@ -19,7 +19,7 @@ export class PartnerManagementPage extends BasePage {
     super(page);
   }
 
-  public async createPartner(partnerInfo: Partner, i = 0): Promise<Locator> {
+  public async createPartner(partnerInfo: Partner, i = 0): Promise<Page> {
     const managementCategory = await this.getLocator(CommonLocator.managementCategory);
 
     await managementCategory.click();
@@ -156,19 +156,16 @@ export class PartnerManagementPage extends BasePage {
     }
 
     const createNewPartnerButtonElement = await this.getLocator(CreateNewPartnerModalLocator.createPartnerButton);
-
     await createNewPartnerButtonElement.click();
 
-    const confirmButtonLocator = CreateNewPartnerModalLocator.confirmButton;
-
     if (partnerInfo.partnerInfo.bankTransfer === true) {
-      let confirmButtonElement;
+      const confirmButtonLocator = CreateNewPartnerModalLocator.confirmButton;
 
-      confirmButtonElement = await this.getLocator(confirmButtonLocator);
+      const confirmButtonElement = await this.getLocator(confirmButtonLocator);
       await confirmButtonElement.click();
     }
 
-    return nameElement;
+    return this.page;
   }
 
   public async addMoreMembers(

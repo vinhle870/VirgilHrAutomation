@@ -5,6 +5,7 @@ import { CustomerFactory } from "src/data-factory/customer-factory";
 import IPartnerFilter from "src/objects/ipartnerfilter";
 import { PartnerFilter } from "src/ui/pages/admin-portal/locators/partner-management/filter-partner";
 import { CreateNewPartnerModalLocator } from "src/ui/pages/admin-portal/locators/partner-management/new-partner";
+import { BuyPlanLocators } from "src/ui/pages/shared/locators";
 
 test.describe("E2E -> Admin Portal -> Partner Management", () => {
   test(
@@ -36,7 +37,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
-        await expect(newPartner!).toBeVisible();
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
       });
     },
   );
@@ -70,7 +71,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
-        await expect(newPartner!).toBeVisible();
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
       });
     },
   );
@@ -104,7 +105,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
-        await expect(newPartner!).toBeVisible();
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
       });
 
       let peoPartners;
@@ -162,7 +163,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify the domain is emty", async () => {
-        await expect(newPartner!).toBeVisible();
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
       });
     },
   );
@@ -221,7 +222,9 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           });
 
           test.step(`${verifyText}`, async () => {
-            await expect(newPartner!).toBeVisible();
+            await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({
+              timeout: 30000,
+            });
           });
         }
       });
@@ -257,7 +260,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify the domain is emty", async () => {
-        await expect(newPartner!).toBeVisible();
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
       });
 
       let newPage;
@@ -303,7 +306,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify the partner is created successfully", async () => {
-        await expect(newPartner!).toBeVisible();
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
       });
 
       let newPage;
@@ -354,7 +357,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify the partner is created successfully", async () => {
-        await expect(newPartner!).toBeVisible();
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
       });
 
       await test.step("Buy plan in partner portal", async () => {
@@ -402,7 +405,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
-        await expect(newPartner!).toBeVisible();
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
       });
     },
   );
@@ -436,7 +439,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
-        await expect(newPartner!).toBeVisible();
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
       });
 
       await test.step("Create another partner and verify its email is duplicated ", async () => {
@@ -445,6 +448,130 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         const duplicatedEmailEl = await partnerManagementPage.getDuplicatedText();
 
         await expect(duplicatedEmailEl).toBeVisible();
+      });
+    },
+  );
+
+  test(
+    "TC40",
+    {
+      tag: "@Verify that the admin can enable Bank Transfer for a new Partner.",
+    },
+    async ({ loginPage, partnerManagementPage }, testInfo) => {
+      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+      testInfo.skip(!base, "API_BASE_URL is not configured");
+
+      await test.step("Login to Admin portal", async () => {
+        await loginPage.login();
+      });
+
+      let partnerInfo;
+      await test.step("Create partner info", async () => {
+        partnerInfo = await DataFactory.partnerBuilder()
+          .withDepartmentName(process.env.DEPARTMENT_NAME!)
+          .withPaymentOption("Partner/Consultant Owner")
+          .withProductsType([process.env.PLAN!])
+          .build();
+      });
+
+      let newPartner;
+      await test.step("Create a new partner", async () => {
+        newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+      });
+
+      await test.step("Verify newPartner is created successfully", async () => {
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
+      });
+    },
+  );
+
+  test(
+    "TC41",
+    {
+      tag: "@When Bank Transfer = ON, the Partner user is assigned a plan and does not need to make a payment through Stripe.",
+    },
+    async ({ loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage }, testInfo) => {
+      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+      testInfo.skip(!base, "API_BASE_URL is not configured");
+
+      await test.step("Login to Admin portal", async () => {
+        await loginPage.login();
+      });
+
+      let partnerInfo;
+      await test.step("Create partner info", async () => {
+        partnerInfo = await DataFactory.partnerBuilder()
+          .withDepartmentName(process.env.DEPARTMENT_NAME!)
+          .withPaymentOption("Partner/Consultant Owner")
+          .withProductsType([process.env.PLAN!])
+          .withBankTransfer(true)
+          .build();
+      });
+
+      let newPartner;
+      await test.step("Create a new partner", async () => {
+        newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+      });
+
+      await test.step("Verify newPartner is created successfully", async () => {
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
+      });
+
+      await test.step("Partner does not need to make a payment through tripe", async () => {
+        const newPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!, true);
+
+        const homeTitle = newPage.locator("h2.text-h2", { hasText: "Home" }).first();
+
+        await expect(homeTitle).toBeVisible();
+      });
+    },
+  );
+
+  test(
+    "TC42",
+    {
+      tag: "@When Bank Transfer = OFF, the Partner user is not pre-assigned a plan, but instead selects a plan via the Select Plan screen and pays through Stripe.",
+    },
+    async ({ loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage, purchaseFlow }, testInfo) => {
+      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+      testInfo.skip(!base, "API_BASE_URL is not configured");
+
+      await test.step("Login to Admin portal", async () => {
+        await loginPage.login();
+      });
+
+      let partnerInfo;
+      await test.step("Create partner info", async () => {
+        partnerInfo = await DataFactory.partnerBuilder()
+          .withDepartmentName(process.env.DEPARTMENT_NAME!)
+          .withPaymentOption("Partner/Consultant Owner")
+          .withProductsType([process.env.PLAN!])
+          .withBankTransfer(false)
+          .build();
+      });
+
+      let newPartner;
+      await test.step("Create a new partner", async () => {
+        newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+      });
+
+      await test.step("Verify newPartner is created successfully", async () => {
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
+      });
+
+      await test.step("Partner needs to make a payment through tripe", async () => {
+        const newPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!, true);
+
+        const plan = newPage.locator(BuyPlanLocators.firstPlan);
+
+        await expect(plan).toBeVisible();
+
+        await purchaseFlow.handbleParrtnerPageToBuyPlan("", partnerInfo!.account?.email, newPage);
+
+        await expect(newPage.locator(BuyPlanLocators.paymentIframe)).toBeVisible();
       });
     },
   );

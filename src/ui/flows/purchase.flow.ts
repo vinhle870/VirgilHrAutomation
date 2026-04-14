@@ -13,12 +13,7 @@ export class PurchaseFlow {
    * Completes the full plan purchase flow: fills payment form and
    * dismisses the welcome modal. Works for both Partner and Member portals.
    */
-  async buyPlan(
-    url: string,
-    email: string,
-
-    newPage?: Page,
-  ) {
+  async buyPlan(url: string, email: string, newPage?: Page) {
     if (!newPage) {
       await new BuyPlanPage(this.page).fillBuyPlanForm(url, email);
 
@@ -26,5 +21,9 @@ export class PurchaseFlow {
     } else {
       await new BuyPlanPage(newPage).fillBuyPlanForm(url, email);
     }
+  }
+
+  async handbleParrtnerPageToBuyPlan(url: string, email: string, newPage: Page) {
+    await new BuyPlanPage(newPage).handbleParrtnerPageToBuyPlan(url, email);
   }
 }

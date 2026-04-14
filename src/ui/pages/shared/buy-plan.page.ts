@@ -16,7 +16,7 @@ export class BuyPlanPage extends BasePage {
    * @param password: string
    * @param cardinfo: object
    */
-  public async fillBuyPlanForm(url: string, email: string): Promise<void> {
+  public async handbleParrtnerPageToBuyPlan(url: string, email: string) {
     const logger = (console.debug ?? console.log).bind(console);
     logger(`==================[Plan Purchase] url: ${url}, email: ${email}\n`);
 
@@ -30,61 +30,39 @@ export class BuyPlanPage extends BasePage {
 
     const btnConfirm = await this.getLocator(BuyPlanLocators.confirm);
     await btnConfirm.click();
+  }
+
+  public async fillBuyPlanForm(url: string, email: string): Promise<void> {
+    await this.handbleParrtnerPageToBuyPlan(url, email);
 
     const iframe = BuyPlanLocators.paymentIframe;
 
-    const txtCardNumb = await this.getLocatorInIframe(
-      iframe,
-      BuyPlanLocators.cardNumber,
-    );
+    const txtCardNumb = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardNumber);
     await txtCardNumb.fill("4242 4242 4242 4242");
 
-    const txtCardExp = await this.getLocatorInIframe(
-      iframe,
-      BuyPlanLocators.cardExpiry,
-    );
+    const txtCardExp = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardExpiry);
     await txtCardExp.fill("12/34");
 
-    const txtCardCvc = await this.getLocatorInIframe(
-      iframe,
-      BuyPlanLocators.cardCvc,
-    );
+    const txtCardCvc = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardCvc);
     await txtCardCvc.fill("123");
 
-    const txtHolder = await this.getLocatorInIframe(
-      iframe,
-      BuyPlanLocators.cardHolderName,
-    );
+    const txtHolder = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardHolderName);
     await txtHolder.fill("Test User");
 
-    const txtAddress = await this.getLocatorInIframe(
-      iframe,
-      BuyPlanLocators.billingAddress,
-    );
+    const txtAddress = await this.getLocatorInIframe(iframe, BuyPlanLocators.billingAddress);
     await txtAddress.fill("123 Test St");
 
-    const txtCity = await this.getLocatorInIframe(
-      iframe,
-      BuyPlanLocators.billingCity,
-    );
+    const txtCity = await this.getLocatorInIframe(iframe, BuyPlanLocators.billingCity);
     await txtCity.fill("Test City");
 
     let btnSubscribe;
     try {
-      btnSubscribe = await this.getLocatorInIframe(
-        iframe,
-        BuyPlanLocators.subscribe,
-      );
+      btnSubscribe = await this.getLocatorInIframe(iframe, BuyPlanLocators.subscribe);
       await btnSubscribe.click();
 
-      await (
-        await this.getLocator(CommonPartnerPortalLocator.closeButton)
-      ).isVisible();
+      await (await this.getLocator(CommonPartnerPortalLocator.closeButton)).isVisible();
     } catch (error) {
-      btnSubscribe = await this.getLocatorInIframe(
-        iframe,
-        BuyPlanLocators.subscribe,
-      );
+      btnSubscribe = await this.getLocatorInIframe(iframe, BuyPlanLocators.subscribe);
       await btnSubscribe.click();
     }
 
