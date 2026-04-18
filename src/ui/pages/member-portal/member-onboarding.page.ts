@@ -34,7 +34,7 @@ export class MemberOnboardingPage extends BasePage {
     }
   }
 
-  async loginViaCredentialEmail(email: string, password: string) {
+  async loginViaCredentialEmail(email: string, password = "Password@123") {
     const emailField = this.page.locator(MemberOnboardingLocators.emailInput);
     await emailField.waitFor({ state: "visible" });
     await emailField.fill(email!);
@@ -42,13 +42,13 @@ export class MemberOnboardingPage extends BasePage {
     const passField = this.page.locator(MemberOnboardingLocators.passwordInput);
     await passField.fill(password!);
 
-    const signInBtn = this.page.locator(MemberOnboardingLocators.SignInButton);
+    const signInBtn = this.page.locator(MemberOnboardingLocators.signInButton);
 
     await signInBtn.click();
 
     if (password !== "Password@123")
       try {
-        await this.page.waitForURL(/.*change-password/, { timeout: 30000 });
+        await this.page.waitForURL(/.*change-password/, { timeout: 10000 });
 
         await (await this.getLocator(MemberOnboardingLocators.currentPasswordInput)).fill(password);
 
@@ -62,12 +62,5 @@ export class MemberOnboardingPage extends BasePage {
       } catch (error) {
         console.log("Do not need to change password");
       }
-  }
-
-  async getBenifits(email: string): Promise<Locator> {
-    await this.loginViaCredentialEmail(email, "Password@123");
-    // await this.page.waitForLoadState("networkidle");
-
-    return this.page.locator("h2.text-h2", { hasText: "Home" }).first();
   }
 }
