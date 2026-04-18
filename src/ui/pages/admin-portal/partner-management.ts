@@ -37,16 +37,18 @@ export class PartnerManagementPage extends BasePage {
       throw new Error("Department name does not exist or is empty");
     }
 
-    await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo.departmentName);
+    try {
+      await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo.departmentName);
+    } catch (error) {
+      (await this.getLocator(CreateNewPartnerModalLocator.department)).click();
+      await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo.departmentName);
+    }
 
     await delay(5000);
 
     if (partnerInfo.partnerInfo!.partnerLevel) {
       try {
-        await this.dropdown.selectByText(
-          CreateNewPartnerModalLocator.partnerLevel,
-          partnerInfo.partnerInfo!.partnerLevel,
-        );
+        await this.dropdown.selectByText(CreateNewPartnerModalLocator.partnerLevel, partnerInfo.partnerInfo!.partnerLevel);
       } catch (error) {
         throw new Error("Partner level does not exist");
       }
@@ -86,10 +88,7 @@ export class PartnerManagementPage extends BasePage {
       await paymentOptionElement.scrollIntoViewIfNeeded();
 
       try {
-        await this.dropdown.selectByText(
-          CreateNewPartnerModalLocator.paymentOption,
-          partnerInfo.partnerInfo!.paymentOption,
-        );
+        await this.dropdown.selectByText(CreateNewPartnerModalLocator.paymentOption, partnerInfo.partnerInfo!.paymentOption);
       } catch (error) {
         throw new Error("Payment option does not exist");
       }
@@ -108,11 +107,7 @@ export class PartnerManagementPage extends BasePage {
       await productsTypeElement.scrollIntoViewIfNeeded();
 
       try {
-        for (let i = 0; i < partnerInfo.partnerInfo!.productsType.length; ++i)
-          await this.dropdown.selectByText(
-            CreateNewPartnerModalLocator.productsType,
-            partnerInfo.partnerInfo!.productsType[i],
-          );
+        for (let i = 0; i < partnerInfo.partnerInfo!.productsType.length; ++i) await this.dropdown.selectByText(CreateNewPartnerModalLocator.productsType, partnerInfo.partnerInfo!.productsType[i]);
       } catch (error) {
         throw new Error("Product type does not exist");
       }
@@ -168,12 +163,7 @@ export class PartnerManagementPage extends BasePage {
     return this.page;
   }
 
-  public async addMoreMembers(
-    partner: Partner,
-    invitedMembers: UserInfo[],
-    onboardingFlow: OnboardingFlow,
-    tempEmailFreePage: TempEmailFreePage,
-  ) {
+  public async addMoreMembers(partner: Partner, invitedMembers: UserInfo[], onboardingFlow: OnboardingFlow, tempEmailFreePage: TempEmailFreePage) {
     if (invitedMembers?.length === 0) throw new Error("There is no any member to add");
 
     const partnerPhoneNumber = partner.accountInfo?.phoneNumber;
@@ -251,8 +241,7 @@ export class PartnerManagementPage extends BasePage {
 
       await delay(5000);
 
-      if (partFilterInfo.department)
-        await this.dropdown.selectByText(PartnerFilter.searchedDepartment, partFilterInfo.department);
+      if (partFilterInfo.department) await this.dropdown.selectByText(PartnerFilter.searchedDepartment, partFilterInfo.department);
       await delay(5000);
 
       await (await this.getLocator(PartnerFilter.applyButton)).click();
@@ -280,12 +269,7 @@ export class PartnerManagementPage extends BasePage {
     return "Pass";
   }
 
-  public async addPeoConsultant(
-    partner: Partner,
-    peoPartners: PeoPartner[],
-    onboardingFlow: OnboardingFlow,
-    tempEmailFreePage: TempEmailFreePage,
-  ): Promise<string> {
+  public async addPeoConsultant(partner: Partner, peoPartners: PeoPartner[], onboardingFlow: OnboardingFlow, tempEmailFreePage: TempEmailFreePage): Promise<string> {
     if (partner.partnerInfo!.partnerLevel !== "Partner") throw new Error("Partner must be a partner not PEO");
 
     const partnerPhoneNumber = partner.accountInfo?.phoneNumber;

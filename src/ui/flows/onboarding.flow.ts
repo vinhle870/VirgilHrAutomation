@@ -5,7 +5,6 @@ import { PurchaseFlow } from "./purchase.flow";
 import { CommonPartnerPortalLocator } from "../pages/shared/locators/commonPartnerPortal";
 import { BusinessLocator } from "../pages/shared/locators/business";
 import { Partner, UserInfo } from "src/objects";
-import delay from "src/utilities/delay";
 import { MemberOnboardingLocators } from "../pages/member-portal/locators";
 import { CommonPortalLocators } from "../Locator/common";
 
@@ -49,27 +48,27 @@ export class OnboardingFlow {
     this.credentialPassword = elements.password;
     const virgilPage = elements.credentialedPage;
 
-    //    await virgilPage.waitForLoadState("domcontentloaded");
-
     this.memberOnboarding = new MemberOnboardingPage(virgilPage);
 
     await this.memberOnboarding.loginViaCredentialEmail(credentialEmail, this.credentialPassword, changedPasswordStatus);
 
-    if (portal === "Member" || portal === "Consumer") {
-      try {
-        await virgilPage.locator(MemberOnboardingLocators.readyDiveIn).click({ timeout: 3000 });
-      } catch (error) {
-        console.log("There is no popup 'I am ready to divin'");
-      }
-
-      try {
-        for (let i = 0; i < 4; i++) await virgilPage.locator(MemberOnboardingLocators.gotItButton).click({ timeout: 3000 });
-      } catch (error) {
-        console.log("There is no popup 'Got it'");
-      }
-    }
+    if (portal === "Member" || portal === "Consumer") this.activeMemberPortal(portal, virgilPage);
 
     return virgilPage;
+  }
+
+  private async activeMemberPortal(portal: string, virgilPage: Page) {
+    try {
+      await virgilPage.locator(MemberOnboardingLocators.readyDiveIn).click({ timeout: 3000 });
+    } catch (error) {
+      console.log("There is no popup 'I am ready to divin'");
+    }
+
+    try {
+      for (let i = 0; i < 4; i++) await virgilPage.locator(MemberOnboardingLocators.gotItButton).click({ timeout: 3000 });
+    } catch (error) {
+      console.log("There is no popup 'Got it'");
+    }
   }
 
   public async buyPlanInPartnerPortal(tempEmailFreePage: TempEmailFreePage, purchaseFlow: PurchaseFlow, partnerInfo: Partner): Promise<Page> {

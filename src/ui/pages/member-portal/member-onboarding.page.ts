@@ -54,7 +54,7 @@ export class MemberOnboardingPage extends BasePage {
     }
   }
 
-  private async changePassword(password: string) {
+  private async changePassword(password: string, portal = "Partner") {
     await this.page.waitForURL(/.*change-password/, { timeout: 10000 });
 
     await (await this.getLocator(CommonPortalLocators.currentPasswordInput)).fill(password);
@@ -63,7 +63,7 @@ export class MemberOnboardingPage extends BasePage {
 
     await (await this.getLocator(CommonPortalLocators.continueButton)).click();
 
-    await (await this.getLocator(MemberOnboardingLocators.completedSafely)).isVisible();
+    if (portal === "Member") await (await this.getLocator(MemberOnboardingLocators.completedSafely)).click({ timeout: 10000 });
 
     await (await this.getLocator(CommonPortalLocators.continueButton)).click();
   }
