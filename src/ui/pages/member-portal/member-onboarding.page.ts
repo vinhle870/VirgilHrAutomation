@@ -1,6 +1,7 @@
 import { expect, Locator } from "@playwright/test";
 import { BasePage } from "../base-page";
 import { MemberOnboardingLocators } from "./locators";
+import { CommonPortalLocators } from "src/ui/Locator/common";
 
 export class MemberOnboardingPage extends BasePage {
   async setPasswordAndJoinTeam(password = "Password@123") {
@@ -34,33 +35,36 @@ export class MemberOnboardingPage extends BasePage {
     }
   }
 
-  async loginViaCredentialEmail(email: string, password = "Password@123") {
-    const emailField = this.page.locator(MemberOnboardingLocators.emailInput);
+  async loginViaCredentialEmail(email: string, password = "Password@123", changedPasswordStatus = false) {
+    const emailField = this.page.locator(CommonPortalLocators.emailInput);
     await emailField.waitFor({ state: "visible" });
     await emailField.fill(email!);
 
-    const passField = this.page.locator(MemberOnboardingLocators.passwordInput);
+    const passField = this.page.locator(CommonPortalLocators.passwordInput);
     await passField.fill(password!);
 
-    const signInBtn = this.page.locator(MemberOnboardingLocators.signInButton);
+    await this.page.locator(CommonPortalLocators.signInButton).click();
 
-    await signInBtn.click();
-
-    if (password !== "Password@123")
+    if (password !== "Password@123" && !changedPasswordStatus) {
       try {
-        await this.page.waitForURL(/.*change-password/, { timeout: 10000 });
-
-        await (await this.getLocator(MemberOnboardingLocators.currentPasswordInput)).fill(password);
-
-        await (await this.getLocator(MemberOnboardingLocators.newPassword)).fill("Password@123");
-
-        await (await this.getLocator(MemberOnboardingLocators.continueButton)).click();
-
-        await (await this.getLocator(MemberOnboardingLocators.completedSafely)).isVisible();
-
-        await (await this.getLocator(MemberOnboardingLocators.continueButton)).click();
+        await this.changePassword(password);
       } catch (error) {
         console.log("Do not need to change password");
       }
+    }
+  }
+
+  private async changePassword(password: string) {
+    await this.page.waitForURL(/.*change-password/, { timeout: 10000 });
+
+    await (await this.getLocator(CommonPortalLocators.currentPasswordInput)).fill(password);
+
+    await (await this.getLocator(CommonPortalLocators.newPassword)).fill("Password@123");
+
+    await (await this.getLocator(CommonPortalLocators.continueButton)).click();
+
+    await (await this.getLocator(MemberOnboardingLocators.completedSafely)).isVisible();
+
+    await (await this.getLocator(CommonPortalLocators.continueButton)).click();
   }
 }

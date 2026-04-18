@@ -87,14 +87,16 @@ export class TempEmailFreePage extends BasePage {
     const passwordRaw = await credentialFrame.locator(TempEmailFreeLocators.credentialPassword).first().textContent();
     const password = passwordRaw?.replace(/Password\s*:/i, "").trim();
 
-    let loginbutton = credentialFrame.getByRole("link", { name: "Login" });
+    credentialFrame = this.page.frameLocator(TempEmailFreeLocators.credentialIframe).first();
+
+    const loginbutton = credentialFrame.getByRole("link", { name: "Login" });
 
     await loginbutton.click({ timeout: 3000 });
 
-    const tempEmailPage = await this.page.context().waitForEvent("page");
+    const credentialedPage = await this.page.context().waitForEvent("page");
 
-    await tempEmailPage.waitForLoadState();
+    await credentialedPage.waitForLoadState();
 
-    return { email, password, tempEmailPage };
+    return { email, password, credentialedPage };
   }
 }

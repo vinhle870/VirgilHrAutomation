@@ -11,11 +11,11 @@ import { LoginPartnerPortalLocators } from "src/ui/pages/partner-portal/locators
 
 test.describe("E2E -> Admin Portal -> Partner Management", () => {
   test(
-    "TC30",
+    "TC48",
     {
-      tag: "@Verify that a partner account can only be created in the Admin Portal – Partner Management.",
+      tag: "@Verify that after the first login, the system requires the partner user to change the system-generated password to a personal password.",
     },
-    async ({ loginPage: loginPage, partnerManagementPage }, testInfo) => {
+    async ({ loginPage: loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -26,7 +26,12 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let partnerInfo;
       await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Partner/Consultant Owner").withProductsType([process.env.PLAN!]).build();
+        partnerInfo = await DataFactory.partnerBuilder()
+          .withDepartmentName(process.env.DEPARTMENT_NAME!)
+          .withPaymentOption("Partner/Consultant Owner")
+          .withProductsType([process.env.PLAN!])
+          .withBankTransfer(true)
+          .build();
       });
 
       let newPartner;
@@ -36,6 +41,22 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       await test.step("Verify newPartner is created successfully", async () => {
         await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
+      });
+
+      await test.step("Verify the partner user must change the system-generated password to a personal password", async () => {
+        const partnerPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!, "Partner", true);
+
+        const changePasswordElements = await onboardingFlow.getChangePasswordElement(partnerPage);
+
+        await expect(changePasswordElements.currentPasswordInputElement).toBeVisible();
+        await expect(changePasswordElements.newPasswordElement).toBeVisible();
+        expect(changePasswordElements.url).toMatch(/.*change-password/);
+
+        await onboardingFlow.changePassword(partnerPage);
+
+        const hometitle = await onboardingFlow.getHomeTitle(partnerPage);
+
+        await expect(hometitle).toBeVisible({ timeout: 10000 });
       });
     },
   );
