@@ -27,6 +27,6 @@ export class PartnerPage extends BasePage {
   }
 
   public async closeBusinessDetail(page = this.page): Promise<void> {
-    await page.locator(BusinessLocator.closeButton).click();
+    await page.locator(BusinessLocator.closeDetailBusinessButton).click();
   }
 }

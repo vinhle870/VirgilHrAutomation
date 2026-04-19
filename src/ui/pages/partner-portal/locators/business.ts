@@ -13,5 +13,5 @@ export class BusinessLocator {
   static readonly phoneNumberInput = "xpath=//input[@placeholder='Enter phone number']";
   static readonly jobTitleInput = "xpath=//input[@placeholder='Enter job title']";
 
-  static readonly closeButton = "xpath=//span[text()='Close']";
+  static readonly closeDetailBusinessButton = "xpath=//span[text()='Close']";
 }

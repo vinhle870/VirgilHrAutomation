@@ -7,18 +7,10 @@ import { Locator, Page } from "@playwright/test";
  */
 export class LocatorHandling {
   private static getEffectiveTimeout(timeout?: number): number {
-    return (
-      timeout ??
-      (process.env.UI_ELEMENT_TIMEOUT_MS
-        ? Number(process.env.UI_ELEMENT_TIMEOUT_MS)
-        : 60000)
-    );
+    return timeout ?? (process.env.UI_ELEMENT_TIMEOUT_MS ? Number(process.env.UI_ELEMENT_TIMEOUT_MS) : 60000);
   }
 
-  private static async waitForNetworkSettled(
-    page: Page,
-    timeout: number,
-  ): Promise<void> {
+  private static async waitForNetworkSettled(page: Page, timeout: number): Promise<void> {
     const networkWait = Math.min(3000, timeout);
     try {
       await page.waitForLoadState("networkidle", { timeout: networkWait });
@@ -33,35 +25,24 @@ export class LocatorHandling {
    * @param selector selector string (CSS or XPath)
    * @param timeout optional timeout in ms
    */
-  static async getLocator(
-    page: Page,
-    selector: string,
-    timeout?: number,
-  ): Promise<Locator> {
+  static async getLocator(page: Page, selector: string, timeout?: number): Promise<Locator> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(page, effectiveTimeout);
 
     const locator = page.locator(selector);
-    await locator
-      .first()
-      .waitFor({ state: "visible", timeout: effectiveTimeout });
+
+    await locator.first().waitFor({ state: "visible", timeout: effectiveTimeout });
+
     return locator;
   }
 
-  static async getLocatorInIframe(
-    page: Page,
-    iframeSelector: string,
-    selector: string,
-    timeout?: number,
-  ): Promise<Locator> {
+  static async getLocatorInIframe(page: Page, iframeSelector: string, selector: string, timeout?: number): Promise<Locator> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(page, effectiveTimeout);
 
     const frame = await page.locator(iframeSelector).contentFrame();
     const locator = frame.locator(selector);
-    await locator
-      .first()
-      .waitFor({ state: "visible", timeout: effectiveTimeout });
+    await locator.first().waitFor({ state: "visible", timeout: effectiveTimeout });
     return locator;
   }
 }

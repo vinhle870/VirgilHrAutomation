@@ -8,7 +8,7 @@ export class TempEmailFreePage extends BasePage {
     const logger = (console.debug ?? console.log).bind(console);
     logger(`==================[Yopmail Invitation] email: ${username}\n`);
 
-    await delay(10000);
+    await delay(5000);
 
     const url = "https://tempemailfree.com/";
 

@@ -30,8 +30,7 @@ export class PartnerManagementPage extends BasePage {
       await partnerManagementCategory.click();
     }
 
-    const createButtonElement = await this.getLocator(CommonPartnerLocator.createNewPartnerButton);
-    await createButtonElement.click();
+    (await this.getLocator(CommonPartnerLocator.createNewPartnerButton)).click({ timeout: 5000 });
 
     if (!partnerInfo.partnerInfo || !partnerInfo.partnerInfo.departmentName) {
       throw new Error("Department name does not exist or is empty");
@@ -44,7 +43,7 @@ export class PartnerManagementPage extends BasePage {
       await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo.departmentName);
     }
 
-    await delay(5000);
+    await delay(3000);
 
     if (partnerInfo.partnerInfo!.partnerLevel) {
       try {
@@ -83,9 +82,7 @@ export class PartnerManagementPage extends BasePage {
     await jobTitleElement.fill(partnerInfo.accountInfo!.jobTitle);
 
     if (partnerInfo.partnerInfo!.paymentOption) {
-      const paymentOptionElement = await this.getLocator(CreateNewPartnerModalLocator.paymentOption);
-
-      await paymentOptionElement.scrollIntoViewIfNeeded();
+      await (await this.getLocator(CreateNewPartnerModalLocator.paymentOption)).scrollIntoViewIfNeeded();
 
       try {
         await this.dropdown.selectByText(CreateNewPartnerModalLocator.paymentOption, partnerInfo.partnerInfo!.paymentOption);
@@ -95,16 +92,12 @@ export class PartnerManagementPage extends BasePage {
     }
 
     if (!partnerInfo.partnerInfo?.isPublic) {
-      const isPublic = await this.getLocator(CreateNewPartnerModalLocator.isPublic);
-
-      await isPublic.scrollIntoViewIfNeeded();
-
-      await isPublic.click();
+      await (await this.getLocator(CreateNewPartnerModalLocator.isPublic)).scrollIntoViewIfNeeded();
+      await (await this.getLocator(CreateNewPartnerModalLocator.isPublic)).click();
     }
 
     if (partnerInfo.partnerInfo!.productsType) {
-      const productsTypeElement = await this.getLocator(CreateNewPartnerModalLocator.productsType);
-      await productsTypeElement.scrollIntoViewIfNeeded();
+      await (await this.getLocator(CreateNewPartnerModalLocator.productsType)).scrollIntoViewIfNeeded();
 
       try {
         for (let i = 0; i < partnerInfo.partnerInfo!.productsType.length; ++i) await this.dropdown.selectByText(CreateNewPartnerModalLocator.productsType, partnerInfo.partnerInfo!.productsType[i]);
@@ -113,16 +106,11 @@ export class PartnerManagementPage extends BasePage {
       }
     }
 
-    const emailElement = await this.getLocator(CreateNewPartnerModalLocator.email);
+    await (await this.getLocator(CreateNewPartnerModalLocator.email)).fill(partnerInfo.accountInfo!.email);
 
-    await emailElement.fill(partnerInfo.accountInfo!.email);
-
-    if (partnerInfo.partnerInfo!.bankTransfer === true) {
-      const bankTranferElement = await this.getLocator(CreateNewPartnerModalLocator.bankTransfer);
-
-      await bankTranferElement.scrollIntoViewIfNeeded();
-
-      await bankTranferElement.click();
+    if (partnerInfo.partnerInfo!.bankTransfer === true && partnerInfo.partnerInfo!.paymentOption === "Partner/Consultant Owner") {
+      await (await this.getLocator(CreateNewPartnerModalLocator.bankTransfer)).scrollIntoViewIfNeeded();
+      await (await this.getLocator(CreateNewPartnerModalLocator.bankTransfer)).click();
 
       if (partnerInfo.partnerInfo!.plan && !partnerInfo.partnerInfo!.productsType) {
         try {
@@ -131,11 +119,9 @@ export class PartnerManagementPage extends BasePage {
           throw new Error("Plan does not exist");
         }
       }
-      const numberOfLabelsInBillingCycle = await this.getLocator(CreateNewPartnerModalLocator.billingCycle);
+      const numberOfLabelsInBillingCycle = await (await this.getLocator(CreateNewPartnerModalLocator.billingCycle)).count();
 
-      const numberOfLabel = await numberOfLabelsInBillingCycle.count();
-
-      if (partnerInfo.partnerInfo!.billingCycleRadio && numberOfLabel == 2) {
+      if (partnerInfo.partnerInfo!.billingCycleRadio && numberOfLabelsInBillingCycle == 2) {
         try {
           await this.selectRadio(partnerInfo.partnerInfo!.billingCycleRadio, CreateNewPartnerModalLocator.billingCycle);
         } catch (error) {
@@ -144,21 +130,12 @@ export class PartnerManagementPage extends BasePage {
       }
     }
 
-    if (partnerInfo.partnerInfo!.internal === true) {
-      const internalElement = await this.getLocator(CreateNewPartnerModalLocator.internal);
+    if (partnerInfo.partnerInfo!.internal === true) await (await this.getLocator(CreateNewPartnerModalLocator.internal)).click();
 
-      await internalElement.click();
-    }
+    await (await this.getLocator(CreateNewPartnerModalLocator.createPartnerButton)).click();
 
-    const createNewPartnerButtonElement = await this.getLocator(CreateNewPartnerModalLocator.createPartnerButton);
-    await createNewPartnerButtonElement.click();
-
-    if (partnerInfo.partnerInfo.bankTransfer === true) {
-      const confirmButtonLocator = CreateNewPartnerModalLocator.confirmButton;
-
-      const confirmButtonElement = await this.getLocator(confirmButtonLocator);
-      await confirmButtonElement.click();
-    }
+    if (partnerInfo.partnerInfo.bankTransfer === true && partnerInfo.partnerInfo.paymentOption === "Partner/Consultant Owner")
+      await (await this.getLocator(CreateNewPartnerModalLocator.confirmButton)).click();
 
     return this.page;
   }

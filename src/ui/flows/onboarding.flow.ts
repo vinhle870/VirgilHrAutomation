@@ -92,13 +92,13 @@ export class OnboardingFlow {
       throw new Error("Payment option must be Member Portal Consumer or Partner/Consultant Owner");
 
     try {
-      await PartnerPage.locator(CommonPartnerPortalLocator.closeButton).click({ timeout: 10000 });
+      await PartnerPage.locator(CommonPartnerPortalLocator.closeButton).click({ timeout: 7000 });
     } catch (error) {
       console.log("There is no closing button");
     }
 
     try {
-      await PartnerPage.locator(CommonPartnerPortalLocator.closeTestModal).first().click({ timeout: 10000 });
+      await PartnerPage.locator(CommonPartnerPortalLocator.closeTestModal).first().click({ timeout: 7000 });
     } catch (error) {
       console.log("There is no modal");
     }
@@ -114,20 +114,16 @@ export class OnboardingFlow {
     if (partnerInfo.partnerInfo?.paymentOption === "Member Portal Consumer") {
       if (!owner) throw new Error("Owner infor is missing");
 
-      const emailOfBusiness = PartnerPage.locator(BusinessLocator.emailInput);
-      await emailOfBusiness.fill(owner.email);
+      await PartnerPage.locator(BusinessLocator.emailInput).fill(owner.email);
 
       const firstName = PartnerPage.locator(BusinessLocator.firstNameInput);
       await firstName.fill(owner.firstName);
 
-      const lastName = PartnerPage.locator(BusinessLocator.lastNameInput);
-      await lastName.fill(owner.lastName);
+      await PartnerPage.locator(BusinessLocator.lastNameInput).fill(owner.lastName);
 
-      const phoneNumber = PartnerPage.locator(BusinessLocator.phoneNumberInput);
-      await phoneNumber.fill(owner.phoneNumber);
+      await PartnerPage.locator(BusinessLocator.phoneNumberInput).fill(owner.phoneNumber);
 
-      const jobTitle = PartnerPage.locator(BusinessLocator.jobTitleInput);
-      await jobTitle.fill(owner.jobTitle);
+      await PartnerPage.locator(BusinessLocator.jobTitleInput).fill(owner.jobTitle);
     }
 
     await PartnerPage.locator(BusinessLocator.firstAddButton).click({ timeout: 20000 });
