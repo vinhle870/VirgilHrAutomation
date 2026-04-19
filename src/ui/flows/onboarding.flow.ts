@@ -52,12 +52,12 @@ export class OnboardingFlow {
 
     await this.memberOnboarding.loginViaCredentialEmail(credentialEmail, this.credentialPassword, changedPasswordStatus);
 
-    if (portal === "Member" || portal === "Consumer") this.activeMemberPortal(portal, virgilPage);
+    if (portal === "Member" || portal === "Consumer") this.closemodals(portal, virgilPage);
 
     return virgilPage;
   }
 
-  private async activeMemberPortal(portal: string, virgilPage: Page) {
+  private async closemodals(portal: string, virgilPage: Page) {
     try {
       await virgilPage.locator(MemberOnboardingLocators.readyDiveIn).click({ timeout: 3000 });
     } catch (error) {

@@ -165,9 +165,54 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
       });
 
-      await test.step("Verify the partner user is redirected to the Partner Homepage after a successful payment", async () => {
-        const partnerPage = await onboardingFlow.buyPlanInPartnerPortal(tempEmailFreePage, purchaseFlow, partnerInfo!);
+      let partnerPage: any;
+      await test.step("Buy plan through Stripe", async () => {
+        partnerPage = await onboardingFlow.buyPlanInPartnerPortal(tempEmailFreePage, purchaseFlow, partnerInfo!);
+      });
 
+      await test.step("Verify the partner user is redirected to the Partner Homepage after a successful payment", async () => {
+        const homeTitle = await onboardingFlow.getHomeTitle(partnerPage);
+
+        await expect(homeTitle).toBeVisible({ timeout: 30000 });
+      });
+    },
+  );
+
+  test(
+    "TC51",
+    {
+      tag: "@Verify that for other payment configurations, the partner user is not required to make any payment through Stripe.",
+    },
+    async ({ loginPage: loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage, purchaseFlow }, testInfo) => {
+      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+      testInfo.skip(!base, "API_BASE_URL is not configured");
+
+      await test.step("Login to Admin portal", async () => {
+        await loginPage.login();
+      });
+
+      let partnerInfo;
+      await test.step("Create partner info with other payment configurations", async () => {
+        partnerInfo = await DataFactory.partnerBuilder()
+          .withDepartmentName(process.env.DEPARTMENT_NAME!)
+          .withPaymentOption("Partner/Consultant Owner")
+          .withProductsType([process.env.PLAN!])
+          .withBankTransfer(true)
+          .build();
+      });
+
+      let newPartner;
+      await test.step("Create a new partner", async () => {
+        newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+      });
+
+      await test.step("Verify newPartner is created successfully", async () => {
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
+      });
+
+      await test.step("Verify the partner user is not required to make any payment through Stripe.", async () => {
+        const partnerPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!);
         const homeTitle = await onboardingFlow.getHomeTitle(partnerPage);
 
         await expect(homeTitle).toBeVisible({ timeout: 30000 });
