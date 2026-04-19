@@ -1,7 +1,7 @@
 import { Page } from "@playwright/test";
 import { BasePage } from "../base-page";
 import { BuyPlanLocators } from "./locators";
-import { CommonPartnerPortalLocator } from "./locators/commonPartnerPortal";
+import { CommonPartnerPortalLocator } from "../partner-portal/locators/common";
 import delay from "src/utilities/delay";
 
 export class BuyPlanPage extends BasePage {

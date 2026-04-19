@@ -1,9 +1,9 @@
-import { Locator, Page } from "@playwright/test";
+import { Page } from "@playwright/test";
 import { TempEmailFreePage } from "../pages/shared/tempemailfree.page";
 import { MemberOnboardingPage } from "../pages/member-portal/member-onboarding.page";
 import { PurchaseFlow } from "./purchase.flow";
-import { CommonPartnerPortalLocator } from "../pages/shared/locators/commonPartnerPortal";
-import { BusinessLocator } from "../pages/shared/locators/business";
+import { CommonPartnerPortalLocator } from "../pages/partner-portal/locators/common";
+import { BusinessLocator } from "../pages/partner-portal/locators/business";
 import { Partner, UserInfo } from "src/objects";
 import { MemberOnboardingLocators } from "../pages/member-portal/locators";
 import { CommonPortalLocators } from "../Locator/common";
@@ -130,15 +130,11 @@ export class OnboardingFlow {
       await jobTitle.fill(owner.jobTitle);
     }
 
-    await PartnerPage.locator(BusinessLocator.firstAddButton).click();
+    await PartnerPage.locator(BusinessLocator.firstAddButton).click({ timeout: 20000 });
 
-    await PartnerPage.locator(BusinessLocator.seccondAddButton).first().waitFor({ state: "visible", timeout: 20000 });
+    await PartnerPage.locator(BusinessLocator.seccondAddButton).first().click({ timeout: 20000 });
 
-    await PartnerPage.locator(BusinessLocator.seccondAddButton).first().click();
-
-    await PartnerPage.locator(BusinessLocator.viewButton).waitFor({ state: "visible", timeout: 20000 });
-
-    await PartnerPage.locator(BusinessLocator.viewButton).click();
+    await PartnerPage.locator(BusinessLocator.viewButton).click({ timeout: 20000 });
 
     await PartnerPage.locator(BusinessLocator.ownerText).waitFor({ state: "visible", timeout: 5000 });
 

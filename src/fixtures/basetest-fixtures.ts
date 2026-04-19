@@ -2,7 +2,7 @@ import { test as base } from "@playwright/test";
 import dotenv from "dotenv";
 dotenv.config();
 import { ApiClient } from "../utilities/api.client";
-import { AdminHomePage, AdminLeftMenu, BuyPlanPage } from "../ui/pages";
+import { AdminHomePage, AdminLeftMenu, BuyPlanPage, LoginPage } from "../ui/pages";
 import { AuthFlow, OnboardingFlow, PurchaseFlow } from "../ui/flows";
 import { Authentication } from "../api/services/authentication.service";
 import { AdminPortalService } from "src/api/services/admin-portal.services";
@@ -33,11 +33,13 @@ type MyFixtures = {
   tempEmailFreePage: TempEmailFreePage;
   partnerIntegrationService: PartnerIntegrationService;
 
-  loginPage: LoginAdminPage;
+  loginAdminPage: LoginAdminPage;
   partnerManagementPage: PartnerManagementPage;
   customerManagementPage: CustomerManagementPage;
 
   partnerPage: PartnerPage;
+
+  loginPage: LoginPage;
 };
 
 export const test = base.extend<MyFixtures>({
@@ -115,7 +117,7 @@ export const test = base.extend<MyFixtures>({
     await use(partnerIntegrationService);
   },
 
-  loginPage: async ({ page }, use) => {
+  loginAdminPage: async ({ page }, use) => {
     await use(new LoginAdminPage(page));
   },
   partnerManagementPage: async ({ page }, use) => {
@@ -127,6 +129,10 @@ export const test = base.extend<MyFixtures>({
 
   partnerPage: async ({ page }, use) => {
     await use(new PartnerPage(page));
+  },
+
+  loginPage: async ({ page }, use) => {
+    await use(new LoginPage(page));
   },
 });
 

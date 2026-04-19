@@ -7,7 +7,6 @@ import { PartnerFilter } from "src/ui/pages/admin-portal/locators/partner-manage
 import { CreateNewPartnerModalLocator } from "src/ui/pages/admin-portal/locators/partner-management/new-partner";
 import { BuyPlanLocators, TempEmailFreeLocators } from "src/ui/pages/shared/locators";
 import { Page } from "playwright/test";
-import { LoginPartnerPortalLocators } from "src/ui/pages/partner-portal/locators/login";
 import { on } from "events";
 import { BuyPlanPage } from "src/ui/pages";
 
@@ -17,13 +16,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@Verify that after the first login, the system requires the partner user to change the system-generated password to a personal password.",
     },
-    async ({ loginPage: loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage }, testInfo) => {
+    async ({ loginAdminPage, partnerManagementPage, onboardingFlow, tempEmailFreePage }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
 
       await test.step("Login to Admin portal", async () => {
-        await loginPage.login();
+        await loginAdminPage.login();
       });
 
       let partnerInfo;
@@ -68,14 +67,14 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@Verify that after a successful login, the partner user proceeds to make a payment through Stripe when Payment Options = Partner/Consultant Owner and Bank Transfer = OFF.",
     },
-    async ({ loginPage: loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage, purchaseFlow }, testInfo) => {
+    async ({ loginAdminPage, partnerManagementPage, onboardingFlow, tempEmailFreePage, purchaseFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
 
-      // await test.step("Login to Admin portal", async () => {
-      //   await loginPage.login();
-      // });
+      await test.step("Login to Admin portal", async () => {
+        await loginAdminPage.login();
+      });
 
       let partnerInfo;
       await test.step("Create partner info", async () => {
@@ -88,14 +87,14 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .build();
       });
 
-      // let newPartner;
-      // await test.step("Create a new partner", async () => {
-      //   newPartner = await partnerManagementPage.createPartner(partnerInfo!);
-      // });
+      let newPartner;
+      await test.step("Create a new partner", async () => {
+        newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+      });
 
-      // await test.step("Verify newPartner is created successfully", async () => {
-      //   await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
-      // });
+      await test.step("Verify newPartner is created successfully", async () => {
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
+      });
 
       let partnerPage;
       await test.step("Buy the plan through Stripe", async () => {
@@ -133,13 +132,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@After a successful payment, the partner user is redirected to the Partner Homepage.",
     },
-    async ({ loginPage: loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage, purchaseFlow }, testInfo) => {
+    async ({ loginAdminPage, partnerManagementPage, onboardingFlow, tempEmailFreePage, purchaseFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
 
       await test.step("Login to Admin portal", async () => {
-        await loginPage.login();
+        await loginAdminPage.login();
       });
 
       let partnerInfo;
@@ -183,13 +182,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@Verify that for other payment configurations, the partner user is not required to make any payment through Stripe.",
     },
-    async ({ loginPage: loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage, purchaseFlow }, testInfo) => {
+    async ({ loginAdminPage, partnerManagementPage, onboardingFlow, tempEmailFreePage, purchaseFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
 
       await test.step("Login to Admin portal", async () => {
-        await loginPage.login();
+        await loginAdminPage.login();
       });
 
       let partnerInfo;
@@ -216,6 +215,64 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         const homeTitle = await onboardingFlow.getHomeTitle(partnerPage);
 
         await expect(homeTitle).toBeVisible({ timeout: 30000 });
+      });
+    },
+  );
+
+  test(
+    "TC52",
+    {
+      tag: "@Verify that when Payment Options = Partner/Consultant Owner, the partner account is both the Owner of the Partner Team and the Owner of all Businesses under it.",
+    },
+    async ({ loginAdminPage, partnerManagementPage, onboardingFlow, tempEmailFreePage, partnerPage }, testInfo) => {
+      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+      testInfo.skip(!base, "API_BASE_URL is not configured");
+
+      // await test.step("Login to Admin portal", async () => {
+      //   await loginAdminPage.login();
+      // });
+
+      let partnerInfo;
+      await test.step("Create partner info with other payment configurations", async () => {
+        partnerInfo = await DataFactory.partnerBuilder()
+          .withDepartmentName(process.env.DEPARTMENT_NAME!)
+          .withPaymentOption("Partner/Consultant Owner")
+          .withProductsType([process.env.PLAN!])
+          .withBankTransfer(true)
+          .withEmail("QATest_Nick205@polandcampus.edu.pl")
+          .build();
+      });
+
+      // let newPartner;
+      // await test.step("Create a new partner", async () => {
+      //   newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+      // });
+
+      // await test.step("Verify newPartner is created successfully", async () => {
+      //   await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
+      // });
+
+      let owner;
+      let newPartnerPage: Page;
+      await test.step("Create business", async () => {
+        newPartnerPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!);
+        owner = await onboardingFlow.createBusiness(newPartnerPage!, partnerInfo!, partnerInfo!);
+      });
+
+      await test.step("Verify the partner account is the Owner of all Businesses under it", async () => {
+        await expect(owner!).toBeVisible();
+
+        await partnerPage.closeBusinessDetail(newPartnerPage);
+      });
+
+      await test.step("Move to team page", async () => {
+        await partnerPage.moveToPage("/users", newPartnerPage);
+      });
+
+      await test.step("Verify the partner account is the Owner of the Partner Team", async () => {
+        const ownerRole = partnerPage.getOwnerRoleInClientPage(partnerInfo!.accountInfo!.email!, newPartnerPage);
+        await expect(ownerRole).toBeVisible();
       });
     },
   );
