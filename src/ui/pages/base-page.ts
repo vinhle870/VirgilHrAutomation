@@ -3,7 +3,7 @@ import { LocatorHandling } from "../../utilities/locator-handling";
 import { DropdownComponent } from "../../utilities/components";
 
 export abstract class BasePage {
-  protected readonly page: Page;
+  protected page: Page;
   protected readonly dropdown: DropdownComponent;
 
   constructor(page: Page) {
@@ -19,37 +19,18 @@ export abstract class BasePage {
     return LocatorHandling.getLocator(this.page, selector, timeout);
   }
 
-  protected async getLocatorInIframe(
-    iframeSelector: string,
-    selector: string,
-    timeout?: number,
-  ) {
-    return LocatorHandling.getLocatorInIframe(
-      this.page,
-      iframeSelector,
-      selector,
-      timeout,
-    );
+  protected async getLocatorInIframe(iframeSelector: string, selector: string, timeout?: number) {
+    return LocatorHandling.getLocatorInIframe(this.page, iframeSelector, selector, timeout);
   }
 
   /**
    * Click a radio option by accessible name. Optionally scope to a container.
    */
-  protected async selectRadio(
-    label: string,
-    scopeSelector?: string,
-    timeout?: number,
-  ): Promise<void> {
-    const effectiveTimeout =
-      timeout ??
-      (process.env.UI_ELEMENT_TIMEOUT_MS
-        ? Number(process.env.UI_ELEMENT_TIMEOUT_MS)
-        : 60000);
+  protected async selectRadio(label: string, scopeSelector?: string, timeout?: number): Promise<void> {
+    const effectiveTimeout = timeout ?? (process.env.UI_ELEMENT_TIMEOUT_MS ? Number(process.env.UI_ELEMENT_TIMEOUT_MS) : 60000);
     const scope = scopeSelector ? this.page.locator(scopeSelector) : this.page;
     const radio = scope.getByRole("radio", { name: label, exact: true });
-    await radio
-      .first()
-      .waitFor({ state: "visible", timeout: effectiveTimeout });
+    await radio.first().waitFor({ state: "visible", timeout: effectiveTimeout });
     await radio.first().click();
   }
 }

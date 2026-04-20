@@ -30,23 +30,24 @@ export class PartnerManagementPage extends BasePage {
       await partnerManagementCategory.click();
     }
 
-    const createButtonElement = await this.getLocator(CommonPartnerLocator.createNewPartnerButton);
-    await createButtonElement.click();
+    (await this.getLocator(CommonPartnerLocator.createNewPartnerButton)).click({ timeout: 5000 });
 
     if (!partnerInfo.partnerInfo || !partnerInfo.partnerInfo.departmentName) {
       throw new Error("Department name does not exist or is empty");
     }
 
-    await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo.departmentName);
+    try {
+      await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo.departmentName);
+    } catch (error) {
+      (await this.getLocator(CreateNewPartnerModalLocator.department)).click();
+      await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo.departmentName);
+    }
 
-    await delay(5000);
+    await delay(3000);
 
     if (partnerInfo.partnerInfo!.partnerLevel) {
       try {
-        await this.dropdown.selectByText(
-          CreateNewPartnerModalLocator.partnerLevel,
-          partnerInfo.partnerInfo!.partnerLevel,
-        );
+        await this.dropdown.selectByText(CreateNewPartnerModalLocator.partnerLevel, partnerInfo.partnerInfo!.partnerLevel);
       } catch (error) {
         throw new Error("Partner level does not exist");
       }
@@ -81,53 +82,35 @@ export class PartnerManagementPage extends BasePage {
     await jobTitleElement.fill(partnerInfo.accountInfo!.jobTitle);
 
     if (partnerInfo.partnerInfo!.paymentOption) {
-      const paymentOptionElement = await this.getLocator(CreateNewPartnerModalLocator.paymentOption);
-
-      await paymentOptionElement.scrollIntoViewIfNeeded();
+      await (await this.getLocator(CreateNewPartnerModalLocator.paymentOption)).scrollIntoViewIfNeeded();
 
       try {
-        await this.dropdown.selectByText(
-          CreateNewPartnerModalLocator.paymentOption,
-          partnerInfo.partnerInfo!.paymentOption,
-        );
+        await this.dropdown.selectByText(CreateNewPartnerModalLocator.paymentOption, partnerInfo.partnerInfo!.paymentOption);
       } catch (error) {
         throw new Error("Payment option does not exist");
       }
     }
 
     if (!partnerInfo.partnerInfo?.isPublic) {
-      const isPublic = await this.getLocator(CreateNewPartnerModalLocator.isPublic);
-
-      await isPublic.scrollIntoViewIfNeeded();
-
-      await isPublic.click();
+      await (await this.getLocator(CreateNewPartnerModalLocator.isPublic)).scrollIntoViewIfNeeded();
+      await (await this.getLocator(CreateNewPartnerModalLocator.isPublic)).click();
     }
 
     if (partnerInfo.partnerInfo!.productsType) {
-      const productsTypeElement = await this.getLocator(CreateNewPartnerModalLocator.productsType);
-      await productsTypeElement.scrollIntoViewIfNeeded();
+      await (await this.getLocator(CreateNewPartnerModalLocator.productsType)).scrollIntoViewIfNeeded();
 
       try {
-        for (let i = 0; i < partnerInfo.partnerInfo!.productsType.length; ++i)
-          await this.dropdown.selectByText(
-            CreateNewPartnerModalLocator.productsType,
-            partnerInfo.partnerInfo!.productsType[i],
-          );
+        for (let i = 0; i < partnerInfo.partnerInfo!.productsType.length; ++i) await this.dropdown.selectByText(CreateNewPartnerModalLocator.productsType, partnerInfo.partnerInfo!.productsType[i]);
       } catch (error) {
         throw new Error("Product type does not exist");
       }
     }
 
-    const emailElement = await this.getLocator(CreateNewPartnerModalLocator.email);
+    await (await this.getLocator(CreateNewPartnerModalLocator.email)).fill(partnerInfo.accountInfo!.email);
 
-    await emailElement.fill(partnerInfo.accountInfo!.email);
-
-    if (partnerInfo.partnerInfo!.bankTransfer === true) {
-      const bankTranferElement = await this.getLocator(CreateNewPartnerModalLocator.bankTransfer);
-
-      await bankTranferElement.scrollIntoViewIfNeeded();
-
-      await bankTranferElement.click();
+    if (partnerInfo.partnerInfo!.bankTransfer === true && partnerInfo.partnerInfo!.paymentOption === "Partner/Consultant Owner") {
+      await (await this.getLocator(CreateNewPartnerModalLocator.bankTransfer)).scrollIntoViewIfNeeded();
+      await (await this.getLocator(CreateNewPartnerModalLocator.bankTransfer)).click();
 
       if (partnerInfo.partnerInfo!.plan && !partnerInfo.partnerInfo!.productsType) {
         try {
@@ -136,11 +119,9 @@ export class PartnerManagementPage extends BasePage {
           throw new Error("Plan does not exist");
         }
       }
-      const numberOfLabelsInBillingCycle = await this.getLocator(CreateNewPartnerModalLocator.billingCycle);
+      const numberOfLabelsInBillingCycle = await (await this.getLocator(CreateNewPartnerModalLocator.billingCycle)).count();
 
-      const numberOfLabel = await numberOfLabelsInBillingCycle.count();
-
-      if (partnerInfo.partnerInfo!.billingCycleRadio && numberOfLabel == 2) {
+      if (partnerInfo.partnerInfo!.billingCycleRadio && numberOfLabelsInBillingCycle == 2) {
         try {
           await this.selectRadio(partnerInfo.partnerInfo!.billingCycleRadio, CreateNewPartnerModalLocator.billingCycle);
         } catch (error) {
@@ -149,31 +130,17 @@ export class PartnerManagementPage extends BasePage {
       }
     }
 
-    if (partnerInfo.partnerInfo!.internal === true) {
-      const internalElement = await this.getLocator(CreateNewPartnerModalLocator.internal);
+    if (partnerInfo.partnerInfo!.internal === true) await (await this.getLocator(CreateNewPartnerModalLocator.internal)).click();
 
-      await internalElement.click();
-    }
+    await (await this.getLocator(CreateNewPartnerModalLocator.createPartnerButton)).click();
 
-    const createNewPartnerButtonElement = await this.getLocator(CreateNewPartnerModalLocator.createPartnerButton);
-    await createNewPartnerButtonElement.click();
-
-    if (partnerInfo.partnerInfo.bankTransfer === true) {
-      const confirmButtonLocator = CreateNewPartnerModalLocator.confirmButton;
-
-      const confirmButtonElement = await this.getLocator(confirmButtonLocator);
-      await confirmButtonElement.click();
-    }
+    if (partnerInfo.partnerInfo.bankTransfer === true && partnerInfo.partnerInfo.paymentOption === "Partner/Consultant Owner")
+      await (await this.getLocator(CreateNewPartnerModalLocator.confirmButton)).click();
 
     return this.page;
   }
 
-  public async addMoreMembers(
-    partner: Partner,
-    invitedMembers: UserInfo[],
-    onboardingFlow: OnboardingFlow,
-    tempEmailFreePage: TempEmailFreePage,
-  ) {
+  public async addMoreMembers(partner: Partner, invitedMembers: UserInfo[], onboardingFlow: OnboardingFlow, tempEmailFreePage: TempEmailFreePage) {
     if (invitedMembers?.length === 0) throw new Error("There is no any member to add");
 
     const partnerPhoneNumber = partner.accountInfo?.phoneNumber;
@@ -251,8 +218,7 @@ export class PartnerManagementPage extends BasePage {
 
       await delay(5000);
 
-      if (partFilterInfo.department)
-        await this.dropdown.selectByText(PartnerFilter.searchedDepartment, partFilterInfo.department);
+      if (partFilterInfo.department) await this.dropdown.selectByText(PartnerFilter.searchedDepartment, partFilterInfo.department);
       await delay(5000);
 
       await (await this.getLocator(PartnerFilter.applyButton)).click();
@@ -280,12 +246,7 @@ export class PartnerManagementPage extends BasePage {
     return "Pass";
   }
 
-  public async addPeoConsultant(
-    partner: Partner,
-    peoPartners: PeoPartner[],
-    onboardingFlow: OnboardingFlow,
-    tempEmailFreePage: TempEmailFreePage,
-  ): Promise<string> {
+  public async addPeoConsultant(partner: Partner, peoPartners: PeoPartner[], onboardingFlow: OnboardingFlow, tempEmailFreePage: TempEmailFreePage): Promise<string> {
     if (partner.partnerInfo!.partnerLevel !== "Partner") throw new Error("Partner must be a partner not PEO");
 
     const partnerPhoneNumber = partner.accountInfo?.phoneNumber;

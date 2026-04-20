@@ -1,7 +1,7 @@
 import { Page } from "@playwright/test";
 import { BasePage } from "../base-page";
 import { BuyPlanLocators } from "./locators";
-import { CommonPartnerPortalLocator } from "./locators/commonPartnerPortal";
+import { CommonPartnerPortalLocator } from "../partner-portal/locators/common";
 import delay from "src/utilities/delay";
 
 export class BuyPlanPage extends BasePage {
@@ -22,19 +22,32 @@ export class BuyPlanPage extends BasePage {
 
     await this.page.waitForURL("**/register-success", { timeout: 30000 });
 
-    const divFirstPlan = await this.getLocator(BuyPlanLocators.firstPlan);
-    await divFirstPlan.click();
+    await (await this.getLocator(BuyPlanLocators.firstPlan)).click();
 
-    const btnBuyNow = await this.getLocator(BuyPlanLocators.buyNow);
-    await btnBuyNow.click();
+    await (await this.getLocator(BuyPlanLocators.buyNow)).click();
 
-    const btnConfirm = await this.getLocator(BuyPlanLocators.confirm);
-    await btnConfirm.click();
+    await (await this.getLocator(BuyPlanLocators.confirm)).click();
   }
 
   public async fillBuyPlanForm(url: string, email: string): Promise<void> {
     await this.handbleParrtnerPageToBuyPlan(url, email);
 
+    await this.fillBuyPlanFormWithInvalidCard();
+  }
+
+  public async getBuyPlanPageElements() {
+    const iframe = BuyPlanLocators.paymentIframe;
+
+    const txtCardNumb = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardNumber);
+    const txtCardCvc = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardCvc);
+    const txtHolder = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardHolderName);
+    const txtAddress = await this.getLocatorInIframe(iframe, BuyPlanLocators.billingAddress);
+    const txtCity = await this.getLocatorInIframe(iframe, BuyPlanLocators.billingCity);
+
+    return { txtCardNumb, txtCardCvc, txtHolder, txtAddress, txtCity };
+  }
+
+  public async fillBuyPlanFormWithInvalidCard(): Promise<void> {
     const iframe = BuyPlanLocators.paymentIframe;
 
     const txtCardNumb = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardNumber);
