@@ -9,10 +9,10 @@ import { PartnerPortalService } from "src/api/services/partner-portal.services";
 import { TempEmailFreePage } from "../ui/pages";
 import { LoginAdminPage } from "src/ui/pages/admin-portal/login.page";
 import { PartnerManagementPage } from "src/ui/pages/admin-portal/partner-management";
-
 import { PartnerIntegrationService } from "src/api/services/partner-integration.service";
 import { CustomerManagementPage } from "src/ui/pages/admin-portal/customer-management";
 import { PartnerPage } from "src/ui/pages/partner-portal/partner-page";
+
 type MyFixtures = {
   adminLoggedIn: void;
   homePage: AdminHomePage;
