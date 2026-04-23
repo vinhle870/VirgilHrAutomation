@@ -3,8 +3,8 @@ import { DataFactory, PersonDataGenerator } from "src/data-factory";
 import { UserInfo } from "src/objects";
 import { CustomerFactory } from "src/data-factory/customer-factory";
 import IPartnerFilter from "src/objects/ipartnerfilter";
-import { PartnerFilter } from "src/ui/pages/admin-portal/locators/partner-management/filter-partner";
-import { CreateNewPartnerModalLocator } from "src/ui/pages/admin-portal/locators/partner-management/new-partner";
+import { PartnerFilterLocator } from "src/ui/pages/admin-portal/locators/partner-management/locator/filter-partner";
+import { CreateNewPartnerModalLocator } from "src/ui/pages/admin-portal/locators/partner-management/locator/new-partner";
 import { BuyPlanLocators, TempEmailFreeLocators } from "src/ui/pages/shared/locators";
 import { Page } from "playwright/test";
 
@@ -838,7 +838,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
     await loginAdminPage.login();
 
-    const typeOfSorting = PartnerFilter.oldestToLatest;
+    const typeOfSorting = PartnerFilterLocator.oldestToLatest;
 
     const sort = await partnerManagementPage.sorting(typeOfSorting);
 

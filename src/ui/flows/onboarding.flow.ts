@@ -1,22 +1,27 @@
 import { Page } from "@playwright/test";
 import { TempEmailFreePage } from "../pages/shared/tempemailfree.page";
-import { MemberOnboardingPage } from "../pages/member-portal/member-onboarding.page";
+import { MemberPortalPage } from "../pages/member-portal/member-page";
 import { PurchaseFlow } from "./purchase.flow";
 import { CommonPartnerPortalLocator } from "../pages/partner-portal/locators/common";
 import { BusinessLocator } from "../pages/partner-portal/locators/business";
 import { Partner, UserInfo } from "src/objects";
-import { MemberOnboardingLocators } from "../pages/member-portal/locators";
+import { CommonMemberPortalLocators } from "../pages/member-portal/locators";
 import { CommonPortalLocators } from "../Locator/common";
+import { TeamAdditionLocator } from "../pages/admin-portal/locators/partner-management/locator/team-addition";
 
 export class OnboardingFlow {
   private readonly page: Page;
-  private memberOnboarding: MemberOnboardingPage;
+  private memberPortalPage: MemberPortalPage;
   private credentialPassword: string;
 
   constructor(page: Page) {
     this.page = page;
-    this.memberOnboarding = new MemberOnboardingPage(page);
+    this.memberPortalPage = new MemberPortalPage(page);
     this.credentialPassword = "";
+  }
+
+  public getMemberPortalPage(): MemberPortalPage {
+    return this.memberPortalPage;
   }
 
   /**
@@ -28,9 +33,9 @@ export class OnboardingFlow {
 
     await this.page.waitForLoadState("domcontentloaded");
 
-    this.memberOnboarding = new MemberOnboardingPage(virgilPage);
+    this.memberPortalPage = new MemberPortalPage(virgilPage);
 
-    await this.memberOnboarding.setPasswordAndJoinTeam();
+    await this.memberPortalPage.setPasswordAndJoinTeam();
 
     await virgilPage.close();
   }
@@ -48,24 +53,24 @@ export class OnboardingFlow {
     this.credentialPassword = elements.password;
     const virgilPage = elements.credentialedPage;
 
-    this.memberOnboarding = new MemberOnboardingPage(virgilPage);
+    this.memberPortalPage = new MemberPortalPage(virgilPage);
 
-    await this.memberOnboarding.loginViaCredentialEmail(credentialEmail, this.credentialPassword, changedPasswordStatus);
+    await this.memberPortalPage.loginViaCredentialEmail(credentialEmail, this.credentialPassword, changedPasswordStatus);
 
-    if (portal === "Member" || portal === "Consumer") this.closemodals(portal, virgilPage);
+    if (portal === "Member" || portal === "Consumer") this.closemodals(virgilPage);
 
     return virgilPage;
   }
 
-  private async closemodals(portal: string, virgilPage: Page) {
+  private async closemodals(virgilPage = this.page) {
     try {
-      await virgilPage.locator(MemberOnboardingLocators.readyDiveIn).click({ timeout: 3000 });
+      await virgilPage.locator(CommonMemberPortalLocators.readyDiveIn).click({ timeout: 3000 });
     } catch (error) {
       console.log("There is no popup 'I am ready to divin'");
     }
 
     try {
-      for (let i = 0; i < 4; i++) await virgilPage.locator(MemberOnboardingLocators.gotItButton).click({ timeout: 3000 });
+      for (let i = 0; i < 4; i++) await virgilPage.locator(CommonMemberPortalLocators.gotItButton).click({ timeout: 3000 });
     } catch (error) {
       console.log("There is no popup 'Got it'");
     }
@@ -172,8 +177,12 @@ export class OnboardingFlow {
 
     await page.locator(CommonPortalLocators.continueButton).click();
 
-    if (portal === "Member") await page.locator(MemberOnboardingLocators.completedSafely).click({ timeout: 10000 });
+    if (portal === "Member") await page.locator(CommonMemberPortalLocators.completedSafely).click({ timeout: 10000 });
 
     await page.locator(CommonPortalLocators.continueButton).click();
+  }
+
+  public async moveToUserSettingPage(page = this.page): Promise<void> {
+    await page.locator(CommonPortalLocators.userSettingsButton).click();
   }
 }

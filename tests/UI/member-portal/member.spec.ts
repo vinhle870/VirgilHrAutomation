@@ -3,27 +3,27 @@ import { DataFactory, PersonDataGenerator } from "src/data-factory";
 import { UserInfo } from "src/objects";
 import { CustomerFactory } from "src/data-factory/customer-factory";
 import IPartnerFilter from "src/objects/ipartnerfilter";
-import { PartnerFilter } from "src/ui/pages/admin-portal/locators/partner-management/filter-partner";
-import { CreateNewPartnerModalLocator } from "src/ui/pages/admin-portal/locators/partner-management/new-partner";
+import { PartnerFilterLocator } from "src/ui/pages/admin-portal/locators/partner-management/locator/filter-partner";
+import { CreateNewPartnerModalLocator } from "src/ui/pages/admin-portal/locators/partner-management/locator/new-partner";
 import { BuyPlanLocators, TempEmailFreeLocators } from "src/ui/pages/shared/locators";
 import { Page } from "playwright/test";
-import { on } from "events";
 import { BuyPlanPage } from "src/ui/pages";
+import { SettingUserLocators } from "src/ui/pages/member-portal/locators/setting-user";
 
 test.describe("E2E -> Admin Portal -> Partner Management", () => {
   test(
-    "TC48",
+    "TC54",
     {
-      tag: "@Verify that after the first login, the system requires the partner user to change the system-generated password to a personal password.",
+      tag: "@Verify that an user can invite members to a team in the member portal - organization tab.",
     },
-    async ({ loginAdminPage, partnerManagementPage, onboardingFlow, tempEmailFreePage }, testInfo) => {
+    async ({ loginAdminPage, partnerManagementPage, onboardingFlow, tempEmailFreePage, memberPortalPage }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
 
-      await test.step("Login to Admin portal", async () => {
-        await loginAdminPage.login();
-      });
+      // await test.step("Login to Admin portal", async () => {
+      //   await loginAdminPage.login();
+      // });
 
       let partnerInfo;
       await test.step("Create partner info", async () => {
@@ -32,32 +32,54 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withPaymentOption("Partner/Consultant Owner")
           .withProductsType([process.env.PLAN!])
           .withBankTransfer(true)
+          .withEmail("QATest_Judd829@polandcampus.edu.pl")
           .build();
       });
 
-      let newPartner;
-      await test.step("Create a new partner", async () => {
-        newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+      // let newPartner;
+      // await test.step("Create a new partner", async () => {
+      //   newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+      // });
+
+      // await test.step("Verify newPartner is created successfully", async () => {
+      //   await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
+      // });
+
+      // let owner;
+      // await test.step("Create a new Business", async () => {
+      //   const newPartnerPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!);
+      //   owner = await onboardingFlow.createBusiness(newPartnerPage!, partnerInfo!, partnerInfo!);
+      // });
+
+      // await test.step("Verify the new Business is created successfully", async () => {
+      //   await expect(owner!).toBeVisible({ timeout: 10000 });
+      // });
+
+      let memberPage: Page;
+      await test.step("Credential member portal and move to organization tab", async () => {
+        memberPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!, "Member");
+
+        await onboardingFlow.moveToUserSettingPage(memberPage);
+
+        await memberPage.locator(SettingUserLocators.organizationTab).click();
       });
 
-      await test.step("Verify newPartner is created successfully", async () => {
-        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
+      let invitedMembers: UserInfo[];
+      await test.step("Invite a member to the team", async () => {
+        await onboardingFlow.moveToUserSettingPage(memberPage);
+
+        invitedMembers = await CustomerFactory.generateMembers(1);
+        await memberPortalPage.inviteMembersByEmail(memberPage, invitedMembers, onboardingFlow, tempEmailFreePage);
       });
 
-      await test.step("Verify the partner user must change the system-generated password to a personal password", async () => {
-        const partnerPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!, "Partner", true);
+      await test.step("Verify the invited member received the invitation", async () => {
+        for (const member of invitedMembers) {
+          const localPart = member.email.split("@")[0];
+          await onboardingFlow.acceptInvitation(tempEmailFreePage, localPart);
 
-        const changePasswordElements = await onboardingFlow.getChangePasswordElement(partnerPage);
-
-        await expect(changePasswordElements.currentPasswordInputElement).toBeVisible();
-        await expect(changePasswordElements.newPasswordElement).toBeVisible();
-        expect(changePasswordElements.url).toMatch(/.*change-password/);
-
-        await onboardingFlow.changePassword(partnerPage);
-
-        const hometitle = await onboardingFlow.getHomeTitle(partnerPage);
-
-        await expect(hometitle).toBeVisible({ timeout: 10000 });
+          const memberHomeTitle = await onboardingFlow.getHomeTitle(memberPage);
+          await expect(memberHomeTitle).toBeVisible({ timeout: 30000 });
+        }
       });
     },
   );

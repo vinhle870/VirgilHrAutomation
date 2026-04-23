@@ -1,18 +1,19 @@
 import { Locator, Page } from "@playwright/test";
 import { BasePage } from "src/ui/pages/base-page";
 import { CommonLocator } from "./locators/common.locator";
-import { CommonPartnerLocator } from "./locators/partner-management/common";
-import { CreateNewPartnerModalLocator } from "./locators/partner-management/new-partner";
+import { CommonPartnerLocator } from "./locators/partner-management/locator/common";
+import { CreateNewPartnerModalLocator } from "./locators/partner-management/locator/new-partner";
 import delay from "src/utilities/delay";
-import { TeamAddition } from "./locators/partner-management/team-addition";
-import { DetailOfPartnerLocator } from "./locators/partner-management/detail";
+import { TeamAdditionLocator } from "./locators/partner-management/locator/team-addition";
+import { DetailOfPartnerLocator } from "./locators/partner-management/locator/detail";
 import { OnboardingFlow } from "src/ui/flows";
 import { TempEmailFreePage } from "../shared";
 import IPartnerFilter from "src/objects/ipartnerfilter";
-import { PartnerFilter } from "./locators/partner-management/filter-partner";
+import { PartnerFilterLocator } from "./locators/partner-management/locator/filter-partner";
 import { PeoPartner } from "src/objects/ipeopartner";
-import { PeoConsultantAddition } from "./locators/partner-management/peo-consultant-addition";
+import { PeoConsultantAdditionLocator } from "./locators/partner-management/locator/peo-consultant-addition";
 import { Partner, UserInfo } from "src/objects";
+import { CommonPortalLocators } from "src/ui/Locator/common";
 
 export class PartnerManagementPage extends BasePage {
   constructor(page: Page) {
@@ -140,7 +141,7 @@ export class PartnerManagementPage extends BasePage {
     return this.page;
   }
 
-  public async addMoreMembers(partner: Partner, invitedMembers: UserInfo[], onboardingFlow: OnboardingFlow, tempEmailFreePage: TempEmailFreePage) {
+  public async addMoreMembers(partner: Partner, invitedMembers: UserInfo[], onboardingFlow: OnboardingFlow, tempEmailFreePage: TempEmailFreePage, page = this.page): Promise<void> {
     if (invitedMembers?.length === 0) throw new Error("There is no any member to add");
 
     const partnerPhoneNumber = partner.accountInfo?.phoneNumber;
@@ -153,75 +154,29 @@ export class PartnerManagementPage extends BasePage {
 
     const detailButtonLocator = rawDetailLocator.replace("phoneNumberValue", partnerPhoneNumber!);
 
-    const detailButtonEl = this.page.locator(detailButtonLocator).last();
+    await this.page.locator(detailButtonLocator).last().click();
 
-    await detailButtonEl.click();
+    await (await this.getLocator(DetailOfPartnerLocator.addMemberButton)).click();
 
-    const addMembersButtonEl = this.getLocator(DetailOfPartnerLocator.addMemberButton);
-
-    (await addMembersButtonEl).click();
-
-    let emailEl = await this.getLocator(TeamAddition.emailInput);
-    let firstNameElement = await this.getLocator(TeamAddition.firstNameInput);
-    let lastNameElement = await this.getLocator(TeamAddition.lastNameInput);
-    let phoneNumberElement = await this.getLocator(TeamAddition.phoneNumberInput);
-    let jobTitleElement = await this.getLocator(TeamAddition.jobTitleInput);
-
-    if (invitedMembers?.length === 1) {
-      await emailEl.fill(invitedMembers[0].email);
-
-      await firstNameElement.fill(invitedMembers[0].firstName!);
-
-      await lastNameElement.fill(invitedMembers[0].lastName!);
-
-      await phoneNumberElement.fill(invitedMembers[0].phoneNumber!);
-
-      await jobTitleElement.fill(invitedMembers[0].jobTitle!);
-
-      await this.dropdown.selectByText(TeamAddition.roleInput, invitedMembers[0].invitedRole!);
-    } else if (invitedMembers?.length > 1) {
-      const addMoreButton = TeamAddition.addMoreButton;
-      const addMoreButtonEl = await this.getLocator(addMoreButton);
-
-      for (let i = 0; i < invitedMembers?.length; i++) {
-        if (i < invitedMembers?.length - 1) await addMoreButtonEl.click();
-
-        await emailEl.nth(i).fill(invitedMembers[i].email!);
-
-        await firstNameElement.nth(i).fill(invitedMembers[i].firstName!);
-
-        await lastNameElement.nth(i).fill(invitedMembers[i].lastName!);
-
-        await phoneNumberElement.nth(i).fill(invitedMembers[i].phoneNumber!);
-
-        await jobTitleElement.nth(i).fill(invitedMembers[i].jobTitle!);
-
-        await this.dropdown.selectByText(TeamAddition.roleInput, invitedMembers[i].invitedRole!);
-      }
-    }
-    await (await this.getLocator(TeamAddition.sendInviteButton)).click();
-
-    for (const member of invitedMembers) {
-      const localPart = member.email.split("@")[0];
-      await onboardingFlow.acceptInvitation(tempEmailFreePage, localPart);
-    }
+    this.inviteMembersByEmail(page, invitedMembers, onboardingFlow, tempEmailFreePage);
   }
+
   async filter(partFilterInfo: IPartnerFilter): Promise<string> {
     try {
       const filterButtonEl = await this.getLocator(CommonPartnerLocator.filterPartnerButton);
 
       await filterButtonEl.click();
 
-      if (partFilterInfo.name) await (await this.getLocator(PartnerFilter.searchedName)).fill(partFilterInfo.name);
+      if (partFilterInfo.name) await (await this.getLocator(PartnerFilterLocator.searchedName)).fill(partFilterInfo.name);
 
-      if (partFilterInfo.level) await this.dropdown.selectByText(PartnerFilter.searchedLevel, partFilterInfo.level);
+      if (partFilterInfo.level) await this.dropdown.selectByText(PartnerFilterLocator.searchedLevel, partFilterInfo.level);
 
       await delay(5000);
 
-      if (partFilterInfo.department) await this.dropdown.selectByText(PartnerFilter.searchedDepartment, partFilterInfo.department);
+      if (partFilterInfo.department) await this.dropdown.selectByText(PartnerFilterLocator.searchedDepartment, partFilterInfo.department);
       await delay(5000);
 
-      await (await this.getLocator(PartnerFilter.applyButton)).click();
+      await (await this.getLocator(PartnerFilterLocator.applyButton)).click();
     } catch (error) {
       return "Failed";
     }
@@ -267,31 +222,31 @@ export class PartnerManagementPage extends BasePage {
 
     await addPeoConsultantButtonEl.click();
 
-    const nameEl = await this.getLocator(PeoConsultantAddition.nameInput);
+    const nameEl = await this.getLocator(PeoConsultantAdditionLocator.nameInput);
 
-    const emailInputEl = await this.getLocator(PeoConsultantAddition.emailInput);
+    const emailInputEl = await this.getLocator(PeoConsultantAdditionLocator.emailInput);
 
-    const firstNameInputEl = await this.getLocator(PeoConsultantAddition.firstNameInput);
+    const firstNameInputEl = await this.getLocator(PeoConsultantAdditionLocator.firstNameInput);
 
-    const lastNameInputEl = await this.getLocator(PeoConsultantAddition.lastNameInput);
+    const lastNameInputEl = await this.getLocator(PeoConsultantAdditionLocator.lastNameInput);
 
-    const phoneNumberInputEl = this.page.locator(PeoConsultantAddition.phoneNumberInput).last();
+    const phoneNumberInputEl = this.page.locator(PeoConsultantAdditionLocator.phoneNumberInput).last();
 
-    const jobTitleInputEl = await this.getLocator(PeoConsultantAddition.jobTitleInput);
+    const jobTitleInputEl = await this.getLocator(PeoConsultantAdditionLocator.jobTitleInput);
 
-    const customBrandingEl = await this.getLocator(PeoConsultantAddition.customBranding);
+    const customBrandingEl = await this.getLocator(PeoConsultantAdditionLocator.customBranding);
 
-    const customBenefitsPlanEl = await this.getLocator(PeoConsultantAddition.customBenefitsPlan);
+    const customBenefitsPlanEl = await this.getLocator(PeoConsultantAdditionLocator.customBenefitsPlan);
 
-    const internalEl = await this.getLocator(PeoConsultantAddition.internal);
+    const internalEl = await this.getLocator(PeoConsultantAdditionLocator.internal);
 
-    const externalEl = await this.getLocator(PeoConsultantAddition.external);
+    const externalEl = await this.getLocator(PeoConsultantAdditionLocator.external);
 
-    const backURLEl = await this.getLocator(PeoConsultantAddition.backURL);
+    const backURLEl = await this.getLocator(PeoConsultantAdditionLocator.backURL);
 
-    const backTextEl = await this.getLocator(PeoConsultantAddition.backText);
+    const backTextEl = await this.getLocator(PeoConsultantAdditionLocator.backText);
 
-    const createButtonEl = await this.getLocator(PeoConsultantAddition.createButton);
+    const createButtonEl = await this.getLocator(PeoConsultantAdditionLocator.createButton);
 
     for (let i = 0; i < peoPartners.length; i++) {
       if (i !== 0 && i < peoPartners.length - 1) await addPeoConsultantButtonEl.click();

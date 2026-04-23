@@ -22,10 +22,6 @@ export class PartnerPage extends BasePage {
     return page.locator(ClientPartnerPortalLocators.role.replace("emailValue", email));
   }
 
-  public async moveToPage(path: string, page = this.page): Promise<void> {
-    await page.locator(`xpath=//a[@href='${path}']`).click();
-  }
-
   public async closeBusinessDetail(page = this.page): Promise<void> {
     await page.locator(BusinessLocator.closeDetailBusinessButton).click();
   }

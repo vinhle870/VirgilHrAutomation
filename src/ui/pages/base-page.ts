@@ -1,6 +1,11 @@
 import { Page } from "@playwright/test";
 import { LocatorHandling } from "../../utilities/locator-handling";
 import { DropdownComponent } from "../../utilities/components";
+import { CommonPortalLocators } from "../Locator/common";
+import { TeamAdditionLocator } from "./admin-portal/locators/partner-management/locator/team-addition";
+import { UserInfo } from "src/objects";
+import { OnboardingFlow } from "../flows";
+import { TempEmailFreePage } from "./shared";
 
 export abstract class BasePage {
   protected page: Page;
@@ -32,5 +37,37 @@ export abstract class BasePage {
     const radio = scope.getByRole("radio", { name: label, exact: true });
     await radio.first().waitFor({ state: "visible", timeout: effectiveTimeout });
     await radio.first().click();
+  }
+
+  public async moveToPage(path: string, page = this.page): Promise<void> {
+    await page.locator(`xpath=//a[@href='${path}']`).click();
+  }
+
+  public async inviteMembersByEmail(page = this.page, invitedMembers: UserInfo[], onboardingFlow: OnboardingFlow, tempEmailFreePage: TempEmailFreePage): Promise<void> {
+    let emailEl = page.locator(CommonPortalLocators.emailInput);
+    let firstNameElement = page.locator(CommonPortalLocators.firstNameInput);
+    let lastNameElement = page.locator(CommonPortalLocators.lastNameInput);
+    let phoneNumberElement = page.locator(CommonPortalLocators.phoneNumberInput);
+    let jobTitleElement = page.locator(CommonPortalLocators.jobTitleInput);
+
+    const addMoreButtonEl = page.locator(CommonPortalLocators.addMoreButton);
+
+    for (let i = 0; i < invitedMembers?.length; i++) {
+      if (i < invitedMembers?.length - 1) await addMoreButtonEl.click();
+
+      await emailEl.nth(i).fill(invitedMembers[i].email!);
+
+      await firstNameElement.nth(i).fill(invitedMembers[i].firstName!);
+
+      await lastNameElement.nth(i).fill(invitedMembers[i].lastName!);
+
+      await phoneNumberElement.nth(i).fill(invitedMembers[i].phoneNumber!);
+
+      await jobTitleElement.nth(i).fill(invitedMembers[i].jobTitle!);
+
+      await this.dropdown.selectByText(TeamAdditionLocator.roleInput, invitedMembers[i].invitedRole!);
+    }
+
+    await page.locator(CommonPortalLocators.sendInviteButton).click();
   }
 }
