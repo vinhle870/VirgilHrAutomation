@@ -135,6 +135,10 @@ export const test = base.extend<MyFixtures>({
   loginPage: async ({ page }, use) => {
     await use(new LoginPage(page));
   },
+
+  memberPortalPage: async ({ page }, use) => {
+    await use(new MemberPortalPage(page));
+  },
 });
 
 export { expect } from "@playwright/test";

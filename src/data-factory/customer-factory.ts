@@ -20,10 +20,7 @@ export class CustomerFactory {
    * @deprecated Use `new CustomerBuilder().forMemberPortal().build()` or
    * `new CustomerBuilder().forAdminPortal().build()` instead.
    */
-  static async createCustomer(
-    portal: string,
-    overrides?: Partial<Record<string, any>>,
-  ): Promise<CustomerInfo> {
+  static async createCustomer(portal: string, overrides?: Partial<Record<string, any>>): Promise<CustomerInfo> {
     const builder = new CustomerBuilder();
 
     // Portal
@@ -105,16 +102,11 @@ export class CustomerFactory {
       localPrefix: person.localPrefix,
     };
   }
-  static async generateMembers(
-    numberOfInvitedMembers: number,
-    overrides?: Partial<UserInfo>,
-  ) {
+  static async generateMembers(numberOfInvitedMembers: number, role = "User", overrides?: Partial<UserInfo>) {
     const users: UserInfo[] = [];
-    const roles = ["User", "Admin", "Supervisor"];
 
     for (let i = 0; i < numberOfInvitedMembers; i++) {
       const person = await PersonDataGenerator.generate(overrides);
-      const index = Math.floor(Math.random() * roles.length);
 
       const userInfo: UserInfo = {
         email: person.email,
@@ -123,7 +115,7 @@ export class CustomerFactory {
         lastName: person.lastName,
         jobTitle: person.jobTitle,
         phoneNumber: person.phoneNumber,
-        invitedRole: roles[index],
+        invitedRole: role,
       };
 
       users.push(userInfo);

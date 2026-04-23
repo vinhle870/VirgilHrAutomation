@@ -3,45 +3,32 @@ import { BasePage } from "../base-page";
 import { CommonMemberPortalLocators } from "./locators";
 import { CommonPortalLocators } from "src/ui/Locator/common";
 import { SettingUserLocators } from "./locators/setting-user";
-import { ManageYourTeamLocators } from "./locators/manage-your-team";
 import { UserInfo } from "src/objects";
-import { OnboardingFlow } from "src/ui/flows/onboarding.flow";
-import { TempEmailFreePage } from "../shared";
+import { MemberAdditionLocator } from "../admin-portal/locators/customer-management/member-addition";
+import { time } from "console";
 
 export class MemberPortalPage extends BasePage {
-  async setPasswordAndJoinTeam(password = "Password@123") {
+  async setPasswordAndJoinTeam(page = this.page, password = "Password@123") {
     try {
-      const continueBtn = await this.getLocator(CommonMemberPortalLocators.continueWithEmail);
-
-      await continueBtn.click();
+      await page.locator(CommonMemberPortalLocators.continueWithEmail).click();
     } catch (error) {
       console.error("There is no continue button");
     }
 
-    const passwordInput = await this.getLocator(CommonMemberPortalLocators.setPassword);
-    await passwordInput.fill(password);
+    await page.locator(CommonMemberPortalLocators.setPassword).fill(password);
 
-    const joinTeamBtn = await this.getLocator(CommonMemberPortalLocators.joinTeam);
-    await joinTeamBtn.scrollIntoViewIfNeeded();
-    await joinTeamBtn.click();
-
-    if (process.env.ENV?.toLowerCase() === "prod") {
-      console.log("env:prod");
-      const closeBtn = await this.getLocator(CommonMemberPortalLocators.closeGuide);
-      await closeBtn.click();
-    }
+    await page.locator(CommonMemberPortalLocators.joinTeam).scrollIntoViewIfNeeded();
+    await page.locator(CommonMemberPortalLocators.joinTeam).click();
 
     try {
-      const diveInBtn = await this.getLocator(CommonMemberPortalLocators.readyDiveIn, 30000);
-      await expect(diveInBtn).toBeVisible({ timeout: 30000 });
-      await diveInBtn.click();
+      await page.locator(CommonMemberPortalLocators.readyDiveIn).click({ timeout: 30000 });
     } catch (error) {
       console.log("There is no 'I am diving'");
     }
   }
 
   async loginViaCredentialEmail(email: string, password = "Password@123", changedPasswordStatus = false) {
-    const emailField = this.page.locator(CommonPortalLocators.emailInput);
+    const emailField = this.page.locator(CommonPortalLocators.emailInputTologin);
     await emailField.waitFor({ state: "visible" });
     await emailField.fill(email!);
 
@@ -81,9 +68,39 @@ export class MemberPortalPage extends BasePage {
     await page.locator(SettingUserLocators.manageYourTeam).click();
   }
 
-  public async inviteMoreMembers(invitedAccount: UserInfo[], page = this.page, onboardingFlow: OnboardingFlow, tempEmailFreePage: TempEmailFreePage): Promise<void> {
+  public async inviteMembers(invitedAccounts: UserInfo[], page = this.page): Promise<void> {
+    await page.locator(SettingUserLocators.organizationTab).click();
+
     await this.moveToManageYourteamPage(page);
 
-    this.inviteMembersByEmail(page, invitedAccount, onboardingFlow, tempEmailFreePage);
+    await page.locator(MemberAdditionLocator.inviteMoreButton).click();
+
+    this.inviteMembersByEmail(invitedAccounts, page);
+  }
+
+  public async closeModalsToInviteMembers(page = this.page, timeout = 5000): Promise<void> {
+    try {
+      await page.locator(CommonMemberPortalLocators.setUpLater).click({ timeout });
+    } catch (error) {
+      console.log("There is no set up Modal");
+    }
+
+    try {
+      await page.locator(CommonMemberPortalLocators.readyDiveIn).click({ timeout });
+    } catch (error) {
+      console.log("There is no ready to dive in button");
+    }
+
+    try {
+      await page.locator(CommonMemberPortalLocators.gotItButton).click({ timeout });
+    } catch (error) {
+      console.log("There is no got it button");
+    }
+
+    try {
+      await page.locator(CommonPortalLocators.popupClosingButton).click({ timeout });
+    } catch (error) {
+      console.log("There is no popup closing button");
+    }
   }
 }

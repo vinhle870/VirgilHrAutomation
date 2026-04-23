@@ -28,16 +28,20 @@ export class OnboardingFlow {
    * Accepts an invitation for the user by retrieving the link from YopMail
    * and completing the onboarding steps.
    */
-  async acceptInvitation(tempEmailFreePage: TempEmailFreePage, username: string): Promise<void> {
-    const [virgilPage] = await Promise.all([this.page.waitForEvent("popup"), tempEmailFreePage.acceptJoinTeam(username)]);
+  async acceptInvitation(tempEmailFreePage: TempEmailFreePage, username: string, page = this.page): Promise<Page> {
+    const popupPromise = page.waitForEvent("popup", { timeout: 60000000 });
 
-    await this.page.waitForLoadState("domcontentloaded");
+    await tempEmailFreePage.acceptJoinTeam(username);
 
-    this.memberPortalPage = new MemberPortalPage(virgilPage);
+    let memberPage: Page = await popupPromise;
 
-    await this.memberPortalPage.setPasswordAndJoinTeam();
+    await page.waitForLoadState("domcontentloaded");
 
-    await virgilPage.close();
+    this.memberPortalPage = new MemberPortalPage(memberPage);
+
+    await this.memberPortalPage.setPasswordAndJoinTeam(memberPage);
+
+    return memberPage;
   }
 
   public async credential(tempEmailFreePage: TempEmailFreePage, emailOfPartner: string, portal = "Partner", changedPasswordStatus = false): Promise<Page> {
@@ -62,15 +66,15 @@ export class OnboardingFlow {
     return virgilPage;
   }
 
-  private async closemodals(virgilPage = this.page) {
+  public async closemodals(page = this.page, timeout = 5000): Promise<void> {
     try {
-      await virgilPage.locator(CommonMemberPortalLocators.readyDiveIn).click({ timeout: 3000 });
+      await page.locator(CommonMemberPortalLocators.readyDiveIn).click({ timeout });
     } catch (error) {
       console.log("There is no popup 'I am ready to divin'");
     }
 
     try {
-      for (let i = 0; i < 4; i++) await virgilPage.locator(CommonMemberPortalLocators.gotItButton).click({ timeout: 3000 });
+      for (let i = 0; i < 4; i++) await page.locator(CommonMemberPortalLocators.gotItButton).click({ timeout });
     } catch (error) {
       console.log("There is no popup 'Got it'");
     }
@@ -152,7 +156,7 @@ export class OnboardingFlow {
 
   public async getHomeTitle(page?: Page) {
     const locator = (page || this.page).getByRole("heading", { level: 2, name: "Home" });
-    await locator.waitFor({ state: "visible", timeout: 20000 });
+    await locator.waitFor({ state: "visible", timeout: 600000000 });
     return locator;
   }
 

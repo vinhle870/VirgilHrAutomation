@@ -4,8 +4,7 @@ import { DropdownComponent } from "../../utilities/components";
 import { CommonPortalLocators } from "../Locator/common";
 import { TeamAdditionLocator } from "./admin-portal/locators/partner-management/locator/team-addition";
 import { UserInfo } from "src/objects";
-import { OnboardingFlow } from "../flows";
-import { TempEmailFreePage } from "./shared";
+import delay from "src/utilities/delay";
 
 export abstract class BasePage {
   protected page: Page;
@@ -43,7 +42,7 @@ export abstract class BasePage {
     await page.locator(`xpath=//a[@href='${path}']`).click();
   }
 
-  public async inviteMembersByEmail(page = this.page, invitedMembers: UserInfo[], onboardingFlow: OnboardingFlow, tempEmailFreePage: TempEmailFreePage): Promise<void> {
+  public async inviteMembersByEmail(invitedMembers: UserInfo[], page = this.page): Promise<void> {
     let emailEl = page.locator(CommonPortalLocators.emailInput);
     let firstNameElement = page.locator(CommonPortalLocators.firstNameInput);
     let lastNameElement = page.locator(CommonPortalLocators.lastNameInput);
@@ -65,9 +64,11 @@ export abstract class BasePage {
 
       await jobTitleElement.nth(i).fill(invitedMembers[i].jobTitle!);
 
-      await this.dropdown.selectByText(TeamAdditionLocator.roleInput, invitedMembers[i].invitedRole!);
+      await this.dropdown.selectByText(TeamAdditionLocator.roleInput, invitedMembers[i].invitedRole!, page);
     }
 
     await page.locator(CommonPortalLocators.sendInviteButton).click();
+
+    await delay(10000);
   }
 }

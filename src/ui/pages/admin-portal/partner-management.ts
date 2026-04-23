@@ -37,12 +37,7 @@ export class PartnerManagementPage extends BasePage {
       throw new Error("Department name does not exist or is empty");
     }
 
-    try {
-      await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo.departmentName);
-    } catch (error) {
-      (await this.getLocator(CreateNewPartnerModalLocator.department)).click();
-      await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo.departmentName);
-    }
+    await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo.departmentName);
 
     await delay(3000);
 
@@ -141,7 +136,7 @@ export class PartnerManagementPage extends BasePage {
     return this.page;
   }
 
-  public async addMoreMembers(partner: Partner, invitedMembers: UserInfo[], onboardingFlow: OnboardingFlow, tempEmailFreePage: TempEmailFreePage, page = this.page): Promise<void> {
+  public async addMoreMembers(partner: Partner, invitedMembers: UserInfo[], page = this.page): Promise<void> {
     if (invitedMembers?.length === 0) throw new Error("There is no any member to add");
 
     const partnerPhoneNumber = partner.accountInfo?.phoneNumber;
@@ -158,7 +153,7 @@ export class PartnerManagementPage extends BasePage {
 
     await (await this.getLocator(DetailOfPartnerLocator.addMemberButton)).click();
 
-    this.inviteMembersByEmail(page, invitedMembers, onboardingFlow, tempEmailFreePage);
+    this.inviteMembersByEmail(invitedMembers, page);
   }
 
   async filter(partFilterInfo: IPartnerFilter): Promise<string> {
@@ -295,5 +290,9 @@ export class PartnerManagementPage extends BasePage {
     const duplicatedEmailEl = await this.getLocator(duplicatedEmailText);
 
     return duplicatedEmailEl;
+  }
+
+  public async refreshPage(page = this.page): Promise<void> {
+    await page.reload();
   }
 }

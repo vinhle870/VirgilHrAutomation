@@ -33,22 +33,16 @@ export class DropdownComponent extends BaseComponent {
    * @param optionListSelector  optional selector scoping where options appear
    * @param timeout             optional timeout in ms
    */
-  async selectByText(dropdownSelector: string, optionText: string, optionListSelector?: string, timeout = 60000): Promise<void> {
+  async selectByText(dropdownSelector: string, optionText: string, page = this.page, optionListSelector?: string, timeout = 60000): Promise<void> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(effectiveTimeout);
 
-    const dropdown = this.page.locator(dropdownSelector);
+    const dropdown = page.locator(dropdownSelector);
     await this.waitAndClick(dropdown, effectiveTimeout);
 
-    try {
-      const scope = optionListSelector ? this.page.locator(optionListSelector) : this.page;
-      const option = scope.getByText(optionText, { exact: true });
-      await this.waitAndClick(option, effectiveTimeout);
-    } catch (error) {
-      await this.waitAndClick(dropdown, effectiveTimeout);
-
-      this.selectByText(dropdownSelector, optionText, optionListSelector, timeout);
-    }
+    const scope = optionListSelector ? page.locator(optionListSelector) : page;
+    const option = scope.getByText(optionText, { exact: true });
+    await this.waitAndClick(option, effectiveTimeout);
   }
 
   /**

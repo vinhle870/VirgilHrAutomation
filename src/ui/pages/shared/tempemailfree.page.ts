@@ -45,12 +45,17 @@ export class TempEmailFreePage extends BasePage {
   public async acceptJoinTeam(username: string): Promise<void> {
     await this.createNewEmail(username);
 
+    if (TempEmailFreeLocators.portalCredential.includes("Partner")) TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("Partner", "Join your team");
+    else if (TempEmailFreeLocators.portalCredential.includes("User")) TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("User", "Join your team");
+    else if (TempEmailFreeLocators.portalCredential.includes("Consumer")) TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("Consumer", "Join your team");
+    else TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("portalValue", "Join your team");
+
     try {
-      const joinTeamModalElement = await this.getLocator(TempEmailFreeLocators.joinTeamModal);
-      await joinTeamModalElement.click();
-    } catch (e) {
-      const joinTeamModalElement = await this.getLocator(TempEmailFreeLocators.joinTeamModal);
-      await joinTeamModalElement.click();
+      await (await this.getLocator(TempEmailFreeLocators.portalCredential)).first().click();
+    } catch (error) {
+      await (await this.getLocator(TempEmailFreeLocators.refreshButton)).click();
+
+      await (await this.getLocator(TempEmailFreeLocators.portalCredential)).first().click();
     }
 
     const acceptInviteButtonElement = await this.getLocatorInIframe(TempEmailFreeLocators.iframeToAcceptIvite, TempEmailFreeLocators.acceptInviteButton);

@@ -802,7 +802,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     });
     const invitedMembers: UserInfo[] = await CustomerFactory.generateMembers(1);
 
-    await partnerManagementPage.addMoreMembers(partnerInfo, invitedMembers, onboardingFlow, tempEmailFreePage);
+    await partnerManagementPage.addMoreMembers(partnerInfo, invitedMembers);
   });
 
   test("Filter partner in partner management", async ({ loginAdminPage, partnerManagementPage }, testInfo) => {
