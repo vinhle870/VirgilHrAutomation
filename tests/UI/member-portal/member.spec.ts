@@ -104,7 +104,6 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
           .withBankTransfer(true)
-          //   .withEmail("QATest_Daron56@polandcampus.edu.pl")
           .withProductsType([process.env.PLAN!])
           .build();
       });
@@ -190,9 +189,9 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
   );
 
   test(
-    "TC50",
+    "TC56",
     {
-      tag: "@After a successful payment, the partner user is redirected to the Partner Homepage.",
+      tag: "@Verify that the admin can invite members to a team in the Admin Portal – Customer Management.",
     },
     async ({ loginAdminPage, partnerManagementPage, onboardingFlow, tempEmailFreePage, purchaseFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
@@ -222,19 +221,16 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
       });
 
-      await test.step("Verify newPartner is created successfully", async () => {
-        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
+      let owner;
+      let newPartnerPage: Page;
+      await test.step("Create a new Business", async () => {
+        newPartnerPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!);
+        owner = await onboardingFlow.createBusiness(newPartnerPage!, partnerInfo!, partnerInfo!);
       });
 
-      let partnerPage: any;
-      await test.step("Buy plan through Stripe", async () => {
-        partnerPage = await onboardingFlow.buyPlanInPartnerPortal(tempEmailFreePage, purchaseFlow, partnerInfo!);
-      });
-
-      await test.step("Verify the partner user is redirected to the Partner Homepage after a successful payment", async () => {
-        const homeTitle = await onboardingFlow.getHomeTitle(partnerPage);
-
-        await expect(homeTitle).toBeVisible({ timeout: 30000 });
+      await test.step("Verify the new Business is created successfully", async () => {
+        await expect(owner!).toBeVisible({ timeout: 10000 });
+        await newPartnerPage.close();
       });
     },
   );

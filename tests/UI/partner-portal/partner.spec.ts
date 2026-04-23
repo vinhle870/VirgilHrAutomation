@@ -287,9 +287,9 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
 
-      // await test.step("Login to Admin portal", async () => {
-      //   await loginAdminPage.login();
-      // });
+      await test.step("Login to Admin portal", async () => {
+        await loginAdminPage.login();
+      });
 
       let partnerInfo;
       await test.step("Create partner info", async () => {
@@ -301,14 +301,14 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .build();
       });
 
-      // let newPartner;
-      // await test.step("Create a new partner", async () => {
-      //   newPartner = await partnerManagementPage.createPartner(partnerInfo!);
-      // });
+      let newPartner;
+      await test.step("Create a new partner", async () => {
+        newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+      });
 
-      // await test.step("Verify newPartner is created successfully", async () => {
-      //   await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
-      // });
+      await test.step("Verify newPartner is created successfully", async () => {
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
+      });
 
       let newPartnerPage: Page;
       await test.step("Credential the partner", async () => {
@@ -335,6 +335,49 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       await test.step("Verify the partner account is the Owner of the Partner Team", async () => {
         const ownerRole = partnerPage.getOwnerRoleInClientPage(partnerInfo!.accountInfo!.email!, newPartnerPage);
         await expect(ownerRole).toBeVisible();
+      });
+    },
+  );
+  test(
+    "63",
+    { tag: "@Verify that the Partner Owner/Admin can create a new Business in the Clients page – Business tab." },
+    async ({ partnerManagementPage, loginAdminPage, onboardingFlow, tempEmailFreePage }, testInfo) => {
+      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
+
+      testInfo.skip(!base, "API_BASE_URL is not configured");
+
+      await test.step("Login to Admin portal", async () => {
+        await loginAdminPage.login();
+      });
+
+      let partnerInfo;
+      await test.step("Create partner info", async () => {
+        partnerInfo = await DataFactory.partnerBuilder()
+          .withDepartmentName(process.env.DEPARTMENT_NAME!)
+          .withPaymentOption("Member Portal Consumer")
+          .withProductsType([process.env.PLAN!])
+          .withEmail("QATest_Anderson360@polandcampus.edu.pl")
+          .build();
+      });
+
+      let newPartner;
+      await test.step("Create a new partner", async () => {
+        newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+      });
+
+      await test.step("Verify newPartner is created successfully", async () => {
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
+      });
+
+      let owner;
+      let newPartnerPage: Page;
+      await test.step("Create business", async () => {
+        newPartnerPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!);
+        owner = await onboardingFlow.createBusiness(newPartnerPage!, partnerInfo!, partnerInfo!);
+      });
+
+      await test.step("Verify the partner account is the Owner of all Businesses under it", async () => {
+        await expect(owner!).toBeVisible();
       });
     },
   );
