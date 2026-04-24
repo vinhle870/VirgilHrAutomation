@@ -10,7 +10,7 @@ import { time } from "console";
 export class MemberPortalPage extends BasePage {
   async setPasswordAndJoinTeam(page = this.page, password = "Password@123") {
     try {
-      await page.locator(CommonMemberPortalLocators.continueWithEmail).click();
+      await page.locator(CommonMemberPortalLocators.continueWithEmail).click({ timeout: 10000 });
     } catch (error) {
       console.error("There is no continue button");
     }

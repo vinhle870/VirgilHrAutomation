@@ -20,16 +20,21 @@ export class PartnerManagementPage extends BasePage {
     super(page);
   }
 
-  public async createPartner(partnerInfo: Partner, i = 0): Promise<Page> {
+  public async moveToPartnerCategory() {
     const managementCategory = await this.getLocator(CommonAdminPortalLocator.managementCategory);
-
     await managementCategory.click();
+  }
 
-    if (i === 0) {
-      const partnerManagementCategory = await this.getLocator(CommonAdminPortalLocator.partnerManagement);
+  public async moveToPartnerManagement() {
+    const partnerManagementCategory = await this.getLocator(CommonAdminPortalLocator.partnerManagement);
 
-      await partnerManagementCategory.click();
-    }
+    await partnerManagementCategory.click();
+  }
+
+  public async createPartner(partnerInfo: Partner, i = 0): Promise<Page> {
+    await this.moveToPartnerCategory();
+
+    if (i === 0) await this.moveToPartnerManagement();
 
     (await this.getLocator(CommonPartnerLocator.createNewPartnerButton)).click({ timeout: 5000 });
 

@@ -2,6 +2,7 @@ import delay from "src/utilities/delay";
 import { BasePage } from "../base-page";
 import { TempEmailFreeLocators } from "./locators";
 import { el } from "@faker-js/faker/.";
+import { Locator } from "playwright/test";
 
 export class TempEmailFreePage extends BasePage {
   public async createNewEmail(username: string, pageStatus = false) {
@@ -40,6 +41,12 @@ export class TempEmailFreePage extends BasePage {
     await newButtonElement.waitFor({ state: "visible" });
 
     if (pageStatus) return this.page;
+  }
+
+  public async getInvitationEmailLocator(page = this.page): Promise<Locator> {
+    TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("portalValue", "Partner");
+
+    return page.locator(TempEmailFreeLocators.portalCredential);
   }
 
   public async acceptJoinTeam(username: string): Promise<void> {
@@ -95,7 +102,7 @@ export class TempEmailFreePage extends BasePage {
     let loginbutton = credentialFrame.getByRole("link", { name: "Login" });
 
     try {
-      await loginbutton.click({ timeout: 1000 });
+      await loginbutton.click({ timeout: 5000 });
     } catch (error) {
       credentialFrame = this.page.frameLocator(TempEmailFreeLocators.credentialIframe).first();
 

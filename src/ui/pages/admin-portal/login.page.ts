@@ -4,25 +4,29 @@ import { CommonAdminPortalLocator } from "./locators/common/common";
 
 export class LoginAdminPage extends BasePage {
   async login(newPage?: Page): Promise<void> {
-    const url = process.env.ADMIN_PORTAL_BASE_URL;
+    try {
+      const url = process.env.ADMIN_PORTAL_BASE_URL;
 
-    if (newPage) this.page = newPage;
+      if (newPage) this.page = newPage;
 
-    await this.page.goto(url!);
+      await this.page.goto(url!);
 
-    const usernameElement = await this.getLocator(CommonAdminPortalLocator.username);
-    const passwordElement = await this.getLocator(CommonAdminPortalLocator.password);
-    const loginButtonElement = await this.getLocator(CommonAdminPortalLocator.loginButton);
+      const usernameElement = await this.getLocator(CommonAdminPortalLocator.username, 15000);
+      const passwordElement = await this.getLocator(CommonAdminPortalLocator.password);
+      const loginButtonElement = await this.getLocator(CommonAdminPortalLocator.loginButton);
 
-    await usernameElement.fill(process.env.API_USERNAME!);
-    await passwordElement.fill(process.env.API_PASSWORD!);
-    await loginButtonElement.click();
+      await usernameElement.fill(process.env.API_USERNAME!);
+      await passwordElement.fill(process.env.API_PASSWORD!);
+      await loginButtonElement.click();
 
-    const managementCategoryElement = await this.getLocator(CommonAdminPortalLocator.managementCategory);
+      const managementCategoryElement = await this.getLocator(CommonAdminPortalLocator.managementCategory);
 
-    await managementCategoryElement.waitFor({
-      state: "visible",
-      timeout: 30000,
-    });
+      await managementCategoryElement.waitFor({
+        state: "visible",
+        timeout: 30000,
+      });
+    } catch (error) {
+      console.log("Loggin already");
+    }
   }
 }

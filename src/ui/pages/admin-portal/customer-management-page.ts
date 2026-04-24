@@ -213,7 +213,7 @@ export class CustomerManagementPage extends BasePage {
 
     const rawDetailLocator = CommonCustomerLocator.detailButton;
 
-    const detailButtonLocator = rawDetailLocator.replace("phoneNumberValue", "+14048559724");
+    const detailButtonLocator = rawDetailLocator.replace("phoneNumberValue", memberPhoneNumber);
 
     await page.locator(detailButtonLocator).last().click();
 

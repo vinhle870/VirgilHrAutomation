@@ -112,9 +112,9 @@ export class OnboardingFlow {
       console.log("There is no modal");
     }
 
-    await PartnerPage.locator(CommonPartnerPortalLocator.clientButton).click({ timeout: 10000 });
+    await PartnerPage.locator(CommonPartnerPortalLocator.clientButton).click({ timeout: 30000 });
 
-    await PartnerPage.locator(BusinessLocator.businessTab).click({ timeout: 10000 });
+    await PartnerPage.locator(BusinessLocator.businessTab).click({ timeout: 30000 });
 
     await PartnerPage.locator(BusinessLocator.addBussinessButton).click({ timeout: 5000 });
 
@@ -135,9 +135,17 @@ export class OnboardingFlow {
       await PartnerPage.locator(BusinessLocator.jobTitleInput).fill(owner.jobTitle);
     }
 
-    await PartnerPage.locator(BusinessLocator.firstAddButton).click({ timeout: 20000 });
+    try {
+      await PartnerPage.locator(BusinessLocator.firstAddButton).click({ timeout: 5000 });
+    } catch (error) {
+      await PartnerPage.locator(BusinessLocator.firstAddButton).click({ timeout: 5000 });
+    }
 
-    await PartnerPage.locator(BusinessLocator.seccondAddButton).first().click({ timeout: 20000 });
+    try {
+      await PartnerPage.locator(BusinessLocator.seccondAddButton).first().click({ timeout: 5000 });
+    } catch (error) {
+      await PartnerPage.locator(BusinessLocator.seccondAddButton).first().click({ timeout: 5000 });
+    }
 
     await PartnerPage.locator(BusinessLocator.viewButton).click({ timeout: 20000 });
 
@@ -188,5 +196,9 @@ export class OnboardingFlow {
 
   public async moveToUserSettingPage(page = this.page): Promise<void> {
     await page.locator(CommonPortalLocators.userSettingsButton).click();
+  }
+
+  public async refreshPage() {
+    await this.page.reload();
   }
 }
