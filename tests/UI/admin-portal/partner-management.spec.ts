@@ -4,9 +4,9 @@ import { CustomerFactory } from "src/data-factory/customer-factory";
 import { BuyPlanLocators, TempEmailFreeLocators } from "src/ui/pages/shared/locators";
 import paymentScenarios from "../../../mock-data.json";
 import { Partner } from "src/objects";
+import { Page } from "playwright/test";
 
 test.describe("E2E -> Admin Portal -> Partner Management", () => {
-  test.describe.configure({ retries: 3 });
   test(
     "TC30 Verify that a partner account can only be created in the Admin Portal – Partner Management.",
     {
@@ -253,8 +253,6 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new business", async () => {
-        if (partnerPage === null && partnerInfo.accountInfo?.email) await loginPage.fillLoginForm("partner-virgilhr-qa.bigin.top/auth/login", partnerInfo.accountInfo!.email);
-
         const owner = await onboardingFlow.createBusiness(partnerPage!, partnerInfo!);
         await test.step("Verify owner", async () => {
           await expect(owner!).toBeVisible();
@@ -268,7 +266,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC36",
     },
-    async ({ loginAdminPage: loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage }, testInfo) => {
+    async ({ loginAdminPage: loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage, partnerPage }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -277,7 +275,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
+      let partnerInfo: any;
       await test.step("Create partner info", async () => {
         partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Partner/Consultant Owner").withProductsType([process.env.PLAN!]).build();
       });
@@ -288,17 +286,12 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify the partner is created successfully", async () => {
-        try {
-          await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 5000 });
-        } catch (error) {
-          await onboardingFlow.refreshPage();
-          await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible();
-        }
+        await partnerPage.verifyPartnerVisible(partnerInfo);
       });
 
-      let partnerPage;
+      let newPartnerPage;
       await test.step("Credential partner", async () => {
-        partnerPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!);
+        newPartnerPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!);
       });
 
       let ownerAccount;
@@ -307,7 +300,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create owner", async () => {
-        const owner = await onboardingFlow.createBusiness(partnerPage!, partnerInfo!, ownerAccount!);
+        const owner = await onboardingFlow.createBusiness(newPartnerPage!, partnerInfo!, ownerAccount!);
 
         await expect(owner!).toBeVisible();
       });
@@ -319,7 +312,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC37",
     },
-    async ({ loginAdminPage: loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage, purchaseFlow }, testInfo) => {
+    async ({ loginAdminPage: loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage, purchaseFlow, partnerPage }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -328,40 +321,36 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
+      let partnerInfo: Partner;
       await test.step("Create partner info", async () => {
         partnerInfo = await DataFactory.partnerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
           .withProductsType([process.env.PLAN!])
-          .withBankTransfer(false)
+          .withBankTransfer(true)
           .build();
       });
 
-      let newPartner;
+      let newPartner: Page;
       await test.step("Create a new partner", async () => {
         newPartner = await partnerManagementPage.createPartner(partnerInfo!);
       });
 
       await test.step("Verify the partner is created successfully", async () => {
-        try {
-          await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
-        } catch (error) {
-          await onboardingFlow.refreshPage();
-          await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
-        }
+        await partnerPage.verifyPartnerVisible(partnerInfo!);
       });
 
-      await test.step("Buy plan in partner portal", async () => {
-        await onboardingFlow.buyPlanInPartnerPortal(tempEmailFreePage, purchaseFlow, partnerInfo!);
+      await test.step("Credential partner", async () => {
+        if (partnerInfo.accountInfo?.email) await onboardingFlow.credential(tempEmailFreePage, partnerInfo.accountInfo.email);
       });
 
+      let userPage;
       await test.step("Crendential member", async () => {
-        await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!, "Member");
+        userPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!, "Member");
       });
 
       await test.step("Verify benifits", async () => {
-        const homeTitle = await onboardingFlow.getHomeTitle();
+        let homeTitle = await onboardingFlow.getHomeTitle(userPage!, 10000);
 
         await expect(homeTitle).toBeVisible({ timeout: 30000 });
       });

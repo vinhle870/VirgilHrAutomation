@@ -82,23 +82,19 @@ export class OnboardingFlow {
   }
 
   public async buyPlanInPartnerPortal(tempEmailFreePage: TempEmailFreePage, purchaseFlow: PurchaseFlow, partnerInfo: Partner): Promise<Page | null> {
+    if (partnerInfo.partnerInfo?.bankTransfer === true) throw new Error("Making payment is done in admin portal");
+
+    if (partnerInfo.partnerInfo?.paymentOption !== "Partner/Consultant Owner") throw new Error("Payment option must be Partner/Consultant Owner");
+
+    const partnerPage = await this.credential(tempEmailFreePage, partnerInfo.accountInfo?.email!);
+
     try {
-      if (partnerInfo.partnerInfo?.bankTransfer === true) throw new Error("Making payment is done in admin portal");
-
-      if (partnerInfo.partnerInfo?.paymentOption !== "Partner/Consultant Owner") throw new Error("Payment option must be Partner/Consultant Owner");
-
-      const partnerPage = await this.credential(tempEmailFreePage, partnerInfo.accountInfo?.email!);
-
-      try {
-        await purchaseFlow.buyPlan("", partnerInfo.accountInfo!.email, partnerPage);
-      } catch (error) {
-        console.log("Already bought a plan");
-      }
-
-      return partnerPage;
+      await purchaseFlow.buyPlan("", partnerInfo.accountInfo!.email, partnerPage);
     } catch (error) {
-      return null;
+      console.log("Already bought a plan");
     }
+
+    return partnerPage;
   }
 
   public async createBusiness(partnerPage = this.page, partnerInfo: Partner, owner?: UserInfo) {
@@ -171,9 +167,9 @@ export class OnboardingFlow {
     return page!;
   }
 
-  public async getHomeTitle(page?: Page) {
-    const locator = (page || this.page).getByRole("heading", { level: 2, name: "Home" });
-    await locator.waitFor({ state: "visible", timeout: 600000000 });
+  public async getHomeTitle(page = this.page, timeout = 600000000) {
+    const locator = page.getByRole("heading", { level: 2, name: "Home" });
+    await locator.waitFor({ state: "visible", timeout });
     return locator;
   }
 
@@ -207,7 +203,7 @@ export class OnboardingFlow {
     await page.locator(CommonPortalLocators.userSettingsButton).click();
   }
 
-  public async refreshPage() {
-    await this.page.reload();
+  public async refreshPage(page = this.page) {
+    await page.reload();
   }
 }
