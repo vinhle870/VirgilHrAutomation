@@ -24,7 +24,7 @@ export class PurchaseFlow {
   }
 
   async handbleParrtnerPageToBuyPlan(url: string, email: string, partnerPage: Page) {
-    await new BuyPlanPage(partnerPage).handbleParrtnerPageToBuyPlan(url, email);
+    await new BuyPlanPage(partnerPage).handblePartnerPageToBuyPlan(url, email);
   }
 
   async getTripeElements(partnerPage: Page) {

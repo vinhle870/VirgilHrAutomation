@@ -16,7 +16,7 @@ export class BuyPlanPage extends BasePage {
    * @param password: string
    * @param cardinfo: object
    */
-  public async handbleParrtnerPageToBuyPlan(url: string, email: string) {
+  public async handblePartnerPageToBuyPlan(url: string, email: string) {
     const logger = (console.debug ?? console.log).bind(console);
     logger(`==================[Plan Purchase] url: ${url}, email: ${email}\n`);
 
@@ -30,7 +30,7 @@ export class BuyPlanPage extends BasePage {
   }
 
   public async fillBuyPlanForm(url: string, email: string): Promise<void> {
-    await this.handbleParrtnerPageToBuyPlan(url, email);
+    await this.handblePartnerPageToBuyPlan(url, email);
 
     await this.fillBuyPlanFormWithInvalidCard();
   }
@@ -77,6 +77,12 @@ export class BuyPlanPage extends BasePage {
     } catch (error) {
       btnSubscribe = await this.getLocatorInIframe(iframe, BuyPlanLocators.subscribe);
       await btnSubscribe.click();
+    }
+
+    try {
+      await this.page.waitForLoadState("domcontentloaded", { timeout: 5000 });
+    } catch (error) {
+      console.log("Continue");
     }
 
     await delay(10000);

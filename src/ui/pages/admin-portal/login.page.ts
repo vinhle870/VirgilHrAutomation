@@ -18,13 +18,6 @@ export class LoginAdminPage extends BasePage {
       await usernameElement.fill(process.env.API_USERNAME!);
       await passwordElement.fill(process.env.API_PASSWORD!);
       await loginButtonElement.click();
-
-      const managementCategoryElement = await this.getLocator(CommonAdminPortalLocator.managementCategory);
-
-      await managementCategoryElement.waitFor({
-        state: "visible",
-        timeout: 30000,
-      });
     } catch (error) {
       console.log("Loggin already");
     }

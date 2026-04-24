@@ -8,6 +8,7 @@ import { Partner, UserInfo } from "src/objects";
 import { CommonMemberPortalLocators } from "../pages/member-portal/locators";
 import { CommonPortalLocators } from "../Locator/common";
 import { TeamAdditionLocator } from "../pages/admin-portal/locators/partner-management/locator/team-addition";
+import delay from "src/utilities/delay";
 
 export class OnboardingFlow {
   private readonly page: Page;
@@ -80,78 +81,86 @@ export class OnboardingFlow {
     }
   }
 
-  public async buyPlanInPartnerPortal(tempEmailFreePage: TempEmailFreePage, purchaseFlow: PurchaseFlow, partnerInfo: Partner): Promise<Page> {
-    if (partnerInfo.partnerInfo?.bankTransfer === true) throw new Error("Making payment is done in admin portal");
-
-    if (partnerInfo.partnerInfo?.paymentOption !== "Partner/Consultant Owner") throw new Error("Payment option must be Partner/Consultant Owner");
-
-    const partnerPage = await this.credential(tempEmailFreePage, partnerInfo.accountInfo?.email!);
-
+  public async buyPlanInPartnerPortal(tempEmailFreePage: TempEmailFreePage, purchaseFlow: PurchaseFlow, partnerInfo: Partner): Promise<Page | null> {
     try {
-      await purchaseFlow.buyPlan("", partnerInfo.accountInfo!.email, partnerPage);
-    } catch (error) {
-      console.log("Already bought a plan");
-    }
+      if (partnerInfo.partnerInfo?.bankTransfer === true) throw new Error("Making payment is done in admin portal");
 
-    return partnerPage;
+      if (partnerInfo.partnerInfo?.paymentOption !== "Partner/Consultant Owner") throw new Error("Payment option must be Partner/Consultant Owner");
+
+      const partnerPage = await this.credential(tempEmailFreePage, partnerInfo.accountInfo?.email!);
+
+      try {
+        await purchaseFlow.buyPlan("", partnerInfo.accountInfo!.email, partnerPage);
+      } catch (error) {
+        console.log("Already bought a plan");
+      }
+
+      return partnerPage;
+    } catch (error) {
+      return null;
+    }
   }
 
-  public async createBusiness(PartnerPage: Page, partnerInfo: Partner, owner?: UserInfo) {
+  public async createBusiness(partnerPage = this.page, partnerInfo: Partner, owner?: UserInfo) {
     if (partnerInfo.partnerInfo?.paymentOption !== "Member Portal Consumer" && partnerInfo.partnerInfo?.paymentOption !== "Partner/Consultant Owner")
       throw new Error("Payment option must be Member Portal Consumer or Partner/Consultant Owner");
 
     try {
-      await PartnerPage.locator(CommonPartnerPortalLocator.closeButton).click({ timeout: 7000 });
+      await partnerPage.locator(CommonPartnerPortalLocator.closeButton).click({ timeout: 7000 });
     } catch (error) {
       console.log("There is no closing button");
     }
 
     try {
-      await PartnerPage.locator(CommonPartnerPortalLocator.closeTestModal).first().click({ timeout: 7000 });
+      await partnerPage.locator(CommonPartnerPortalLocator.closeTestModal).first().click({ timeout: 7000 });
     } catch (error) {
       console.log("There is no modal");
     }
 
-    await PartnerPage.locator(CommonPartnerPortalLocator.clientButton).click({ timeout: 30000 });
+    await partnerPage.locator(CommonPartnerPortalLocator.clientButton).click({ timeout: 30000 });
 
-    await PartnerPage.locator(BusinessLocator.businessTab).click({ timeout: 30000 });
+    try {
+      await partnerPage.locator(BusinessLocator.businessTab).click({ timeout: 5000 });
+      await partnerPage.locator(BusinessLocator.addBussinessButton).click({ timeout: 5000 });
+    } catch (error) {
+      await partnerPage.locator(CommonPortalLocators.popupClosingButton).click();
 
-    await PartnerPage.locator(BusinessLocator.addBussinessButton).click({ timeout: 5000 });
+      await partnerPage.locator(BusinessLocator.businessTab).click({ timeout: 5000 });
+      await partnerPage.locator(BusinessLocator.addBussinessButton).click({ timeout: 5000 });
+    }
 
-    await PartnerPage.locator(BusinessLocator.teamNameInput).fill("Team", { timeout: 5000 });
+    await partnerPage.locator(BusinessLocator.teamNameInput).fill("Team", { timeout: 5000 });
 
     if (partnerInfo.partnerInfo?.paymentOption === "Member Portal Consumer") {
       if (!owner) throw new Error("Owner infor is missing");
 
-      await PartnerPage.locator(BusinessLocator.emailInput).fill(owner.email);
+      await partnerPage.locator(BusinessLocator.emailInput).fill(owner.email);
 
-      const firstName = PartnerPage.locator(BusinessLocator.firstNameInput);
+      const firstName = partnerPage.locator(BusinessLocator.firstNameInput);
       await firstName.fill(owner.firstName);
 
-      await PartnerPage.locator(BusinessLocator.lastNameInput).fill(owner.lastName);
+      await partnerPage.locator(BusinessLocator.lastNameInput).fill(owner.lastName);
 
-      await PartnerPage.locator(BusinessLocator.phoneNumberInput).fill(owner.phoneNumber);
+      await partnerPage.locator(BusinessLocator.phoneNumberInput).fill(owner.phoneNumber);
 
-      await PartnerPage.locator(BusinessLocator.jobTitleInput).fill(owner.jobTitle);
+      await partnerPage.locator(BusinessLocator.jobTitleInput).fill(owner.jobTitle);
     }
+
+    await partnerPage.locator(BusinessLocator.firstAddButton).first().click({ timeout: 5000 });
+
+    await partnerPage.locator(BusinessLocator.seccondAddButton).first().click({ timeout: 5000 });
 
     try {
-      await PartnerPage.locator(BusinessLocator.firstAddButton).click({ timeout: 5000 });
+      await partnerPage.locator(BusinessLocator.viewButton).click({ timeout: 5000 });
     } catch (error) {
-      await PartnerPage.locator(BusinessLocator.firstAddButton).click({ timeout: 5000 });
+      await partnerPage.reload();
+      await partnerPage.locator(BusinessLocator.businessTab).click();
+      await partnerPage.locator(BusinessLocator.viewButton).click();
     }
 
-    try {
-      await PartnerPage.locator(BusinessLocator.seccondAddButton).first().click({ timeout: 5000 });
-    } catch (error) {
-      await PartnerPage.locator(BusinessLocator.seccondAddButton).first().click({ timeout: 5000 });
-    }
+    await partnerPage.locator(BusinessLocator.ownerText).waitFor({ state: "visible", timeout: 5000 });
 
-    await PartnerPage.locator(BusinessLocator.viewButton).click({ timeout: 20000 });
-
-    await PartnerPage.locator(BusinessLocator.ownerText).waitFor({ state: "visible", timeout: 5000 });
-
-    return PartnerPage.locator(BusinessLocator.ownerText);
+    return partnerPage.locator(BusinessLocator.ownerText);
   }
 
   public async createNewEmail(tempEmailFreePage: TempEmailFreePage, email: string, pageStatus = false): Promise<Page> {

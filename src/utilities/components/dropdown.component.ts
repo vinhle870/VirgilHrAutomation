@@ -33,7 +33,7 @@ export class DropdownComponent extends BaseComponent {
    * @param optionListSelector  optional selector scoping where options appear
    * @param timeout             optional timeout in ms
    */
-  async selectByText(dropdownSelector: string, optionText: string, page = this.page, optionListSelector?: string, timeout = 60000): Promise<void> {
+  async selectByText(dropdownSelector: string, optionText: string, page = this.page, timeout = 60000, optionListSelector?: string): Promise<void> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(effectiveTimeout);
 

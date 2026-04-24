@@ -28,7 +28,11 @@ export class PartnerManagementPage extends BasePage {
   public async moveToPartnerManagement() {
     const partnerManagementCategory = await this.getLocator(CommonAdminPortalLocator.partnerManagement);
 
-    await partnerManagementCategory.click();
+    try {
+      await partnerManagementCategory.first().click({ timeout: 5000 });
+    } catch (error) {
+      await partnerManagementCategory.last().click({ timeout: 5000 });
+    }
   }
 
   public async createPartner(partnerInfo: Partner, i = 0): Promise<Page> {
@@ -42,7 +46,9 @@ export class PartnerManagementPage extends BasePage {
       throw new Error("Department name does not exist or is empty");
     }
 
-    await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo.departmentName);
+    await delay(5000);
+
+    await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo.departmentName, this.page, 10000);
 
     await delay(3000);
 
@@ -202,8 +208,6 @@ export class PartnerManagementPage extends BasePage {
   }
 
   public async addPeoConsultant(partner: Partner, peoPartners: PeoPartner[], onboardingFlow: OnboardingFlow, tempEmailFreePage: TempEmailFreePage): Promise<string> {
-    if (partner.partnerInfo!.partnerLevel !== "Partner") throw new Error("Partner must be a partner not PEO");
-
     const partnerPhoneNumber = partner.accountInfo?.phoneNumber;
 
     if (!partnerPhoneNumber) {

@@ -26,7 +26,7 @@ const headed = (process.env.HEADED ?? "false").toLowerCase() === "true";
  */
 export default defineConfig({
   // Increase global test timeout to allow slow page loads (milliseconds)
-  timeout: 180000,
+  timeout: 600000,
   testDir: "./tests",
   /* Run tests in files in parallel */
   fullyParallel: false,

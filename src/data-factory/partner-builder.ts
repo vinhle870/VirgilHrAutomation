@@ -230,23 +230,21 @@ export class PartnerBuilder {
     const o = this.partnerOverrides;
 
     // Generate person data via shared generator (faker only, no API)
-    const accountInfo = await PersonDataGenerator.generate(
-      this.accountOverrides,
-    );
+    const accountInfo = await PersonDataGenerator.generate(this.accountOverrides);
     partner.accountInfo = accountInfo;
 
     // Build partner-specific fields
-    const seq = DataGenerate.getRandomInt(1, 9999);
-    const name = o.name ?? `${accountInfo.firstName}${seq}`;
+    const seq1 = DataGenerate.getRandomInt(1, 9999);
+    const seq2 = DataGenerate.getRandomInt(1, 99);
+
+    const name = o.name ?? `${accountInfo.firstName}${seq1}${seq2}`;
     const subDomain = o.subDomain ?? name;
     const bankTransfer = o.bankTransfer ?? DataGenerate.generateBoolean();
 
     // Build user info block for partner payload
 
     // Build restriction from provided values (no API calls)
-    const feFilterProductTypes = this.restrictionOptions.feFilterProductTypes
-      ? this.restrictionOptions.feFilterProductTypes.map((p) => p.productType)
-      : this.feFilterProductTypesValue;
+    const feFilterProductTypes = this.restrictionOptions.feFilterProductTypes ? this.restrictionOptions.feFilterProductTypes.map((p) => p.productType) : this.feFilterProductTypesValue;
 
     const restriction = {
       eSignEnable: this.restrictionOptions.eSignEnable ?? true,
@@ -272,8 +270,7 @@ export class PartnerBuilder {
       apiEnable: o.apiEnable ?? false,
       departmentId: o.departmentId ?? "688897d5eb52b4af5573def4",
       bankTransfer,
-      canCustomUpdatePlan:
-        o.canCustomUpdatePlan ?? DataGenerate.generateBoolean(),
+      canCustomUpdatePlan: o.canCustomUpdatePlan ?? DataGenerate.generateBoolean(),
       companyType: o.companyType ?? (DataGenerate.generateBoolean() ? 1 : 0),
       isPublic: o.isPublic ?? DataGenerate.generateBoolean(),
       level: o.level ?? 0,
