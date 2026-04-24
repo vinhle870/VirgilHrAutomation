@@ -1,6 +1,6 @@
 import { Locator, Page } from "@playwright/test";
 import { BasePage } from "src/ui/pages/base-page";
-import { CommonLocator } from "./locators/common.locator";
+import { CommonAdminPortalLocator } from "./locators/common/common";
 import { CommonPartnerLocator } from "./locators/partner-management/locator/common";
 import { CreateNewPartnerModalLocator } from "./locators/partner-management/locator/new-partner";
 import delay from "src/utilities/delay";
@@ -21,12 +21,12 @@ export class PartnerManagementPage extends BasePage {
   }
 
   public async createPartner(partnerInfo: Partner, i = 0): Promise<Page> {
-    const managementCategory = await this.getLocator(CommonLocator.managementCategory);
+    const managementCategory = await this.getLocator(CommonAdminPortalLocator.managementCategory);
 
     await managementCategory.click();
 
     if (i === 0) {
-      const partnerManagementCategory = await this.getLocator(CommonLocator.partnerManagement);
+      const partnerManagementCategory = await this.getLocator(CommonAdminPortalLocator.partnerManagement);
 
       await partnerManagementCategory.click();
     }
@@ -181,11 +181,11 @@ export class PartnerManagementPage extends BasePage {
 
   public async sorting(typeOfSorting: string): Promise<string> {
     try {
-      const managementCategory = await this.getLocator(CommonLocator.managementCategory);
+      const managementCategory = await this.getLocator(CommonAdminPortalLocator.managementCategory);
 
       await managementCategory.click();
 
-      const partnerManagementCategory = await this.getLocator(CommonLocator.partnerManagement);
+      const partnerManagementCategory = await this.getLocator(CommonAdminPortalLocator.partnerManagement);
 
       await partnerManagementCategory.click();
 

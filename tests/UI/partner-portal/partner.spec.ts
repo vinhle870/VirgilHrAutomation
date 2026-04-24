@@ -371,12 +371,12 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let owner;
       let newPartnerPage: Page;
-      await test.step("Create business", async () => {
+      await test.step("Create a new business via owner", async () => {
         newPartnerPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!);
         owner = await onboardingFlow.createBusiness(newPartnerPage!, partnerInfo!, partnerInfo!);
       });
 
-      await test.step("Verify the partner account is the Owner of all Businesses under it", async () => {
+      await test.step("Verify the business created by owner is displayed", async () => {
         await expect(owner!).toBeVisible();
       });
     },

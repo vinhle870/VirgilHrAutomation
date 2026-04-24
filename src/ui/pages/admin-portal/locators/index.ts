@@ -1,2 +1,2 @@
-export * from "./admin-home.locators";
-export * from "./admin-leftmenu.locators";
+export * from "./common/admin-home";
+export * from "./common/admin-leftmenu";

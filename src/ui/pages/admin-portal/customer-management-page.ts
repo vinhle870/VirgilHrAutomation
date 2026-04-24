@@ -1,13 +1,15 @@
 import { Locator, Page } from "@playwright/test";
 import { BasePage } from "src/ui/pages/base-page";
-import { CommonLocator } from "./locators/common.locator";
-import { CustomerInfo, UserInfo } from "src/objects";
+import { CommonAdminPortalLocator } from "./locators/common/common";
+import { CustomerInfo, Partner, UserInfo } from "src/objects";
 import { CommonCustomerLocator } from "./locators/customer-management/common";
 import delay from "src/utilities/delay";
 import { CreateNewCustomerModalLocator } from "./locators/customer-management/new-customer";
 import { CreateNewPartnerModalLocator } from "./locators/partner-management/locator/new-partner";
 import { CustomerDetailLocator } from "./locators/customer-management/detail";
 import { UpgradePlanLocator } from "./locators/customer-management/upgrade-plan";
+import { CommonPartnerLocator } from "./locators/partner-management/locator/common";
+import { TeamInfoLocator } from "./locators/customer-management/team-imformation";
 
 export class CustomerManagementPage extends BasePage {
   constructor(page: Page) {
@@ -15,11 +17,11 @@ export class CustomerManagementPage extends BasePage {
   }
 
   public async createCustomer(customer: CustomerInfo): Promise<Locator> {
-    const managementCategory = await this.getLocator(CommonLocator.managementCategory);
+    const managementCategory = await this.getLocator(CommonAdminPortalLocator.managementCategory);
 
     await managementCategory.click();
 
-    const customerManagementCategory = await this.getLocator(CommonLocator.customerManagement);
+    const customerManagementCategory = await this.getLocator(CommonAdminPortalLocator.customerManagement);
 
     await customerManagementCategory.click();
 
@@ -157,11 +159,11 @@ export class CustomerManagementPage extends BasePage {
 
     if (!phoneNumber) throw new Error("The phone number does not exist");
 
-    const managementCategory = await this.getLocator(CommonLocator.managementCategory);
+    const managementCategory = await this.getLocator(CommonAdminPortalLocator.managementCategory);
 
     await managementCategory.click();
 
-    const customerManagementCategory = await this.getLocator(CommonLocator.customerManagement);
+    const customerManagementCategory = await this.getLocator(CommonAdminPortalLocator.customerManagement);
 
     await customerManagementCategory.click();
 
@@ -195,5 +197,34 @@ export class CustomerManagementPage extends BasePage {
 
       await (await this.getLocator(UpgradePlanLocator.upgradeNowButton)).click();
     } else await (await this.getLocator(UpgradePlanLocator.requestPaymentButton)).click();
+  }
+
+  public async inviteMember(member: Partner, invitedMembers: UserInfo[], page = this.page) {
+    if (invitedMembers?.length === 0) throw new Error("There is no any member to add");
+
+    const memberPhoneNumber = member.accountInfo?.phoneNumber;
+
+    if (!memberPhoneNumber) {
+      throw new Error("Partner phone number is missing");
+    }
+    await page.locator(CommonAdminPortalLocator.managementCategory).click();
+
+    await page.locator(CommonAdminPortalLocator.customerManagement).click();
+
+    const rawDetailLocator = CommonCustomerLocator.detailButton;
+
+    const detailButtonLocator = rawDetailLocator.replace("phoneNumberValue", "+14048559724");
+
+    await page.locator(detailButtonLocator).last().click();
+
+    await page.locator(CustomerDetailLocator.viewDetailButton).click();
+
+    try {
+      await page.locator(TeamInfoLocator.addTeamButton).last().click();
+    } catch (error) {
+      await page.locator(TeamInfoLocator.addTeamButton).first().click();
+    }
+
+    await this.inviteMembersByEmail(invitedMembers, page);
   }
 }
