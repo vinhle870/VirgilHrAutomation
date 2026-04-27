@@ -10,7 +10,7 @@ import delay from "src/utilities/delay";
 test.describe(
   "Invite members to a team",
   {
-    tag: ["@API", "@Member Portal", "@Invite Members", "@Organization"],
+    tag: ["@API", "@Member Portal", "@Invite Members", "@Organization", "@TC54", "@TC55"],
   },
   () => {
   test("TC54 Verify that a user can invite members to a team in the Member Portal-Organization tab.",

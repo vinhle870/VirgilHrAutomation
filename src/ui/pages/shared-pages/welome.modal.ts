@@ -22,4 +22,7 @@ export class WelcomeModal extends BasePage {
     const urlRegex = new RegExp(`.*/home$`);
     await this.page.waitForURL(urlRegex);
   }
+
+
+
 }

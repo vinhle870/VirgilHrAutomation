@@ -1,62 +1,39 @@
-import {
-  virgilHRPlans as virgilHRPlansQa,
-  biginHRPlans as biginHRPlansQa,
-} from "./department.plan.qa";
-import {
-  virgilHRPlans as virgilHRPlansUat,
-  biginHRPlans as biginHRPlansUat,
-} from "./department.plan.uat";
+import { plans as qaPlans } from "./department.plan.qa";
+import { plans as uatPlans } from "./department.plan.uat";
 
-type DepartmentKind = "virgilhr" | "biginhr";
+const plansByEnv: Record<string, Record<string, string[]>> = {
+  qa: qaPlans,
+  uat: uatPlans,
+};
 
-function normalizeEnv(env?: string): string {
-  return (env ?? process.env.ENV ?? "qa").toLowerCase().trim();
+function normalizeEnv(): string {
+  return (process.env.ENV ?? process.env.exec_env ?? "qa").toLowerCase().trim();
+}
+
+function normalizeDepartmentKey(departmentName: string): string {
+  return departmentName.replace(/\s+/g, "").toLowerCase();
 }
 
 /**
- * Maps API / .env department labels to plan list keys.
- * Supports values like `VirgilHR`, `BiginHR`, `virgil hr`.
- */
-export function resolveDepartmentKind(departmentName: string): DepartmentKind {
-  const compact = departmentName.replace(/\s+/g, "").toLowerCase();
-  if (compact.includes("virgil")) {
-    return "virgilhr";
-  }
-  if (compact.includes("bigin")) {
-    return "biginhr";
-  }
-  throw new Error(
-    `Unknown department for plan resolution: "${departmentName}". Expected name to contain "Virgil" or "Bigin".`,
-  );
-}
-
-function planSetsForEnv(envLower: string): {
-  virgilHRPlans: string[];
-  biginHRPlans: string[];
-} {
-  switch (envLower) {
-    case "uat":
-      return {
-        virgilHRPlans: virgilHRPlansUat,
-        biginHRPlans: biginHRPlansUat,
-      };
-    case "qa":
-    default:
-      return {
-        virgilHRPlans: virgilHRPlansQa,
-        biginHRPlans: biginHRPlansQa,
-      };
-  }
-}
-
-/**
- * Ordered plan display names for a department, for the given environment
- * (`qa`, `qa1`, `uat`, …). Uses `process.env.ENV` when `env` is omitted.
+ * Returns ordered plan display names for a department in the current environment.
+ * Department is read from `process.env.DEPARTMENT_NAME` when omitted.
+ * Environment is read from `process.env.ENV` (or `exec_env`).
+ *
+ * To add a new department: add its normalized key (e.g. "newdepthr") to each
+ * `department.plan.*.ts` map — no changes required here.
  */
 export function getPlansForDepartment(
-  departmentName: string
+  departmentName: string = process.env.DEPARTMENT_NAME ?? "",
 ): string[] {
-  const kind = resolveDepartmentKind(departmentName);
-  const sets = planSetsForEnv(normalizeEnv(process.env.ENV));
-  return kind === "virgilhr" ? sets.virgilHRPlans : sets.biginHRPlans;
+  const env = normalizeEnv();
+  const key = normalizeDepartmentKey(departmentName);
+  const envPlans = plansByEnv[env] ?? plansByEnv["qa"];
+  const result = envPlans[key];
+  if (!result) {
+    throw new Error(
+      `No plans found for department "${departmentName}" (key: "${key}") in env "${env}". ` +
+        `Available departments: ${Object.keys(envPlans).join(", ")}`,
+    );
+  }
+  return result;
 }

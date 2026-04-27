@@ -261,7 +261,7 @@ test.describe(
         );
       });
 
-    test("Invite members from a customer with plan of 500+ in member portal",
+    test("Support Manual testing LML feature with large customer >500 - Invite members from a customer with plan of 500+ in member portal",
       {
         tag: [
           "@TC500+",

@@ -1,7 +1,7 @@
 import { expect, Locator } from "@playwright/test";
 import { BasePage } from "../base-page";
 import { MemberOnboardingLocators } from "./locators";
-import { CommonPortalLocators } from "src/ui/Locator/common";
+import { LoginFormLocators as CommonPortalLocators } from "../shared-pages/locators/login-form";
 
 export class MemberOnboardingPage extends BasePage {
   async setPasswordAndJoinTeam(password = "Password@123") {
@@ -36,14 +36,14 @@ export class MemberOnboardingPage extends BasePage {
   }
 
   async loginViaCredentialEmail(email: string, password = "Password@123", changedPasswordStatus = false) {
-    const emailField = this.page.locator(CommonPortalLocators.emailInput);
+    const emailField = this.page.locator(CommonPortalLocators.username);
     await emailField.waitFor({ state: "visible" });
     await emailField.fill(email!);
 
-    const passField = this.page.locator(CommonPortalLocators.passwordInput);
+    const passField = this.page.locator(CommonPortalLocators.password);
     await passField.fill(password!);
 
-    await this.page.locator(CommonPortalLocators.signInButton).click();
+    await this.page.locator(CommonPortalLocators.signIn).click();
 
     if (password !== "Password@123" && !changedPasswordStatus) {
       try {
@@ -59,12 +59,12 @@ export class MemberOnboardingPage extends BasePage {
 
     await (await this.getLocator(CommonPortalLocators.currentPasswordInput)).fill(password);
 
-    await (await this.getLocator(CommonPortalLocators.newPassword)).fill("Password@123");
+    await (await this.getLocator(CommonPortalLocators.newPasswordTxt)).fill("Password@123");
 
-    await (await this.getLocator(CommonPortalLocators.continueButton)).click();
+    await (await this.getLocator(CommonPortalLocators.continueBtn)).click();
 
     if (portal === "Member") await (await this.getLocator(MemberOnboardingLocators.completedSafely)).click({ timeout: 10000 });
 
-    await (await this.getLocator(CommonPortalLocators.continueButton)).click();
+    await (await this.getLocator(CommonPortalLocators.continueBtn)).click();
   }
 }

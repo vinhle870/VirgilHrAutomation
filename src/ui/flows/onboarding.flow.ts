@@ -1,93 +1,37 @@
-import { Page } from "@playwright/test";
-import { TempEmailFreePage } from "../pages/shared/tempemailfree.page";
+import { Locator, Page } from "@playwright/test";
+
 import { MemberOnboardingPage } from "../pages/member-portal/member-onboarding.page";
-import { PurchaseFlow } from "./purchase.flow";
+
 import { CommonPartnerPortalLocator } from "../pages/partner-portal/locators/common";
 import { BusinessLocator } from "../pages/partner-portal/locators/business";
 import { Partner, UserInfo } from "src/objects";
-import { MemberOnboardingLocators } from "../pages/member-portal/locators";
-import { CommonPortalLocators } from "../Locator/common";
+import { TempEmailFreePage } from "../pages/shared-pages/tempemailfree.page";
+import { LoginPage } from "../pages/shared-pages/login.page";
+import { LoginFormLocators } from "../pages/shared-pages/locators/login-form";
+import { PurchaseFlow } from "./purchase.flow";
+
+
+/**
+ * This flow class contains methods related to the onboarding process of both partner and member users, such as accepting invitations, credentialing, buying plans, and creating a business.
+*Flows:
+* Flow #1: Create Partner From different portals-> Add Partner member with different role
+* Flow #2: Create Partner from different portals -> Add Business -> Add team members
+* Flow #3: Create Customer Under Partner -> Add Business -> Add team members
+* Flow #4: Sign up Individual Customer from member portal
+
+*/
 
 export class OnboardingFlow {
   private readonly page: Page;
-  private memberOnboarding: MemberOnboardingPage;
-  private credentialPassword: string;
+
 
   constructor(page: Page) {
     this.page = page;
-    this.memberOnboarding = new MemberOnboardingPage(page);
-    this.credentialPassword = "";
+
   }
 
-  /**
-   * Accepts an invitation for the user by retrieving the link from YopMail
-   * and completing the onboarding steps.
-   */
-  async acceptInvitation(tempEmailFreePage: TempEmailFreePage, username: string): Promise<void> {
-    const [virgilPage] = await Promise.all([this.page.waitForEvent("popup"), tempEmailFreePage.acceptJoinTeam(username)]);
 
-    await this.page.waitForLoadState("domcontentloaded");
-
-    this.memberOnboarding = new MemberOnboardingPage(virgilPage);
-
-    await this.memberOnboarding.setPasswordAndJoinTeam();
-
-    await virgilPage.close();
-  }
-
-  public async credential(tempEmailFreePage: TempEmailFreePage, emailOfPartner: string, portal = "Partner", changedPasswordStatus = false): Promise<Page> {
-    const localPart = emailOfPartner.split("@")[0];
-
-    let elements;
-
-    if (portal === "Partner") elements = await tempEmailFreePage.credential(localPart!);
-    else if (portal === "Member") elements = await tempEmailFreePage.credential(localPart!, "Member");
-    else if (portal === "Consumer") elements = await tempEmailFreePage.credential(localPart!, "Consumer");
-
-    const credentialEmail = elements.email;
-    this.credentialPassword = elements.password;
-    const virgilPage = elements.credentialedPage;
-
-    this.memberOnboarding = new MemberOnboardingPage(virgilPage);
-
-    await this.memberOnboarding.loginViaCredentialEmail(credentialEmail, this.credentialPassword, changedPasswordStatus);
-
-    if (portal === "Member" || portal === "Consumer") this.closemodals(portal, virgilPage);
-
-    return virgilPage;
-  }
-
-  private async closemodals(portal: string, virgilPage: Page) {
-    try {
-      await virgilPage.locator(MemberOnboardingLocators.readyDiveIn).click({ timeout: 3000 });
-    } catch (error) {
-      console.log("There is no popup 'I am ready to divin'");
-    }
-
-    try {
-      for (let i = 0; i < 4; i++) await virgilPage.locator(MemberOnboardingLocators.gotItButton).click({ timeout: 3000 });
-    } catch (error) {
-      console.log("There is no popup 'Got it'");
-    }
-  }
-
-  public async buyPlanInPartnerPortal(tempEmailFreePage: TempEmailFreePage, purchaseFlow: PurchaseFlow, partnerInfo: Partner): Promise<Page> {
-    if (partnerInfo.partnerInfo?.bankTransfer === true) throw new Error("Making payment is done in admin portal");
-
-    if (partnerInfo.partnerInfo?.paymentOption !== "Partner/Consultant Owner") throw new Error("Payment option must be Partner/Consultant Owner");
-
-    const partnerPage = await this.credential(tempEmailFreePage, partnerInfo.accountInfo?.email!);
-
-    try {
-      await purchaseFlow.buyPlan("", partnerInfo.accountInfo!.email, partnerPage);
-    } catch (error) {
-      console.log("Already bought a plan");
-    }
-
-    return partnerPage;
-  }
-
-  public async createBusiness(PartnerPage: Page, partnerInfo: Partner, owner?: UserInfo) {
+  public async createBusinessFromPartnerPortal(PartnerPage: Page, partnerInfo: Partner, owner?: UserInfo) {
     if (partnerInfo.partnerInfo?.paymentOption !== "Member Portal Consumer" && partnerInfo.partnerInfo?.paymentOption !== "Partner/Consultant Owner")
       throw new Error("Payment option must be Member Portal Consumer or Partner/Consultant Owner");
 
@@ -137,13 +81,7 @@ export class OnboardingFlow {
     return PartnerPage.locator(BusinessLocator.ownerText);
   }
 
-  public async createNewEmail(tempEmailFreePage: TempEmailFreePage, email: string, pageStatus = false): Promise<Page> {
-    const username = email.split("@")[0];
 
-    const page = await tempEmailFreePage.createNewEmail(username, pageStatus);
-
-    return page!;
-  }
 
   public async getHomeTitle(page?: Page) {
     const locator = (page || this.page).getByRole("heading", { level: 2, name: "Home" });
@@ -151,29 +89,52 @@ export class OnboardingFlow {
     return locator;
   }
 
-  public async getChangePasswordElement(page: Page): Promise<any> {
-    await page.waitForURL(/.*change-password/);
+  public async activateAccountAndSetPassword(
+    tempEmailFreePage: TempEmailFreePage,
+    email: string,
+    portal: string = "Partner",
+    changePassword: boolean = false,
+  ): Promise<Page> {
+    const subject =
+      portal === "Member" || portal === "Consumer"
+        ? "HR Compliance: Your User Portal Credentials"
+        : "HR Compliance: Your Partner Portal Credentials";
+    const credential = await tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
+    const newPage = await tempEmailFreePage.currentPage.context().newPage();
+    await new LoginPage(newPage).fillLoginForm(credential.hrefValue!, email, credential.password!);
+    return newPage;
+  }
 
-    const currentPasswordInputElement = page.locator(CommonPortalLocators.currentPasswordInput);
-    const newPasswordElement = page.locator(CommonPortalLocators.newPassword);
+  public async buyPlanInPartnerPortal(tempEmailFreePage: TempEmailFreePage, purchaseFlow: PurchaseFlow, partnerInfo: Partner): Promise<Page> {
+    const partnerPage = await this.activateAccountAndSetPassword(tempEmailFreePage, partnerInfo.accountInfo!.email);
+    const planName = partnerInfo.partnerInfo!.productsType?.[0] ?? "";
+    await purchaseFlow.selectPlanBeforePurchase("", partnerInfo.accountInfo!.email, planName);
+    await purchaseFlow.submitSubscriptionPayment();
+    return partnerPage;
+  }
+
+  public async createNewEmail(tempEmailFreePage: TempEmailFreePage, email: string, navigateToInbox: boolean = false): Promise<Page> {
+    if (navigateToInbox) {
+      await tempEmailFreePage.currentPage.goto(process.env.MAILBOX_URL || "");
+    }
+    return tempEmailFreePage.currentPage;
+  }
+
+  public async getChangePasswordElement(page: Page): Promise<{ currentPasswordInputElement: Locator; newPasswordElement: Locator; url: string }> {
+    const currentPasswordInputElement = page.locator(LoginFormLocators.currentPasswordInput);
+    const newPasswordElement = page.locator(LoginFormLocators.newPasswordTxt);
     const url = page.url();
-
-    return {
-      currentPasswordInputElement,
-      newPasswordElement,
-      url,
-    };
+    return { currentPasswordInputElement, newPasswordElement, url };
   }
 
-  public async changePassword(page: Page, portal = "Partner") {
-    await page.locator(CommonPortalLocators.currentPasswordInput).fill(this.credentialPassword);
-
-    await page.locator(CommonPortalLocators.newPassword).fill("Password@123");
-
-    await page.locator(CommonPortalLocators.continueButton).click();
-
-    if (portal === "Member") await page.locator(MemberOnboardingLocators.completedSafely).click({ timeout: 10000 });
-
-    await page.locator(CommonPortalLocators.continueButton).click();
+  public async changePassword(page: Page): Promise<void> {
+    const loginPage = new LoginPage(page);
+    await loginPage.changePassword("Welcome@123", "NewPassword@123!");
   }
+
+  public async acceptInvitation(tempEmailFreePage: TempEmailFreePage, localPart: string): Promise<void> {
+    const email = `${localPart}@polandcampus.edu.pl`;
+    await tempEmailFreePage.acceptJoinTeamInvite(email);
+  }
+
 }

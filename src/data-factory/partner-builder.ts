@@ -227,7 +227,7 @@ export class PartnerBuilder {
 
   async build(): Promise<Partner> {
     const partner = new Partner();
-    const o = this.partnerOverrides;
+    const overridedInfo = this.partnerOverrides;
 
     // Generate person data via shared generator (faker only, no API)
     const accountInfo = await PersonDataGenerator.generate(
@@ -237,9 +237,9 @@ export class PartnerBuilder {
 
     // Build partner-specific fields
     const seq = DataGenerate.getRandomInt(1, 9999);
-    const name = o.name ?? `${accountInfo.firstName}${seq}`;
-    const subDomain = o.subDomain ?? name;
-    const bankTransfer = o.bankTransfer ?? DataGenerate.generateBoolean();
+    const name = overridedInfo.name ?? `${accountInfo.firstName}${seq}`;
+    const subDomain = overridedInfo.subDomain ?? name;
+    const bankTransfer = overridedInfo.bankTransfer ?? DataGenerate.generateBoolean();
 
     // Build user info block for partner payload
 
@@ -260,32 +260,32 @@ export class PartnerBuilder {
     };
 
     partner.partnerInfo = {
-      whoPay: o.whoPay ?? DataGenerate.generateDecimal(),
-      departmentName: o.departmentName,
-      partnerLevel: o.partnerLevel,
-      paymentOption: o.paymentOption,
-      productsType: o.productsType,
-      billingCycleRadio: o.billingCycleRadio,
-      internal: o.internal,
+      whoPay: overridedInfo.whoPay ?? DataGenerate.generateDecimal(),
+      departmentName: overridedInfo.departmentName,
+      partnerLevel: overridedInfo.partnerLevel,
+      paymentOption: overridedInfo.paymentOption,
+      productsType: overridedInfo.productsType,
+      billingCycleRadio: overridedInfo.billingCycleRadio,
+      internal: overridedInfo.internal,
 
       restriction,
-      apiEnable: o.apiEnable ?? false,
-      departmentId: o.departmentId ?? "688897d5eb52b4af5573def4",
+      apiEnable: overridedInfo.apiEnable ?? false,
+      departmentId: overridedInfo.departmentId ?? "688897d5eb52b4af5573def4",
       bankTransfer,
       canCustomUpdatePlan:
-        o.canCustomUpdatePlan ?? DataGenerate.generateBoolean(),
-      companyType: o.companyType ?? (DataGenerate.generateBoolean() ? 1 : 0),
-      isPublic: o.isPublic ?? DataGenerate.generateBoolean(),
-      level: o.level ?? 0,
+        overridedInfo.canCustomUpdatePlan ?? DataGenerate.generateBoolean(),
+      companyType: overridedInfo.companyType ?? (DataGenerate.generateBoolean() ? 1 : 0),
+      isPublic: overridedInfo.isPublic ?? DataGenerate.generateBoolean(),
+      level: overridedInfo.level ?? 0,
       name,
-      partnerType: o.partnerType ?? DataGenerate.generateDecimal(),
-      paymentEnable: o.paymentEnable ?? DataGenerate.generateBoolean(),
+      partnerType: overridedInfo.partnerType ?? DataGenerate.generateDecimal(),
+      paymentEnable: overridedInfo.paymentEnable ?? DataGenerate.generateBoolean(),
       subDomain,
 
       ...(bankTransfer && {
-        billingCycle: o.billingCycle ?? 1,
+        billingCycle: overridedInfo.billingCycle ?? 1,
       }),
-      ...(o.planId && { planId: o.planId }),
+      ...(overridedInfo.planId && { planId: overridedInfo.planId }),
     };
 
     return partner;

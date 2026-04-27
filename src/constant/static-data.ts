@@ -37,13 +37,7 @@ const paymentOptions = [
 
 const localHR = "6891c8c2b34bb84b18eae816";
 
-/**
- * Plan names for the current `process.env.DEPARTMENT_NAME` and `process.env.ENV`.
- * Prefer {@link getPlansForDepartment} when the department is not the active env default.
- */
-const plans = getPlansForDepartment(
-  process.env.DEPARTMENT_NAME ?? "BiginHR",
-);
+const plans = getPlansForDepartment();
 
 export {
   validCardInfo,
@@ -53,5 +47,4 @@ export {
   paymentOptions,
   localHR,
   plans,
-  getPlansForDepartment,
 };

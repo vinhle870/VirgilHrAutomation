@@ -7,7 +7,7 @@ import delay from "src/utilities/delay";
 import { TeamAddition } from "./locators/partner-management/team-addition";
 import { DetailOfPartnerLocator } from "./locators/partner-management/detail";
 import { OnboardingFlow } from "src/ui/flows";
-import { TempEmailFreePage } from "../shared";
+import { TempEmailFreePage } from "../shared-pages";
 import IPartnerFilter from "src/objects/ipartnerfilter";
 import { PartnerFilter } from "./locators/partner-management/filter-partner";
 import { PeoPartner } from "src/objects/ipeopartner";
@@ -328,7 +328,7 @@ export class PartnerManagementPage extends BasePage {
     await delay(5000);
 
     for (const member of peoPartners) {
-      await onboardingFlow.credential(tempEmailFreePage, member.accountInfo?.email!);
+      await onboardingFlow.activateAccountAndSetPassword(tempEmailFreePage, member.accountInfo?.email!);
     }
 
     return "Pass";

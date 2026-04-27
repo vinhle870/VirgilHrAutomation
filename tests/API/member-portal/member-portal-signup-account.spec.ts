@@ -145,7 +145,7 @@ test.describe(
       expect((plansResp as any)[0].benefits[0].benefitKey).not.toBe("");
       expect(typeof (plansResp as any)[0].benefits[0].requiredPayment).toBe("boolean");
       expect(typeof (plansResp as any)[0].benefits[0].isSame).toBe("boolean");
-     
+
     });
   });
 
@@ -331,9 +331,10 @@ test.describe(
           tempPassword,
         );
 
-        await purchaseFlow.buyPlan(
+        await purchaseFlow.buyPlanByCustomer(
           planUrl,
           (customerAccountInfo as any).email,
+          planName
         );
       },
     );
@@ -577,9 +578,10 @@ test.describe(
           tempPassword,
         );
 
-        await purchaseFlow.buyPlan(
+        await purchaseFlow.buyPlanByCustomer(
           planUrl,
           (customerAccountInfo as any).email,
+          consumerData.plan
         );
 
         const urlRegex = new RegExp(`.*/home$`);
@@ -683,9 +685,10 @@ test.describe(
           tempPassword,
         );
 
-        await purchaseFlow.buyPlan(
+        await purchaseFlow.buyPlanByCustomer(
           planUrl,
           (customerAccountInfo as any).email,
+          consumerData.plan
         );
       },
     );

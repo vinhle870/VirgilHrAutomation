@@ -40,9 +40,9 @@ test.describe(
     const testData = new TestDataProvider(adminPortalService);
     //Choose a plan = "50 - 100 Employees"
     const paymentProductName: string = plans[1];
-    await test.step("Pre-condition: Prepare data for the test: DepartmentID,masterPlan from ProductName = 50 - 100 Employees", 
-      async () => { 
-    
+    await test.step("Pre-condition: Prepare data for the test: DepartmentID,masterPlan from ProductName = 50 - 100 Employees",
+      async () => {
+
     //Create department id to send
     departmentID = await testData.getDepartmentId(
       process.env.DEPARTMENT_NAME,
@@ -71,7 +71,7 @@ test.describe(
       .withPlanId(masterPlanId)
       .build();
   });
-  
+
   let customerWithMember = await test.step("Pre-condition: Generate member data for invite payload", async () => {
     return await new CustomerBuilder()
       .forMemberPortal()
@@ -81,7 +81,7 @@ test.describe(
   const partnerId = await test.step("Steps: Create partner", async () => {
     return await adminService.createPartner(partnerInfo);
   });
-   
+
   const partnerToken = await test.step("Steps: Get auth token from Partner", async () => {
     delay(30000);
     const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
@@ -124,7 +124,7 @@ test.describe(
       partnerPlansList,
       paymentProductName,
     );
-      
+
       //*************API Step: Create business
 
       const business = await partnerPortalService.createBusiness(
@@ -207,7 +207,7 @@ test.describe(
       masterPlanId,
     };
 
-  }); 
+  });
     //Create partner info using PartnerBuilder
   const partnerInfo = await test.step("Pre-condition: Create partner info using PartnerBuilder", async () => {
    return await DataFactory.partnerBuilder()
@@ -227,7 +227,7 @@ test.describe(
       .withMember({ role: 3 }) // User role
       .build();
   });
-   
+
     //*************Pre-condition ****************  //
     //*********API Step: Create partner
     const partnerId = await test.step("CALL API -> create partner", async () => {
@@ -237,7 +237,7 @@ test.describe(
     });
 
     const partnerToken = await test.step("CALL API -> get auth token from Partner", async () => {
-    
+
       const tempPassword = "Password@123";
 
       const email = partnerInfo.accountInfo?.email!;
