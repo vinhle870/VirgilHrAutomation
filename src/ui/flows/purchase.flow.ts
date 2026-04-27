@@ -18,9 +18,7 @@ export class PurchaseFlow {
       await new BuyPlanPage(this.page).fillBuyPlanForm(url, email);
 
       await new WelcomeModal(this.page).closeModalWithOption("readyDiveIn");
-    } else {
-      await new BuyPlanPage(stripePage).fillBuyPlanForm(url, email);
-    }
+    } else await new BuyPlanPage(stripePage).fillBuyPlanForm(url, email);
   }
 
   async handbleParrtnerPageToBuyPlan(url: string, email: string, partnerPage: Page) {
