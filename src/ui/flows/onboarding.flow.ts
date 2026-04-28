@@ -81,60 +81,15 @@ export class OnboardingFlow {
     return PartnerPage.locator(BusinessLocator.ownerText);
   }
 
-
+/*
 
   public async getHomeTitle(page?: Page) {
     const locator = (page || this.page).getByRole("heading", { level: 2, name: "Home" });
     await locator.waitFor({ state: "visible", timeout: 20000 });
     return locator;
   }
+*/
 
-  public async activateAccountAndSetPassword(
-    tempEmailFreePage: TempEmailFreePage,
-    email: string,
-    portal: string = "Partner",
-    changePassword: boolean = false,
-  ): Promise<Page> {
-    const subject =
-      portal === "Member" || portal === "Consumer"
-        ? "HR Compliance: Your User Portal Credentials"
-        : "HR Compliance: Your Partner Portal Credentials";
-    const credential = await tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
-    const newPage = await tempEmailFreePage.currentPage.context().newPage();
-    await new LoginPage(newPage).fillLoginForm(credential.hrefValue!, email, credential.password!);
-    return newPage;
-  }
 
-  public async buyPlanInPartnerPortal(tempEmailFreePage: TempEmailFreePage, purchaseFlow: PurchaseFlow, partnerInfo: Partner): Promise<Page> {
-    const partnerPage = await this.activateAccountAndSetPassword(tempEmailFreePage, partnerInfo.accountInfo!.email);
-    const planName = partnerInfo.partnerInfo!.productsType?.[0] ?? "";
-    await purchaseFlow.selectPlanBeforePurchase("", partnerInfo.accountInfo!.email, planName);
-    await purchaseFlow.submitSubscriptionPayment();
-    return partnerPage;
-  }
-
-  public async createNewEmail(tempEmailFreePage: TempEmailFreePage, email: string, navigateToInbox: boolean = false): Promise<Page> {
-    if (navigateToInbox) {
-      await tempEmailFreePage.currentPage.goto(process.env.MAILBOX_URL || "");
-    }
-    return tempEmailFreePage.currentPage;
-  }
-
-  public async getChangePasswordElement(page: Page): Promise<{ currentPasswordInputElement: Locator; newPasswordElement: Locator; url: string }> {
-    const currentPasswordInputElement = page.locator(LoginFormLocators.currentPasswordInput);
-    const newPasswordElement = page.locator(LoginFormLocators.newPasswordTxt);
-    const url = page.url();
-    return { currentPasswordInputElement, newPasswordElement, url };
-  }
-
-  public async changePassword(page: Page): Promise<void> {
-    const loginPage = new LoginPage(page);
-    await loginPage.changePassword("Welcome@123", "NewPassword@123!");
-  }
-
-  public async acceptInvitation(tempEmailFreePage: TempEmailFreePage, localPart: string): Promise<void> {
-    const email = `${localPart}@polandcampus.edu.pl`;
-    await tempEmailFreePage.acceptJoinTeamInvite(email);
-  }
 
 }

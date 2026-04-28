@@ -45,15 +45,25 @@ export class PurchaseFlow {
     }
   }
 
+  /*
   async getTripeElements(page: Page) {
     return await new BuyPlanPage(page).getBuyPlanPageElements();
   }
-
+*/
     async submitSubscriptionPayment() {
     await new BuyPlanPage(this.page).fillPaymentFormWithValidCard();
   }
 
   async verifyStripePaymentFormCorrectDisplay() {
     await new BuyPlanPage(this.page).verifyStripePaymentFormCorrectDisplayed();
+  }
+
+
+  public async buyPlanInPartnerPortal(partnerInfo: Partner){
+    //const partnerPage = await this.activateAccountAndSetPassword(tempEmailFreePage, partnerInfo.accountInfo!.email);
+    const planName = partnerInfo.partnerInfo!.productsType?.[0] ?? "";
+    await this.selectPlanBeforePurchase("", partnerInfo.accountInfo!.email, planName);
+    await this.submitSubscriptionPayment();
+
   }
 }

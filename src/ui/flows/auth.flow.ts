@@ -71,12 +71,30 @@ export class AuthFlow {
 
     const inviteUrl = accountCrendential.hrefValue;
 
-    await this.loginWithValidAccount(inviteUrl!, customerEmail, credentialPassword!);
+    await this.loginToPortals(inviteUrl!, customerEmail, credentialPassword!);
 
     if(isChangePassword) {
       await this.loginPage.changePassword(credentialPassword!,newPassword!);
     }
+  }
 
+
+
+  public async activateIndividualCustomerAccountAndSetPassword(
+    email: string,
+    portal: string,
+    newPassword: string
+  ) {
+    const subject =
+      portal === "Member" || portal === "Consumer"
+        ? "HR Compliance: Your User Portal Credentials"
+        : "HR Compliance: Your Partner Portal Credentials";
+
+    const credential = await  this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
+
+    await this.loginPage.fillLoginForm (  email, credential.password!,credential.hrefValue!);
+
+    await this.loginPage.setPassword(newPassword);
 
   }
 }
