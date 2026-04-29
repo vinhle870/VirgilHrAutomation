@@ -6,10 +6,10 @@
   "main": "index.js",
   "scripts": {
     "install:browsers": "pnpm exec playwright install --with-deps",
-    "test:playwright": "cross-env NODE_OPTIONS=--require ts-node/register --require tsconfig-paths/register pnpm exec playwright test",
-    "test:playwright:api": "cross-env NODE_OPTIONS=--require ts-node/register --require tsconfig-paths/register pnpm exec playwright test tests/API",
-    "test:playwright:ui": "cross-env NODE_OPTIONS=--require ts-node/register --require tsconfig-paths/register pnpm exec playwright test tests/UI",
-    "test:playwright:chromium": "cross-env NODE_OPTIONS=--require ts-node/register --require tsconfig-paths/register pnpm exec playwright test --project=chromium",
+    "test:playwright": "pnpm exec playwright test",
+    "test:playwright:api": "pnpm exec playwright test tests/API",
+    "test:playwright:ui": "pnpm exec playwright test tests/UI --project=chromium",
+    "test:playwright:chromium": "pnpm exec playwright test --project=chromium",
     "playwright:report": "pnpm exec playwright show-report",
     "playwright:codegen": "pnpm exec playwright codegen",
     "lint": "pnpm exec tsc --noEmit --pretty"

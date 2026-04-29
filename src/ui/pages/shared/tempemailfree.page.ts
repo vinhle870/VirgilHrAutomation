@@ -1,7 +1,6 @@
 import delay from "src/utilities/delay";
 import { BasePage } from "../base-page";
-import { TempEmailFreeLocators } from "./locators";
-import { el } from "@faker-js/faker/.";
+import { TempEmailFreeLocators } from "../shared-pages/locators";
 import { Locator } from "playwright/test";
 
 export class TempEmailFreePage extends BasePage {
@@ -44,25 +43,25 @@ export class TempEmailFreePage extends BasePage {
   }
 
   public async getInvitationEmailLocator(page = this.page): Promise<Locator> {
-    TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("portalValue", "Partner");
+    TempEmailFreeLocators.emailSubject = TempEmailFreeLocators.emailSubject.replace("portalValue", "Partner");
 
-    return page.locator(TempEmailFreeLocators.portalCredential);
+    return page.locator(TempEmailFreeLocators.emailSubject);
   }
 
   public async acceptJoinTeam(username: string): Promise<void> {
     await this.createNewEmail(username);
 
-    if (TempEmailFreeLocators.portalCredential.includes("Partner")) TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("Partner", "Join your team");
-    else if (TempEmailFreeLocators.portalCredential.includes("User")) TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("User", "Join your team");
-    else if (TempEmailFreeLocators.portalCredential.includes("Consumer")) TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("Consumer", "Join your team");
-    else TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("portalValue", "Join your team");
+    if (TempEmailFreeLocators.emailSubject.includes("Partner")) TempEmailFreeLocators.emailSubject = TempEmailFreeLocators.emailSubject.replace("Partner", "Join your team");
+    else if (TempEmailFreeLocators.emailSubject.includes("User")) TempEmailFreeLocators.emailSubject = TempEmailFreeLocators.emailSubject.replace("User", "Join your team");
+    else if (TempEmailFreeLocators.emailSubject.includes("Consumer")) TempEmailFreeLocators.emailSubject = TempEmailFreeLocators.emailSubject.replace("Consumer", "Join your team");
+    else TempEmailFreeLocators.emailSubject = TempEmailFreeLocators.emailSubject.replace("subjectValue", "Join your team");
 
     try {
-      await (await this.getLocator(TempEmailFreeLocators.portalCredential)).first().click();
+      await (await this.getLocator(TempEmailFreeLocators.emailSubject)).first().click();
     } catch (error) {
       await (await this.getLocator(TempEmailFreeLocators.refreshButton)).click();
 
-      await (await this.getLocator(TempEmailFreeLocators.portalCredential)).first().click();
+      await (await this.getLocator(TempEmailFreeLocators.emailSubject)).first().click();
     }
 
     const acceptInviteButtonElement = await this.getLocatorInIframe(TempEmailFreeLocators.iframeToAcceptIvite, TempEmailFreeLocators.acceptInviteButton);
@@ -77,16 +76,16 @@ export class TempEmailFreePage extends BasePage {
 
     if (portal !== "Partner" && portal !== "Member" && portal !== "Consumer") throw new Error("Wrong portal");
 
-    if (portal === "Partner") TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("portalValue", "Partner");
+    if (portal === "Partner") TempEmailFreeLocators.emailSubject = TempEmailFreeLocators.emailSubject.replace("portalValue", "Partner");
     else if (portal === "Member") {
-      if (TempEmailFreeLocators.portalCredential.includes("Partner")) TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("Partner", "User");
-      else TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("portalValue", "User");
+      if (TempEmailFreeLocators.emailSubject.includes("Partner")) TempEmailFreeLocators.emailSubject = TempEmailFreeLocators.emailSubject.replace("Partner", "User");
+      else TempEmailFreeLocators.emailSubject = TempEmailFreeLocators.emailSubject.replace("portalValue", "User");
     } else if (portal === "Consumer") {
-      if (TempEmailFreeLocators.portalCredential.includes("Partner")) TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("Partner", "Consumer");
-      else TempEmailFreeLocators.portalCredential = TempEmailFreeLocators.portalCredential.replace("portalValue", "Consumer");
+      if (TempEmailFreeLocators.emailSubject.includes("Partner")) TempEmailFreeLocators.emailSubject = TempEmailFreeLocators.emailSubject.replace("Partner", "Consumer");
+      else TempEmailFreeLocators.emailSubject = TempEmailFreeLocators.emailSubject.replace("portalValue", "Consumer");
     }
 
-    await (await this.getLocator(TempEmailFreeLocators.portalCredential)).first().click();
+    await (await this.getLocator(TempEmailFreeLocators.emailSubject)).first().click();
 
     let credentialFrame;
 

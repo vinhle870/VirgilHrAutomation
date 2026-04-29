@@ -1,6 +1,6 @@
-import { expect, Locator, Page } from "playwright/test";
+import { Locator, Page } from "@playwright/test";
 import { BasePage } from "../base-page";
-import { LoginFormLocators } from "../shared/locators/login-form";
+import { LoginFormLocators } from "../shared-pages/locators/login-form";
 import { ClientPartnerPortalLocators } from "./locators/client";
 import { BusinessLocator } from "./locators/business";
 import { Partner } from "src/objects";
@@ -16,7 +16,7 @@ export class PartnerPage extends BasePage {
   }
 
   public getAccountNotExist() {
-    return this.page.locator(LoginFormLocators.accountNotExist);
+    return this.page.locator(LoginFormLocators.validationMsg);
   }
 
   public getOwnerRoleInClientPage(email: string, page = this.page): Locator {

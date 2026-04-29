@@ -1,22 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 import path from "path";
-import dotenv from "dotenv";
+import { loadPlaywrightEnv } from "src/utilities/load-env";
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
-
-const env = process.env.ENV || "qa";
-
-process.env.ENV = env;
-
-dotenv.config({
-  path: path.resolve(__dirname, "profile", `.env.${env.toLocaleLowerCase()}`),
-});
+loadPlaywrightEnv(path.resolve(__dirname));
 
 // Run headed when HEADED=true. Default is headless mode.
 const headed = (process.env.HEADED ?? "false").toLowerCase() === "true";

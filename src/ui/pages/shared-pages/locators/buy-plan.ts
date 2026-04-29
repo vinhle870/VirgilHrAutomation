@@ -1,5 +1,5 @@
 export class BuyPlanLocators {
-  static readonly firstPlan = "//p[contains(text(),'ASO Expert')]/../../..";
+  static readonly firstPlan = "//p[contains(text(),'plan_name')]/../../..";
   static readonly buyNow = "//span[text()='Buy Now']";
   static readonly confirm = "//span[text()='Confirm']";
 

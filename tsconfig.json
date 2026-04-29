@@ -1,19 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "lib": ["ES2021", "DOM"],
+    "target": "ES2022",
+    "module": "preserve",
+    "lib": ["ES2022"],
     "strict": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".", 
     "paths": {
-      "src/*": ["src/*"]
-    },
-    "ignoreDeprecations": "6.0"
+      "src/*": ["./src/*"]
+    }
   },
   "include": ["src", "tests", "playwright.config.ts"],
   "exclude": ["node_modules", "playwright-report"]

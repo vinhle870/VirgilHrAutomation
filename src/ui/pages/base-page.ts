@@ -1,7 +1,6 @@
 import { Page } from "@playwright/test";
 import { LocatorHandling } from "../../utilities/locator-handling";
 import { DropdownComponent } from "../../utilities/components";
-import { CommonPortalLocators } from "../Locator/common";
 import { TeamAdditionLocator } from "./admin-portal/locators/partner-management/locator/team-addition";
 import { UserInfo } from "src/objects";
 import delay from "src/utilities/delay";

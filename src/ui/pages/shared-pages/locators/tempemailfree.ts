@@ -11,7 +11,7 @@ export class TempEmailFreeLocators {
 
   public static readonly refreshButton = "(//div[text()='Refresh'])[2]";
 
-  public static portalCredential = "xpath=//div[contains(text(),'no-reply@virgilhr.com')]/ancestor::div//div[contains(text(),'portalValue')]";
+  public static emailSubject = "xpath=//div[contains(text(),'subjectValue')]";
 
   public static readonly credentialIframe = "iframe.min-h-tm-half";
 
