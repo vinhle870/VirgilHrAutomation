@@ -4,7 +4,6 @@ import { CommonAdminPortalLocator } from "./locators/common/common";
 import { CommonPartnerLocator } from "./locators/partner-management/locator/common";
 import { CreateNewPartnerModalLocator } from "./locators/partner-management/locator/new-partner";
 import delay from "src/utilities/delay";
-import { TeamAdditionLocator } from "./locators/partner-management/locator/team-addition";
 import { DetailOfPartnerLocator } from "./locators/partner-management/locator/detail";
 import { OnboardingFlow } from "src/ui/flows";
 import { TempEmailFreePage } from "../shared-pages";
@@ -13,7 +12,6 @@ import { PartnerFilterLocator } from "./locators/partner-management/locator/filt
 import { PeoPartner } from "src/objects/ipeopartner";
 import { PeoConsultantAdditionLocator } from "./locators/partner-management/locator/peo-consultant-addition";
 import { Partner, UserInfo } from "src/objects";
-import { CommonPortalLocators } from "src/ui/Locator/common";
 
 export class PartnerManagementPage extends BasePage {
   constructor(page: Page) {
