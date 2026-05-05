@@ -1,12 +1,8 @@
 import { test, expect } from "src/fixtures";
-import { DataFactory, PersonDataGenerator } from "src/data-factory";
-import { UserInfo } from "src/objects";
+import { DataFactory } from "src/data-factory";
 import { CustomerFactory } from "src/data-factory/customer-factory";
-import IPartnerFilter from "src/objects/ipartnerfilter";
-import { PartnerFilterLocator } from "src/ui/pages/admin-portal/locators/partner-management/locator/filter-partner";
-import { CreateNewPartnerModalLocator } from "src/ui/pages/admin-portal/locators/partner-management/locator/new-partner";
-import { BuyPlanLocators, TempEmailFreeLocators } from "src/ui/pages/shared/locators";
 import { Page } from "playwright/test";
+import refreshPage from "src/utilities/refresh";
 
 test.describe("E2E -> Admin Portal -> Partner Management", () => {
   test(
@@ -42,7 +38,8 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         try {
           await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
         } catch (error) {
-          await onboardingFlow.refreshPage();
+          await refreshPage(newPartner!);
+
           await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
         }
       });

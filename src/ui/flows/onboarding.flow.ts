@@ -1,15 +1,7 @@
-import { Locator, Page } from "@playwright/test";
-
-import { MemberOnboardingPage } from "../pages/member-portal/member-onboarding.page";
-
+import { Page } from "@playwright/test";
 import { CommonPartnerPortalLocator } from "../pages/partner-portal/locators/common";
 import { BusinessLocator } from "../pages/partner-portal/locators/business";
 import { Partner, UserInfo } from "src/objects";
-import { TempEmailFreePage } from "../pages/shared-pages/tempemailfree.page";
-import { LoginPage } from "../pages/shared-pages/login.page";
-import { LoginFormLocators } from "../pages/shared-pages/locators/login-form";
-import { PurchaseFlow } from "./purchase.flow";
-
 
 /**
  * This flow class contains methods related to the onboarding process of both partner and member users, such as accepting invitations, credentialing, buying plans, and creating a business.
@@ -24,12 +16,9 @@ import { PurchaseFlow } from "./purchase.flow";
 export class OnboardingFlow {
   private readonly page: Page;
 
-
   constructor(page: Page) {
     this.page = page;
-
   }
-
 
   public async createBusinessFromPartnerPortal(PartnerPage: Page, partnerInfo: Partner, owner?: UserInfo) {
     if (partnerInfo.partnerInfo?.paymentOption !== "Member Portal Consumer" && partnerInfo.partnerInfo?.paymentOption !== "Partner/Consultant Owner")
@@ -81,7 +70,7 @@ export class OnboardingFlow {
     return PartnerPage.locator(BusinessLocator.ownerText);
   }
 
-/*
+  /*
 
   public async getHomeTitle(page?: Page) {
     const locator = (page || this.page).getByRole("heading", { level: 2, name: "Home" });
@@ -89,7 +78,4 @@ export class OnboardingFlow {
     return locator;
   }
 */
-
-
-
 }

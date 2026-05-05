@@ -17,7 +17,6 @@ export class AuthFlow {
   constructor(page: Page) {
     this.loginPage = new LoginPage(page);
     this.tempEmailFreePage = new TempEmailFreePage(page);
-
   }
 
   /**
@@ -26,14 +25,13 @@ export class AuthFlow {
    * @param username
    * @param password
    */
-  async loginToAdminPortal(){
-  await this.loginPage.fillLoginForm(process.env.ADMIN_PORTAL_BASE_URL!, process.env.ADMIN_USERNAME!, process.env.ADMIN_PASSWORD!);
+  async loginToAdminPortal() {
+    await this.loginPage.fillLoginForm(process.env.ADMIN_PORTAL_BASE_URL!, process.env.ADMIN_USERNAME!, process.env.ADMIN_PASSWORD!);
   }
 
-  async loginToPortals(portalUrl:string,email:string,password:string) {
+  async loginToPortals(portalUrl: string, email: string, password: string) {
     await this.loginPage.fillLoginForm(portalUrl, email, password);
   }
-
 
   /**
    * Accepts an invitation for the user by retrieving the link from Email
@@ -41,8 +39,6 @@ export class AuthFlow {
    * Flows: Accept via invite link -> Set password -> Click on Join Team link -> Close modal
    */
   async acceptInviteAndJoinTeamByCustomer(customerEmail: string, password: string): Promise<void> {
-
-
     await this.tempEmailFreePage.acceptJoinTeamInvite(customerEmail);
 
     await this.loginPage.currentPage.waitForLoadState("domcontentloaded");
@@ -52,17 +48,15 @@ export class AuthFlow {
     await this.loginPage.clickOnJoinTeamLink();
 
     await new WelcomeModal(this.loginPage.currentPage).closeModalWithOption("readyDiveIn");
-
   }
 
-/**
- *  Activates the customer account by extracting credentials from the email, logging in, and optionally changing the password.
- * @param customerEmail
- * @param isChangePassword
- * @param newPassword
- */
-  public async activateCustomerAccount(customerEmail: string, isChangePassword:boolean = false,newPassword?:string) {
-
+  /**
+   *  Activates the customer account by extracting credentials from the email, logging in, and optionally changing the password.
+   * @param customerEmail
+   * @param isChangePassword
+   * @param newPassword
+   */
+  public async activateCustomerAccount(customerEmail: string, isChangePassword: boolean = false, newPassword = "Password@123") {
     const emailTitle = "HR Compliance: Your User Portal Credentials";
 
     let accountCrendential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(customerEmail, emailTitle);
@@ -73,28 +67,18 @@ export class AuthFlow {
 
     await this.loginToPortals(inviteUrl!, customerEmail, credentialPassword!);
 
-    if(isChangePassword) {
-      await this.loginPage.changePassword(credentialPassword!,newPassword!);
+    if (isChangePassword) {
+      await this.loginPage.changePassword(credentialPassword!, newPassword!);
     }
   }
 
+  public async activateIndividualCustomerAccountAndSetPassword(email: string, portal: string, newPassword: string) {
+    const subject = portal === "Member" || portal === "Consumer" ? "HR Compliance: Your User Portal Credentials" : "HR Compliance: Your Partner Portal Credentials";
 
+    const credential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
 
-  public async activateIndividualCustomerAccountAndSetPassword(
-    email: string,
-    portal: string,
-    newPassword: string
-  ) {
-    const subject =
-      portal === "Member" || portal === "Consumer"
-        ? "HR Compliance: Your User Portal Credentials"
-        : "HR Compliance: Your Partner Portal Credentials";
-
-    const credential = await  this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
-
-    await this.loginPage.fillLoginForm (  email, credential.password!,credential.hrefValue!);
+    await this.loginPage.fillLoginForm(email, credential.password!, credential.hrefValue!);
 
     await this.loginPage.setPassword(newPassword);
-
   }
 }

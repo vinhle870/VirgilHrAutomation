@@ -1,1 +1,1 @@
-export * from "./common";
+export * from "./member-onboarding";

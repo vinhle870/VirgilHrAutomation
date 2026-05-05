@@ -1,4 +1,4 @@
-export class CommonMemberPortalLocators {
+export class MemberOnboardingLocators {
   public static readonly continueWithEmail = "xpath=//span[text()='Continue with email']";
   public static readonly setPassword = "xpath=//input[@placeholder='Set your password']";
   public static readonly joinTeam = "xpath=//span[text()='Join Your Team']";
