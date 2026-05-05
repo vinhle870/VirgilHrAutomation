@@ -33,9 +33,8 @@ export class LoginPage extends BasePage {
     await loginButton.click();
   }
 
-   public async changePassword(currentPassword:string, newPassword:string) {
-
-     const currentpasswordTxt = await this.getLocator(LoginFormLocators.currentPasswordInput);
+  public async changePassword(currentPassword: string, newPassword: string) {
+    const currentpasswordTxt = await this.getLocator(LoginFormLocators.currentPasswordInput);
     await currentpasswordTxt.fill(currentPassword);
 
     const newPasswordField = await this.getLocator(LoginFormLocators.newPasswordTxt);
@@ -45,10 +44,9 @@ export class LoginPage extends BasePage {
     await continueBtn.click();
 
     //If "Completed safely!" modal is shown - click "Continue" button if visible
-    if(await continueBtn.isVisible()) {
-     await continueBtn.click();
+    if (await continueBtn.isVisible()) {
+      await continueBtn.click();
     }
-
   }
 
   public async setPassword(password: string) {

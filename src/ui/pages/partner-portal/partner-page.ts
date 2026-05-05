@@ -3,6 +3,7 @@ import { BasePage } from "../base-page";
 import { LoginFormLocators } from "../shared-pages/locators/login-form";
 import { ClientPartnerPortalLocators } from "./locators/client";
 import { BusinessLocator } from "./locators/business";
+import { Partner } from "src/objects";
 
 export class PartnerPage extends BasePage {
   private readonly URL: string;
@@ -22,11 +23,16 @@ export class PartnerPage extends BasePage {
     return page.locator(ClientPartnerPortalLocators.role.replace("emailValue", email));
   }
 
-  public async moveToPage(path: string, page = this.page): Promise<void> {
-    await page.locator(`xpath=//a[@href='${path}']`).click();
-  }
-
   public async closeBusinessDetail(page = this.page): Promise<void> {
     await page.locator(BusinessLocator.closeDetailBusinessButton).click();
+  }
+
+  public async verifyPartnerVisible(partnerInfo: Partner, newPartner = this.page) {
+    try {
+      await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 5000 });
+    } catch (error) {
+      await newPartner.reload();
+      await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible();
+    }
   }
 }

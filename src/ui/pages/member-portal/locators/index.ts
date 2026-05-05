@@ -1,1 +1,1 @@
-export * from "./member-onboarding.locators";
+export * from "./member-onboarding";

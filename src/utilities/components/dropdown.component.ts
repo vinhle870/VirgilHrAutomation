@@ -13,11 +13,7 @@ export class DropdownComponent extends BaseComponent {
    * @param optionSelector    selector for the option **relative to the dropdown**
    * @param timeout           optional timeout in ms
    */
-  async selectOption(
-    dropdownSelector: string,
-    optionSelector: string,
-    timeout?: number
-  ): Promise<void> {
+  async selectOption(dropdownSelector: string, optionSelector: string, timeout?: number): Promise<void> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(effectiveTimeout);
 
@@ -37,21 +33,14 @@ export class DropdownComponent extends BaseComponent {
    * @param optionListSelector  optional selector scoping where options appear
    * @param timeout             optional timeout in ms
    */
-  async selectByText(
-    dropdownSelector: string,
-    optionText: string,
-    optionListSelector?: string,
-    timeout?: number
-  ): Promise<void> {
+  async selectByText(dropdownSelector: string, optionText: string, page = this.page, timeout = 60000, optionListSelector?: string): Promise<void> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(effectiveTimeout);
 
-    const dropdown = this.page.locator(dropdownSelector);
+    const dropdown = page.locator(dropdownSelector);
     await this.waitAndClick(dropdown, effectiveTimeout);
 
-    const scope = optionListSelector
-      ? this.page.locator(optionListSelector)
-      : this.page;
+    const scope = optionListSelector ? page.locator(optionListSelector) : page;
     const option = scope.getByText(optionText, { exact: true });
     await this.waitAndClick(option, effectiveTimeout);
   }
@@ -60,13 +49,7 @@ export class DropdownComponent extends BaseComponent {
    * Same as {@link selectByText}, but when several dropdowns share one selector,
    * opens the instance at `dropdownIndex` (0-based).
    */
-  async selectByTextForNthDropdown(
-    dropdownSelector: string,
-    optionText: string,
-    dropdownIndex: number,
-    optionListSelector?: string,
-    timeout?: number,
-  ): Promise<void> {
+  async selectByTextForNthDropdown(dropdownSelector: string, optionText: string, dropdownIndex: number, optionListSelector?: string, timeout?: number): Promise<void> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(effectiveTimeout);
 
@@ -74,9 +57,7 @@ export class DropdownComponent extends BaseComponent {
     await dropdown.waitFor({ state: "visible", timeout: effectiveTimeout });
     await dropdown.click();
 
-    const scope = optionListSelector
-      ? this.page.locator(optionListSelector)
-      : this.page;
+    const scope = optionListSelector ? this.page.locator(optionListSelector) : this.page;
     const option = scope.getByText(optionText, { exact: true });
     await this.waitAndClick(option, effectiveTimeout);
   }

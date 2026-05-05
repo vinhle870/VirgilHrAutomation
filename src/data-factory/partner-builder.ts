@@ -230,9 +230,7 @@ export class PartnerBuilder {
     const overridedInfo = this.partnerOverrides;
 
     // Generate person data via shared generator (faker only, no API)
-    const accountInfo = await PersonDataGenerator.generate(
-      this.accountOverrides,
-    );
+    const accountInfo = await PersonDataGenerator.generate(this.accountOverrides);
     partner.accountInfo = accountInfo;
 
     // Build partner-specific fields
@@ -244,9 +242,7 @@ export class PartnerBuilder {
     // Build user info block for partner payload
 
     // Build restriction from provided values (no API calls)
-    const feFilterProductTypes = this.restrictionOptions.feFilterProductTypes
-      ? this.restrictionOptions.feFilterProductTypes.map((p) => p.productType)
-      : this.feFilterProductTypesValue;
+    const feFilterProductTypes = this.restrictionOptions.feFilterProductTypes ? this.restrictionOptions.feFilterProductTypes.map((p) => p.productType) : this.feFilterProductTypesValue;
 
     const restriction = {
       eSignEnable: this.restrictionOptions.eSignEnable ?? true,
@@ -272,8 +268,7 @@ export class PartnerBuilder {
       apiEnable: overridedInfo.apiEnable ?? false,
       departmentId: overridedInfo.departmentId ?? "688897d5eb52b4af5573def4",
       bankTransfer,
-      canCustomUpdatePlan:
-        overridedInfo.canCustomUpdatePlan ?? DataGenerate.generateBoolean(),
+      canCustomUpdatePlan: overridedInfo.canCustomUpdatePlan ?? DataGenerate.generateBoolean(),
       companyType: overridedInfo.companyType ?? (DataGenerate.generateBoolean() ? 1 : 0),
       isPublic: overridedInfo.isPublic ?? DataGenerate.generateBoolean(),
       level: overridedInfo.level ?? 0,

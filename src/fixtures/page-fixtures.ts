@@ -1,7 +1,7 @@
 import { test as base } from "@playwright/test";
 import { AdminHomePage, AdminLeftMenu, BuyPlanPage, LoginPage, TempEmailFreePage } from "../ui/pages";
-import { PartnerManagementPage } from "src/ui/pages/admin-portal/partner-management";
-import { CustomerManagementPage } from "src/ui/pages/admin-portal/customer-management";
+import { PartnerManagementPage } from "src/ui/pages/admin-portal/partner-management-page";
+import { CustomerManagementPage } from "src/ui/pages/admin-portal/customer-management-page";
 import { PartnerPage } from "src/ui/pages/partner-portal/partner-page";
 
 type PageFixtures = {
@@ -10,7 +10,7 @@ type PageFixtures = {
   buyPlanPage: BuyPlanPage;
   loginPage: LoginPage;
   tempEmailFreePage: TempEmailFreePage;
-   partnerManagementPage: PartnerManagementPage;
+  partnerManagementPage: PartnerManagementPage;
   customerManagementPage: CustomerManagementPage;
   partnerPage: PartnerPage;
 };

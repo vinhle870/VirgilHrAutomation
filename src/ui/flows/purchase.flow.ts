@@ -20,14 +20,12 @@ export class PurchaseFlow {
 
   /**
    * Completes the full plan purchase flow: fills payment form and
-    * closes the welcome modal if it appears.
+   * closes the welcome modal if it appears.
    */
   async buyPlanByCustomer(url: string, email: string, planName: string) {
+    await new BuyPlanPage(this.page).fillBuyPlanForm(url, email, planName);
 
-      await new BuyPlanPage(this.page).fillBuyPlanForm(url, email,planName);
-
-      await new WelcomeModal(this.page).closeModalWithOption("readyDiveIn");
-
+    await new WelcomeModal(this.page).closeModalWithOption("readyDiveIn");
   }
 
   /**
@@ -50,7 +48,7 @@ export class PurchaseFlow {
     return await new BuyPlanPage(page).getBuyPlanPageElements();
   }
 */
-    async submitSubscriptionPayment() {
+  async submitSubscriptionPayment() {
     await new BuyPlanPage(this.page).fillPaymentFormWithValidCard();
   }
 
@@ -58,12 +56,10 @@ export class PurchaseFlow {
     await new BuyPlanPage(this.page).verifyStripePaymentFormCorrectDisplayed();
   }
 
-
-  public async buyPlanInPartnerPortal(partnerInfo: Partner){
+  public async buyPlanInPartnerPortal(partnerInfo: Partner) {
     //const partnerPage = await this.activateAccountAndSetPassword(tempEmailFreePage, partnerInfo.accountInfo!.email);
     const planName = partnerInfo.partnerInfo!.productsType?.[0] ?? "";
     await this.selectPlanBeforePurchase("", partnerInfo.accountInfo!.email, planName);
     await this.submitSubscriptionPayment();
-
   }
 }

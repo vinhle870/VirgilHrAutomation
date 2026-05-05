@@ -3,15 +3,11 @@ import { BasePage } from "../base-page";
 import { TempEmailFreeLocators } from "./locators";
 
 export class TempEmailFreePage extends BasePage {
-
-
-
   /**
    * Accepts the invitation by clicking the join team button in the email with the specific subject, then clicks the accept invite button in the opened iframe.
    * @param userEmail
    */
   public async acceptJoinTeamInvite(userEmail: string): Promise<void> {
-
     await this.registerNewEmail(userEmail);
 
     const emailSubject = "HR Compliance: Join your team";
@@ -25,9 +21,7 @@ export class TempEmailFreePage extends BasePage {
     await acceptInviteBtn.click();
   }
 
-
   public async extractAccountCredentialFromInBox(email: string, subject: string): Promise<{ email: string; password: string | undefined; hrefValue: string | null | undefined }> {
-
     //Register new email to access the inbox
     await this.registerNewEmail(email);
 
@@ -53,22 +47,17 @@ export class TempEmailFreePage extends BasePage {
 
       //Get href
       hrefValue = await loginLink.getAttribute("href");
-    } catch (error) {
-
-    }
+    } catch (error) {}
 
     return { email, password, hrefValue };
   }
 
-
-    private async registerNewEmail(userEmail: string) {
-    const logger = (console.debug ?? console.log).bind(console);
-
+  private async registerNewEmail(userEmail: string) {
     await delay(5000);
 
     const emailLocalPart = userEmail.split("@")[0];
 
-    const url = process.env.MAILBOX_URL ||"";
+    const url = process.env.MAILBOX_URL || "";
     await this.page.goto(url);
 
     await this.page.waitForURL(url, { timeout: 30000 });
@@ -96,11 +85,9 @@ export class TempEmailFreePage extends BasePage {
     await createEmailBtn.click();
 
     await newBtn.waitFor({ state: "visible" });
-
   }
 
-
-    public async openEmailBySubject(subject: string): Promise<void> {
+  public async openEmailBySubject(subject: string): Promise<void> {
     const emailSubjectLnk = TempEmailFreeLocators.emailSubject.replace("subjectValue", subject);
 
     //Click on Email Subject

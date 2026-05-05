@@ -27,11 +27,11 @@ export abstract class BaseComponent {
 
   protected async waitAndClick(locator: Locator, timeout: number): Promise<void> {
     try {
-      await locator.first().waitFor({ state: "visible", timeout });
-      await locator.first().click({ timeout: 3000 });
-    } catch (error) {
       await locator.last().waitFor({ state: "visible", timeout });
-      await locator.last().click();
+      await locator.last().click({ timeout: 3000 });
+    } catch (error) {
+      await locator.first().waitFor({ state: "visible", timeout });
+      await locator.first().click();
     }
   }
 }

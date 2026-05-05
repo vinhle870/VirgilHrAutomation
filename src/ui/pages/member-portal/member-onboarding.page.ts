@@ -1,4 +1,4 @@
-import { expect, Locator } from "@playwright/test";
+import { expect } from "@playwright/test";
 import { BasePage } from "../base-page";
 import { MemberOnboardingLocators } from "./locators";
 import { LoginFormLocators as CommonPortalLocators } from "../shared-pages/locators/login-form";
@@ -59,7 +59,7 @@ export class MemberOnboardingPage extends BasePage {
 
     await (await this.getLocator(CommonPortalLocators.currentPasswordInput)).fill(password);
 
-    await (await this.getLocator(CommonPortalLocators.newPasswordTxt)).fill("Password@123");
+    await (await this.getLocator(CommonPortalLocators.newPasswordTxt)).fill(password);
 
     await (await this.getLocator(CommonPortalLocators.continueBtn)).click();
 
