@@ -56,10 +56,10 @@ export class AuthFlow {
    * @param isChangePassword
    * @param newPassword
    */
-  public async activateCustomerAccount(customerEmail: string, isChangePassword: boolean = false, newPassword = "Password@123") {
+  public async activateCustomerAccount(customerEmail: string, isChangePassword = false, newPassword = "Password@123") {
     const emailTitle = "HR Compliance: Your User Portal Credentials";
 
-    let accountCrendential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(customerEmail, emailTitle);
+    const accountCrendential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(customerEmail, emailTitle);
 
     const credentialPassword = accountCrendential.password;
 
@@ -72,7 +72,7 @@ export class AuthFlow {
     }
   }
 
-  public async activateIndividualCustomerAccountAndSetPassword(email: string, portal: string, newPassword: string) {
+  public async activateIndividualCustomerAccountAndSetPassword(email: string, portal: string, newPassword = "Password@123") {
     const subject = portal === "Member" || portal === "Consumer" ? "HR Compliance: Your User Portal Credentials" : "HR Compliance: Your Partner Portal Credentials";
 
     const credential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);

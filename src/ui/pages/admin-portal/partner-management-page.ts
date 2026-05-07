@@ -1,11 +1,10 @@
 import { Locator, Page } from "@playwright/test";
 import { BasePage } from "src/ui/pages/base-page";
-import { CommonAdminPortalLocator } from "./locators/common/common";
+import { CommonAdminPortalLocator } from "./locators/common/common.locator";
 import { CommonPartnerLocator } from "./locators/partner-management/locator/common";
 import { CreateNewPartnerModalLocator } from "./locators/partner-management/locator/new-partner";
 import delay from "src/utilities/delay";
 import { DetailOfPartnerLocator } from "./locators/partner-management/locator/detail";
-import { OnboardingFlow } from "src/ui/flows";
 import { TempEmailFreePage } from "../shared-pages";
 import IPartnerFilter from "src/objects/ipartnerfilter";
 import { PartnerFilterLocator } from "./locators/partner-management/locator/filter-partner";
@@ -33,7 +32,7 @@ export class PartnerManagementPage extends BasePage {
     }
   }
 
-  public async createPartner(partnerInfo: Partner, i = 0): Promise<Page> {
+  public async createPartner(partnerInfo: Partner, i = 0): Promise<void> {
     await this.moveToPartnerCategory();
 
     if (i === 0) await this.moveToPartnerManagement();
@@ -141,8 +140,6 @@ export class PartnerManagementPage extends BasePage {
 
     if (partnerInfo.partnerInfo.bankTransfer === true && partnerInfo.partnerInfo.paymentOption === "Partner/Consultant Owner")
       await (await this.getLocator(CreateNewPartnerModalLocator.confirmButton)).click();
-
-    return this.page;
   }
 
   public async addMoreMembers(partner: Partner, invitedMembers: UserInfo[], page = this.page): Promise<void> {
@@ -205,7 +202,7 @@ export class PartnerManagementPage extends BasePage {
     return "Pass";
   }
 
-  public async addPeoConsultant(partner: Partner, peoPartners: PeoPartner[], onboardingFlow: OnboardingFlow, tempEmailFreePage: TempEmailFreePage): Promise<string> {
+  public async addPeoConsultant(partner: Partner, peoPartners: PeoPartner[], tempEmailFreePage: TempEmailFreePage): Promise<string> {
     const partnerPhoneNumber = partner.accountInfo?.phoneNumber;
 
     if (!partnerPhoneNumber) {

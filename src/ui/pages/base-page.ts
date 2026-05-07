@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 import { LocatorHandling } from "../../utilities/locator-handling";
 import { DropdownComponent } from "../../utilities/components";
 
@@ -32,5 +32,11 @@ export abstract class BasePage {
     const radio = scope.getByRole("radio", { name: label, exact: true });
     await radio.first().waitFor({ state: "visible", timeout: effectiveTimeout });
     await radio.first().click();
+  }
+
+  public async getHomeTitle(): Promise<Locator> {
+    const homeLocator = this.page.getByRole("heading", { level: 2, name: "Home" }).first();
+    await homeLocator.waitFor({ state: "visible", timeout: 20000 });
+    return homeLocator;
   }
 }

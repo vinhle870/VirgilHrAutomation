@@ -52,7 +52,7 @@ export class TempEmailFreePage extends BasePage {
     return { email, password, hrefValue };
   }
 
-  private async registerNewEmail(userEmail: string) {
+  public async registerNewEmail(userEmail: string, pageStatus = false) {
     await delay(5000);
 
     const emailLocalPart = userEmail.split("@")[0];
@@ -85,6 +85,8 @@ export class TempEmailFreePage extends BasePage {
     await createEmailBtn.click();
 
     await newBtn.waitFor({ state: "visible" });
+
+    if (pageStatus) return this.page;
   }
 
   public async openEmailBySubject(subject: string): Promise<void> {

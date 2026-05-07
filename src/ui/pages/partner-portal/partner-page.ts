@@ -1,9 +1,10 @@
-import { Locator, Page } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 import { BasePage } from "../base-page";
 import { LoginFormLocators } from "../shared-pages/locators/login-form";
 import { ClientPartnerPortalLocators } from "./locators/client";
 import { BusinessLocator } from "./locators/business";
 import { Partner } from "src/objects";
+import refreshPage from "src/utilities/refresh";
 
 export class PartnerPage extends BasePage {
   private readonly URL: string;
@@ -31,8 +32,12 @@ export class PartnerPage extends BasePage {
     try {
       await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 5000 });
     } catch (error) {
-      await newPartner.reload();
+      await refreshPage(newPartner);
       await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible();
     }
+  }
+
+  public async getPlanToBuy(plan: string): Promise<Locator> {
+    return this.page.locator(plan);
   }
 }
