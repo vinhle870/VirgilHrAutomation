@@ -1,0 +1,14 @@
+import { Locator, Page } from "@playwright/test";
+import { BasePage } from "../base-page";
+
+export class HomePage extends BasePage {
+  constructor(page: Page) {
+    super(page);
+  }
+
+  public async getHomeTitle(): Promise<Locator> {
+    const homeLocator = this.page.getByRole("heading", { level: 2, name: "Home" }).first();
+    await homeLocator.waitFor({ state: "visible", timeout: 20000 });
+    return homeLocator;
+  }
+}

@@ -33,10 +33,4 @@ export abstract class BasePage {
     await radio.first().waitFor({ state: "visible", timeout: effectiveTimeout });
     await radio.first().click();
   }
-
-  public async getHomeTitle(): Promise<Locator> {
-    const homeLocator = this.page.getByRole("heading", { level: 2, name: "Home" }).first();
-    await homeLocator.waitFor({ state: "visible", timeout: 20000 });
-    return homeLocator;
-  }
 }

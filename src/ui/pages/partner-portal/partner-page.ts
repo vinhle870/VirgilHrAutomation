@@ -28,15 +28,6 @@ export class PartnerPage extends BasePage {
     await page.locator(BusinessLocator.closeDetailBusinessButton).click();
   }
 
-  public async verifyPartnerVisible(partnerInfo: Partner, newPartner = this.page) {
-    try {
-      await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 5000 });
-    } catch (error) {
-      await refreshPage(newPartner);
-      await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible();
-    }
-  }
-
   public async getPlanToBuy(plan: string): Promise<Locator> {
     return this.page.locator(plan);
   }

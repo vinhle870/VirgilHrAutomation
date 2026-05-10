@@ -1,0 +1,14 @@
+[
+  {
+    "stepText": "Select Partner/Consultant Owner",
+    "option": "Partner/Consultant Owner",
+    "createText": "Create Partner/Consultant Owner",
+    "verifyText": "Verify create partner with Partner/Consultant Owner successfully"
+  },
+  {
+    "stepText": "Select Member Portal Consumer",
+    "option": "Member Portal Consumer",
+    "createText": "Create Member Portal Consumer",
+    "verifyText": "Verify create partner with Member Portal Consumer"
+  }
+]
