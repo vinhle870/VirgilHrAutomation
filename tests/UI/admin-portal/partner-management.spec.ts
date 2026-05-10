@@ -11,7 +11,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC30",
     },
-    async ({ loginPage, partnerManagementPage }, testInfo) => {
+    async ({ loginPage, onboardingFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -27,7 +27,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let newPartner;
       await test.step("Create a new partner", async () => {
-        newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+        newPartner = await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -46,7 +46,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC31",
     },
-    async ({ loginPage: loginPage, partnerManagementPage }, testInfo) => {
+    async ({ loginPage: loginPage, onboardingFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -67,7 +67,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let newPartner;
       await test.step("Create a new partner", async () => {
-        newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+        newPartner = await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -86,7 +86,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC32",
     },
-    async ({ loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage }, testInfo) => {
+    async ({ loginPage, authFlow, onboardingFlow, tempEmailFreePage }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -102,7 +102,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let newPartner;
       await test.step("Create a new partner", async () => {
-        newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+        newPartner = await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -126,7 +126,11 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let addedPeoPartner;
       await test.step("Add peo ", async () => {
-        addedPeoPartner = await partnerManagementPage.addPeoConsultant(partnerInfo!, peoPartners!, tempEmailFreePage);
+        addedPeoPartner = await onboardingFlow.addPeoConsultant(partnerInfo!, peoPartners!, tempEmailFreePage);
+      });
+
+      await test.step("Activate peo", async () => {
+        for (const member of peoPartners!) await authFlow.acceptInviteAndJoinTeamByCustomer(member.accountInfo?.email!);
       });
 
       await test.step("Verify peoes are added successfully", async () => {
@@ -140,7 +144,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC33",
     },
-    async ({ loginPage, partnerManagementPage }, testInfo) => {
+    async ({ loginPage, onboardingFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -156,7 +160,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let newPartner;
       await test.step("Create a new partner", async () => {
-        newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+        newPartner = await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify the domain is emty", async () => {
@@ -175,7 +179,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC34",
     },
-    async ({ loginPage, partnerManagementPage, onboardingFlow }, testInfo) => {
+    async ({ loginPage, onboardingFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -190,7 +194,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
             const partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption(scenario.option).withProductsType([process.env.PLAN!]).build();
 
             await test.step(scenario.createText, async () => {
-              await partnerManagementPage.createPartner(partnerInfo);
+              await onboardingFlow.createPartner(partnerInfo);
             });
 
             await test.step(scenario.verifyText, async () => {
@@ -207,7 +211,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC35",
     },
-    async ({ loginPage, partnerManagementPage, onboardingFlow, purchaseFlow, partnerPage }, testInfo) => {
+    async ({ loginPage, onboardingFlow, purchaseFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -227,7 +231,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await partnerManagementPage.createPartner(partnerInfo!);
+        await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify the domain is emty", async () => {
@@ -252,7 +256,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC36",
     },
-    async ({ loginPage, partnerManagementPage, onboardingFlow, partnerPage, authFlow }, testInfo) => {
+    async ({ loginPage, onboardingFlow, authFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -267,7 +271,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await partnerManagementPage.createPartner(partnerInfo!);
+        await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify the partner is created successfully", async () => {
@@ -296,7 +300,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC37",
     },
-    async ({ loginPage, partnerManagementPage, onboardingFlow, partnerPage, authFlow }, testInfo) => {
+    async ({ loginPage, onboardingFlow, authFlow, homeExceptAdminPage }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -316,7 +320,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await partnerManagementPage.createPartner(partnerInfo!);
+        await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify the partner is created successfully", async () => {
@@ -332,7 +336,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify benifits", async () => {
-        const homeTitle = await partnerPage.getHomeTitle();
+        const homeTitle = await homeExceptAdminPage.getHomeTitle();
 
         await expect(homeTitle).toBeVisible({ timeout: 30000 });
       });
@@ -344,7 +348,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC38",
     },
-    async ({ loginPage, partnerManagementPage, onboardingFlow }, testInfo) => {
+    async ({ loginPage, onboardingFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -359,7 +363,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await partnerManagementPage.createPartner(partnerInfo!);
+        await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -388,7 +392,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await partnerManagementPage.createPartner(partnerInfo!);
+        await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -396,7 +400,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create another partner and verify its email is duplicated ", async () => {
-        await partnerManagementPage.createPartner(partnerInfo!);
+        await onboardingFlow.createPartner(partnerInfo!);
 
         const duplicatedEmailEl = await partnerManagementPage.getDuplicatedText();
 
@@ -410,7 +414,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC40",
     },
-    async ({ loginPage, partnerManagementPage, onboardingFlow }, testInfo) => {
+    async ({ loginPage, onboardingFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -425,7 +429,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await partnerManagementPage.createPartner(partnerInfo!);
+        await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -439,7 +443,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC41",
     },
-    async ({ loginPage, partnerPage, authFlow, partnerManagementPage, onboardingFlow }, testInfo) => {
+    async ({ loginPage, authFlow, onboardingFlow, homeExceptAdminPage }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -459,7 +463,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await partnerManagementPage.createPartner(partnerInfo!);
+        await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -469,7 +473,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       await test.step("Partner does not need to make a payment through tripe", async () => {
         await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner");
 
-        const homeTitle = await partnerPage.getHomeTitle();
+        const homeTitle = await homeExceptAdminPage.getHomeTitle();
         await expect(homeTitle).toBeVisible();
       });
     },
@@ -480,7 +484,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC42",
     },
-    async ({ loginPage, partnerPage, authFlow, purchaseFlow, partnerManagementPage, onboardingFlow }, testInfo) => {
+    async ({ loginPage, partnerPage, authFlow, purchaseFlow, onboardingFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -500,7 +504,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await partnerManagementPage.createPartner(partnerInfo!);
+        await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -526,7 +530,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC43",
     },
-    async ({ loginPage, partnerManagementPage, tempEmailFreePage, partnerPage, onboardingFlow }, testInfo) => {
+    async ({ loginPage, partnerManagementPage, tempEmailFreePage, onboardingFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -547,7 +551,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await partnerManagementPage.createPartner(partnerInfo!);
+        await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -573,7 +577,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC44",
     },
-    async ({ loginPage, partnerManagementPage, partnerPage, authFlow, onboardingFlow }, testInfo) => {
+    async ({ loginPage, authFlow, onboardingFlow, homeExceptAdminPage }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -593,7 +597,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await partnerManagementPage.createPartner(partnerInfo!);
+        await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -603,13 +607,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       await test.step("Verify With Payment Options = Partner/Consultant Owner, after successfully creating a Partner account, the user receives two credential emails", async () => {
         await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal");
 
-        const homeTitlePartnerPage = await partnerPage.getHomeTitle();
+        const homeTitlePartnerPage = await homeExceptAdminPage.getHomeTitle();
 
         await expect(homeTitlePartnerPage).toBeVisible({ timeout: 30000 });
 
         await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Member");
 
-        const homeTitleMemberPage = await partnerPage.getHomeTitle();
+        const homeTitleMemberPage = await homeExceptAdminPage.getHomeTitle();
 
         await expect(homeTitleMemberPage).toBeVisible({ timeout: 30000 });
       });
@@ -621,7 +625,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@45",
     },
-    async ({ loginPage: loginPage, partnerManagementPage, onboardingFlow, tempEmailFreePage }, testInfo) => {
+    async ({ loginPage: loginPage, onboardingFlow, tempEmailFreePage }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -641,7 +645,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner with payment option = 'Member Portal Consumer'", async () => {
-        await partnerManagementPage.createPartner(partnerInfo!);
+        await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -667,7 +671,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@46",
     },
-    async ({ loginPage, partnerManagementPage, authFlow, onboardingFlow, partnerPage }, testInfo) => {
+    async ({ loginPage, homeExceptAdminPage, authFlow, onboardingFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -687,7 +691,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner with payment option = 'Member Portal Consumer'", async () => {
-        await partnerManagementPage.createPartner(partnerInfo!);
+        await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -697,7 +701,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       await test.step("Verify login only partner portal", async () => {
         await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner Portal");
 
-        await expect(await partnerPage.getHomeTitle()).toBeVisible({ timeout: 30000 });
+        await expect(await homeExceptAdminPage.getHomeTitle()).toBeVisible({ timeout: 30000 });
       });
     },
   );
@@ -707,13 +711,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC47",
     },
-    async ({ loginPage: loginAdminPage, partnerManagementPage, onboardingFlow, partnerPage, loginPage, authFlow }, testInfo) => {
+    async ({ loginPage, homeExceptAdminPage, onboardingFlow, partnerPage, authFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
 
       await test.step("Login to Admin portal", async () => {
-        await loginAdminPage.login();
+        await loginPage.login();
       });
 
       let partnerInfo;
@@ -728,7 +732,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner with payment option = 'Member Portal Consumer'", async () => {
-        await partnerManagementPage.createPartner(partnerInfo!);
+        await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -747,7 +751,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
         await authFlow.activateIndividualCustomerAccountAndSetPassword(ownerAccount.email!, "Consumer");
 
-        await expect(await partnerPage.getHomeTitle()).toBeVisible();
+        await expect(await homeExceptAdminPage.getHomeTitle()).toBeVisible();
       });
 
       await test.step("Verify the owner cannot log in to Partner Portal", async () => {

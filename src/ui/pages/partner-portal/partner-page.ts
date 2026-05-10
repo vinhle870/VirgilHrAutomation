@@ -1,10 +1,8 @@
-import { expect, Locator, Page } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 import { BasePage } from "../base-page";
 import { LoginFormLocators } from "../shared-pages/locators/login-form";
 import { ClientPartnerPortalLocators } from "./locators/client";
 import { BusinessLocator } from "./locators/business";
-import { Partner } from "src/objects";
-import refreshPage from "src/utilities/refresh";
 
 export class PartnerPage extends BasePage {
   private readonly URL: string;

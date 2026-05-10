@@ -7,6 +7,11 @@ import { CommonAdminPortalLocator } from "../pages/admin-portal/locators/common/
 import { CommonPartnerLocator } from "../pages/admin-portal/locators/partner-management/locator/common";
 import delay from "src/utilities/delay";
 import { CreateNewPartnerModalLocator } from "../pages/admin-portal/locators/partner-management/locator/new-partner";
+import { PeoConsultantAdditionLocator } from "../pages/admin-portal/locators/partner-management/locator/peo-consultant-addition";
+import { DetailOfPartnerLocator } from "../pages/admin-portal/locators/partner-management/locator/detail";
+import { PeoPartner } from "src/objects/ipeopartner";
+import { TempEmailFreePage } from "../pages";
+import { UiAssert } from "src/assertions";
 
 /**
  * This flow class contains methods related to the onboarding process of both partner and member users, such as accepting invitations, credentialing, buying plans, and creating a business.
@@ -75,11 +80,12 @@ export class OnboardingFlow {
   }
 
   public async verifyPartnerVisible(partnerInfo: Partner) {
+    const partnerEmailLocator = this.page!.getByText(partnerInfo!.accountInfo!.email);
     try {
-      await expect(this.page!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 5000 });
+      await UiAssert.allVisible([partnerEmailLocator]);
     } catch (error) {
       await refreshPage(this.page);
-      await expect(this.page.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible();
+      await UiAssert.allVisible([partnerEmailLocator]);
     }
   }
 
@@ -117,36 +123,36 @@ export class OnboardingFlow {
       }
     }
 
-    const nameElement = await this.getLocator(CreateNewPartnerModalLocator.nameOfPartner);
+    const nameElement = this.page.locator(CreateNewPartnerModalLocator.nameOfPartner);
 
     await nameElement.fill(partnerInfo.accountInfo!.firstName);
 
-    const subDomainElement = await this.getLocator(CreateNewPartnerModalLocator.subDomain);
+    const subDomainElement = this.page.locator(CreateNewPartnerModalLocator.subDomain);
 
     const standardSubdomain = partnerInfo.partnerInfo!.subDomain.replace(/[^a-zA-Z0-9]/g, "");
 
     await subDomainElement.fill(standardSubdomain);
 
-    const firstNameElement = await this.getLocator(CreateNewPartnerModalLocator.firstName);
+    const firstNameElement = this.page.locator(CreateNewPartnerModalLocator.firstName);
 
     await firstNameElement.scrollIntoViewIfNeeded();
 
     await firstNameElement.fill(partnerInfo.accountInfo!.firstName!);
 
-    const lastNameElement = await this.getLocator(CreateNewPartnerModalLocator.lastName);
+    const lastNameElement = await this.page.locator(CreateNewPartnerModalLocator.lastName);
 
     await lastNameElement.fill(partnerInfo.accountInfo!.lastName);
 
-    const phoneNumberElement = await this.getLocator(CreateNewPartnerModalLocator.contactNumber);
+    const phoneNumberElement = this.page.locator(CreateNewPartnerModalLocator.contactNumber);
 
     await phoneNumberElement.fill(partnerInfo.accountInfo!.phoneNumber);
 
-    const jobTitleElement = await this.getLocator(CreateNewPartnerModalLocator.jobTitle);
+    const jobTitleElement = this.page.locator(CreateNewPartnerModalLocator.jobTitle);
 
     await jobTitleElement.fill(partnerInfo.accountInfo!.jobTitle);
 
     if (partnerInfo.partnerInfo!.paymentOption) {
-      await (await this.getLocator(CreateNewPartnerModalLocator.paymentOption)).scrollIntoViewIfNeeded();
+      await this.page.locator(CreateNewPartnerModalLocator.paymentOption).scrollIntoViewIfNeeded();
 
       try {
         await this.dropdown.selectByText(CreateNewPartnerModalLocator.paymentOption, partnerInfo.partnerInfo!.paymentOption);
@@ -156,12 +162,12 @@ export class OnboardingFlow {
     }
 
     if (!partnerInfo.partnerInfo?.isPublic) {
-      await (await this.getLocator(CreateNewPartnerModalLocator.isPublic)).scrollIntoViewIfNeeded();
-      await (await this.getLocator(CreateNewPartnerModalLocator.isPublic)).click();
+      await this.page.locator(CreateNewPartnerModalLocator.isPublic).scrollIntoViewIfNeeded();
+      await this.page.locator(CreateNewPartnerModalLocator.isPublic).click();
     }
 
     if (partnerInfo.partnerInfo!.productsType) {
-      await (await this.getLocator(CreateNewPartnerModalLocator.productsType)).scrollIntoViewIfNeeded();
+      await this.page.locator(CreateNewPartnerModalLocator.productsType).scrollIntoViewIfNeeded();
 
       try {
         for (let i = 0; i < partnerInfo.partnerInfo!.productsType.length; ++i) await this.dropdown.selectByText(CreateNewPartnerModalLocator.productsType, partnerInfo.partnerInfo!.productsType[i]);
@@ -170,11 +176,11 @@ export class OnboardingFlow {
       }
     }
 
-    await (await this.getLocator(CreateNewPartnerModalLocator.email)).fill(partnerInfo.accountInfo!.email);
+    await this.page.locator(CreateNewPartnerModalLocator.email).fill(partnerInfo.accountInfo!.email);
 
     if (partnerInfo.partnerInfo!.bankTransfer === true && partnerInfo.partnerInfo!.paymentOption === "Partner/Consultant Owner") {
-      await (await this.getLocator(CreateNewPartnerModalLocator.bankTransfer)).scrollIntoViewIfNeeded();
-      await (await this.getLocator(CreateNewPartnerModalLocator.bankTransfer)).click();
+      await this.page.locator(CreateNewPartnerModalLocator.bankTransfer).scrollIntoViewIfNeeded();
+      await this.page.locator(CreateNewPartnerModalLocator.bankTransfer).click();
 
       if (partnerInfo.partnerInfo!.plan && !partnerInfo.partnerInfo!.productsType) {
         try {
@@ -194,11 +200,113 @@ export class OnboardingFlow {
       }
     }
 
-    if (partnerInfo.partnerInfo!.internal === true) await (await this.getLocator(CreateNewPartnerModalLocator.internal)).click();
+    if (partnerInfo.partnerInfo!.internal === true) await this.page.locator(CreateNewPartnerModalLocator.internal).click();
 
-    await (await this.getLocator(CreateNewPartnerModalLocator.createPartnerButton)).click();
+    await this.page.locator(CreateNewPartnerModalLocator.createPartnerButton).click();
 
     if (partnerInfo.partnerInfo.bankTransfer === true && partnerInfo.partnerInfo.paymentOption === "Partner/Consultant Owner")
-      await (await this.getLocator(CreateNewPartnerModalLocator.confirmButton)).click();
+      await this.page.locator(CreateNewPartnerModalLocator.confirmButton).click();
+  }
+
+  public async addPeoConsultant(partner: Partner, peoPartners: PeoPartner[], tempEmailFreePage: TempEmailFreePage): Promise<string> {
+    const partnerPhoneNumber = partner.accountInfo?.phoneNumber;
+
+    if (!partnerPhoneNumber) {
+      throw new Error("Partner phone number is missing");
+    }
+
+    const rawDetailLocator = CommonPartnerLocator.detailButton;
+
+    const detailButtonLocator = rawDetailLocator.replace("phoneNumberValue", partnerPhoneNumber!);
+
+    const detailButtonEl = this.page.locator(detailButtonLocator).last();
+
+    await detailButtonEl.click();
+
+    const addPeoConsultantButtonEl = this.page.locator(DetailOfPartnerLocator.addPeoConsultantButton);
+
+    await addPeoConsultantButtonEl.click();
+
+    const nameEl = this.page.locator(PeoConsultantAdditionLocator.nameInput);
+
+    const emailInputEl = this.page.locator(PeoConsultantAdditionLocator.emailInput);
+
+    const firstNameInputEl = this.page.locator(PeoConsultantAdditionLocator.firstNameInput);
+
+    const lastNameInputEl = this.page.locator(PeoConsultantAdditionLocator.lastNameInput);
+
+    const phoneNumberInputEl = this.page.locator(PeoConsultantAdditionLocator.phoneNumberInput).last();
+
+    const jobTitleInputEl = this.page.locator(PeoConsultantAdditionLocator.jobTitleInput);
+
+    const customBrandingEl = this.page.locator(PeoConsultantAdditionLocator.customBranding);
+
+    const customBenefitsPlanEl = this.page.locator(PeoConsultantAdditionLocator.customBenefitsPlan);
+
+    const internalEl = this.page.locator(PeoConsultantAdditionLocator.internal);
+
+    const externalEl = this.page.locator(PeoConsultantAdditionLocator.external);
+
+    const backURLEl = this.page.locator(PeoConsultantAdditionLocator.backURL);
+
+    const backTextEl = this.page.locator(PeoConsultantAdditionLocator.backText);
+
+    const createButtonEl = this.page.locator(PeoConsultantAdditionLocator.createButton);
+
+    for (let i = 0; i < peoPartners.length; i++) {
+      if (i !== 0 && i < peoPartners.length - 1) await addPeoConsultantButtonEl.click();
+
+      await nameEl.fill(peoPartners[i].peoPartnerInfo?.name!);
+
+      await emailInputEl.fill(peoPartners[i].accountInfo?.email!);
+
+      await firstNameInputEl.fill(peoPartners[i].accountInfo?.firstName!);
+
+      await lastNameInputEl.fill(peoPartners[i].accountInfo?.lastName!);
+
+      await phoneNumberInputEl.fill(peoPartners[i].accountInfo?.phoneNumber!);
+
+      await jobTitleInputEl.fill(peoPartners[i].accountInfo?.jobTitle!);
+
+      if (peoPartners[i].peoPartnerInfo?.customBranding === true) {
+        await customBrandingEl.click();
+      }
+
+      if (peoPartners[i].peoPartnerInfo?.companyType === "Internal") {
+        await internalEl.click();
+      } else await externalEl.click();
+
+      if (peoPartners[i].peoPartnerInfo?.customBenefitsPlans === true) await customBenefitsPlanEl.click();
+
+      if (peoPartners[i].peoPartnerInfo?.backURL !== "") await backURLEl.click();
+
+      if (peoPartners[i].peoPartnerInfo?.backText !== "") await backTextEl.click();
+
+      await createButtonEl.click();
+    }
+
+    await delay(5000);
+
+    return "Pass";
+  }
+
+  public async addMoreMembers(partner: Partner, invitedMembers: UserInfo[], page = this.page): Promise<void> {
+    if (invitedMembers?.length === 0) throw new Error("There is no any member to add");
+
+    const partnerPhoneNumber = partner.accountInfo?.phoneNumber;
+
+    if (!partnerPhoneNumber) {
+      throw new Error("Partner phone number is missing");
+    }
+
+    const rawDetailLocator = CommonPartnerLocator.detailButton;
+
+    const detailButtonLocator = rawDetailLocator.replace("phoneNumberValue", partnerPhoneNumber!);
+
+    await this.page.locator(detailButtonLocator).last().click();
+
+    await this.page.locator(DetailOfPartnerLocator.addMemberButton).click();
+
+    this.inviteMembersByEmail(invitedMembers, page);
   }
 }

@@ -3,6 +3,7 @@ import { AdminHomePage, AdminLeftMenu, BuyPlanPage, LoginPage, TempEmailFreePage
 import { PartnerManagementPage } from "src/ui/pages/admin-portal/partner-management-page";
 import { CustomerManagementPage } from "src/ui/pages/admin-portal/customer-management-page";
 import { PartnerPage } from "src/ui/pages/partner-portal/partner-page";
+import { HomePage } from "src/ui/pages/shared-pages/home.page";
 
 type PageFixtures = {
   homePage: AdminHomePage;
@@ -13,6 +14,7 @@ type PageFixtures = {
   partnerManagementPage: PartnerManagementPage;
   customerManagementPage: CustomerManagementPage;
   partnerPage: PartnerPage;
+  homeExceptAdminPage: HomePage;
 };
 
 export const test = base.extend<PageFixtures>({
@@ -46,5 +48,9 @@ export const test = base.extend<PageFixtures>({
 
   partnerPage: async ({ page }, use) => {
     await use(new PartnerPage(page));
+  },
+
+  homeExceptAdminPage: async ({ page }, use) => {
+    await use(new HomePage(page));
   },
 });

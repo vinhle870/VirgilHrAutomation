@@ -38,7 +38,7 @@ export class AuthFlow {
    * and completing the onboarding steps.
    * Flows: Accept via invite link -> Set password -> Click on Join Team link -> Close modal
    */
-  async acceptInviteAndJoinTeamByCustomer(customerEmail: string, password: string): Promise<void> {
+  async acceptInviteAndJoinTeamByCustomer(customerEmail: string, password = "Password@123"): Promise<void> {
     await this.tempEmailFreePage.acceptJoinTeamInvite(customerEmail);
 
     await this.loginPage.currentPage.waitForLoadState("domcontentloaded");
