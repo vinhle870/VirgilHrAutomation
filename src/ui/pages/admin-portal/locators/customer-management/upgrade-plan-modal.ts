@@ -1,4 +1,4 @@
-export class UpgradePlanLocator {
+export class UpgradePlanModalLocator {
   public static readonly upgradelButton =
     "xpath=//button[contains(text(),'Upgrade to')]";
   public static readonly plan = "xpath=//p[contains(text(),'planValue')]";

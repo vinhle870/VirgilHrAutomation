@@ -4,10 +4,10 @@ import { CommonAdminPortalLocator } from "./locators/common/common";
 import { CustomerInfo, Partner, UserInfo } from "src/objects";
 import { CommonCustomerLocator } from "./locators/customer-management/common";
 import delay from "src/utilities/delay";
-import { CreateNewCustomerModalLocator } from "./locators/customer-management/new-customer";
+import { CreateNewCustomerModalLocator } from "./locators/customer-management/new-customer-modal";
 import { CreateNewPartnerModalLocator } from "./locators/partner-management/locator/new-partner";
-import { CustomerDetailLocator } from "./locators/customer-management/detail";
-import { UpgradePlanLocator } from "./locators/customer-management/upgrade-plan";
+import { CustomerDetailModalLocator } from "./locators/customer-management/customer-detail-modal";
+import { UpgradePlanModalLocator } from "./locators/customer-management/upgrade-plan-modal";
 import { CommonPartnerLocator } from "./locators/partner-management/locator/common";
 import { TeamInfoLocator } from "./locators/customer-management/team-imformation";
 
@@ -176,9 +176,9 @@ export class CustomerManagementPage extends BasePage {
 
     await detailButtonEl.nth(2).click();
     //click upgrade plan
-    await (await this.getLocator(CustomerDetailLocator.customerDetailButton)).click();
+    await (await this.getLocator(CustomerDetailModalLocator.customerDetailButton)).click();
     //Choose the plan to upgrade
-    const rawPlan = UpgradePlanLocator.plan;
+    const rawPlan = UpgradePlanModalLocator.plan;
 
     const planToUpgradeLocator = rawPlan.replace("planValue", planToUpgrade);
 
@@ -188,15 +188,15 @@ export class CustomerManagementPage extends BasePage {
 
     await planToUpgradeEl.click();
     //Upgrade
-    await (await this.getLocator(UpgradePlanLocator.upgradelButton)).click();
+    await (await this.getLocator(UpgradePlanModalLocator.upgradelButton)).click();
 
     if (customer.bankStranferToUpgradePlan) {
-      const bankStranferButtonEl = this.page.locator(UpgradePlanLocator.bankStranfer);
+      const bankStranferButtonEl = this.page.locator(UpgradePlanModalLocator.bankStranfer);
 
       await bankStranferButtonEl.click();
 
-      await (await this.getLocator(UpgradePlanLocator.upgradeNowButton)).click();
-    } else await (await this.getLocator(UpgradePlanLocator.requestPaymentButton)).click();
+      await (await this.getLocator(UpgradePlanModalLocator.upgradeNowButton)).click();
+    } else await (await this.getLocator(UpgradePlanModalLocator.requestPaymentButton)).click();
   }
 
   public async inviteMember(member: Partner, invitedMembers: UserInfo[], page = this.page) {
@@ -217,7 +217,7 @@ export class CustomerManagementPage extends BasePage {
 
     await page.locator(detailButtonLocator).last().click();
 
-    await page.locator(CustomerDetailLocator.viewDetailButton).click();
+    await page.locator(CustomerDetailModalLocator.viewDetailButton).click();
 
     try {
       await page.locator(TeamInfoLocator.addTeamButton).last().click();
