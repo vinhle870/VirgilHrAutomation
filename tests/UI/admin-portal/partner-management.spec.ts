@@ -86,7 +86,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC32",
     },
-    async ({ loginPage, authFlow, onboardingFlow, tempEmailFreePage }, testInfo) => {
+    async ({ loginPage, authFlow, onboardingFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -126,7 +126,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let addedPeoPartner;
       await test.step("Add peo ", async () => {
-        addedPeoPartner = await onboardingFlow.addPeoConsultant(partnerInfo!, peoPartners!, tempEmailFreePage);
+        addedPeoPartner = await onboardingFlow.addPeoConsultant(partnerInfo!, peoPartners!);
       });
 
       await test.step("Activate peo", async () => {
@@ -278,7 +278,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await onboardingFlow.verifyPartnerVisible(partnerInfo);
       });
 
-      await test.step("Credential partner", async () => {
+      await test.step("Activate partner", async () => {
         await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal");
       });
 

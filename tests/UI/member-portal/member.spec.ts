@@ -76,25 +76,23 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginAdminPage.login();
       });
 
-      let partnerData:Partner;
+      let partnerData: Partner;
       await test.step("Create partner info", async () => {
         partnerData = await DataFactory.partnerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
           .withBankTransfer(false)
-          .withProductsType( Array.from(plans[0]))
+          .withProductsType(Array.from(plans[0]))
           .build();
       });
 
-
       await test.step("Create a new partner", async () => {
-         await partnerManagementPage.createPartner(partnerData!);
+        await partnerManagementPage.createPartner(partnerData!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
         await expect(partnerManagementPage.currentPage.getByText(partnerData!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
       });
-
 
       await test.step("Buy the plan through Stripe", async () => {
         await onboardingFlow.activateAccountAndSetPassword(tempEmailFreePage, partnerData!.accountInfo!.email!, "Partner", true);
@@ -102,19 +100,17 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await purchaseFlow.selectPlanBeforePurchase("", partnerData.accountInfo!.email!, partnerData.partnerInfo!.productsType![0]);
       });
 
-
       await test.step("Verify the user can see the Stripe payment form displayed correctly", async () => {
         await purchaseFlow.verifyStripePaymentFormCorrectDisplay();
       });
 
       await test.step("Complete the payment with valid card information", async () => {
-          await purchaseFlow.submitSubscriptionPayment();
-        });
+        await purchaseFlow.submitSubscriptionPayment();
+      });
 
-        const homeTitle = await onboardingFlow.getHomeTitle();
+      const homeTitle = await onboardingFlow.getHomeTitle();
 
-        await UiAssert.allVisible([homeTitle], { timeout: 30000 });
-
+      await UiAssert.allVisible([homeTitle], { timeout: 30000 });
     },
   );
 

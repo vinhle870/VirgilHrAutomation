@@ -12,6 +12,9 @@ import { DetailOfPartnerLocator } from "../pages/admin-portal/locators/partner-m
 import { PeoPartner } from "src/objects/ipeopartner";
 import { TempEmailFreePage } from "../pages";
 import { UiAssert } from "src/assertions";
+import { CommonCustomerLocator } from "../pages/admin-portal/locators/customer-management/common";
+import { CustomerDetailModalLocator } from "../pages/admin-portal/locators/customer-management/customer-detail-modal";
+import { TeamInfoLocator } from "../pages/admin-portal/locators/customer-management/team-imformation";
 
 /**
  * This flow class contains methods related to the onboarding process of both partner and member users, such as accepting invitations, credentialing, buying plans, and creating a business.
@@ -105,9 +108,7 @@ export class OnboardingFlow {
 
     this.page.locator(CommonPartnerLocator.createNewPartnerButton).click({ timeout: 5000 });
 
-    if (!partnerInfo.partnerInfo || !partnerInfo.partnerInfo.departmentName) {
-      throw new Error("Department name does not exist or is empty");
-    }
+    if (!partnerInfo.partnerInfo || !partnerInfo.partnerInfo.departmentName) throw new Error("Department name does not exist or is empty");
 
     await delay(5000);
 
@@ -189,7 +190,7 @@ export class OnboardingFlow {
           throw new Error("Plan does not exist");
         }
       }
-      const numberOfLabelsInBillingCycle = await (await this.getLocator(CreateNewPartnerModalLocator.billingCycle)).count();
+      const numberOfLabelsInBillingCycle = await this.page.locator(CreateNewPartnerModalLocator.billingCycle).count();
 
       if (partnerInfo.partnerInfo!.billingCycleRadio && numberOfLabelsInBillingCycle == 2) {
         try {
@@ -208,7 +209,7 @@ export class OnboardingFlow {
       await this.page.locator(CreateNewPartnerModalLocator.confirmButton).click();
   }
 
-  public async addPeoConsultant(partner: Partner, peoPartners: PeoPartner[], tempEmailFreePage: TempEmailFreePage): Promise<string> {
+  public async addPeoConsultant(partner: Partner, peoPartners: PeoPartner[]): Promise<string> {
     const partnerPhoneNumber = partner.accountInfo?.phoneNumber;
 
     if (!partnerPhoneNumber) {
@@ -306,7 +307,32 @@ export class OnboardingFlow {
     await this.page.locator(detailButtonLocator).last().click();
 
     await this.page.locator(DetailOfPartnerLocator.addMemberButton).click();
+  }
 
-    this.inviteMembersByEmail(invitedMembers, page);
+  public async inviteMember(member: Partner, invitedMembers: UserInfo[], page = this.page) {
+    if (invitedMembers?.length === 0) throw new Error("There is no any member to add");
+
+    const memberPhoneNumber = member.accountInfo?.phoneNumber;
+
+    if (!memberPhoneNumber) {
+      throw new Error("Partner phone number is missing");
+    }
+    await page.locator(CommonAdminPortalLocator.managementCategory).click();
+
+    await page.locator(CommonAdminPortalLocator.customerManagement).click();
+
+    const rawDetailLocator = CommonCustomerLocator.detailButton;
+
+    const detailButtonLocator = rawDetailLocator.replace("phoneNumberValue", memberPhoneNumber);
+
+    await page.locator(detailButtonLocator).last().click();
+
+    await page.locator(CustomerDetailModalLocator.viewDetailButton).click();
+
+    try {
+      await page.locator(TeamInfoLocator.addTeamButton).last().click();
+    } catch (error) {
+      await page.locator(TeamInfoLocator.addTeamButton).first().click();
+    }
   }
 }
