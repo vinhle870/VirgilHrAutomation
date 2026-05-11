@@ -198,7 +198,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@Verify that when Payment Options = Partner/Consultant Owner, the partner account is both the Owner of the Partner Team and the Owner of all Businesses under it.",
     },
-    async ({ loginPage: loginAdminPage, partnerManagementPage, onboardingFlow, tempEmailFreePage, partnerPage }, testInfo) => {
+    async ({ loginPage: loginAdminPage, authFlow, onboardingFlow, tempEmailFreePage, partnerPage }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -220,7 +220,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let newPartner;
       await test.step("Create a new partner", async () => {
-        newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+        newPartner = await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -228,9 +228,8 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       let owner;
-      let newPartnerPage: Page;
       await test.step("Create business", async () => {
-        newPartnerPage = await onboardingFlow.activateAccountAndSetPassword(tempEmailFreePage, partnerInfo!.accountInfo?.email!);
+        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal");
         owner = await onboardingFlow.createBusinessFromPartnerPortal(newPartnerPage!, partnerInfo!, partnerInfo!);
       });
 

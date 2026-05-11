@@ -126,7 +126,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let addedPeoPartner;
       await test.step("Add peo ", async () => {
-        addedPeoPartner = await onboardingFlow.addPeoConsultant(partnerInfo!, peoPartners!);
+        addedPeoPartner = await onboardingFlow.addPeoConsultantInAdminPortal(partnerInfo!, peoPartners!);
       });
 
       await test.step("Activate peo", async () => {

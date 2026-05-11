@@ -60,7 +60,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       await test.step("Invite members in Customer management", async () => {
         invitedMembers = await CustomerFactory.generateMembers(1, "User");
 
-        await onboardingFlow.inviteMember(partnerInfo!, invitedMembers);
+        await onboardingFlow.inviteMemberInCusManagement(partnerInfo!, invitedMembers);
       });
 
       await test.step("Verify invite members successfully", async () => {
