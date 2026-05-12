@@ -177,17 +177,13 @@ export class PartnerManagementPage extends BasePage {
   public async clickDetailButton(partner: Partner) {
     const partnerPhoneNumber = partner.accountInfo?.phoneNumber;
 
-    if (!partnerPhoneNumber) {
-      throw new Error("Partner phone number is missing");
-    }
+    if (!partnerPhoneNumber) throw new Error("Partner phone number is missing");
 
     const rawDetailLocator = CommonPartnerLocator.detailButton;
 
     const detailButtonLocator = rawDetailLocator.replace("phoneNumberValue", partnerPhoneNumber!);
 
-    const detailButtonEl = this.page.locator(detailButtonLocator).last();
-
-    await detailButtonEl.click();
+    await this.page.locator(detailButtonLocator).last().click();
   }
 
   async filter(partFilterInfo: IPartnerFilter): Promise<string> {
@@ -236,5 +232,30 @@ export class PartnerManagementPage extends BasePage {
     const duplicatedEmailEl = await this.getLocator(duplicatedEmailText);
 
     return duplicatedEmailEl;
+  }
+
+  public async accessToManagementPage(category = "Partner", i = 0) {
+    const managementCategory = this.page.locator(CommonAdminPortalLocator.managementCategory);
+    await managementCategory.click();
+
+    if (i === 0) {
+      if (category === "Partner") {
+        const partnerManagementCategory = this.page.locator(CommonAdminPortalLocator.partnerManagement);
+
+        try {
+          await partnerManagementCategory.first().click({ timeout: 5000 });
+        } catch (error) {
+          await partnerManagementCategory.last().click({ timeout: 5000 });
+        }
+      } else if (category === "Member") {
+        const customerManagementCategory = this.page.locator(CommonAdminPortalLocator.customerManagement);
+
+        try {
+          await customerManagementCategory.first().click({ timeout: 5000 });
+        } catch (error) {
+          await customerManagementCategory.last().click({ timeout: 5000 });
+        }
+      }
+    }
   }
 }

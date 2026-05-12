@@ -23,6 +23,8 @@ export class LoginPage extends BasePage {
 
     await this.page.goto(url);
 
+    await this.page.waitForLoadState("domcontentloaded", { timeout: 30000 });
+
     const userField = await this.getLocator(LoginFormLocators.username);
     await userField.fill(username);
 
@@ -34,6 +36,8 @@ export class LoginPage extends BasePage {
   }
 
   public async changePassword(currentPassword: string, newPassword: string) {
+    await this.page.waitForURL("**/change-password");
+
     const currentpasswordTxt = await this.getLocator(LoginFormLocators.currentPasswordInput);
     await currentpasswordTxt.fill(currentPassword);
 

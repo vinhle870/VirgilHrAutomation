@@ -73,12 +73,22 @@ export class AuthFlow {
   }
 
   public async activateIndividualCustomerAccountAndSetPassword(email: string, portal: string, newPassword = "Password@123") {
-    const subject = portal === "Member" || portal === "Consumer" ? "HR Compliance: Your User Portal Credentials" : "HR Compliance: Your Partner Portal Credentials";
+    const subject = portal === "Member" || portal === "Consumer" ? "HR Compliance: Your User Portal Credentials" : "HR Compliance - Partner Credential";
 
     const credential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
 
-    await this.loginPage.fillLoginForm(email, credential.password!, credential.hrefValue!);
+    await this.loginPage.fillLoginForm(credential.hrefValue!, email, credential.password!);
 
     await this.loginPage.setPassword(newPassword);
+  }
+
+  public async activateIndividualCustomerAccountAndChangePassword(email: string, portal: string, newPassword = "Password@123") {
+    const subject = portal === "Member" || portal === "Consumer" ? "HR Compliance: Your User Portal Credentials" : "HR Compliance - Partner Credential";
+
+    const credential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
+
+    await this.loginPage.fillLoginForm(credential.hrefValue!, email, credential.password!);
+
+    await this.loginPage.changePassword(credential.password!, newPassword);
   }
 }

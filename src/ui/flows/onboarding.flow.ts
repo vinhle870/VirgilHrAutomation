@@ -73,19 +73,12 @@ export class OnboardingFlow {
     }
   }
 
+  public async accessToPartnerManagementPage() {
+    await this.partnerManagementPage.accessToManagementPage();
+  }
+
   public async createPartner(partnerInfo: Partner, i = 0): Promise<void> {
-    const managementCategory = this.page.locator(CommonAdminPortalLocator.managementCategory);
-    await managementCategory.click();
-
-    if (i === 0) {
-      const partnerManagementCategory = this.page.locator(CommonAdminPortalLocator.partnerManagement);
-
-      try {
-        await partnerManagementCategory.first().click({ timeout: 5000 });
-      } catch (error) {
-        await partnerManagementCategory.last().click({ timeout: 5000 });
-      }
-    }
+    await this.accessToPartnerManagementPage();
 
     this.page.locator(CommonPartnerLocator.createNewPartnerButton).click({ timeout: 5000 });
 
@@ -95,11 +88,9 @@ export class OnboardingFlow {
   public async addPeoConsultantInAdminPortal(partner: Partner, peoPartners: PeoPartner[]): Promise<string> {
     await this.partnerManagementPage.clickDetailButton(partner);
 
-    const addPeoConsultantButtonEl = this.page.locator(DetailOfPartnerLocator.addPeoConsultantButton);
+    await this.page.locator(DetailOfPartnerLocator.addPeoConsultantButton).click();
 
-    await addPeoConsultantButtonEl.click();
-
-    await this.partnerManagementPage.fillFormToAddPeo(peoPartners, addPeoConsultantButtonEl);
+    await this.partnerManagementPage.fillFormToAddPeo(peoPartners, this.page.locator(DetailOfPartnerLocator.addPeoConsultantButton));
 
     await delay(5000);
 

@@ -1,6 +1,6 @@
 export class LoginFormLocators {
-  static readonly username = "//*[text()='Email']/following::input[1]";
-  static readonly password = "//*[text()='Password']/following::input[1]";
+  static readonly username = "//input[contains(@placeholder,'email') or contains(@placeholder,'Email')]";
+  static readonly password = "//input[contains(@placeholder,'password') or contains(@placeholder,'Password')]";
   static readonly signIn = "//*[@type='submit']";
   static readonly validationMsg = "xpath=//span[text()='This account does not exist']";
 
@@ -13,5 +13,4 @@ export class LoginFormLocators {
   static readonly currentPasswordInput = "xpath=//input[@placeholder='Current password']";
   static readonly newPasswordTxt = "xpath=//input[@placeholder='New password']";
   static readonly continueBtn = "xpath=//button/span[text()='Continue']";
-
 }

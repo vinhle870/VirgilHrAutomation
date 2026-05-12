@@ -36,18 +36,14 @@ export class TempEmailFreePage extends BasePage {
 
     const password = passwordRaw?.replace(/Password\s*:/i, "").trim();
 
-    let loginLink = emailContentFrame.getByRole("link", { name: "Login" });
     let hrefValue;
-    try {
-      await loginLink.click({ timeout: 1000 });
 
-      emailContentFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).first().contentFrame();
+    emailContentFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).first().contentFrame();
 
-      loginLink = emailContentFrame.getByRole("link", { name: "Login" });
+    let loginLink = emailContentFrame.getByRole("link", { name: "Login" });
 
-      //Get href
-      hrefValue = await loginLink.getAttribute("href");
-    } catch (error) {}
+    //Get href
+    hrefValue = await loginLink.getAttribute("href");
 
     return { email, password, hrefValue };
   }
