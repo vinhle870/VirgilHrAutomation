@@ -19,12 +19,8 @@ export class PartnerPage extends BasePage {
     return this.page.locator(LoginFormLocators.validationMsg);
   }
 
-  public getOwnerRoleInClientPage(email: string, page = this.page): Locator {
-    return page.locator(ClientPartnerPortalLocators.role.replace("emailValue", email));
-  }
-
-  public async closeBusinessDetail(page = this.page): Promise<void> {
-    await page.locator(BusinessLocator.closeDetailBusinessButton).click();
+  public getOwnerRoleInClientPage(email: string): Locator {
+    return this.page.locator(ClientPartnerPortalLocators.role.replace("emailValue", email));
   }
 
   public async getPlanToBuy(plan: string): Promise<Locator> {

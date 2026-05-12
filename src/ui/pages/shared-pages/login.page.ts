@@ -8,7 +8,7 @@ export class LoginPage extends BasePage {
   }
 
   async login(): Promise<void> {
-    const url = process.env.ADMIN_BASE_URL ?? process.env.BASE_URL ?? "";
+    const url = process.env.ADMIN_PORTAL_BASE_URL ?? process.env.BASE_URL ?? "";
     const username = process.env.ADMIN_USERNAME ?? "";
     const password = process.env.ADMIN_PASSWORD ?? "";
     await this.fillLoginForm(url, username, password);

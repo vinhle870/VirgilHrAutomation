@@ -64,7 +64,7 @@ export class OnboardingFlow {
   }
 
   public async verifyPartnerVisible(partnerInfo: Partner) {
-    const partnerEmailLocator = this.page!.getByText(partnerInfo!.accountInfo!.email);
+    const partnerEmailLocator = this.page!.getByText(partnerInfo!.accountInfo!.email).first();
     try {
       await UiAssert.allVisible([partnerEmailLocator]);
     } catch (error) {

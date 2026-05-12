@@ -4,6 +4,7 @@ import { DataFactory, PersonDataGenerator } from "src/data-factory";
 import { Page } from "@playwright/test";
 import { plans } from "src/constant/static-data";
 import { Partner } from "src/objects";
+import { DataGenerate } from "src/utilities";
 
 test.describe("E2E -> Admin Portal -> Partner Management", () => {
   test(
@@ -198,7 +199,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@Verify that when Payment Options = Partner/Consultant Owner, the partner account is both the Owner of the Partner Team and the Owner of all Businesses under it.",
     },
-    async ({ loginPage: loginAdminPage, authFlow, onboardingFlow, tempEmailFreePage, partnerPage }, testInfo) => {
+    async ({ loginPage: loginAdminPage, authFlow, onboardingFlow, partnerPage }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -230,21 +231,21 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       let owner;
       await test.step("Create business", async () => {
         await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal");
-        owner = await onboardingFlow.createBusinessFromPartnerPortal(newPartnerPage!, partnerInfo!, partnerInfo!);
+        const ownerInfor = await PersonDataGenerator.generate();
+
+        owner = await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerInfor!);
       });
 
       await test.step("Verify the partner account is the Owner of all Businesses under it", async () => {
         await expect(owner!).toBeVisible();
-
-        await partnerPage.closeBusinessDetail(newPartnerPage);
       });
 
       await test.step("Move to team page", async () => {
-        await partnerPage.moveToPage("/users", newPartnerPage);
+        await partnerPage.moveToPage("/users");
       });
 
       await test.step("Verify the partner account is the Owner of the Partner Team", async () => {
-        const ownerRole = partnerPage.getOwnerRoleInClientPage(partnerInfo!.accountInfo!.email!, newPartnerPage);
+        const ownerRole = partnerPage.getOwnerRoleInClientPage(partnerInfo!.accountInfo!.email!);
         await expect(ownerRole).toBeVisible();
       });
     },
@@ -255,14 +256,14 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@ Verify that when Payment Options = Member Portal Consumer, the partner account is the Owner of the Partner Team, while each Business has its own Owner.",
     },
-    async ({ loginPage: loginAdminPage, partnerManagementPage, onboardingFlow, tempEmailFreePage, partnerPage }, testInfo) => {
+    async ({ loginPage, authFlow, onboardingFlow, partnerPage }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
 
-      // await test.step("Login to Admin portal", async () => {
-      //   await loginAdminPage.login();
-      // });
+      await test.step("Login to Admin portal", async () => {
+        await loginPage.login();
+      });
 
       let partnerInfo;
       await test.step("Create partner info", async () => {
@@ -274,39 +275,36 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .build();
       });
 
-      // let newPartner;
-      // await test.step("Create a new partner", async () => {
-      //   newPartner = await partnerManagementPage.createPartner(partnerInfo!);
-      // });
+      let newPartner;
+      await test.step("Create a new partner", async () => {
+        newPartner = await onboardingFlow.createPartner(partnerInfo!);
+      });
 
-      // await test.step("Verify newPartner is created successfully", async () => {
-      //   await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
-      // });
+      await test.step("Verify newPartner is created successfully", async () => {
+        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
+      });
 
-      let newPartnerPage: Page;
       await test.step("Credential the partner", async () => {
-        newPartnerPage = await onboardingFlow.activateAccountAndSetPassword(tempEmailFreePage, partnerInfo!.accountInfo?.email!);
+        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal");
       });
 
       let owner;
       await test.step("Create a new business", async () => {
         const ownerAccount = await PersonDataGenerator.generate();
 
-        owner = await onboardingFlow.createBusinessFromPartnerPortal(newPartnerPage!, partnerInfo!, ownerAccount);
+        owner = await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerAccount);
       });
 
       await test.step("Verify each Business has its own Owner.", async () => {
         await expect(owner!).toBeVisible();
-
-        await partnerPage.closeBusinessDetail(newPartnerPage);
       });
 
       await test.step("Move to team page", async () => {
-        await partnerPage.moveToPage("/users", newPartnerPage);
+        await partnerPage.moveToPage("/users");
       });
 
       await test.step("Verify the partner account is the Owner of the Partner Team", async () => {
-        const ownerRole = partnerPage.getOwnerRoleInClientPage(partnerInfo!.accountInfo!.email!, newPartnerPage);
+        const ownerRole = partnerPage.getOwnerRoleInClientPage(partnerInfo!.accountInfo!.email!);
         await expect(ownerRole).toBeVisible();
       });
     },

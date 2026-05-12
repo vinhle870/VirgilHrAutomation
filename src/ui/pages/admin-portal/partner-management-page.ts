@@ -6,7 +6,7 @@ import { CreateNewPartnerModalLocator } from "./locators/partner-management/loca
 import delay from "src/utilities/delay";
 import IPartnerFilter from "src/objects/ipartnerfilter";
 import { PartnerFilterLocator } from "./locators/partner-management/locator/filter-partner";
-import { Partner, UserInfo } from "src/objects";
+import { Partner } from "src/objects";
 import { PeoConsultantAdditionLocator } from "./locators/partner-management/locator/peo-consultant-addition";
 import { PeoPartner } from "src/objects/ipeopartner";
 
@@ -24,13 +24,10 @@ export class PartnerManagementPage extends BasePage {
 
     await delay(3000);
 
-    if (partnerInfo.partnerInfo!.partnerLevel) {
-      try {
-        await this.dropdown.selectByText(CreateNewPartnerModalLocator.partnerLevel, partnerInfo.partnerInfo!.partnerLevel);
-      } catch (error) {
-        throw new Error("Partner level does not exist");
-      }
-    }
+    if (partnerInfo.partnerInfo!.partnerLevel && partnerInfo.partnerInfo!.partnerLevel !== "Partner" && partnerInfo.partnerInfo!.partnerLevel !== "PEO/HR Consultant")
+      throw new Error("Partner level does not exist");
+
+    if (partnerInfo.partnerInfo!.partnerLevel) await this.dropdown.selectByText(CreateNewPartnerModalLocator.partnerLevel, partnerInfo.partnerInfo!.partnerLevel);
 
     const nameElement = this.page.locator(CreateNewPartnerModalLocator.nameOfPartner);
 
