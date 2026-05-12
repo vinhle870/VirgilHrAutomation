@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 import { LocatorHandling } from "../../utilities/locator-handling";
 import { DropdownComponent } from "../../utilities/components";
 

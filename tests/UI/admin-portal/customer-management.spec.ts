@@ -1,8 +1,7 @@
 import { test, expect } from "src/fixtures";
-import { DataFactory } from "src/data-factory";
+import { DataFactory, PersonDataGenerator } from "src/data-factory";
 import { CustomerFactory } from "src/data-factory/customer-factory";
-import { Page } from "playwright/test";
-import refreshPage from "src/utilities/refresh";
+import { UiAssert } from "src/assertions";
 
 test.describe("E2E -> Admin Portal -> Partner Management", () => {
   test(
@@ -10,13 +9,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC56",
     },
-    async ({ loginAdminPage, partnerManagementPage, onboardingFlow, tempEmailFreePage, customerManagementPage }, testInfo) => {
+    async ({ loginPage, onboardingFlow, tempEmailFreePage, authFlow, homeExceptAdminPage }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
 
       await test.step("Login to Admin portal", async () => {
-        await loginAdminPage.login();
+        await loginPage.login();
       });
 
       let partnerInfo;
@@ -29,58 +28,46 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .build();
       });
 
-      let newPartner;
-      await test.step("Create a new partner", async () => {
-        newPartner = await partnerManagementPage.createPartner(partnerInfo!);
+      await test.step("Verify the partner is created successfully", async () => {
+        await onboardingFlow.verifyPartnerVisible(partnerInfo!);
+      });
+      await test.step("Activate partner", async () => {
+        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal");
       });
 
-      await test.step("Verify the new partner is created successfully", async () => {
-        try {
-          await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
-        } catch (error) {
-          await refreshPage(newPartner!);
-
-          await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
-        }
+      let ownerAccount;
+      await test.step("Create owner info", async () => {
+        ownerAccount = await PersonDataGenerator.generate();
       });
 
       let owner;
-      let newPartnerPage: Page;
       await test.step("Create a new Business", async () => {
-        newPartnerPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!);
-        owner = await onboardingFlow.createBusiness(newPartnerPage!, partnerInfo!, partnerInfo!);
+        await onboardingFlow.createBusinessFromPartnerPortal(ownerAccount!);
       });
 
       await test.step("Verify the new Business is created successfully", async () => {
         await expect(owner!).toBeVisible({ timeout: 10000 });
-        await newPartnerPage.close();
       });
 
-      await test.step("Credential customer belonged to the new partner", async () => {
-        const memberPage = await onboardingFlow.credential(tempEmailFreePage, partnerInfo!.accountInfo?.email!, "Member");
+      await test.step("Activate customer belonged to the new partner", async () => {
+        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Member");
 
-        const memberHomeTitle = await onboardingFlow.getHomeTitle(memberPage);
+        const memberHomeTitle = await homeExceptAdminPage.getHomeTitle();
         await expect(memberHomeTitle).toBeVisible({ timeout: 30000 });
-
-        await memberPage.close();
       });
 
       let invitedMembers: any;
       await test.step("Invite members in Customer management", async () => {
         invitedMembers = await CustomerFactory.generateMembers(1, "User");
 
-        await loginAdminPage.login();
-
-        await customerManagementPage.inviteMember(partnerInfo!, invitedMembers);
+        await onboardingFlow.inviteMemberInCusManagement(partnerInfo!, invitedMembers);
       });
 
       await test.step("Verify invite members successfully", async () => {
         for (const member of invitedMembers) {
-          const localPart = member.email.split("@")[0];
-          const userPage = await onboardingFlow.acceptInvitation(tempEmailFreePage, localPart);
+          await authFlow.acceptInviteAndJoinTeamByCustomer(member.email);
 
-          const memberHomeTitle = await onboardingFlow.getHomeTitle(userPage);
-          await expect(memberHomeTitle).toBeVisible({ timeout: 30000 });
+          await UiAssert.allVisible([await homeExceptAdminPage.getHomeTitle()]);
         }
       });
     },

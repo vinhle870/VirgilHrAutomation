@@ -20,9 +20,7 @@ export class UiAssert {
    */
   static async allVisible(locators: Locator[], options?: VisibilityOptions): Promise<void> {
     const ex = options?.soft ? expect.configure({ soft: true }) : expect;
-    await Promise.all(
-      locators.map((l) => ex(l).toBeVisible({ timeout: options?.timeout })),
-    );
+    await Promise.all(locators.map((l) => ex(l).toBeVisible({ timeout: options?.timeout })));
   }
 
   /**
@@ -30,9 +28,7 @@ export class UiAssert {
    */
   static async noneVisible(locators: Locator[], options?: VisibilityOptions): Promise<void> {
     const ex = options?.soft ? expect.configure({ soft: true }) : expect;
-    await Promise.all(
-      locators.map((l) => ex(l).not.toBeVisible({ timeout: options?.timeout })),
-    );
+    await Promise.all(locators.map((l) => ex(l).not.toBeVisible({ timeout: options?.timeout })));
   }
 
   /**

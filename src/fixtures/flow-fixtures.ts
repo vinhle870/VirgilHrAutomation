@@ -20,15 +20,4 @@ export const test = base.extend<FlowFixtures>({
   purchaseFlow: async ({ page }, use) => {
     await use(new PurchaseFlow(page));
   },
-
-  adminLoggedIn: async ({ authFlow }, use) => {
-    const { BASE_URL, ADMIN_USERNAME, ADMIN_PASSWORD } = process.env;
-
-    if (!BASE_URL || !ADMIN_USERNAME || !ADMIN_PASSWORD) {
-      throw new Error("Missing environment variables");
-    }
-
-    await authFlow.loginWithValidAccount(BASE_URL, ADMIN_USERNAME, ADMIN_PASSWORD);
-    await use();
-  },
 });
