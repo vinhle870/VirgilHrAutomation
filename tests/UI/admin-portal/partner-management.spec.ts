@@ -101,18 +101,18 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .build();
       });
 
-      // let newPartner;
-      // await test.step("Create a new partner", async () => {
-      //   newPartner = await onboardingFlow.createPartner(partnerInfo!);
-      // });
+      let newPartner;
+      await test.step("Create a new partner", async () => {
+        newPartner = await onboardingFlow.createPartner(partnerInfo!);
+      });
 
-      // await test.step("Verify newPartner is created successfully", async () => {
-      //   await onboardingFlow.verifyPartnerVisible(partnerInfo!);
-      // });
+      await test.step("Verify newPartner is created successfully", async () => {
+        await onboardingFlow.verifyPartnerVisible(partnerInfo!);
+      });
 
-      // await test.step("Activate partner", async () => {
-      //   await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal");
-      // });
+      await test.step("Activate partner", async () => {
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal");
+      });
 
       await onboardingFlow.accessToPartnerManagementPage();
 
