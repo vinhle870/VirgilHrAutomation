@@ -9,6 +9,7 @@ import { PartnerFilterLocator } from "./locators/partner-management/locator/filt
 import { Partner } from "src/objects";
 import { PeoConsultantAdditionLocator } from "./locators/partner-management/locator/peo-consultant-addition";
 import { PeoPartner } from "src/objects/ipeopartner";
+import { DetailOfPartnerLocator } from "./locators/partner-management/locator/detail";
 
 export class PartnerManagementPage extends BasePage {
   constructor(page: Page) {
@@ -17,6 +18,8 @@ export class PartnerManagementPage extends BasePage {
 
   public async fillFormToCreatePartner(partnerInfo: Partner) {
     if (!partnerInfo.partnerInfo || !partnerInfo.partnerInfo.departmentName) throw new Error("Department name does not exist or is empty");
+
+    this.page.locator(CommonPartnerLocator.createNewPartnerButton).click({ timeout: 5000 });
 
     await delay(5000);
 
@@ -114,7 +117,11 @@ export class PartnerManagementPage extends BasePage {
       await this.page.locator(CreateNewPartnerModalLocator.confirmButton).click();
   }
 
-  public async fillFormToAddPeo(peoPartners: PeoPartner[], addPeoConsultantButtonEl: Locator) {
+  public async fillFormToAddPeo(peoPartners: PeoPartner[]) {
+    const addPeoConsultantButtonEl = await this.getLocator(DetailOfPartnerLocator.addPeoConsultantButton);
+
+    await this.page.locator(DetailOfPartnerLocator.addPeoConsultantButton).click();
+
     const nameEl = this.page.locator(PeoConsultantAdditionLocator.nameInput);
 
     const emailInputEl = this.page.locator(PeoConsultantAdditionLocator.emailInput);
@@ -257,5 +264,11 @@ export class PartnerManagementPage extends BasePage {
         }
       }
     }
+  }
+
+  public async addMoreMembers(partner: Partner) {
+    await this.clickDetailButton(partner);
+
+    await this.page.locator(DetailOfPartnerLocator.addMemberButton).click();
   }
 }

@@ -9,7 +9,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC56",
     },
-    async ({ loginPage, onboardingFlow, tempEmailFreePage, authFlow, homeExceptAdminPage }, testInfo) => {
+    async ({ loginPage, onboardingFlow, authFlow, homeExceptAdminPage }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
