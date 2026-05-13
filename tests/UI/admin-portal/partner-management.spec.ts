@@ -160,9 +160,8 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Partner/Consultant Owner").withProductsType([process.env.PLAN!]).build();
       });
 
-      let newPartner;
       await test.step("Create a new partner", async () => {
-        newPartner = await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartner(partnerInfo!);
       });
 
       await test.step("Verify the domain is emty", async () => {
@@ -280,16 +279,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Activate partner", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal");
-      });
-
-      let ownerAccount;
-      await test.step("Create owner info", async () => {
-        ownerAccount = await PersonDataGenerator.generate();
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal");
       });
 
       await test.step("Create owner", async () => {
-        const owner = await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerAccount!);
+        const ownerIfno = await PersonDataGenerator.generate();
+
+        const owner = await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerIfno!);
 
         await expect(owner!).toBeVisible();
       });
