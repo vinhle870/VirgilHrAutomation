@@ -38,7 +38,7 @@ export class AuthFlow {
    * and completing the onboarding steps.
    * Flows: Accept via invite link -> Set password -> Click on Join Team link -> Close modal
    */
-  async acceptInviteAndJoinTeamByCustomer(customerEmail: string, password = "Password@123"): Promise<void> {
+  async acceptInviteAndJoinTeamByCustomer(customerEmail: string, password: string): Promise<void> {
     await this.tempEmailFreePage.acceptJoinTeamInvite(customerEmail);
 
     await this.loginPage.currentPage.waitForLoadState("domcontentloaded");
@@ -56,7 +56,7 @@ export class AuthFlow {
    * @param isChangePassword
    * @param newPassword
    */
-  public async activateCustomerAccount(customerEmail: string, isChangePassword = false, newPassword = "Password@123") {
+  public async activateCustomerAccount(customerEmail: string, newPassword: string) {
     const emailTitle = "HR Compliance: Your User Portal Credentials";
 
     const accountCrendential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(customerEmail, emailTitle);
@@ -67,12 +67,10 @@ export class AuthFlow {
 
     await this.loginToPortals(inviteUrl!, customerEmail, credentialPassword!);
 
-    if (isChangePassword) {
-      await this.loginPage.changePassword(credentialPassword!, newPassword!);
-    }
+    await this.loginPage.changePassword(credentialPassword!, newPassword!);
   }
 
-  public async activateIndividualCustomerAccountAndSetPassword(email: string, portal: string, newPassword = "Password@123") {
+  public async activateIndividualCustomerAccountAndSetPassword(email: string, portal: string, newPassword: string) {
     const subject = portal === "Member" || portal === "Consumer" ? "HR Compliance: Your User Portal Credentials" : "HR Compliance - Partner Credential";
 
     const credential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
@@ -82,7 +80,7 @@ export class AuthFlow {
     await this.loginPage.setPassword(newPassword);
   }
 
-  public async activateIndividualCustomerAccountAndChangePassword(email: string, portal: string, newPassword = "Password@123") {
+  public async activateIndividualCustomerAccountAndChangePassword(email: string, portal: string, newPassword: string) {
     const subject = portal === "Member" || portal === "Consumer" ? "HR Compliance: Your User Portal Credentials" : "HR Compliance - Partner Credential";
 
     const credential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);

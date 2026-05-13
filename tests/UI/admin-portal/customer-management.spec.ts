@@ -32,7 +32,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await onboardingFlow.verifyPartnerVisible(partnerInfo!);
       });
       await test.step("Activate partner", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal");
+        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
       });
 
       let ownerAccount;
@@ -50,7 +50,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Activate customer belonged to the new partner", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Member");
+        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Member", "Password@123");
 
         const memberHomeTitle = await homeExceptAdminPage.getHomeTitle();
         await expect(memberHomeTitle).toBeVisible({ timeout: 30000 });
@@ -65,7 +65,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       await test.step("Verify invite members successfully", async () => {
         for (const member of invitedMembers) {
-          await authFlow.acceptInviteAndJoinTeamByCustomer(member.email);
+          await authFlow.acceptInviteAndJoinTeamByCustomer(member.email, "Password@123");
 
           await UiAssert.allVisible([await homeExceptAdminPage.getHomeTitle()]);
         }

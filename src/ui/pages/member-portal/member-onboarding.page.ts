@@ -4,7 +4,7 @@ import { MemberOnboardingLocators } from "./locators";
 import { LoginFormLocators as CommonPortalLocators } from "../shared-pages/locators/login-form";
 
 export class MemberOnboardingPage extends BasePage {
-  async setPasswordAndJoinTeam(password = "Password@123") {
+  async setPasswordAndJoinTeam(password: string) {
     try {
       const continueBtn = await this.getLocator(MemberOnboardingLocators.continueWithEmail);
 
@@ -35,7 +35,7 @@ export class MemberOnboardingPage extends BasePage {
     }
   }
 
-  async loginViaCredentialEmail(email: string, password = "Password@123", changedPasswordStatus = false) {
+  async loginViaCredentialEmail(email: string, password: string, changedPasswordStatus = false) {
     const emailField = this.page.locator(CommonPortalLocators.username);
     await emailField.waitFor({ state: "visible" });
     await emailField.fill(email!);
