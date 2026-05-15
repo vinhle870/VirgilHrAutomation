@@ -30,7 +30,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -65,7 +65,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -101,7 +101,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let newPartner;
       await test.step("Create a new partner", async () => {
-        newPartner = await onboardingFlow.createPartner(partnerInfo!);
+        newPartner = await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -122,9 +122,9 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         peoPartners = [peoPartnerInfo];
       });
 
-      let addedPeoPartner: string;
+      let addedPeoPartner: any;
       await test.step("Add peo ", async () => {
-        addedPeoPartner = await onboardingFlow.addPeoConsultantInAdminPortal(partnerInfo!, peoPartners!);
+        addedPeoPartner = await onboardingFlow.createPartnerAndAddPeo(partnerInfo!, peoPartners!, true);
       });
 
       await test.step("Activate peo", async () => {
@@ -162,7 +162,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify the domain is emty", async () => {
@@ -196,7 +196,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
             .build();
 
           await test.step(`Create partner with ${paymentOption}`, async () => {
-            await onboardingFlow.createPartner(partnerInfo);
+            await onboardingFlow.createPartnerAndAddPeo(partnerInfo);
           });
 
           await test.step(`Verify create partner with ${paymentOption} successfully`, async () => {
@@ -232,7 +232,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify the domain is emty", async () => {
@@ -276,7 +276,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify the partner is created successfully", async () => {
@@ -366,7 +366,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -395,7 +395,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -403,7 +403,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create another partner and verify its email is duplicated ", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
 
         const duplicatedEmailEl = await partnerManagementPage.getDuplicatedText();
 
@@ -432,7 +432,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -466,7 +466,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -507,7 +507,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -554,7 +554,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -600,7 +600,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -648,7 +648,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner with payment option = 'Member Portal Consumer'", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -694,7 +694,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner with payment option = 'Member Portal Consumer'", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -734,7 +734,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner with payment option = 'Member Portal Consumer'", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {

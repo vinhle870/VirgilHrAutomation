@@ -16,7 +16,7 @@ export class PartnerManagementPage extends BasePage {
     super(page);
   }
 
-  public async fillFormToCreatePartner(partnerInfo: Partner) {
+  public async fillCreatePartnerForm(partnerInfo: Partner) {
     if (!partnerInfo.partnerInfo || !partnerInfo.partnerInfo.departmentName) throw new Error("Department name does not exist or is empty");
 
     this.page.locator(CommonPartnerLocator.createNewPartnerButton).click({ timeout: 5000 });
@@ -163,13 +163,10 @@ export class PartnerManagementPage extends BasePage {
 
       await jobTitleInputEl.fill(peoPartners[i].accountInfo?.jobTitle!);
 
-      if (peoPartners[i].peoPartnerInfo?.customBranding === true) {
-        await customBrandingEl.click();
-      }
+      if (peoPartners[i].peoPartnerInfo?.customBranding === true) await customBrandingEl.click();
 
-      if (peoPartners[i].peoPartnerInfo?.companyType === "Internal") {
-        await internalEl.click();
-      } else await externalEl.click();
+      if (peoPartners[i].peoPartnerInfo?.companyType === "Internal") await internalEl.click();
+      else await externalEl.click();
 
       if (peoPartners[i].peoPartnerInfo?.customBenefitsPlans === true) await customBenefitsPlanEl.click();
 
@@ -264,7 +261,7 @@ export class PartnerManagementPage extends BasePage {
     }
   }
 
-  public async addMoreMembers(partner: Partner) {
+  public async addCustomerMembersInPartManaPage(partner: Partner) {
     await this.clickDetailButton(partner);
 
     await this.page.locator(DetailOfPartnerLocator.addMemberButton).click();

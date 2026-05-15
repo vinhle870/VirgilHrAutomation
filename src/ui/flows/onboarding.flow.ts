@@ -56,27 +56,21 @@ export class OnboardingFlow {
     }
   }
 
-  public async createPartner(partnerInfo: Partner, i = 0) {
-    await this.onboardingAdminPortalFlow.createPartner(partnerInfo, i);
-  }
+  public async createPartnerAndAddPeo(partnerInfo: Partner, peoPartners?: PeoPartner[], isAddPeo = false) {
+    const addedPeo = await this.onboardingAdminPortalFlow.createPartnerAndAddPeo(partnerInfo, peoPartners, isAddPeo);
 
-  public async addPeoConsultantInAdminPortal(partner: Partner, peoPartners: PeoPartner[]): Promise<string> {
-    await this.onboardingAdminPortalFlow.fillFormToAddPeo(partner, peoPartners);
-
-    await delay(5000);
-
-    return "Pass";
+    if (addedPeo === "Pass") return "Pass";
   }
 
   public async addMoreMembersInPartnerManagementPage(partner: Partner, invitedMembers: UserInfo[]): Promise<void> {
     if (invitedMembers?.length === 0) throw new Error("There is no any member to add");
 
-    this.onboardingAdminPortalFlow.addMoreMembers(partner);
+    await this.onboardingAdminPortalFlow.addCustomerMembersInPartManaPage(partner);
   }
 
   public async inviteMemberInCusManagement(invitingMember: Partner, invitedMembers: UserInfo[]) {
     if (invitedMembers?.length === 0) throw new Error("There is no any member to add");
 
-    await this.onboardingAdminPortalFlow.inviteMembers(invitingMember, invitedMembers);
+    await this.onboardingAdminPortalFlow.inviteCustomerMembersInCusManaPage(invitingMember, invitedMembers);
   }
 }
