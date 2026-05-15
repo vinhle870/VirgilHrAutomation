@@ -96,8 +96,6 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withIsPublic(false)
           .withProductsType([process.env.PLAN!])
           .withBankTransfer(true)
-          .withEmail("QATest_Cassie659@polandcampus.edu.pl")
-          .withPhoneNumber("+17288804669")
           .build();
       });
 
@@ -110,9 +108,9 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await onboardingFlow.verifyPartnerVisible(partnerInfo!);
       });
 
-      await test.step("Activate partner", async () => {
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
-      });
+      // await test.step("Activate partner", async () => {
+      //   await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+      // });
 
       let peoPartners;
       await test.step("Create peo info", async () => {
@@ -155,7 +153,12 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let partnerInfo: Partner;
       await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Partner/Consultant Owner").withProductsType([process.env.PLAN!]).build();
+        partnerInfo = await DataFactory.partnerBuilder()
+          .withDepartmentName(process.env.DEPARTMENT_NAME!)
+          .withPaymentOption("Partner/Consultant Owner")
+          .withSubDomain("")
+          .withProductsType([process.env.PLAN!])
+          .build();
       });
 
       await test.step("Create a new partner", async () => {
@@ -209,7 +212,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC35",
     },
-    async ({ loginPage, onboardingFlow, purchaseFlow }, testInfo) => {
+    async ({ loginPage, onboardingFlow, purchaseFlow, authFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -234,6 +237,10 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       await test.step("Verify the domain is emty", async () => {
         await onboardingFlow.verifyPartnerVisible(partnerInfo!);
+      });
+
+      await test.step("Activate partner", async () => {
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo!.email, "Partner portal", "Password@123");
       });
 
       await test.step("Buy plan", async () => {
@@ -300,9 +307,9 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
 
-      await test.step("Login to admin portal", async () => {
-        await loginPage.login();
-      });
+      // await test.step("Login to admin portal", async () => {
+      //   await loginPage.login();
+      // });
 
       let partnerInfo: Partner;
       await test.step("Create partner info", async () => {
@@ -311,20 +318,21 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withPaymentOption("Partner/Consultant Owner")
           .withProductsType([process.env.PLAN!])
           .withBankTransfer(true)
+          .withEmail("QATest_Alanis398@polandcampus.edu.pl")
           .build();
       });
 
-      await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
-      });
+      // await test.step("Create a new partner", async () => {
+      //   await onboardingFlow.createPartner(partnerInfo!);
+      // });
 
-      await test.step("Verify the partner is created successfully", async () => {
-        await onboardingFlow.verifyPartnerVisible(partnerInfo!);
-      });
+      // await test.step("Verify the partner is created successfully", async () => {
+      //   await onboardingFlow.verifyPartnerVisible(partnerInfo!);
+      // });
 
-      await test.step("Credential partner", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo.accountInfo!.email, "Partner", "Password@123");
-      });
+      // await test.step("Credential partner", async () => {
+      //   await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo.accountInfo!.email, "Partner portal", "Password@123");
+      // });
 
       await test.step("Crendential member", async () => {
         await authFlow.activateCustomerAccount(partnerInfo!.accountInfo?.email!, "Password@123");

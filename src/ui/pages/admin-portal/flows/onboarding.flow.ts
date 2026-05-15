@@ -15,12 +15,12 @@ export class OnboardingAdminPortalFlow {
     this.customerManagementPage = new CustomerManagementPage(this.page);
   }
 
-  public async accessToPartnerManagementPage(category = "Partner", i = 0) {
-    await this.partnerManagementPage.accessToManagementPage(category, i);
+  public async accessToPartnerManagementPage(category = "Partner") {
+    await this.partnerManagementPage.accessToManagementPage(category);
   }
 
-  public async createPartner(partnerInfo: Partner, i = 0): Promise<void> {
-    await this.accessToPartnerManagementPage("Partner", i);
+  public async createPartner(partnerInfo: Partner): Promise<void> {
+    await this.accessToPartnerManagementPage("Partner");
 
     await this.partnerManagementPage.fillFormToCreatePartner(partnerInfo);
   }
@@ -39,11 +39,11 @@ export class OnboardingAdminPortalFlow {
     await this.partnerManagementPage.addMoreMembers(partner);
   }
 
-  public async inviteMembers(invitingMember: Partner, invitedMembers: UserInfo[]) {
+  public async inviteCustomerMembers(invitingMember: Partner, invitedMembers: UserInfo[]) {
     await this.partnerManagementPage.accessToManagementPage("Customer");
 
     await this.partnerManagementPage.clickDetailButton(invitingMember);
 
-    await this.customerManagementPage.inviteMembers(invitedMembers);
+    await this.customerManagementPage.inviteCustomerMembers(invitedMembers);
   }
 }

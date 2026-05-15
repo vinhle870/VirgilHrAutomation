@@ -198,7 +198,7 @@ export class CustomerManagementPage extends BasePage {
     } else await (await this.getLocator(UpgradePlanModalLocator.requestPaymentButton)).click();
   }
 
-  public async inviteMembers(invitedMembers: UserInfo[]) {
+  public async inviteCustomerMembers(invitedMembers: UserInfo[]) {
     await this.page.locator(CustomerDetailModalLocator.viewDetailButton).click();
 
     try {

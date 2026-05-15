@@ -1,6 +1,7 @@
 import delay from "src/utilities/delay";
 import { BasePage } from "../base-page";
 import { TempEmailFreeLocators } from "./locators";
+import { time } from "node:console";
 
 export class TempEmailFreePage extends BasePage {
   /**
@@ -37,8 +38,6 @@ export class TempEmailFreePage extends BasePage {
     const password = passwordRaw?.replace(/Password\s*:/i, "").trim();
 
     let hrefValue;
-
-    emailContentFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).first().contentFrame();
 
     let loginLink = emailContentFrame.getByRole("link", { name: "Login" });
 

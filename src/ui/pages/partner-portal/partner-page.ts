@@ -71,6 +71,12 @@ export class PartnerPage extends BasePage {
     try {
       await this.page.locator(CommonPartnerPortalLocator.closeTestModal).first().click({ timeout: 7000 });
     } catch (error) {
+      console.log("There is no closing modal");
+    }
+
+    try {
+      await this.page.locator(CommonPartnerPortalLocator.closeTestModal).first().click({ timeout: 7000 });
+    } catch (error) {
       console.log("There is no modal");
     }
   }

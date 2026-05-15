@@ -6,7 +6,7 @@ import refreshPage from "src/utilities/refresh";
 import { CommonAdminPortalLocator } from "../pages/admin-portal/locators/common/common.locator";
 import { CommonPartnerLocator } from "../pages/admin-portal/locators/partner-management/locator/common";
 import delay from "src/utilities/delay";
-import { DetailOfPartnerLocator } from "../pages/admin-portal/locators/partner-management/locator/detail";
+import { DetailOfPartnerLocator } from "../pages/admin-portal/locators/partner-management/locator/detail.of.partner.modal";
 import { PeoPartner } from "src/objects/ipeopartner";
 import { UiAssert } from "src/assertions";
 import { CustomerDetailModalLocator } from "../pages/admin-portal/locators/customer-management/customer-detail-modal";
