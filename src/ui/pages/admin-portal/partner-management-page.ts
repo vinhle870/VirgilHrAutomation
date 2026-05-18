@@ -9,7 +9,7 @@ import { PartnerFilterLocator } from "./locators/partner-management/locator/filt
 import { Partner } from "src/objects";
 import { PeoConsultantAdditionLocator } from "./locators/partner-management/locator/peo-consultant-addition";
 import { PeoPartner } from "src/objects/ipeopartner";
-import { DetailOfPartnerLocator } from "./locators/partner-management/locator/detail.of.partner.modal";
+import { DetailOfPartnerLocator } from "./locators/partner-management/locator/partner-detail.modal";
 
 export class PartnerManagementPage extends BasePage {
   constructor(page: Page) {
