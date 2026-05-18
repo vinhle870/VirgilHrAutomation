@@ -1,4 +1,4 @@
-import { Page } from "playwright/test";
+import { Locator, Page } from "playwright/test";
 import { PartnerManagementPage } from "../partner-management-page";
 import { Partner, UserInfo } from "src/objects";
 import { PeoPartner } from "src/objects/ipeopartner";
@@ -54,5 +54,9 @@ export class OnboardingAdminPortalFlow {
     await this.partnerManagementPage.clickDetailButton(invitingMember);
 
     await this.customerManagementPage.inviteCustomerMembers(invitedMembers);
+  }
+
+  public async getDuplicatedText(): Promise<Locator> {
+    return await this.partnerManagementPage.getDuplicatedText();
   }
 }

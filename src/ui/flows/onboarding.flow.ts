@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 import { CommonPartnerPortalLocator } from "../pages/partner-portal/locators/common";
 import { BusinessLocator } from "../pages/partner-portal/locators/business";
 import { Partner, UserInfo } from "src/objects";
@@ -72,5 +72,9 @@ export class OnboardingFlow {
     if (invitedMembers?.length === 0) throw new Error("There is no any member to add");
 
     await this.onboardingAdminPortalFlow.inviteCustomerMembersInCusManaPage(invitingMember, invitedMembers);
+  }
+
+  public async getDuplicatedText(): Promise<Locator> {
+    return await this.onboardingAdminPortalFlow.getDuplicatedText();
   }
 }

@@ -41,6 +41,13 @@ export class TempEmailFreePage extends BasePage {
 
     let loginLink = emailContentFrame.getByRole("link", { name: "Login" });
 
+    try {
+      await loginLink.scrollIntoViewIfNeeded({ timeout: 5000 });
+    } catch (error) {
+      emailContentFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).first().contentFrame();
+      loginLink = emailContentFrame.getByRole("link", { name: "Login" });
+    }
+
     //Get href
     hrefValue = await loginLink.getAttribute("href");
 
