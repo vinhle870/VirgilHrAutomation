@@ -9,14 +9,17 @@ import { PartnerFilterLocator } from "./locators/partner-management/locator/filt
 import { Partner } from "src/objects";
 import { PeoConsultantAdditionLocator } from "./locators/partner-management/locator/peo-consultant-addition";
 import { PeoPartner } from "src/objects/ipeopartner";
+import { DetailOfPartnerLocator } from "./locators/partner-management/locator/partner-detail.modal";
 
 export class PartnerManagementPage extends BasePage {
   constructor(page: Page) {
     super(page);
   }
 
-  public async fillFormToCreatePartner(partnerInfo: Partner) {
+  public async fillCreatePartnerForm(partnerInfo: Partner) {
     if (!partnerInfo.partnerInfo || !partnerInfo.partnerInfo.departmentName) throw new Error("Department name does not exist or is empty");
+
+    this.page.locator(CommonPartnerLocator.createNewPartnerButton).click({ timeout: 5000 });
 
     await delay(5000);
 
@@ -114,7 +117,11 @@ export class PartnerManagementPage extends BasePage {
       await this.page.locator(CreateNewPartnerModalLocator.confirmButton).click();
   }
 
-  public async fillFormToAddPeo(peoPartners: PeoPartner[], addPeoConsultantButtonEl: Locator) {
+  public async fillFormToAddPeo(peoPartners: PeoPartner[]) {
+    const addPeoConsultantButtonEl = await this.getLocator(DetailOfPartnerLocator.addPeoConsultant_btn);
+
+    await this.page.locator(DetailOfPartnerLocator.addPeoConsultant_btn).click();
+
     const nameEl = this.page.locator(PeoConsultantAdditionLocator.nameInput);
 
     const emailInputEl = this.page.locator(PeoConsultantAdditionLocator.emailInput);
@@ -156,13 +163,10 @@ export class PartnerManagementPage extends BasePage {
 
       await jobTitleInputEl.fill(peoPartners[i].accountInfo?.jobTitle!);
 
-      if (peoPartners[i].peoPartnerInfo?.customBranding === true) {
-        await customBrandingEl.click();
-      }
+      if (peoPartners[i].peoPartnerInfo?.customBranding === true) await customBrandingEl.click();
 
-      if (peoPartners[i].peoPartnerInfo?.companyType === "Internal") {
-        await internalEl.click();
-      } else await externalEl.click();
+      if (peoPartners[i].peoPartnerInfo?.companyType === "Internal") await internalEl.click();
+      else await externalEl.click();
 
       if (peoPartners[i].peoPartnerInfo?.customBenefitsPlans === true) await customBenefitsPlanEl.click();
 
@@ -177,17 +181,13 @@ export class PartnerManagementPage extends BasePage {
   public async clickDetailButton(partner: Partner) {
     const partnerPhoneNumber = partner.accountInfo?.phoneNumber;
 
-    if (!partnerPhoneNumber) {
-      throw new Error("Partner phone number is missing");
-    }
+    if (!partnerPhoneNumber) throw new Error("Partner phone number is missing");
 
     const rawDetailLocator = CommonPartnerLocator.detailButton;
 
     const detailButtonLocator = rawDetailLocator.replace("phoneNumberValue", partnerPhoneNumber!);
 
-    const detailButtonEl = this.page.locator(detailButtonLocator).last();
-
-    await detailButtonEl.click();
+    await this.page.locator(detailButtonLocator).last().click();
   }
 
   async filter(partFilterInfo: IPartnerFilter): Promise<string> {
@@ -236,5 +236,34 @@ export class PartnerManagementPage extends BasePage {
     const duplicatedEmailEl = await this.getLocator(duplicatedEmailText);
 
     return duplicatedEmailEl;
+  }
+
+  public async accessToManagementPage(category = "Partner") {
+    const managementCategory = this.page.locator(CommonAdminPortalLocator.managementCategory);
+    await managementCategory.click();
+
+    if (category === "Partner") {
+      const partnerManagementCategory = this.page.locator(CommonAdminPortalLocator.partnerManagement);
+
+      try {
+        await partnerManagementCategory.first().click({ timeout: 5000 });
+      } catch (error) {
+        await partnerManagementCategory.last().click({ timeout: 5000 });
+      }
+    } else if (category === "Member") {
+      const customerManagementCategory = this.page.locator(CommonAdminPortalLocator.customerManagement);
+
+      try {
+        await customerManagementCategory.first().click({ timeout: 5000 });
+      } catch (error) {
+        await customerManagementCategory.last().click({ timeout: 5000 });
+      }
+    }
+  }
+
+  public async addCustomerMembersInPartManaPage(partner: Partner) {
+    await this.clickDetailButton(partner);
+
+    await this.page.locator(DetailOfPartnerLocator.addMemberButton).click();
   }
 }

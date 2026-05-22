@@ -4,6 +4,7 @@ import { LoginFormLocators } from "../shared-pages/locators/login-form";
 import { ClientPartnerPortalLocators } from "./locators/client";
 import { BusinessLocator } from "./locators/business";
 import { Partner, UserInfo } from "src/objects";
+import { CommonPartnerPortalLocator } from "./locators/common";
 
 export class PartnerPage extends BasePage {
   private readonly URL: string;
@@ -28,6 +29,12 @@ export class PartnerPage extends BasePage {
   }
 
   public async fillFormToCreateBusiness(partnerInfo: Partner, owner?: UserInfo) {
+    await this.page.locator(CommonPartnerPortalLocator.clientButton).click({ timeout: 10000 });
+
+    await this.page.locator(BusinessLocator.businessTab).click({ timeout: 10000 });
+
+    await this.page.locator(BusinessLocator.addBussinessButton).click({ timeout: 5000 });
+
     await this.page.locator(BusinessLocator.teamNameInput).fill("Team", { timeout: 5000 });
 
     if (partnerInfo.partnerInfo?.paymentOption === "Member Portal Consumer") {
@@ -52,5 +59,25 @@ export class PartnerPage extends BasePage {
     await this.page.locator(BusinessLocator.viewButton).click({ timeout: 20000 });
 
     await this.page.locator(BusinessLocator.ownerText).waitFor({ state: "visible", timeout: 5000 });
+  }
+
+  public async eraseModal() {
+    try {
+      await this.page.locator(CommonPartnerPortalLocator.closeButton).click({ timeout: 7000 });
+    } catch (error) {
+      console.log("There is no closing button");
+    }
+
+    try {
+      await this.page.locator(CommonPartnerPortalLocator.closeTestModal).first().click({ timeout: 7000 });
+    } catch (error) {
+      console.log("There is no closing modal");
+    }
+
+    try {
+      await this.page.locator(CommonPartnerPortalLocator.closeTestModal).first().click({ timeout: 7000 });
+    } catch (error) {
+      console.log("There is no modal");
+    }
   }
 }

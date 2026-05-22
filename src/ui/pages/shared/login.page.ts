@@ -10,7 +10,7 @@ export class LoginPage extends BasePage {
   /**
    * Fills the login form with the provided URL, username, and password, then submits the form.
    */
-  async fillLoginForm(url: string, username: string, password = "Password@123") {
+  async fillLoginForm(url: string, username: string, password: string) {
     const logger = (console.debug ?? console.log).bind(console);
     logger(`==================[Login Form] url: ${url}, username: ${username}\n`);
 

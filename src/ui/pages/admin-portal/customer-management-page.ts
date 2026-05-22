@@ -197,4 +197,14 @@ export class CustomerManagementPage extends BasePage {
       await (await this.getLocator(UpgradePlanModalLocator.upgradeNowButton)).click();
     } else await (await this.getLocator(UpgradePlanModalLocator.requestPaymentButton)).click();
   }
+
+  public async inviteCustomerMembers(invitedMembers: UserInfo[]) {
+    await this.page.locator(CustomerDetailModalLocator.viewDetailButton).click();
+
+    try {
+      await this.page.locator(TeamInfoLocator.addTeamButton).last().click({ timeout: 1000 });
+    } catch (error) {
+      await this.page.locator(TeamInfoLocator.addTeamButton).first().click();
+    }
+  }
 }

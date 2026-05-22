@@ -33,7 +33,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let newPartner;
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartner(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -41,7 +41,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify the partner user must change the system-generated password to a personal password", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal");
+        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
         const hometitle = await homeExceptAdminPage.getHomeTitle();
 
@@ -75,7 +75,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartner(partnerData!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerData!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -83,7 +83,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Buy the plan through Stripe", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerData!.accountInfo!.email!, "Partner portal");
+        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerData!.accountInfo!.email!, "Partner portal", "Password@123");
 
         await purchaseFlow.selectPlanBeforePurchase("", partnerData.accountInfo!.email!, partnerData.partnerInfo!.productsType![0]);
       });
@@ -128,7 +128,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let newPartner;
       await test.step("Create a new partner", async () => {
-        newPartner = await onboardingFlow.createPartner(partnerInfo!);
+        newPartner = await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -178,7 +178,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let newPartner;
       await test.step("Create a new partner", async () => {
-        newPartner = await onboardingFlow.createPartner(partnerInfo!);
+        newPartner = await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -186,7 +186,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify the partner user is not required to make any payment through Stripe.", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal");
+        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
         const homeTitle = await homeExceptAdminPage.getHomeTitle();
 
         await UiAssert.allVisible([homeTitle]);
@@ -221,7 +221,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let newPartner;
       await test.step("Create a new partner", async () => {
-        newPartner = await onboardingFlow.createPartner(partnerInfo!);
+        newPartner = await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -230,7 +230,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let owner;
       await test.step("Create business", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal");
+        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
         const ownerInfor = await PersonDataGenerator.generate();
 
         owner = await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerInfor!);
@@ -277,7 +277,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       let newPartner;
       await test.step("Create a new partner", async () => {
-        newPartner = await onboardingFlow.createPartner(partnerInfo!);
+        newPartner = await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -285,7 +285,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Credential the partner", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal");
+        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
       });
 
       let owner;
