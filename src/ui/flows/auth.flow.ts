@@ -13,9 +13,11 @@ import { WelcomeModal } from "../pages/shared-pages/welome.modal";
 export class AuthFlow {
   private tempEmailFreePage: TempEmailFreePage;
   private loginPage: LoginPage;
+  private page: Page;
 
   constructor(page: Page) {
-    this.loginPage = new LoginPage(page);
+    this.page = page;
+    this.loginPage = new LoginPage(this.page);
     this.tempEmailFreePage = new TempEmailFreePage(page);
   }
 
@@ -88,5 +90,13 @@ export class AuthFlow {
     await this.loginPage.fillLoginForm(credential.hrefValue!, email, credential.password!);
 
     await this.loginPage.changePassword(credential.password!, newPassword);
+  }
+
+  public async activateSignedUpCustomer(email: string) {
+    const subject = "Verify your email address";
+
+    const credential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
+
+    await this.page.goto(credential.hrefValue!);
   }
 }

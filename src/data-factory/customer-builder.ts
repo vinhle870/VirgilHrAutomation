@@ -338,9 +338,7 @@ export class CustomerBuilder {
     const customer = new CustomerInfo();
 
     // Generate account info
-    const accountInfo = await PersonDataGenerator.generate(
-      this.accountOverrides,
-    );
+    const accountInfo = await PersonDataGenerator.generate(this.accountOverrides);
     customer.accountInfo = accountInfo;
 
     // Generate company info
@@ -356,8 +354,7 @@ export class CustomerBuilder {
     // Generate plan info
     if (this.planOverride) customer.plan = this.planOverride;
 
-    if (this.bankStranfer?.bankStranfer === true)
-      customer.bankStranfer = this.bankStranfer;
+    if (this.bankStranfer?.bankStranfer === true) customer.bankStranfer = this.bankStranfer;
     else customer.bankStranfer!.bankStranfer = false;
 
     if (this.stateOfCustomer) customer.stateOfCustomer = this.stateOfCustomer;
@@ -373,8 +370,7 @@ export class CustomerBuilder {
       customer.addMember(member);
     }
 
-    if (this.bankStranferToUpgradePlan === true)
-      customer.bankStranferToUpgradePlan = true;
+    if (this.bankStranferToUpgradePlan === true) customer.bankStranferToUpgradePlan = true;
 
     return customer;
   }
@@ -382,8 +378,7 @@ export class CustomerBuilder {
   // ── Internal helpers ─────────────────────────────────────────
 
   private async buildCompany(): Promise<Company> {
-    const companyName =
-      this.companyNameOverride ?? (await DataGenerate.generateCompanyName());
+    const companyName = this.companyNameOverride ?? (await DataGenerate.generateCompanyName());
 
     const baseCompany: Company = {
       companyName,

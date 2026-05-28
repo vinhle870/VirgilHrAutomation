@@ -42,7 +42,7 @@ export class UiAssert {
   /**
    * Assert that a URL matches a pattern (string suffix or regex).
    */
-  static async urlMatches(url: string, pattern: string | RegExp): Promise<void> {
+  static urlMatches(url: string, pattern: string | RegExp): void {
     if (typeof pattern === "string") {
       expect(url).toContain(pattern);
     } else {

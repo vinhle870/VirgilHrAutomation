@@ -1,10 +1,8 @@
 import { test, expect } from "src/fixtures";
 import { UiAssert } from "src/assertions";
 import { DataFactory, PersonDataGenerator } from "src/data-factory";
-import { Page } from "@playwright/test";
 import { plans } from "src/constant/static-data";
 import { Partner } from "src/objects";
-import { DataGenerate } from "src/utilities";
 
 test.describe("E2E -> Admin Portal -> Partner Management", () => {
   test(
@@ -157,7 +155,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@Verify that for other payment configurations, the partner user is not required to make any payment through Stripe.",
     },
-    async ({ loginPage: loginAdminPage, homeExceptAdminPage, onboardingFlow, tempEmailFreePage, authFlow }, testInfo) => {
+    async ({ loginPage: loginAdminPage, homeExceptAdminPage, onboardingFlow, authFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");

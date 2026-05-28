@@ -48,9 +48,7 @@ export class LoginPage extends BasePage {
     await continueBtn.click();
 
     //If "Completed safely!" modal is shown - click "Continue" button if visible
-    if (await continueBtn.isVisible()) {
-      await continueBtn.click();
-    }
+    if (await continueBtn.isVisible()) await continueBtn.click();
   }
 
   public async setPassword(password: string) {

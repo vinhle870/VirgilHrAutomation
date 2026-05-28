@@ -4,7 +4,7 @@ import { TempEmailFreeLocators } from "../shared-pages/locators";
 import { Locator } from "playwright/test";
 
 export class TempEmailFreePage extends BasePage {
-  public async createNewEmail(username: string, pageStatus = false) {
+  public async createNewEmail(username: string) {
     const logger = (console.debug ?? console.log).bind(console);
     logger(`==================[Yopmail Invitation] email: ${username}\n`);
 
@@ -38,8 +38,6 @@ export class TempEmailFreePage extends BasePage {
     await createEmailButtonElement.click();
 
     await newButtonElement.waitFor({ state: "visible" });
-
-    if (pageStatus) return this.page;
   }
 
   public async getInvitationEmailLocator(page = this.page): Promise<Locator> {

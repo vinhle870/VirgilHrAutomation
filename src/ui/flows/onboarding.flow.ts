@@ -1,7 +1,7 @@
 import { Locator, Page } from "@playwright/test";
 import { CommonPartnerPortalLocator } from "../pages/partner-portal/locators/common";
 import { BusinessLocator } from "../pages/partner-portal/locators/business";
-import { Partner, UserInfo } from "src/objects";
+import { CustomerInfo, Partner, UserInfo } from "src/objects";
 import refreshPage from "src/utilities/refresh";
 import { CommonAdminPortalLocator } from "../pages/admin-portal/locators/common/common.locator";
 import { CommonPartnerLocator } from "../pages/admin-portal/locators/partner-management/locator/common";
@@ -14,6 +14,7 @@ import { TeamInfoLocator } from "../pages/admin-portal/locators/customer-managem
 import { PartnerPage } from "../pages/partner-portal/partner-page";
 import { OnboardingAdminPortalFlow } from "../pages/admin-portal/flows/onboarding.flow";
 import { OnboardingPartnerPotalFlow } from "../pages/partner-portal/flows/onboarding.flow";
+import { OnboardingMemberPotalFlow } from "../pages/member-portal/flows/onboarding.flow";
 
 /**
  * This flow class contains methods related to the onboarding process of both partner and member users, such as accepting invitations, credentialing, buying plans, and creating a business.
@@ -28,11 +29,13 @@ export class OnboardingFlow {
   private readonly page: Page;
   private readonly onboardingAdminPortalFlow: OnboardingAdminPortalFlow;
   private readonly onboardingPartnerPotalFlow: OnboardingPartnerPotalFlow;
+  private readonly onboardingMemberPotalFlow: OnboardingMemberPotalFlow;
 
   constructor(page: Page) {
     this.page = page;
     this.onboardingAdminPortalFlow = new OnboardingAdminPortalFlow(this.page);
     this.onboardingPartnerPotalFlow = new OnboardingPartnerPotalFlow(this.page);
+    this.onboardingMemberPotalFlow = new OnboardingMemberPotalFlow(this.page);
   }
 
   public async createBusinessFromPartnerPortal(partnerInfo: Partner, owner?: UserInfo) {
@@ -56,6 +59,11 @@ export class OnboardingFlow {
     }
   }
 
+  public async verifyURL(containedURL: string) {
+    const currentUrl = this.page.url();
+    UiAssert.urlMatches(currentUrl, containedURL);
+  }
+
   public async createPartnerAndAddPeo(partnerInfo: Partner, peoPartners?: PeoPartner[], isAddPeo = false) {
     const addedPeo = await this.onboardingAdminPortalFlow.createPartnerAndAddPeo(partnerInfo, peoPartners, isAddPeo);
 
@@ -76,5 +84,9 @@ export class OnboardingFlow {
 
   public async getDuplicatedText(): Promise<Locator> {
     return await this.onboardingAdminPortalFlow.getDuplicatedText();
+  }
+
+  public async signUpIndividualCustomerFromMemberPortal(customerInfo: CustomerInfo) {
+    await this.onboardingMemberPotalFlow.signUp(customerInfo);
   }
 }
