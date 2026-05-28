@@ -237,7 +237,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify the partner account is the Owner of the Partner Team", async () => {
-        const ownerRole = partnerPage.getOwnerRoleInUserPage(partnerInfo!.accountInfo!.email!);
+        const ownerRole = await onboardingFlow.getOwnerRoleInUserPage(partnerInfo!);
         await expect(ownerRole).toBeVisible();
       });
     },
@@ -292,7 +292,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify the partner account is the Owner of the Partner Team", async () => {
-        const ownerRole = partnerPage.getOwnerRoleInUserPage(partnerInfo!.accountInfo!.email!);
+        const ownerRole = await onboardingFlow.getOwnerRoleInUserPage(partnerInfo!);
         await expect(ownerRole).toBeVisible();
       });
     },

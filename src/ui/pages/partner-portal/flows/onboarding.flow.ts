@@ -18,4 +18,8 @@ export class OnboardingPartnerPotalFlow {
   public async fillFormToCreateBusiness(partberInfo: Partner, owner?: UserInfo) {
     await this.partnerPage.fillFormToCreateBusiness(partberInfo, owner);
   }
+
+  public async getOwnerRoleInUserPage(partnerInfo: Partner) {
+    return this.partnerPage.getOwnerRoleInUserPage(partnerInfo.accountInfo!.email!);
+  }
 }

@@ -89,4 +89,8 @@ export class OnboardingFlow {
   public async signUpIndividualCustomerFromMemberPortal(customerInfo: CustomerInfo) {
     await this.onboardingMemberPotalFlow.signUp(customerInfo);
   }
+
+  public async getOwnerRoleInUserPage(partnerInfo: Partner): Promise<Locator> {
+    return await this.onboardingPartnerPotalFlow.getOwnerRoleInUserPage(partnerInfo);
+  }
 }
