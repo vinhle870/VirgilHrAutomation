@@ -20,7 +20,10 @@ export class PartnerPage extends BasePage {
     return this.page.locator(LoginFormLocators.validationMsg);
   }
 
-  public getOwnerRoleInClientPage(email: string): Locator {
+  public getOwnerRoleInUserPage(email: string): Locator {
+    const userPage = CommonPartnerPortalLocator.usersButton;
+    this.page.locator(userPage).click({ timeout: 3000 });
+
     return this.page.locator(ClientPartnerPortalLocators.role.replace("emailValue", email));
   }
 

@@ -137,9 +137,8 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
       });
 
-      let partnerPage: any;
       await test.step("Buy plan through Stripe", async () => {
-        partnerPage = await purchaseFlow.buyPlanInPartnerPortal(partnerInfo!);
+        await purchaseFlow.buyPlanInPartnerPortal(partnerInfo!);
       });
 
       await test.step("Verify the partner user is redirected to the Partner Homepage after a successful payment", async () => {
@@ -213,7 +212,6 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withPaymentOption("Partner/Consultant Owner")
           .withProductsType([process.env.PLAN!])
           .withBankTransfer(true)
-
           .build();
       });
 
@@ -223,7 +221,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
-        await expect(newPartner!.getByText(partnerInfo!.accountInfo!.email).first()).toBeVisible({ timeout: 30000 });
+        await onboardingFlow.verifyPartnerVisible(partnerInfo!);
       });
 
       let owner;
@@ -238,12 +236,8 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await expect(owner!).toBeVisible();
       });
 
-      await test.step("Move to team page", async () => {
-        await partnerPage.moveToPage("/users");
-      });
-
       await test.step("Verify the partner account is the Owner of the Partner Team", async () => {
-        const ownerRole = partnerPage.getOwnerRoleInClientPage(partnerInfo!.accountInfo!.email!);
+        const ownerRole = partnerPage.getOwnerRoleInUserPage(partnerInfo!.accountInfo!.email!);
         await expect(ownerRole).toBeVisible();
       });
     },
@@ -297,12 +291,8 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await expect(owner!).toBeVisible();
       });
 
-      await test.step("Move to team page", async () => {
-        await partnerPage.moveToPage("/users");
-      });
-
       await test.step("Verify the partner account is the Owner of the Partner Team", async () => {
-        const ownerRole = partnerPage.getOwnerRoleInClientPage(partnerInfo!.accountInfo!.email!);
+        const ownerRole = partnerPage.getOwnerRoleInUserPage(partnerInfo!.accountInfo!.email!);
         await expect(ownerRole).toBeVisible();
       });
     },

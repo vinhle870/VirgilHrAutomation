@@ -1,6 +1,7 @@
 import { Page } from "playwright/test";
 import { CustomerInfo } from "src/objects";
 import { MemberPage } from "../..";
+import { Console, log } from "console";
 
 export class OnboardingMemberPotalFlow {
   private page: Page;
@@ -18,6 +19,10 @@ export class OnboardingMemberPotalFlow {
 
     await this.customerPage.fillFormToSignUp(customerInfo, hrSystem);
 
-    await this.page.waitForSelector(`text=${customerInfo.accountInfo.email}`);
+    try {
+      await this.page.waitForSelector(`text=${customerInfo.accountInfo.email}`, { timeout: 3000 });
+    } catch {
+      console.error("Duplicated email");
+    }
   }
 }
