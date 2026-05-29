@@ -87,6 +87,7 @@ export class CustomerBuilder {
   private consultant?: boolean;
   private stateEmployeeInfo?: Company["statesEmployeeInfor"];
   private bankStranferToUpgradePlan = false;
+  private contentAvailability: string = "United States";
 
   // ── Portal selection ─────────────────────────────────────────
 
@@ -195,6 +196,11 @@ export class CustomerBuilder {
   withSso(provider: string, token: string): this {
     this.memberOptions.ssoProvider = provider;
     this.memberOptions.ssoToken = token;
+    return this;
+  }
+
+  withContentAvailability(contentAvailability: string): this {
+    this.contentAvailability = contentAvailability;
     return this;
   }
 
@@ -371,6 +377,8 @@ export class CustomerBuilder {
     }
 
     if (this.bankStranferToUpgradePlan === true) customer.bankStranferToUpgradePlan = true;
+
+    customer.contentAvailability = this.contentAvailability;
 
     return customer;
   }

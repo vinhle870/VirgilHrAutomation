@@ -64,33 +64,19 @@ export class OnboardingFlow {
     UiAssert.urlMatches(currentUrl, containedURL);
   }
 
-  public async createPartnerAndAddPeo(partnerInfo: Partner, peoPartners?: PeoPartner[], isAddPeo = false) {
-    const addedPeo = await this.onboardingAdminPortalFlow.createPartnerAndAddPeo(partnerInfo, peoPartners, isAddPeo);
+  public createPartnerAndAddPeo = async (partnerInfo: Partner, peoPartners?: PeoPartner[], isAddPeo = false) =>
+    (await this.onboardingAdminPortalFlow.createPartnerAndAddPeo(partnerInfo, peoPartners, isAddPeo)) === "Pass" ? "Pass" : "Fail";
 
-    if (addedPeo === "Pass") return "Pass";
-  }
+  public addMoreMembersInPartnerManagementPage = async (partner: Partner, invitedMembers: UserInfo[]) => await this.onboardingAdminPortalFlow.addCustomerMembersInPartManaPage(partner);
 
-  public async addMoreMembersInPartnerManagementPage(partner: Partner, invitedMembers: UserInfo[]): Promise<void> {
-    if (invitedMembers?.length === 0) throw new Error("There is no any member to add");
-
-    await this.onboardingAdminPortalFlow.addCustomerMembersInPartManaPage(partner);
-  }
-
-  public async inviteMemberInCusManagement(invitingMember: Partner, invitedMembers: UserInfo[]) {
-    if (invitedMembers?.length === 0) throw new Error("There is no any member to add");
-
+  public inviteMemberInCusManagement = async (invitingMember: Partner, invitedMembers: UserInfo[]) =>
     await this.onboardingAdminPortalFlow.inviteCustomerMembersInCusManaPage(invitingMember, invitedMembers);
-  }
 
-  public async getDuplicatedText(): Promise<Locator> {
-    return await this.onboardingAdminPortalFlow.getDuplicatedText();
-  }
+  public getDuplicatedText = async (): Promise<Locator> => await this.onboardingAdminPortalFlow.getDuplicatedText();
 
-  public async signUpIndividualCustomerFromMemberPortal(customerInfo: CustomerInfo) {
-    await this.onboardingMemberPotalFlow.signUp(customerInfo);
-  }
+  public signUpIndividualCustomerFromMemberPortal = async (customerInfo: CustomerInfo) => await this.onboardingMemberPotalFlow.signUp(customerInfo);
 
-  public async getOwnerRoleInUserPage(partnerInfo: Partner): Promise<Locator> {
-    return await this.onboardingPartnerPotalFlow.getOwnerRoleInUserPage(partnerInfo);
-  }
+  public getOwnerRoleInUserPage = async (partnerInfo: Partner): Promise<Locator> => await this.onboardingPartnerPotalFlow.getOwnerRoleInUserPage(partnerInfo);
+
+  public createCustomerFromCustomerManagementPage = async (customerInfo: CustomerInfo): Promise<Locator> => await this.onboardingAdminPortalFlow.createCustomerFromCustomerManagementPage(customerInfo);
 }

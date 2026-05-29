@@ -3,13 +3,13 @@ import { DataFactory, PersonDataGenerator } from "src/data-factory";
 import { CustomerFactory } from "src/data-factory/customer-factory";
 import { UiAssert } from "src/assertions";
 
-test.describe("E2E -> Admin Portal -> Partner Management", () => {
+test.describe("E2E -> Admin Portal -> Customer Management", () => {
   test(
     "TC56 Verify that the admin can invite members to a team in Admin- portal - Customer management",
     {
       tag: "@TC56",
     },
-    async ({ loginPage, onboardingFlow, authFlow, homeExceptAdminPage }, testInfo) => {
+    async ({ loginPage, onboardingFlow, authFlow, homeExceptAdminPage, customerManagementPage }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -18,21 +18,17 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
-          .withBankTransfer(true)
-          .build();
+      let customerInfo;
+      await test.step("Create customer info", async () => {
+        customerInfo = await DataFactory.customerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withDepartment(process.env.DEPARTMENT!).withContentAvailability("US").build();
       });
 
-      await test.step("Verify the partner is created successfully", async () => {
-        await onboardingFlow.verifyPartnerVisible(partnerInfo!);
+      await test.step("Create customer from Customer management page", async () => {
+        await onboardingFlow.createCustomerFromCustomerManagementPage(customerInfo!);
       });
-      await test.step("Activate partner", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+
+      await test.step("Activate customer", async () => {
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(customerInfo!.accountInfo?.email!, "Member", "Password@123");
       });
 
       let ownerAccount;
@@ -40,27 +36,11 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         ownerAccount = await PersonDataGenerator.generate();
       });
 
-      let owner;
-      await test.step("Create a new Business", async () => {
-        await onboardingFlow.createBusinessFromPartnerPortal(ownerAccount!);
-      });
-
-      await test.step("Verify the new Business is created successfully", async () => {
-        await expect(owner!).toBeVisible({ timeout: 10000 });
-      });
-
-      await test.step("Activate customer belonged to the new partner", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Member", "Password@123");
-
-        const memberHomeTitle = await homeExceptAdminPage.getHomeTitle();
-        await expect(memberHomeTitle).toBeVisible({ timeout: 30000 });
-      });
-
       let invitedMembers: any;
       await test.step("Invite members in Customer management", async () => {
         invitedMembers = await CustomerFactory.generateMembers(1, "User");
 
-        await onboardingFlow.inviteMemberInCusManagement(partnerInfo!, invitedMembers);
+        await onboardingFlow.inviteMemberInCusManagement(customerInfo!, invitedMembers);
       });
 
       await test.step("Verify invite members successfully", async () => {

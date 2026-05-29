@@ -1,6 +1,6 @@
 import { Locator, Page } from "playwright/test";
 import { PartnerManagementPage } from "../partner-management-page";
-import { Partner, UserInfo } from "src/objects";
+import { CustomerInfo, Partner, UserInfo } from "src/objects";
 import { PeoPartner } from "src/objects/ipeopartner";
 import { CustomerManagementPage } from "../customer-management-page";
 
@@ -58,5 +58,11 @@ export class OnboardingAdminPortalFlow {
 
   public async getDuplicatedText(): Promise<Locator> {
     return await this.partnerManagementPage.getDuplicatedText();
+  }
+
+  public async createCustomerFromCustomerManagementPage(customerInfo: CustomerInfo): Promise<Locator> {
+    await this.partnerManagementPage.accessToManagementPage("Member");
+
+    return await this.customerManagementPage.fillFormToCreateCustomer(customerInfo);
   }
 }

@@ -196,7 +196,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@Verify that when Payment Options = Partner/Consultant Owner, the partner account is both the Owner of the Partner Team and the Owner of all Businesses under it.",
     },
-    async ({ loginPage: loginAdminPage, authFlow, onboardingFlow, partnerPage }, testInfo) => {
+    async ({ loginPage: loginAdminPage, authFlow, onboardingFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -248,7 +248,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@ Verify that when Payment Options = Member Portal Consumer, the partner account is the Owner of the Partner Team, while each Business has its own Owner.",
     },
-    async ({ loginPage, authFlow, onboardingFlow, partnerPage }, testInfo) => {
+    async ({ loginPage, authFlow, onboardingFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");

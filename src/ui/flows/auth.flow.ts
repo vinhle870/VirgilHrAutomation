@@ -73,7 +73,9 @@ export class AuthFlow {
   }
 
   public async activateIndividualCustomerAccountAndSetPassword(email: string, portal: string, newPassword: string) {
-    const subject = portal === "Member" || portal === "Consumer" ? "HR Compliance: Your User Portal Credentials" : "HR Compliance - Partner Credential";
+    //   const subject = portal === "Member" || portal === "Consumer" ? "HR Compliance: Your User Portal Credentials" : "HR Compliance - Partner Credential";
+
+    const subject = portal === "Member" || portal === "Consumer" ? "VirgilHR: Your User Portal Credentials" : "VirgilHR - Your Partner Portal Credentials";
 
     const credential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
 
@@ -83,7 +85,7 @@ export class AuthFlow {
   }
 
   public async activateIndividualCustomerAccountAndChangePassword(email: string, portal: string, newPassword: string) {
-    const subject = portal === "Member" || portal === "Consumer" ? "HR Compliance: Your User Portal Credentials" : "HR Compliance - Partner Credential";
+    const subject = portal === "Member" || portal === "Consumer" ? "VirgilHR: Your User Portal Credentials" : "VirgilHR - Your Partner Portal Credentials";
 
     const credential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
 
