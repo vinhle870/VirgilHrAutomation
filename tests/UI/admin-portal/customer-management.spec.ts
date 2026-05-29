@@ -20,7 +20,13 @@ test.describe("E2E -> Admin Portal -> Customer Management", () => {
 
       let customerInfo;
       await test.step("Create customer info", async () => {
-        customerInfo = await DataFactory.customerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withDepartment(process.env.DEPARTMENT!).withContentAvailability("US").build();
+        customerInfo = await DataFactory.customerBuilder()
+          .withDepartmentName(process.env.DEPARTMENT_NAME!)
+          .withDepartment(process.env.DEPARTMENT!)
+          .withContentAvailability("US")
+          .withBankStranfer(true)
+          .withCompanySize(process.env.PLAN!)
+          .build();
       });
 
       await test.step("Create customer from Customer management page", async () => {
@@ -38,6 +44,8 @@ test.describe("E2E -> Admin Portal -> Customer Management", () => {
 
       let invitedMembers: any;
       await test.step("Invite members in Customer management", async () => {
+        await loginPage.login();
+
         invitedMembers = await CustomerFactory.generateMembers(1, "User");
 
         await onboardingFlow.inviteMemberInCusManagement(customerInfo!, invitedMembers);

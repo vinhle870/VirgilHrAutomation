@@ -1,6 +1,7 @@
 import { Page } from "@playwright/test";
 import { BasePage } from "../base-page";
 import { LoginFormLocators } from "./locators";
+import { CommonAdminPortalLocator } from "../admin-portal/locators/common/common.locator";
 
 export class LoginPage extends BasePage {
   constructor(page: Page) {
@@ -25,14 +26,18 @@ export class LoginPage extends BasePage {
 
     await this.page.waitForLoadState("domcontentloaded", { timeout: 30000 });
 
-    const userField = await this.getLocator(LoginFormLocators.username);
-    await userField.fill(username);
+    const managementCategoryEl = this.page.locator(CommonAdminPortalLocator.managementCategory);
 
-    const passwordField = await this.getLocator(LoginFormLocators.password);
-    await passwordField.fill(password);
+    if (!(await managementCategoryEl.isVisible({ timeout: 1000 }))) {
+      const userField = await this.getLocator(LoginFormLocators.username);
+      await userField.fill(username);
 
-    const loginButton = await this.getLocator(LoginFormLocators.signIn);
-    await loginButton.click();
+      const passwordField = await this.getLocator(LoginFormLocators.password);
+      await passwordField.fill(password);
+
+      const loginButton = await this.getLocator(LoginFormLocators.signIn);
+      await loginButton.click();
+    }
   }
 
   public async changePassword(currentPassword: string, newPassword: string) {

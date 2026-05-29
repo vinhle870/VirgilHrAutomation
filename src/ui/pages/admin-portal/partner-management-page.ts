@@ -6,7 +6,7 @@ import { CreateNewPartnerModalLocator } from "./locators/partner-management/loca
 import delay from "src/utilities/delay";
 import IPartnerFilter from "src/objects/ipartnerfilter";
 import { PartnerFilterLocator } from "./locators/partner-management/locator/filter-partner";
-import { Partner } from "src/objects";
+import { CustomerInfo, Partner, UserInfo } from "src/objects";
 import { PeoConsultantAdditionLocator } from "./locators/partner-management/locator/peo-consultant-addition";
 import { PeoPartner } from "src/objects/ipeopartner";
 import { DetailOfPartnerLocator } from "./locators/partner-management/locator/partner-detail.modal";
@@ -178,16 +178,14 @@ export class PartnerManagementPage extends BasePage {
     }
   }
 
-  public async clickDetailButton(partner: Partner) {
+  public async clickDetailButton(partner: Partner | CustomerInfo) {
     const partnerPhoneNumber = partner.accountInfo?.phoneNumber;
-
-    if (!partnerPhoneNumber) throw new Error("Partner phone number is missing");
 
     const rawDetailLocator = CommonPartnerLocator.detailButton;
 
     const detailButtonLocator = rawDetailLocator.replace("phoneNumberValue", partnerPhoneNumber!);
 
-    await this.page.locator(detailButtonLocator).last().click();
+    await this.page.locator(detailButtonLocator).last().click({ timeout: 1000 });
   }
 
   async filter(partFilterInfo: IPartnerFilter): Promise<string> {
@@ -230,13 +228,7 @@ export class PartnerManagementPage extends BasePage {
     return "Pass";
   }
 
-  public async getDuplicatedText(): Promise<Locator> {
-    const duplicatedEmailText = CreateNewPartnerModalLocator.duplicatedEmailText;
-
-    const duplicatedEmailEl = await this.getLocator(duplicatedEmailText);
-
-    return duplicatedEmailEl;
-  }
+  public getDuplicatedText = async (): Promise<Locator> => await this.getLocator(CreateNewPartnerModalLocator.duplicatedEmailText);
 
   public async accessToManagementPage(category = "Partner") {
     const managementCategory = this.page.locator(CommonAdminPortalLocator.managementCategory);
@@ -250,7 +242,7 @@ export class PartnerManagementPage extends BasePage {
       } catch (error) {
         await partnerManagementCategory.last().click({ timeout: 5000 });
       }
-    } else if (category === "Member") {
+    } else if (category === "Member" || category === "Customer") {
       const customerManagementCategory = this.page.locator(CommonAdminPortalLocator.customerManagement);
 
       try {
@@ -261,7 +253,7 @@ export class PartnerManagementPage extends BasePage {
     }
   }
 
-  public async addCustomerMembersInPartManaPage(partner: Partner) {
+  public async addCustomerMembersInPartManaPage(partner: Partner, invitedMembers: UserInfo[]) {
     await this.clickDetailButton(partner);
 
     await this.page.locator(DetailOfPartnerLocator.addMemberButton).click();

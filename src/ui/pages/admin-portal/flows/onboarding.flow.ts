@@ -44,11 +44,9 @@ export class OnboardingAdminPortalFlow {
     await this.partnerManagementPage.fillFormToAddPeo(peoPartners);
   }
 
-  public async addCustomerMembersInPartManaPage(partner: Partner) {
-    await this.partnerManagementPage.addCustomerMembersInPartManaPage(partner);
-  }
+  public addCustomerMembersInPartManaPage = async (partner: Partner, invitedMembers: UserInfo[]) => await this.partnerManagementPage.addCustomerMembersInPartManaPage(partner, invitedMembers);
 
-  public async inviteCustomerMembersInCusManaPage(invitingMember: Partner, invitedMembers: UserInfo[]) {
+  public async inviteCustomerMembersInCusManaPage(invitingMember: Partner | CustomerInfo, invitedMembers: UserInfo[]) {
     await this.partnerManagementPage.accessToManagementPage("Customer");
 
     await this.partnerManagementPage.clickDetailButton(invitingMember);
