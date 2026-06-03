@@ -309,15 +309,12 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginPage.login();
       });
 
-      let partnerInfo: Partner;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
-          .withBankTransfer(true)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Partner/Consultant Owner")
+        .withProductsType([process.env.PLAN!])
+        .withBankTransfer(true)
+        .build();
 
       await test.step("Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
