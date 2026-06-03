@@ -107,7 +107,7 @@ test.describe(
 
           const username = invitedEmail.split("@")[0];
 
-          await onboardingFlow.acceptInvitation(tempEmailFreePage, username);
+          await onboardingFlow.activateCustomerAccount(tempEmailFreePage, username);
 
           const invitedEmailToken = await authenticationService.getAuthToken(invitedEmail, tempPassword, "4");
 
@@ -175,7 +175,7 @@ test.describe(
       {
         tag: ["@TC55", "@API", "@Member Portal", "@Invite Members", "@Owner Admin"],
       },
-      async ({ apiClient, authenticationService, adminPortalService, partnerPortalService, memberPortalService, onboardingFlow, tempEmailFreePage }) => {
+      async ({ apiClient, authenticationService, adminPortalService, partnerPortalService, memberPortalService, onboardingFlow, authFlow }) => {
         const adminService = await AdminPortalService.create(apiClient, authenticationService);
 
         const paymentProductName: string = plans[1];
@@ -264,7 +264,7 @@ test.describe(
 
           const username = adminEmail.split("@")[0];
 
-          await onboardingFlow.acceptInvitation(tempEmailFreePage, username);
+          await authFlow.activateCustomerAccount(tempEmailFreePage, username);
 
           const adminToken = await authenticationService.getAuthToken(adminEmail, tempPassword, "4");
 
@@ -350,7 +350,7 @@ test.describe(
 
           const usernameToInvite = userPayload.recipients[0].email.split("@")[0];
 
-          await onboardingFlow.acceptInvitation(tempEmailFreePage, usernameToInvite);
+          await onboardingFlow.activateCustomerAccount(tempEmailFreePage, usernameToInvite);
 
           const userToken = await authenticationService.getAuthToken(userEmail, tempPassword, "4");
 

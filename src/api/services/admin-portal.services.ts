@@ -25,7 +25,7 @@ export interface RecipientInfo {
   lastName: string;
   phoneNumber: string;
   jobTitle: string;
-  role: number;
+  role: number | string;
   partnerConsumerType: number;
   consultantRole: number;
 }
@@ -44,18 +44,14 @@ export class AdminPortalService {
   constructor(apiClient: ApiClient, authentication?: Authentication) {
     const apiVersion = process.env.API_VERSION ?? "v1";
     this.apiClient = apiClient;
-    this.baseUrl =
-      this.apiClient.baseURL.replace(/\/+$/, "") + `/${apiVersion}`;
+    this.baseUrl = this.apiClient.baseURL.replace(/\/+$/, "") + `/${apiVersion}`;
     this.authentication = authentication;
   }
 
   /**
    * Async factory to create an AdminPortalService and optionally prefetch an auth token.
    */
-  public static async create(
-    apiClient: ApiClient,
-    authentication?: Authentication,
-  ): Promise<AdminPortalService> {
+  public static async create(apiClient: ApiClient, authentication?: Authentication): Promise<AdminPortalService> {
     const svc = new AdminPortalService(apiClient, authentication);
     if (authentication) {
       const username = process.env.API_USERNAME ?? process.env.ADMIN_USERNAME;
@@ -67,10 +63,7 @@ export class AdminPortalService {
         } catch (err) {
           // don't crash on token fetch failure; log for debugging
           // eslint-disable-next-line no-console
-          console.warn(
-            "AdminPortalService: failed to prefetch auth token",
-            err,
-          );
+          console.warn("AdminPortalService: failed to prefetch auth token", err);
         }
       }
     }
@@ -82,10 +75,7 @@ export class AdminPortalService {
    * be used; otherwise the service will use the stored token (possibly obtained
    * from the `Authentication` service or previously set).
    */
-  async searchPartnerByText(
-    partnername: string,
-    token?: string,
-  ): Promise<{ total: number; entities: Array<Record<string, any>> }> {
+  async searchPartnerByText(partnername: string, token?: string): Promise<{ total: number; entities: Array<Record<string, any>> }> {
     const query = `SearchString=${encodeURIComponent(partnername)}`;
     const path = SEARCH_PARTNER_BY_TEXT.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}?${query}`;
@@ -124,9 +114,7 @@ export class AdminPortalService {
 
     // Determine token to use: parameter > stored > apiClient
     const tokenToUse = token ?? this.authToken ?? this.apiClient.getAuthToken();
-    const headers = tokenToUse
-      ? { Authorization: `Bearer ${tokenToUse}` }
-      : undefined;
+    const headers = tokenToUse ? { Authorization: `Bearer ${tokenToUse}` } : undefined;
 
     const resp = await this.apiClient.sendRequest<{
       total: number;
@@ -163,13 +151,7 @@ export class AdminPortalService {
       Authorization: `Bearer ${this.authToken}`,
     };
 
-    const response = await this.apiClient.sendRequest<any>(
-      "POST",
-      url,
-      requestBody,
-      201,
-      headers,
-    );
+    const response = await this.apiClient.sendRequest<any>("POST", url, requestBody, 201, headers);
 
     return response;
   }
@@ -181,16 +163,8 @@ export class AdminPortalService {
   async getProductTypeFilters(): Promise<any> {
     const path = GET_PRODUCTTYPEFILTERS.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
-    const headers = this.authToken
-      ? { Authorization: `Bearer ${this.authToken}` }
-      : undefined;
-    const response = await this.apiClient.sendRequest<any>(
-      "GET",
-      url,
-      undefined,
-      200,
-      headers,
-    );
+    const headers = this.authToken ? { Authorization: `Bearer ${this.authToken}` } : undefined;
+    const response = await this.apiClient.sendRequest<any>("GET", url, undefined, 200, headers);
     return response;
   }
 
@@ -202,16 +176,8 @@ export class AdminPortalService {
   async getConsumerById(id: string): Promise<any> {
     const path = GET_CONSUMER_BY_ID.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}/${id}`;
-    const headers = this.authToken
-      ? { Authorization: `Bearer ${this.authToken}` }
-      : undefined;
-    const response = await this.apiClient.sendRequest<any>(
-      "GET",
-      url,
-      undefined,
-      200,
-      headers,
-    );
+    const headers = this.authToken ? { Authorization: `Bearer ${this.authToken}` } : undefined;
+    const response = await this.apiClient.sendRequest<any>("GET", url, undefined, 200, headers);
     return response;
   }
 
@@ -229,17 +195,9 @@ export class AdminPortalService {
       ...partnerInfo.accountInfo,
     };
 
-    const headers = this.authToken
-      ? { Authorization: `Bearer ${this.authToken}` }
-      : undefined;
+    const headers = this.authToken ? { Authorization: `Bearer ${this.authToken}` } : undefined;
 
-    const response = await this.apiClient.sendRequest<any>(
-      "POST",
-      url,
-      requestBody,
-      200,
-      headers,
-    );
+    const response = await this.apiClient.sendRequest<any>("POST", url, requestBody, 200, headers);
 
     return response;
   }
@@ -251,17 +209,9 @@ export class AdminPortalService {
   async getDepartmentsList(): Promise<any> {
     const url = `${this.baseUrl}/${GET_DEPARTMENTS_LIST}`;
 
-    const headers = this.authToken
-      ? { Authorization: `Bearer ${this.authToken}` }
-      : undefined;
+    const headers = this.authToken ? { Authorization: `Bearer ${this.authToken}` } : undefined;
 
-    const response = await this.apiClient.sendRequest<any>(
-      "GET",
-      url,
-      undefined,
-      200,
-      headers,
-    );
+    const response = await this.apiClient.sendRequest<any>("GET", url, undefined, 200, headers);
 
     return response;
   }
@@ -273,17 +223,9 @@ export class AdminPortalService {
   async getAllDepartmentsPlans(): Promise<any> {
     const url = `${this.baseUrl}/${GET_ALL_DEPARTMENTS_PLANS}`;
 
-    const headers = this.authToken
-      ? { Authorization: `Bearer ${this.authToken}` }
-      : undefined;
+    const headers = this.authToken ? { Authorization: `Bearer ${this.authToken}` } : undefined;
 
-    const response = await this.apiClient.sendRequest<any>(
-      "GET",
-      url,
-      undefined,
-      200,
-      headers,
-    );
+    const response = await this.apiClient.sendRequest<any>("GET", url, undefined, 200, headers);
 
     return response;
   }
@@ -298,17 +240,9 @@ export class AdminPortalService {
     const path = GET_CUSTOMER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
 
-    const headers = this.authToken
-      ? { Authorization: `Bearer ${this.authToken}` }
-      : undefined;
+    const headers = this.authToken ? { Authorization: `Bearer ${this.authToken}` } : undefined;
 
-    const response = await this.apiClient.sendRequest<any>(
-      "GET",
-      url,
-      undefined,
-      200,
-      headers,
-    );
+    const response = await this.apiClient.sendRequest<any>("GET", url, undefined, 200, headers);
 
     return response;
   }
@@ -322,17 +256,9 @@ export class AdminPortalService {
     const path = GET_CUSTOMER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}/${id}`;
 
-    const headers = this.authToken
-      ? { Authorization: `Bearer ${this.authToken}` }
-      : undefined;
+    const headers = this.authToken ? { Authorization: `Bearer ${this.authToken}` } : undefined;
 
-    const response = await this.apiClient.sendRequest<any>(
-      "GET",
-      url,
-      undefined,
-      200,
-      headers,
-    );
+    const response = await this.apiClient.sendRequest<any>("GET", url, undefined, 200, headers);
 
     return response;
   }
@@ -346,24 +272,14 @@ export class AdminPortalService {
     const path = GET_DEPARTMENT_PLAN.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}${departmentId}`;
 
-    const headers = this.authToken
-      ? { Authorization: `Bearer ${this.authToken}` }
-      : undefined;
+    const headers = this.authToken ? { Authorization: `Bearer ${this.authToken}` } : undefined;
 
-    const response = await this.apiClient.sendRequest<any>(
-      "GET",
-      url,
-      undefined,
-      200,
-      headers,
-    );
+    const response = await this.apiClient.sendRequest<any>("GET", url, undefined, 200, headers);
 
     return response;
   }
 
-  public async getDepartmentPaymentProduct(
-    departmentID: string,
-  ): Promise<object[]> {
+  public async getDepartmentPaymentProduct(departmentID: string): Promise<object[]> {
     const url = `${this.baseUrl}/${GET_DEPARTMENT_PAYMENT_PRODUCT}${departmentID}`;
 
     let tokenToUse = this.authToken ?? this.apiClient.getAuthToken();
@@ -373,13 +289,7 @@ export class AdminPortalService {
       "Content-Type": "application/json",
     };
 
-    const response = await this.apiClient.sendRequest<any>(
-      "GET",
-      url,
-      undefined,
-      200,
-      mergedHeaders,
-    );
+    const response = await this.apiClient.sendRequest<any>("GET", url, undefined, 200, mergedHeaders);
 
     return response;
   }
@@ -425,21 +335,12 @@ export class AdminPortalService {
       ],
     };
 
-    const response = await this.apiClient.sendRequest<any>(
-      "POST",
-      url,
-      requestBody,
-      200,
-      headers,
-    );
+    const response = await this.apiClient.sendRequest<any>("POST", url, requestBody, 200, headers);
 
     return response;
   }
 
-  async searchCustomerByEmail(
-    email: string,
-    token?: string,
-  ): Promise<{ total: number; entities: Array<Record<string, any>> }> {
+  async searchCustomerByEmail(email: string, token?: string): Promise<{ total: number; entities: Array<Record<string, any>> }> {
     const path = GET_CUSTOMER.replace(/^\/+/, "");
     const url = `${this.baseUrl}/${path}`;
 
@@ -482,9 +383,7 @@ export class AdminPortalService {
   }
 
   public getMemberInfo(customerInfo: any, email: string) {
-    for (const team of customerInfo.teams)
-      for (const member of team.members)
-        if (member.email === email) return member;
+    for (const team of customerInfo.teams) for (const member of team.members) if (member.email === email) return member;
   }
 
   public getBaseURL(): string {

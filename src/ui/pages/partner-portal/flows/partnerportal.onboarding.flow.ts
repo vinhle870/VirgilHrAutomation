@@ -19,7 +19,9 @@ export class OnboardingPartnerPotalFlow {
     await this.partnerPage.fillFormToCreateBusiness(partberInfo, owner);
   }
 
-  public async getOwnerRoleInUserPage(partnerInfo: Partner) {
-    return this.partnerPage.getOwnerRoleInUserPage(partnerInfo.accountInfo!.email!);
-  }
+  public validateOwnerRoleInUserPage = async (partnerInfo: Partner) => await this.partnerPage.validateOwnerRoleInUserPage(partnerInfo.accountInfo!.email!);
+
+  public validatePlanVisible = async () => await this.partnerPage.validatePlanVisible();
+
+  public validateAccountNotExist = async () => await this.partnerPage.validateAccountNotExist();
 }

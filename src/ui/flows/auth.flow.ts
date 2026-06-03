@@ -2,6 +2,7 @@ import { Page } from "@playwright/test";
 import { LoginPage } from "../pages";
 import { TempEmailFreePage } from "../pages/shared-pages/tempemailfree.page";
 import { WelcomeModal } from "../pages/shared-pages/welome.modal";
+import { MemberOnboardingLocators } from "../pages/member-portal/locators";
 /**
  * This flow class contains methods related to the authentication process, such as logging in with valid accounts, accepting invitations, activating accounts, and changing passwords.
  * Flows:
@@ -18,7 +19,7 @@ export class AuthFlow {
   constructor(page: Page) {
     this.page = page;
     this.loginPage = new LoginPage(this.page);
-    this.tempEmailFreePage = new TempEmailFreePage(page);
+    this.tempEmailFreePage = new TempEmailFreePage(this.page);
   }
 
   /**
@@ -44,6 +45,8 @@ export class AuthFlow {
     await this.tempEmailFreePage.acceptJoinTeamInvite(customerEmail);
 
     await this.loginPage.currentPage.waitForLoadState("domcontentloaded");
+
+    await this.page.locator(MemberOnboardingLocators.continueWithEmail).click();
 
     await this.loginPage.setPassword(password);
 

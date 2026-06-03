@@ -1,6 +1,8 @@
 import delay from "src/utilities/delay";
 import { BasePage } from "../base-page";
 import { TempEmailFreeLocators } from "./locators";
+import { expect } from "@playwright/test";
+import { Partner } from "src/objects/ipartner";
 
 export class TempEmailFreePage extends BasePage {
   /**
@@ -10,15 +12,17 @@ export class TempEmailFreePage extends BasePage {
   public async acceptJoinTeamInvite(userEmail: string): Promise<void> {
     await this.registerNewEmail(userEmail);
 
-    const emailSubject = "HR Compliance: Join your team";
+    const emailSubject = process.env.SUBJECT_TO_JOIN_TEAM;
 
-    await this.openEmailBySubject(emailSubject);
+    await this.openEmailBySubject(emailSubject!);
 
     const acceptInviteBtn = await this.getLocatorInIframe(TempEmailFreeLocators.iframeToAcceptIvite, TempEmailFreeLocators.acceptInviteButton);
 
     await acceptInviteBtn.scrollIntoViewIfNeeded();
 
-    await acceptInviteBtn.click();
+    const hrefValue = await acceptInviteBtn.getAttribute("href");
+
+    await this.page.goto(hrefValue!);
   }
 
   public async extractAccountCredentialFromInBox(email: string, subject: string): Promise<{ email: string; password: string | undefined; hrefValue: string | null | undefined }> {
@@ -58,7 +62,7 @@ export class TempEmailFreePage extends BasePage {
     return { email, password, hrefValue };
   }
 
-  public async registerNewEmail(userEmail: string, pageStatus = false) {
+  public async registerNewEmail(userEmail: string) {
     await delay(5000);
 
     const emailLocalPart = userEmail.split("@")[0];
@@ -91,8 +95,6 @@ export class TempEmailFreePage extends BasePage {
     await createEmailBtn.click();
 
     await newBtn.waitFor({ state: "visible" });
-
-    if (pageStatus) return this.page;
   }
 
   public async openEmailBySubject(subject: string): Promise<void> {
@@ -100,5 +102,29 @@ export class TempEmailFreePage extends BasePage {
 
     //Click on Email Subject
     await (await this.getLocator(emailSubjectLnk)).first().click();
+  }
+
+  public async validateReceivedOneEmail(partnerInfo?: Partner) {
+    await this.registerNewEmail(partnerInfo!.accountInfo?.email!);
+
+    const partnerCredentialCategory = this.page.locator(TempEmailFreeLocators.emailSubject.replace("subjectValue", "Partner")).first();
+
+    await expect(partnerCredentialCategory).toBeVisible({ timeout: 30000 });
+
+    const memberCredentialCategory = this.page.locator(TempEmailFreeLocators.emailSubject.replace("subjectValue", "User")).first();
+
+    await expect(memberCredentialCategory).toBeHidden();
+  }
+
+  public async validateReceivedTwoEmails(partnerInfo?: Partner) {
+    await this.registerNewEmail(partnerInfo!.accountInfo?.email!);
+
+    const partnerEmail = this.page.locator(TempEmailFreeLocators.emailSubject.replace("subjectValue", "Partner")).first();
+
+    await expect(partnerEmail).toBeVisible({ timeout: 30000 });
+
+    const memberEmail = this.page.locator(TempEmailFreeLocators.emailSubject.replace("subjectValue", "User")).first();
+
+    await expect(memberEmail).toBeVisible();
   }
 }

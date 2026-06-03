@@ -1,7 +1,7 @@
-import { test, expect } from "src/fixtures";
+import { test } from "src/fixtures";
 import { DataFactory, PersonDataGenerator } from "src/data-factory";
 import { CustomerFactory } from "src/data-factory/customer-factory";
-import { UiAssert } from "src/assertions";
+import UserInfo from "src/objects/user-info";
 
 test.describe("E2E -> Admin Portal -> Customer Management", () => {
   test(
@@ -9,7 +9,7 @@ test.describe("E2E -> Admin Portal -> Customer Management", () => {
     {
       tag: "@TC56",
     },
-    async ({ loginPage, onboardingFlow, authFlow, homeExceptAdminPage, customerManagementPage }, testInfo) => {
+    async ({ loginPage, onboardingFlow, authFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -23,7 +23,6 @@ test.describe("E2E -> Admin Portal -> Customer Management", () => {
         customerInfo = await DataFactory.customerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withDepartment(process.env.DEPARTMENT!)
-          .withContentAvailability("US")
           .withBankStranfer(true)
           .withCompanySize(process.env.PLAN!)
           .build();
@@ -37,25 +36,34 @@ test.describe("E2E -> Admin Portal -> Customer Management", () => {
         await authFlow.activateIndividualCustomerAccountAndChangePassword(customerInfo!.accountInfo?.email!, "Member", "Password@123");
       });
 
-      let ownerAccount;
-      await test.step("Create owner info", async () => {
-        ownerAccount = await PersonDataGenerator.generate();
-      });
-
-      let invitedMembers: any;
+      let admins: UserInfo[];
       await test.step("Invite members in Customer management", async () => {
         await loginPage.login();
 
-        invitedMembers = await CustomerFactory.generateMembers(1, "User");
+        admins = await CustomerFactory.generateMembers(2, "Admin");
 
-        await onboardingFlow.inviteMemberInCusManagement(customerInfo!, invitedMembers);
+        await onboardingFlow.inviteMemberInCusManagement(customerInfo!, admins);
       });
 
-      await test.step("Verify invite members successfully", async () => {
-        for (const member of invitedMembers) {
+      await test.step("Verify invite admin successfully", async () => {
+        for (const member of admins) {
           await authFlow.acceptInviteAndJoinTeamByCustomer(member.email, "Password@123");
+        }
+      });
 
-          await UiAssert.allVisible([await homeExceptAdminPage.getHomeTitle()]);
+      let users: UserInfo[];
+      await test.step("Invite user in Customer management", async () => {
+        await loginPage.login();
+
+        users = await CustomerFactory.generateMembers(2, "User");
+
+        await onboardingFlow.inviteMemberInCusManagement(admins[0], users);
+      });
+
+      await test.step("Verify invite user successfully", async () => {
+        for (const member of users) {
+          await authFlow.acceptInviteAndJoinTeamByCustomer(member.email, "Password@123");
+          await onboardingFlow.redirectToHomePage();
         }
       });
     },

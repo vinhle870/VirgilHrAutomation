@@ -1,5 +1,5 @@
 {
-  "name": "VirgilHR Automation Framework",
+  "name": "VirgilHR-Automation-Framework",
   "version": "1.0.0",
   "packageManager": "pnpm@10.33.0",
   "description": "End-to-End test automation for VirgilHR",
@@ -8,7 +8,7 @@
     "install:browsers": "pnpm exec playwright install --with-deps",
     "test:playwright": "pnpm exec playwright test",
     "test:playwright:api": "pnpm exec playwright test tests/API",
-    "test:playwright:ui": "pnpm exec playwright test tests/UI --project=chromium",
+    "test:playwright:ui": "pnpm exec playwright test tests/UI --project=chromium --workers=1 --headed",
     "test:playwright:chromium": "pnpm exec playwright test --project=chromium",
     "playwright:report": "pnpm exec playwright show-report",
     "playwright:codegen": "pnpm exec playwright codegen",

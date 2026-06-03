@@ -1,20 +1,14 @@
 import { Locator, Page } from "@playwright/test";
-import { CommonPartnerPortalLocator } from "../pages/partner-portal/locators/common";
 import { BusinessLocator } from "../pages/partner-portal/locators/business";
 import { CustomerInfo, Partner, UserInfo } from "src/objects";
 import refreshPage from "src/utilities/refresh";
-import { CommonAdminPortalLocator } from "../pages/admin-portal/locators/common/common.locator";
-import { CommonPartnerLocator } from "../pages/admin-portal/locators/partner-management/locator/common";
-import delay from "src/utilities/delay";
-import { DetailOfPartnerLocator } from "../pages/admin-portal/locators/partner-management/locator/partner-detail.modal";
 import { PeoPartner } from "src/objects/ipeopartner";
 import { UiAssert } from "src/assertions";
-import { CustomerDetailModalLocator } from "../pages/admin-portal/locators/customer-management/customer-detail-modal";
-import { TeamInfoLocator } from "../pages/admin-portal/locators/customer-management/team-imformation";
-import { PartnerPage } from "../pages/partner-portal/partner-page";
-import { OnboardingAdminPortalFlow } from "../pages/admin-portal/flows/onboarding.flow";
-import { OnboardingPartnerPotalFlow } from "../pages/partner-portal/flows/onboarding.flow";
-import { OnboardingMemberPotalFlow } from "../pages/member-portal/flows/onboarding.flow";
+import { OnboardingAdminPortalFlow } from "../pages/admin-portal/flows/adminportal.onboarding.flow";
+import { OnboardingPartnerPotalFlow } from "../pages/partner-portal/flows/partnerportal.onboarding.flow";
+import { OnboardingMemberPotalFlow } from "../pages/member-portal/flows/memberportal.onboarding.flow";
+import { TempEmailFreePage } from "../pages";
+import { HomePage } from "../pages/shared-pages/home.page";
 
 /**
  * This flow class contains methods related to the onboarding process of both partner and member users, such as accepting invitations, credentialing, buying plans, and creating a business.
@@ -30,12 +24,16 @@ export class OnboardingFlow {
   private readonly onboardingAdminPortalFlow: OnboardingAdminPortalFlow;
   private readonly onboardingPartnerPotalFlow: OnboardingPartnerPotalFlow;
   private readonly onboardingMemberPotalFlow: OnboardingMemberPotalFlow;
+  private readonly tempEmailFreePage: TempEmailFreePage;
+  private readonly homeExceptAdminPage: HomePage;
 
   constructor(page: Page) {
     this.page = page;
     this.onboardingAdminPortalFlow = new OnboardingAdminPortalFlow(this.page);
     this.onboardingPartnerPotalFlow = new OnboardingPartnerPotalFlow(this.page);
     this.onboardingMemberPotalFlow = new OnboardingMemberPotalFlow(this.page);
+    this.tempEmailFreePage = new TempEmailFreePage(this.page);
+    this.homeExceptAdminPage = new HomePage(this.page);
   }
 
   public async createBusinessFromPartnerPortal(partnerInfo: Partner, owner?: UserInfo) {
@@ -67,16 +65,30 @@ export class OnboardingFlow {
   public createPartnerAndAddPeo = async (partnerInfo: Partner, peoPartners?: PeoPartner[], isAddPeo = false) =>
     (await this.onboardingAdminPortalFlow.createPartnerAndAddPeo(partnerInfo, peoPartners, isAddPeo)) === "Pass" ? "Pass" : "Fail";
 
-  public addMoreMembersInPartnerManagementPage = async (partner: Partner, invitedMembers: UserInfo[]) => await this.onboardingAdminPortalFlow.addCustomerMembersInPartManaPage(partner);
+  public addMoreMembersInPartnerManagementPage = async (partner: Partner, invitedMembers: UserInfo[]) => await this.onboardingAdminPortalFlow.addCustomerMembersInPartManaPage(partner, invitedMembers);
 
-  public inviteMemberInCusManagement = async (invitingMember: Partner | CustomerInfo, invitedMembers: UserInfo[]) =>
+  public inviteMemberInCusManagement = async (invitingMember: Partner | UserInfo, invitedMembers: UserInfo[]) =>
     await this.onboardingAdminPortalFlow.inviteCustomerMembersInCusManaPage(invitingMember, invitedMembers);
 
   public getDuplicatedText = async (): Promise<Locator> => await this.onboardingAdminPortalFlow.getDuplicatedText();
 
   public signUpIndividualCustomerFromMemberPortal = async (customerInfo: CustomerInfo) => await this.onboardingMemberPotalFlow.signUp(customerInfo);
 
-  public getOwnerRoleInUserPage = async (partnerInfo: Partner): Promise<Locator> => await this.onboardingPartnerPotalFlow.getOwnerRoleInUserPage(partnerInfo);
+  public verifyOwnerRoleInUserPage = async (partnerInfo: Partner) => await this.onboardingPartnerPotalFlow.validateOwnerRoleInUserPage(partnerInfo);
 
   public createCustomerFromCustomerManagementPage = async (customerInfo: CustomerInfo): Promise<Locator> => await this.onboardingAdminPortalFlow.createCustomerFromCustomerManagementPage(customerInfo);
+
+  public validateReceivedOneEmail = async (partnerInfo: Partner) => this.tempEmailFreePage.validateReceivedOneEmail(partnerInfo);
+
+  public validateReceivedTwoEmails = async (partnerInfo: Partner) => this.tempEmailFreePage.validateReceivedTwoEmails(partnerInfo);
+
+  public validatePlanVisible = async () => await this.onboardingPartnerPotalFlow.validatePlanVisible();
+
+  public validateAccountNotExist = async () => await this.onboardingPartnerPotalFlow.validateAccountNotExist();
+
+  public redirectToHomePage = async () => {
+    const homeTitle = await this.homeExceptAdminPage.getHomeTitle();
+
+    await UiAssert.allVisible([homeTitle], { timeout: 30000 });
+  };
 }

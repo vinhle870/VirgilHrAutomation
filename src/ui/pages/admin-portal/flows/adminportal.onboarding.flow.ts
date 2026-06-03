@@ -46,7 +46,7 @@ export class OnboardingAdminPortalFlow {
 
   public addCustomerMembersInPartManaPage = async (partner: Partner, invitedMembers: UserInfo[]) => await this.partnerManagementPage.addCustomerMembersInPartManaPage(partner, invitedMembers);
 
-  public async inviteCustomerMembersInCusManaPage(invitingMember: Partner | CustomerInfo, invitedMembers: UserInfo[]) {
+  public async inviteCustomerMembersInCusManaPage(invitingMember: Partner | UserInfo, invitedMembers: UserInfo[]) {
     await this.partnerManagementPage.accessToManagementPage("Customer");
 
     await this.partnerManagementPage.clickDetailButton(invitingMember);
@@ -54,9 +54,7 @@ export class OnboardingAdminPortalFlow {
     await this.customerManagementPage.inviteCustomerMembers(invitedMembers);
   }
 
-  public async getDuplicatedText(): Promise<Locator> {
-    return await this.partnerManagementPage.getDuplicatedText();
-  }
+  public getDuplicatedText = async (): Promise<Locator> => await this.partnerManagementPage.getDuplicatedText();
 
   public async createCustomerFromCustomerManagementPage(customerInfo: CustomerInfo): Promise<Locator> {
     await this.partnerManagementPage.accessToManagementPage("Member");

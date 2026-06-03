@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 import path from "path";
 import { loadPlaywrightEnv } from "src/utilities/load-env";
+import dotenv from "dotenv";
 
 loadPlaywrightEnv(path.resolve(__dirname));
 
@@ -10,6 +11,7 @@ const headed = (process.env.HEADED ?? "false").toLowerCase() === "true";
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
+
 export default defineConfig({
   // Increase global test timeout to allow slow page loads (milliseconds)
   timeout: 600000,
@@ -21,7 +23,7 @@ export default defineConfig({
   /* Retry on CI only */
   retries: 1,
   /* Opt out of parallel tests on CI. */
-  workers: 1,
+  workers: process.env.CI ? 1 : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [["html", { open: "always" }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */

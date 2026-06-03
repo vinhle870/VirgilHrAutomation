@@ -1,10 +1,11 @@
-import { Locator, Page } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 import { BasePage } from "../base-page";
 import { LoginFormLocators } from "../shared-pages/locators/login-form";
 import { ClientPartnerPortalLocators } from "./locators/client";
 import { BusinessLocator } from "./locators/business";
 import { Partner, UserInfo } from "src/objects";
 import { CommonPartnerPortalLocator } from "./locators/common";
+import { BuyPlanLocators } from "../shared-pages/locators";
 
 export class PartnerPage extends BasePage {
   private readonly URL: string;
@@ -12,24 +13,18 @@ export class PartnerPage extends BasePage {
     super(page);
     this.URL = "https://partner.qa.virgilhr.com";
   }
-  public getURL() {
-    return this.URL;
-  }
+  public getURL = () => this.URL;
 
-  public getAccountNotExist() {
-    return this.page.locator(LoginFormLocators.validationMsg);
-  }
+  public getAccountNotExist = () => this.page.locator(LoginFormLocators.validationMsg);
 
-  public getOwnerRoleInUserPage(email: string): Locator {
+  public async validateOwnerRoleInUserPage(email: string) {
     const userPage = CommonPartnerPortalLocator.usersButton;
     this.page.locator(userPage).click({ timeout: 3000 });
 
-    return this.page.locator(ClientPartnerPortalLocators.role.replace("emailValue", email));
+    await expect(this.page.locator(ClientPartnerPortalLocators.role.replace("emailValue", email))).toBeVisible({ timeout: 5000 });
   }
 
-  public async getPlanToBuy(plan: string): Promise<Locator> {
-    return this.page.locator(plan);
-  }
+  public getPlanToBuy = async (plan: string): Promise<Locator> => this.page.locator(plan);
 
   public async fillFormToCreateBusiness(partnerInfo: Partner, owner?: UserInfo) {
     await this.page.locator(CommonPartnerPortalLocator.clientButton).click({ timeout: 10000 });
@@ -82,5 +77,16 @@ export class PartnerPage extends BasePage {
     } catch (error) {
       console.log("There is no modal");
     }
+  }
+
+  public async validatePlanVisible() {
+    const plan = await this.getPlanToBuy(BuyPlanLocators.firstPlan);
+    await expect(plan).toBeVisible();
+  }
+
+  public async validateAccountNotExist() {
+    const accountNotExist = this.getAccountNotExist();
+
+    await expect(accountNotExist).toBeVisible();
   }
 }

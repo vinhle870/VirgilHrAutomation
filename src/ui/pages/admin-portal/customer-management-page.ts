@@ -94,8 +94,8 @@ export class CustomerManagementPage extends BasePage {
       }
     }
 
-    if (customer.contentAvailability === "US") await (await this.getLocator(CreateNewCustomerModalLocator.contentAvailability.replace("country", "United States"))).first().click();
-    else if (customer.contentAvailability === "Canada") await (await this.getLocator(CreateNewCustomerModalLocator.contentAvailability.replace("country", "Canada"))).first().click();
+    if (customer.contentAvailability === "Canada") await (await this.getLocator(CreateNewCustomerModalLocator.contentAvailability.replace("country", "Canada"))).first().click();
+    else await (await this.getLocator(CreateNewCustomerModalLocator.contentAvailability.replace("country", "United States"))).first().click();
 
     await (await this.getLocator(CreateNewCustomerModalLocator.createButton)).click();
 
@@ -130,7 +130,7 @@ export class CustomerManagementPage extends BasePage {
     const detailButtonLocator = rawPhoneNumber.replace("phoneNumberValue", phoneNumber);
 
     //Click detail button
-    const detailButtonEl = this.page.locator(detailButtonLocator);
+    const detailButtonEl = await this.getLocator(detailButtonLocator);
 
     await detailButtonEl.nth(2).click();
     //click upgrade plan
@@ -149,7 +149,7 @@ export class CustomerManagementPage extends BasePage {
     await (await this.getLocator(UpgradePlanModalLocator.upgradelButton)).click();
 
     if (customer.bankStranferToUpgradePlan) {
-      const bankStranferButtonEl = this.page.locator(UpgradePlanModalLocator.bankStranfer);
+      const bankStranferButtonEl = await this.getLocator(UpgradePlanModalLocator.bankStranfer);
 
       await bankStranferButtonEl.click();
 
@@ -157,13 +157,38 @@ export class CustomerManagementPage extends BasePage {
     } else await (await this.getLocator(UpgradePlanModalLocator.requestPaymentButton)).click();
   }
 
+  public fillFormToInviteCustomerMembers = async (invitedMembers: UserInfo[]) => {
+    const numberOfInvitedMembers = invitedMembers.length;
+
+    for (let i = 0; i < numberOfInvitedMembers; i++) {
+      if (i > 0) await (await this.getLocator(TeamInfoLocator.addMoreButton)).click();
+
+      await (await this.getLocator(TeamInfoLocator.emailInput)).nth(i).fill(invitedMembers[i].email);
+      await (await this.getLocator(TeamInfoLocator.firstNameInput)).nth(i).fill(invitedMembers[i].firstName);
+      await (await this.getLocator(TeamInfoLocator.lastNameInput)).nth(i).fill(invitedMembers[i].lastName);
+      await (await this.getLocator(TeamInfoLocator.phoneInput)).nth(i).fill(invitedMembers[i].phoneNumber);
+      await (await this.getLocator(TeamInfoLocator.jobTitleInput)).nth(i).fill(invitedMembers[i].jobTitle);
+
+      const role = invitedMembers[i].invitedRole;
+      if (typeof role === "string") await this.dropdown.selectByText(TeamInfoLocator.roleDropdown, role);
+    }
+
+    await (await this.getLocator(TeamInfoLocator.sendInviteButton)).click();
+  };
+
   public async inviteCustomerMembers(invitedMembers: UserInfo[]) {
     await this.page.locator(CustomerDetailModalLocator.viewDetailButton).click();
 
     try {
-      await this.page.locator(TeamInfoLocator.addTeamButton).last().click({ timeout: 1000 });
+      await (await this.getLocator(TeamInfoLocator.addTeamButton)).last().scrollIntoViewIfNeeded({ timeout: 15000 });
+
+      await (await this.getLocator(TeamInfoLocator.addTeamButton)).last().click({ timeout: 15000 });
     } catch (error) {
-      await this.page.locator(TeamInfoLocator.addTeamButton).first().click();
+      await (await this.getLocator(TeamInfoLocator.addTeamButton)).first().click();
+
+      await (await this.getLocator(TeamInfoLocator.addTeamButton)).first().click();
     }
+
+    await this.fillFormToInviteCustomerMembers(invitedMembers);
   }
 }

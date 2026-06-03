@@ -178,14 +178,19 @@ export class PartnerManagementPage extends BasePage {
     }
   }
 
-  public async clickDetailButton(partner: Partner | CustomerInfo) {
-    const partnerPhoneNumber = partner.accountInfo?.phoneNumber;
+  public async clickDetailButton(user: Partner | UserInfo | CustomerInfo) {
+    let userPhoneNumber;
+
+    if (user instanceof Partner || user instanceof CustomerInfo) userPhoneNumber = user.accountInfo?.phoneNumber;
+    else userPhoneNumber = user.phoneNumber;
+
+    console.log(user);
 
     const rawDetailLocator = CommonPartnerLocator.detailButton;
 
-    const detailButtonLocator = rawDetailLocator.replace("phoneNumberValue", partnerPhoneNumber!);
+    const detailButtonLocator = rawDetailLocator.replace("phoneNumberValue", userPhoneNumber!);
 
-    await this.page.locator(detailButtonLocator).last().click({ timeout: 1000 });
+    await this.page.locator(detailButtonLocator).last().click({ timeout: 10000 });
   }
 
   async filter(partFilterInfo: IPartnerFilter): Promise<string> {

@@ -1,7 +1,6 @@
 import { Page } from "playwright/test";
 import { CustomerInfo } from "src/objects";
 import { MemberPage } from "../..";
-import { Console, log } from "console";
 
 export class OnboardingMemberPotalFlow {
   private page: Page;
