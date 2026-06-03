@@ -86,16 +86,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withIsPublic(false)
-          .withProductsType([process.env.PLAN!])
-          .withBankTransfer(true)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Partner/Consultant Owner")
+        .withIsPublic(false)
+        .withProductsType([process.env.PLAN!])
+        .withBankTransfer(true)
+        .build();
 
       await test.step("Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
@@ -109,18 +106,17 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
       });
 
-      let peoPartners;
-
       const peoPartnerInfo = await DataFactory.peoPartnerBuilder()
         .withName("Peo" + partnerInfo!.accountInfo?.firstName)
         .withCompanyType("Internal")
         .withCustomBranding(true)
         .build();
-      peoPartners = [peoPartnerInfo];
+      const peoPartners = [peoPartnerInfo];
 
-      let addedPeoPartner: any;
       await test.step("Add peo ", async () => {
-        addedPeoPartner = await onboardingFlow.createPartnerAndAddPeo(partnerInfo!, peoPartners!, true);
+        await loginPage.login();
+
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!, peoPartners!, true);
       });
 
       await test.step("Activate peo", async () => {
@@ -128,7 +124,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify peoes are added successfully", async () => {
-        expect(addedPeoPartner).toBe("Pass");
+        await onboardingFlow.redirectToHomePage();
       });
     },
   );

@@ -15,23 +15,12 @@ export class OnboardingAdminPortalFlow {
     this.customerManagementPage = new CustomerManagementPage(this.page);
   }
 
-  public async accessToPartnerManagementPage(category = "Partner") {
-    await this.partnerManagementPage.accessToManagementPage(category);
-  }
+  public async createPartnerAndAddPeo(partnerInfo: Partner, peoPartners?: PeoPartner[], isAddPeo = false): Promise<void> {
+    await this.partnerManagementPage.moveToManagementCategory();
+    await this.partnerManagementPage.accessToManagementPage("Partner");
 
-  public async createPartnerAndAddPeo(partnerInfo: Partner, peoPartners?: PeoPartner[], isAddPeo = false): Promise<string> {
-    if (!isAddPeo) {
-      await this.accessToPartnerManagementPage("Partner");
-      await this.partnerManagementPage.fillCreatePartnerForm(partnerInfo);
-    }
-
-    if (isAddPeo && peoPartners?.length! >= 1) {
-      await this.fillFormToAddPeo(partnerInfo!, peoPartners!);
-
-      return "Pass";
-    }
-
-    return "";
+    if (!isAddPeo) await this.partnerManagementPage.fillCreatePartnerForm(partnerInfo);
+    else await this.fillFormToAddPeo(partnerInfo!, peoPartners!);
   }
 
   public async clickDetailButton(partner: Partner) {

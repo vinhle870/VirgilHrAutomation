@@ -17,13 +17,11 @@ export class PartnerManagementPage extends BasePage {
   }
 
   public async fillCreatePartnerForm(partnerInfo: Partner) {
-    if (!partnerInfo.partnerInfo || !partnerInfo.partnerInfo.departmentName) throw new Error("Department name does not exist or is empty");
-
     this.page.locator(CommonPartnerLocator.createNewPartnerButton).click({ timeout: 5000 });
 
     await delay(5000);
 
-    await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo.departmentName, this.page, 5000);
+    await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo?.departmentName!, this.page, 5000);
 
     await delay(3000);
 
@@ -100,20 +98,19 @@ export class PartnerManagementPage extends BasePage {
       }
       const numberOfLabelsInBillingCycle = await this.page.locator(CreateNewPartnerModalLocator.billingCycle).count();
 
-      if (partnerInfo.partnerInfo!.billingCycleRadio && numberOfLabelsInBillingCycle == 2) {
+      if (partnerInfo.partnerInfo!.billingCycleRadio && numberOfLabelsInBillingCycle == 2)
         try {
           await this.selectRadio(partnerInfo.partnerInfo!.billingCycleRadio, CreateNewPartnerModalLocator.billingCycle);
         } catch (error) {
           throw new Error("Billing cycle does not exist");
         }
-      }
     }
 
-    if (partnerInfo.partnerInfo!.internal === true) await this.page.locator(CreateNewPartnerModalLocator.internal).click();
+    if (partnerInfo.partnerInfo?.internal === true) await this.page.locator(CreateNewPartnerModalLocator.internal).click();
 
     await this.page.locator(CreateNewPartnerModalLocator.createPartnerButton).click();
 
-    if (partnerInfo.partnerInfo.bankTransfer === true && partnerInfo.partnerInfo.paymentOption === "Partner/Consultant Owner")
+    if (partnerInfo.partnerInfo?.bankTransfer === true && partnerInfo.partnerInfo.paymentOption === "Partner/Consultant Owner")
       await this.page.locator(CreateNewPartnerModalLocator.confirmButton).click();
   }
 
@@ -235,10 +232,9 @@ export class PartnerManagementPage extends BasePage {
 
   public getDuplicatedText = async (): Promise<Locator> => await this.getLocator(CreateNewPartnerModalLocator.duplicatedEmailText);
 
-  public async accessToManagementPage(category = "Partner") {
-    const managementCategory = this.page.locator(CommonAdminPortalLocator.managementCategory);
-    await managementCategory.click();
+  public moveToManagementCategory = async () => await this.page.locator(CommonAdminPortalLocator.managementCategory).click();
 
+  public async accessToManagementPage(category = "Partner") {
     if (category === "Partner") {
       const partnerManagementCategory = this.page.locator(CommonAdminPortalLocator.partnerManagement);
 

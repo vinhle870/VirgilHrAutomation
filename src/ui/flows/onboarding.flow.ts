@@ -63,7 +63,7 @@ export class OnboardingFlow {
   }
 
   public createPartnerAndAddPeo = async (partnerInfo: Partner, peoPartners?: PeoPartner[], isAddPeo = false) =>
-    (await this.onboardingAdminPortalFlow.createPartnerAndAddPeo(partnerInfo, peoPartners, isAddPeo)) === "Pass" ? "Pass" : "Fail";
+    await this.onboardingAdminPortalFlow.createPartnerAndAddPeo(partnerInfo, peoPartners, isAddPeo);
 
   public addMoreMembersInPartnerManagementPage = async (partner: Partner, invitedMembers: UserInfo[]) => await this.onboardingAdminPortalFlow.addCustomerMembersInPartManaPage(partner, invitedMembers);
 
