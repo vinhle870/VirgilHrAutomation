@@ -16,7 +16,6 @@ export class OnboardingAdminPortalFlow {
   }
 
   public async createPartnerAndAddPeo(partnerInfo: Partner, peoPartners?: PeoPartner[], isAddPeo = false): Promise<void> {
-    await this.partnerManagementPage.moveToManagementCategory();
     await this.partnerManagementPage.accessToManagementPage("Partner");
 
     if (!isAddPeo) await this.partnerManagementPage.fillCreatePartnerForm(partnerInfo);

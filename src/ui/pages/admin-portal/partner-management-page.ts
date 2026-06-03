@@ -235,6 +235,8 @@ export class PartnerManagementPage extends BasePage {
   public moveToManagementCategory = async () => await this.page.locator(CommonAdminPortalLocator.managementCategory).click();
 
   public async accessToManagementPage(category = "Partner") {
+    await this.moveToManagementCategory();
+
     if (category === "Partner") {
       const partnerManagementCategory = this.page.locator(CommonAdminPortalLocator.partnerManagement);
 
