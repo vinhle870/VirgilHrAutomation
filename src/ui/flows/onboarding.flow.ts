@@ -9,6 +9,7 @@ import { OnboardingPartnerPotalFlow } from "../pages/partner-portal/flows/partne
 import { OnboardingMemberPotalFlow } from "../pages/member-portal/flows/memberportal.onboarding.flow";
 import { TempEmailFreePage } from "../pages";
 import { HomePage } from "../pages/shared-pages/home.page";
+import delay from "src/utilities/delay";
 
 /**
  * This flow class contains methods related to the onboarding process of both partner and member users, such as accepting invitations, credentialing, buying plans, and creating a business.
@@ -58,6 +59,7 @@ export class OnboardingFlow {
   }
 
   public async verifyURL(containedURL: string) {
+    await delay(15000);
     const currentUrl = this.page.url();
     UiAssert.urlMatches(currentUrl, containedURL);
   }
