@@ -2,6 +2,7 @@ import { Page } from "@playwright/test";
 import { LoginPage } from "../pages";
 import { TempEmailFreePage } from "../pages/shared-pages/tempemailfree.page";
 import { WelcomeModal } from "../pages/shared-pages/welome.modal";
+import { MemberOnboardingLocators } from "../pages/member-portal/locators";
 /**
  * This flow class contains methods related to the authentication process, such as logging in with valid accounts, accepting invitations, activating accounts, and changing passwords.
  * Flows:
@@ -13,10 +14,12 @@ import { WelcomeModal } from "../pages/shared-pages/welome.modal";
 export class AuthFlow {
   private tempEmailFreePage: TempEmailFreePage;
   private loginPage: LoginPage;
+  private page: Page;
 
   constructor(page: Page) {
-    this.loginPage = new LoginPage(page);
-    this.tempEmailFreePage = new TempEmailFreePage(page);
+    this.page = page;
+    this.loginPage = new LoginPage(this.page);
+    this.tempEmailFreePage = new TempEmailFreePage(this.page);
   }
 
   /**
@@ -42,6 +45,8 @@ export class AuthFlow {
     await this.tempEmailFreePage.acceptJoinTeamInvite(customerEmail);
 
     await this.loginPage.currentPage.waitForLoadState("domcontentloaded");
+
+    await this.page.locator(MemberOnboardingLocators.continueWithEmail).click();
 
     await this.loginPage.setPassword(password);
 
@@ -71,7 +76,7 @@ export class AuthFlow {
   }
 
   public async activateIndividualCustomerAccountAndSetPassword(email: string, portal: string, newPassword: string) {
-    const subject = portal === "Member" || portal === "Consumer" ? "HR Compliance: Your User Portal Credentials" : "HR Compliance - Partner Credential";
+    const subject = portal === "Member" || portal === "Consumer" ? process.env.SUBJECT_TO_MEMBER_CREDENTIAL! : process.env.SUBJECT_TO_PARTNER_CREDENTIAL!;
 
     const credential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
 
@@ -81,12 +86,20 @@ export class AuthFlow {
   }
 
   public async activateIndividualCustomerAccountAndChangePassword(email: string, portal: string, newPassword: string) {
-    const subject = portal === "Member" || portal === "Consumer" ? "HR Compliance: Your User Portal Credentials" : "HR Compliance - Partner Credential";
+    const subject = portal === "Member" || portal === "Consumer" ? process.env.SUBJECT_TO_MEMBER_CREDENTIAL! : process.env.SUBJECT_TO_PARTNER_CREDENTIAL!;
 
     const credential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
 
     await this.loginPage.fillLoginForm(credential.hrefValue!, email, credential.password!);
 
     await this.loginPage.changePassword(credential.password!, newPassword);
+  }
+
+  public async activateSignedUpCustomer(email: string) {
+    const subject = "Verify your email address";
+
+    const credential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
+
+    await this.page.goto(credential.hrefValue!);
   }
 }

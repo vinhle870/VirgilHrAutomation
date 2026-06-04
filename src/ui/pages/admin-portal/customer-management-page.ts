@@ -15,15 +15,7 @@ export class CustomerManagementPage extends BasePage {
     super(page);
   }
 
-  public async createCustomer(customer: CustomerInfo): Promise<Locator> {
-    const managementCategory = await this.getLocator(CommonAdminPortalLocator.managementCategory);
-
-    await managementCategory.click();
-
-    const customerManagementCategory = await this.getLocator(CommonAdminPortalLocator.customerManagement);
-
-    await customerManagementCategory.click();
-
+  public async fillFormToCreateCustomer(customer: CustomerInfo): Promise<Locator> {
     const createButtonElement = await this.getLocator(CommonCustomerLocator.createNewCustomerButton);
     await createButtonElement.click();
 
@@ -53,35 +45,16 @@ export class CustomerManagementPage extends BasePage {
 
     await contactNumberElement.fill(customer.accountInfo.phoneNumber);
 
-    try {
-      await this.dropdown.selectByText(CreateNewCustomerModalLocator.department, customer.departmentName);
-    } catch (e) {
-      throw new Error("Department name does not exist");
-    }
+    await this.dropdown.selectByText(CreateNewCustomerModalLocator.department, customer.departmentName);
 
     await delay(3000);
-
-    if (customer.stateOfCustomer) {
-      try {
-        await this.dropdown.selectByText(CreateNewCustomerModalLocator.statesOfCustomer, customer.stateOfCustomer);
-      } catch (e) {
-        throw new Error("The state does not exist");
-      }
-
-      await delay(3000);
-    }
 
     if (customer.freeTrial === true) await this.selectRadio("Free Trial");
 
     if (customer.bankStranfer!.bankStranfer === true) {
       await (await this.getLocator(CreateNewPartnerModalLocator.bankTransfer)).click();
 
-      if (customer.company.companySize)
-        try {
-          await this.dropdown.selectByText(CreateNewCustomerModalLocator.companySize, customer.company.companySize);
-        } catch (e) {
-          throw new Error("Company size is incorrect");
-        }
+      if (customer.company.companySize) await this.dropdown.selectByText(CreateNewCustomerModalLocator.companySize, customer.company.companySize);
 
       if (customer?.bankStranfer?.payYearly === false) await (await this.getLocator(CreateNewCustomerModalLocator.payYear)).click();
     }
@@ -90,13 +63,7 @@ export class CustomerManagementPage extends BasePage {
 
     if (customer.company.consultant === true) (await this.getLocator(CreateNewCustomerModalLocator.consultant)).click();
     else if (customer.company.industry) {
-      try {
-        for (let i = 0; i < customer.company.industry.length; i++) {
-          await this.dropdown.selectByText(CreateNewCustomerModalLocator.industry, customer.company.industry[i].value);
-        }
-      } catch (e) {
-        throw new Error("Industry is incorrect");
-      }
+      for (let i = 0; i < customer.company.industry.length; i++) await this.dropdown.selectByText(CreateNewCustomerModalLocator.industry, customer.company.industry[i].value);
 
       await delay(3000);
     }
@@ -111,30 +78,24 @@ export class CustomerManagementPage extends BasePage {
       await delay(3000);
     }
 
-    if (customer.company.statesEmployee) {
-      try {
-        for (let i = 0; i < customer.company.statesEmployee.length; i++)
-          await this.dropdown.selectByTextForNthDropdown(CreateNewCustomerModalLocator.statesOfCompany, customer.company.statesEmployee[i], i);
-      } catch (e) {
-        throw new Error("State does not exist");
-      }
-    }
+    if (customer.company.statesEmployee)
+      for (let i = 0; i < customer.company.statesEmployee.length; i++)
+        await this.dropdown.selectByTextForNthDropdown(CreateNewCustomerModalLocator.statesOfCompany, customer.company.statesEmployee[i], i);
 
     if (customer?.company.consultant === false && customer.company.statesEmployeeInfor) {
       await (await this.getLocator(CreateNewCustomerModalLocator.separateEmployeeButton)).click();
 
-      if (typeof customer.company.totalEmployees !== "number") throw new Error("total employee must be a digit");
-
       for (let i = 0; i < customer.company.statesEmployeeInfor.length; i++) {
         let numberOfPerState = 0;
-
-        if (typeof customer.company.statesEmployeeInfor![i].number !== "number") throw new Error("number must be a digit");
 
         if (customer.company.statesEmployeeInfor![i]?.number) numberOfPerState = customer.company.statesEmployeeInfor![i]?.number;
 
         if (customer.company.statesEmployeeInfor![i]?.state) await this.fillNumberOfEmployeesPerState(customer.company.statesEmployeeInfor![i]?.state, numberOfPerState);
       }
     }
+
+    if (customer.contentAvailability === "Canada") await (await this.getLocator(CreateNewCustomerModalLocator.contentAvailability.replace("country", "Canada"))).first().click();
+    else await (await this.getLocator(CreateNewCustomerModalLocator.contentAvailability.replace("country", "United States"))).first().click();
 
     await (await this.getLocator(CreateNewCustomerModalLocator.createButton)).click();
 
@@ -156,8 +117,6 @@ export class CustomerManagementPage extends BasePage {
 
     const phoneNumber = customer.accountInfo.phoneNumber;
 
-    if (!phoneNumber) throw new Error("The phone number does not exist");
-
     const managementCategory = await this.getLocator(CommonAdminPortalLocator.managementCategory);
 
     await managementCategory.click();
@@ -171,7 +130,7 @@ export class CustomerManagementPage extends BasePage {
     const detailButtonLocator = rawPhoneNumber.replace("phoneNumberValue", phoneNumber);
 
     //Click detail button
-    const detailButtonEl = this.page.locator(detailButtonLocator);
+    const detailButtonEl = await this.getLocator(detailButtonLocator);
 
     await detailButtonEl.nth(2).click();
     //click upgrade plan
@@ -190,7 +149,7 @@ export class CustomerManagementPage extends BasePage {
     await (await this.getLocator(UpgradePlanModalLocator.upgradelButton)).click();
 
     if (customer.bankStranferToUpgradePlan) {
-      const bankStranferButtonEl = this.page.locator(UpgradePlanModalLocator.bankStranfer);
+      const bankStranferButtonEl = await this.getLocator(UpgradePlanModalLocator.bankStranfer);
 
       await bankStranferButtonEl.click();
 
@@ -198,13 +157,38 @@ export class CustomerManagementPage extends BasePage {
     } else await (await this.getLocator(UpgradePlanModalLocator.requestPaymentButton)).click();
   }
 
+  public fillFormToInviteCustomerMembers = async (invitedMembers: UserInfo[]) => {
+    const numberOfInvitedMembers = invitedMembers.length;
+
+    for (let i = 0; i < numberOfInvitedMembers; i++) {
+      if (i > 0) await (await this.getLocator(TeamInfoLocator.addMoreButton)).click();
+
+      await (await this.getLocator(TeamInfoLocator.emailInput)).nth(i).fill(invitedMembers[i].email);
+      await (await this.getLocator(TeamInfoLocator.firstNameInput)).nth(i).fill(invitedMembers[i].firstName);
+      await (await this.getLocator(TeamInfoLocator.lastNameInput)).nth(i).fill(invitedMembers[i].lastName);
+      await (await this.getLocator(TeamInfoLocator.phoneInput)).nth(i).fill(invitedMembers[i].phoneNumber);
+      await (await this.getLocator(TeamInfoLocator.jobTitleInput)).nth(i).fill(invitedMembers[i].jobTitle);
+
+      const role = invitedMembers[i].invitedRole;
+      if (typeof role === "string") await this.dropdown.selectByText(TeamInfoLocator.roleDropdown, role);
+    }
+
+    await (await this.getLocator(TeamInfoLocator.sendInviteButton)).click();
+  };
+
   public async inviteCustomerMembers(invitedMembers: UserInfo[]) {
     await this.page.locator(CustomerDetailModalLocator.viewDetailButton).click();
 
     try {
-      await this.page.locator(TeamInfoLocator.addTeamButton).last().click({ timeout: 1000 });
+      await (await this.getLocator(TeamInfoLocator.addTeamButton)).last().scrollIntoViewIfNeeded({ timeout: 15000 });
+
+      await (await this.getLocator(TeamInfoLocator.addTeamButton)).last().click({ timeout: 15000 });
     } catch (error) {
-      await this.page.locator(TeamInfoLocator.addTeamButton).first().click();
+      await (await this.getLocator(TeamInfoLocator.addTeamButton)).first().click();
+
+      await (await this.getLocator(TeamInfoLocator.addTeamButton)).first().click();
     }
+
+    await this.fillFormToInviteCustomerMembers(invitedMembers);
   }
 }

@@ -7,4 +7,5 @@ export class MemberOnboardingLocators {
   public static readonly completedSafely = "xpath=//h3";
   public static readonly gotItButton = "xpath=//span[contains(., 'Got it')]";
   public static readonly setUpLater = "xpath=//span[contains(., 'Set up later via My Account')]";
+  public static readonly signUpBtn = "xpath=//span[text()='Sign Up']";
 }

@@ -14,8 +14,6 @@ export class AdminHomePage extends BasePage {
     expect(src).toEqual(user["ImgSrc"]);
 
     const userName = await this.getLocator(AdminHomeLocators.userName);
-    await expect(userName.textContent()).not.toBe("");
+    expect(userName.textContent()).not.toBe("");
   }
-
-  async validateWidgetDisplayed() {}
 }

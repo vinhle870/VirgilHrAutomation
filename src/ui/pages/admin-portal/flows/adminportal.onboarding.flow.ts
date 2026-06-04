@@ -1,6 +1,6 @@
 import { Locator, Page } from "playwright/test";
 import { PartnerManagementPage } from "../partner-management-page";
-import { Partner, UserInfo } from "src/objects";
+import { CustomerInfo, Partner, UserInfo } from "src/objects";
 import { PeoPartner } from "src/objects/ipeopartner";
 import { CustomerManagementPage } from "../customer-management-page";
 
@@ -15,23 +15,11 @@ export class OnboardingAdminPortalFlow {
     this.customerManagementPage = new CustomerManagementPage(this.page);
   }
 
-  public async accessToPartnerManagementPage(category = "Partner") {
-    await this.partnerManagementPage.accessToManagementPage(category);
-  }
+  public async createPartnerAndAddPeo(partnerInfo: Partner, peoPartners?: PeoPartner[], isAddPeo = false): Promise<void> {
+    await this.partnerManagementPage.accessToManagementPage("Partner");
 
-  public async createPartnerAndAddPeo(partnerInfo: Partner, peoPartners?: PeoPartner[], isAddPeo = false): Promise<string> {
-    if (!isAddPeo) {
-      await this.accessToPartnerManagementPage("Partner");
-      await this.partnerManagementPage.fillCreatePartnerForm(partnerInfo);
-    }
-
-    if (isAddPeo && peoPartners?.length! >= 1) {
-      await this.fillFormToAddPeo(partnerInfo!, peoPartners!);
-
-      return "Pass";
-    }
-
-    return "";
+    if (!isAddPeo) await this.partnerManagementPage.fillCreatePartnerForm(partnerInfo);
+    else await this.fillFormToAddPeo(partnerInfo!, peoPartners!);
   }
 
   public async clickDetailButton(partner: Partner) {
@@ -44,11 +32,9 @@ export class OnboardingAdminPortalFlow {
     await this.partnerManagementPage.fillFormToAddPeo(peoPartners);
   }
 
-  public async addCustomerMembersInPartManaPage(partner: Partner) {
-    await this.partnerManagementPage.addCustomerMembersInPartManaPage(partner);
-  }
+  public addCustomerMembersInPartManaPage = async (partner: Partner, invitedMembers: UserInfo[]) => await this.partnerManagementPage.addCustomerMembersInPartManaPage(partner, invitedMembers);
 
-  public async inviteCustomerMembersInCusManaPage(invitingMember: Partner, invitedMembers: UserInfo[]) {
+  public async inviteCustomerMembersInCusManaPage(invitingMember: Partner | UserInfo, invitedMembers: UserInfo[]) {
     await this.partnerManagementPage.accessToManagementPage("Customer");
 
     await this.partnerManagementPage.clickDetailButton(invitingMember);
@@ -56,7 +42,11 @@ export class OnboardingAdminPortalFlow {
     await this.customerManagementPage.inviteCustomerMembers(invitedMembers);
   }
 
-  public async getDuplicatedText(): Promise<Locator> {
-    return await this.partnerManagementPage.getDuplicatedText();
+  public getDuplicatedText = async (): Promise<Locator> => await this.partnerManagementPage.getDuplicatedText();
+
+  public async createCustomerFromCustomerManagementPage(customerInfo: CustomerInfo): Promise<Locator> {
+    await this.partnerManagementPage.accessToManagementPage("Member");
+
+    return await this.customerManagementPage.fillFormToCreateCustomer(customerInfo);
   }
 }

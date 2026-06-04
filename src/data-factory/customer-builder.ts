@@ -87,6 +87,7 @@ export class CustomerBuilder {
   private consultant?: boolean;
   private stateEmployeeInfo?: Company["statesEmployeeInfor"];
   private bankStranferToUpgradePlan = false;
+  private contentAvailability: string = "United States";
 
   // ── Portal selection ─────────────────────────────────────────
 
@@ -195,6 +196,11 @@ export class CustomerBuilder {
   withSso(provider: string, token: string): this {
     this.memberOptions.ssoProvider = provider;
     this.memberOptions.ssoToken = token;
+    return this;
+  }
+
+  withContentAvailability(contentAvailability: string): this {
+    this.contentAvailability = contentAvailability;
     return this;
   }
 
@@ -338,9 +344,7 @@ export class CustomerBuilder {
     const customer = new CustomerInfo();
 
     // Generate account info
-    const accountInfo = await PersonDataGenerator.generate(
-      this.accountOverrides,
-    );
+    const accountInfo = await PersonDataGenerator.generate(this.accountOverrides);
     customer.accountInfo = accountInfo;
 
     // Generate company info
@@ -356,8 +360,7 @@ export class CustomerBuilder {
     // Generate plan info
     if (this.planOverride) customer.plan = this.planOverride;
 
-    if (this.bankStranfer?.bankStranfer === true)
-      customer.bankStranfer = this.bankStranfer;
+    if (this.bankStranfer?.bankStranfer === true) customer.bankStranfer = this.bankStranfer;
     else customer.bankStranfer!.bankStranfer = false;
 
     if (this.stateOfCustomer) customer.stateOfCustomer = this.stateOfCustomer;
@@ -373,8 +376,9 @@ export class CustomerBuilder {
       customer.addMember(member);
     }
 
-    if (this.bankStranferToUpgradePlan === true)
-      customer.bankStranferToUpgradePlan = true;
+    if (this.bankStranferToUpgradePlan === true) customer.bankStranferToUpgradePlan = true;
+
+    customer.contentAvailability = this.contentAvailability;
 
     return customer;
   }
@@ -382,8 +386,7 @@ export class CustomerBuilder {
   // ── Internal helpers ─────────────────────────────────────────
 
   private async buildCompany(): Promise<Company> {
-    const companyName =
-      this.companyNameOverride ?? (await DataGenerate.generateCompanyName());
+    const companyName = this.companyNameOverride ?? (await DataGenerate.generateCompanyName());
 
     const baseCompany: Company = {
       companyName,

@@ -10,7 +10,6 @@ type PageFixtures = {
   leftmenu: AdminLeftMenu;
   buyPlanPage: BuyPlanPage;
   loginPage: LoginPage;
-  tempEmailFreePage: TempEmailFreePage;
   partnerManagementPage: PartnerManagementPage;
   customerManagementPage: CustomerManagementPage;
   partnerPage: PartnerPage;
@@ -32,10 +31,6 @@ export const test = base.extend<PageFixtures>({
 
   loginPage: async ({ page }, use) => {
     await use(new LoginPage(page));
-  },
-
-  tempEmailFreePage: async ({ page }, use) => {
-    await use(new TempEmailFreePage(page));
   },
 
   partnerManagementPage: async ({ page }, use) => {

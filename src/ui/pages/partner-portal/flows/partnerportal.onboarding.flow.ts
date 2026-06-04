@@ -18,4 +18,10 @@ export class OnboardingPartnerPotalFlow {
   public async fillFormToCreateBusiness(partberInfo: Partner, owner?: UserInfo) {
     await this.partnerPage.fillFormToCreateBusiness(partberInfo, owner);
   }
+
+  public validateOwnerRoleInUserPage = async (partnerInfo: Partner) => await this.partnerPage.validateOwnerRoleInUserPage(partnerInfo.accountInfo!.email!);
+
+  public validatePlanVisible = async () => await this.partnerPage.validatePlanVisible();
+
+  public validateAccountNotExist = async () => await this.partnerPage.validateAccountNotExist();
 }
