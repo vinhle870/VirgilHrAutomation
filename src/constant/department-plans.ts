@@ -22,18 +22,13 @@ function normalizeDepartmentKey(departmentName: string): string {
  * To add a new department: add its normalized key (e.g. "newdepthr") to each
  * `department.plan.*.ts` map — no changes required here.
  */
-export function getPlansForDepartment(
-  departmentName: string = process.env.DEPARTMENT_NAME ?? "",
-): string[] {
+export function getPlansForDepartment(departmentName: string = process.env.DEPARTMENT_NAME ?? ""): string[] {
   const env = normalizeEnv();
   const key = normalizeDepartmentKey(departmentName);
   const envPlans = plansByEnv[env] ?? plansByEnv["qa"];
   const result = envPlans[key];
   if (!result) {
-    throw new Error(
-      `No plans found for department "${departmentName}" (key: "${key}") in env "${env}". ` +
-        `Available departments: ${Object.keys(envPlans).join(", ")}`,
-    );
+    throw new Error(`No plans found for department "${departmentName}" (key: "${key}") in env "${env}". ` + `Available departments: ${Object.keys(envPlans).join(", ")}`);
   }
   return result;
 }
