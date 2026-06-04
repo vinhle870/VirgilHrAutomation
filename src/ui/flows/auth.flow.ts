@@ -62,7 +62,7 @@ export class AuthFlow {
    * @param newPassword
    */
   public async activateCustomerAccount(customerEmail: string, newPassword: string) {
-    const emailTitle = "HR Compliance: Your User Portal Credentials";
+    const emailTitle = process.env.SUBJECT_TO_MEMBER_CREDENTIAL!;
 
     const accountCrendential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(customerEmail, emailTitle);
 
