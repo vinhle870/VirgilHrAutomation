@@ -1,5 +1,5 @@
 import { test } from "src/fixtures";
-import { DataFactory, PersonDataGenerator } from "src/data-factory";
+import { DataFactory } from "src/data-factory";
 import { CustomerFactory } from "src/data-factory/customer-factory";
 import UserInfo from "src/objects/user-info";
 import { plans } from "src/constant/department.data.uat";
@@ -19,13 +19,16 @@ test.describe("E2E -> Admin Portal -> Customer Management", () => {
         await loginPage.login();
       });
 
+      console.log("plans.virgilhr[0]:", plans.virgilhr[0]);
+
       let customerInfo;
       await test.step("Create customer info", async () => {
         customerInfo = await DataFactory.customerBuilder()
+
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withDepartment(process.env.DEPARTMENT!)
           .withBankStranfer(true)
-          .withProductType(plans.virgilhr[0])
+          .withCompanySize(plans.virgilhr[0])
           .build();
       });
 

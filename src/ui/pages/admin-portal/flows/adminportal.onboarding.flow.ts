@@ -47,6 +47,8 @@ export class OnboardingAdminPortalFlow {
   public async createCustomerFromCustomerManagementPage(customerInfo: CustomerInfo): Promise<Locator> {
     await this.partnerManagementPage.accessToManagementPage("Member");
 
+    console.log("customerInfo", customerInfo);
+
     return await this.customerManagementPage.fillFormToCreateCustomer(customerInfo);
   }
 }
