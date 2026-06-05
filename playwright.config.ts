@@ -1,7 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 import path from "path";
 import { loadPlaywrightEnv } from "src/utilities/load-env";
-import dotenv from "dotenv";
 
 loadPlaywrightEnv(path.resolve(__dirname));
 

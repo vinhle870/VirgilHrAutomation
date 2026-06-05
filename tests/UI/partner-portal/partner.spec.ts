@@ -8,7 +8,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@Verify that after the first login, the system requires the partner user to change the system-generated password to a personal password.",
     },
-    async ({ loginPage, onboardingFlow, homeExceptAdminPage, authFlow }, testInfo) => {
+    async ({ loginPage, onboardingFlow, authFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -33,7 +33,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify the partner user must change the system-generated password to a personal password", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
         await onboardingFlow.redirectToHomePage();
       });

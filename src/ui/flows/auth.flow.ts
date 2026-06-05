@@ -3,6 +3,7 @@ import { LoginPage } from "../pages";
 import { TempEmailFreePage } from "../pages/shared-pages/tempemailfree.page";
 import { WelcomeModal } from "../pages/shared-pages/welome.modal";
 import { MemberOnboardingLocators } from "../pages/member-portal/locators";
+import { getEmailSubjectForDepartment } from "src/constant/department-data";
 /**
  * This flow class contains methods related to the authentication process, such as logging in with valid accounts, accepting invitations, activating accounts, and changing passwords.
  * Flows:
@@ -76,7 +77,9 @@ export class AuthFlow {
   }
 
   public async activateIndividualCustomerAccountAndSetPassword(email: string, portal: string, newPassword: string) {
-    const subject = portal === "Member" || portal === "Consumer" ? process.env.SUBJECT_TO_MEMBER_CREDENTIAL! : process.env.SUBJECT_TO_PARTNER_CREDENTIAL!;
+    const envSubject = getEmailSubjectForDepartment();
+
+    const subject = portal === "Member" || portal === "Consumer" ? envSubject.SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL : envSubject.SUBJECT_EMAIL_TO_PARTNER_CREDENTIAL;
 
     const credential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
 
@@ -86,7 +89,9 @@ export class AuthFlow {
   }
 
   public async activateIndividualCustomerAccountAndChangePassword(email: string, portal: string, newPassword: string) {
-    const subject = portal === "Member" || portal === "Consumer" ? process.env.SUBJECT_TO_MEMBER_CREDENTIAL! : process.env.SUBJECT_TO_PARTNER_CREDENTIAL!;
+    const envSubject = getEmailSubjectForDepartment();
+
+    const subject = portal === "Member" || portal === "Consumer" ? envSubject.SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL : envSubject.SUBJECT_EMAIL_TO_PARTNER_CREDENTIAL;
 
     const credential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
 
