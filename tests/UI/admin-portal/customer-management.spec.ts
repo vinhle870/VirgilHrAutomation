@@ -2,6 +2,7 @@ import { test } from "src/fixtures";
 import { DataFactory, PersonDataGenerator } from "src/data-factory";
 import { CustomerFactory } from "src/data-factory/customer-factory";
 import UserInfo from "src/objects/user-info";
+import { plans } from "src/constant/department.data.uat";
 
 test.describe("E2E -> Admin Portal -> Customer Management", () => {
   test(
@@ -24,7 +25,7 @@ test.describe("E2E -> Admin Portal -> Customer Management", () => {
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withDepartment(process.env.DEPARTMENT!)
           .withBankStranfer(true)
-          .withCompanySize(process.env.PLAN!)
+          .withProductType(plans.virgilhr[0])
           .build();
       });
 

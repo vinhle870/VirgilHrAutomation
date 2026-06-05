@@ -1,6 +1,7 @@
 import { test, expect } from "src/fixtures";
 import { DataFactory, PersonDataGenerator } from "src/data-factory";
 import { Partner } from "src/objects";
+import { plans } from "src/constant/department.data.uat";
 
 test.describe("E2E -> Admin Portal -> Partner Management", () => {
   test(
@@ -17,15 +18,12 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withIsPublic(false)
-          .withProductsType([process.env.PLAN!])
-          .build();
-      });
+      let partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Partner/Consultant Owner")
+        .withIsPublic(false)
+        .withProductsType([plans.virgilhr[0]])
+        .build();
 
       await test.step("Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
@@ -57,7 +55,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
           .withBankTransfer(false)
-          .withProductsType([process.env.PLAN!])
+          .withProductsType([plans.virgilhr[0]])
           .withIsPublic(false)
           .build();
       });
@@ -90,7 +88,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
         .withIsPublic(false)
-        .withProductsType([process.env.PLAN!])
+        .withProductsType([plans.virgilhr[0]])
         .withBankTransfer(true)
         .build();
 
@@ -149,7 +147,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
           .withSubDomain("")
-          .withProductsType([process.env.PLAN!])
+          .withProductsType([plans.virgilhr[0]])
           .build();
       });
 
@@ -184,7 +182,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
             .withDepartmentName(process.env.DEPARTMENT_NAME!)
             .withIsPublic(false)
             .withPaymentOption(paymentOption)
-            .withProductsType([process.env.PLAN!])
+            .withProductsType([plans.virgilhr[0]])
             .build();
 
           await test.step(`Create partner with ${paymentOption}`, async () => {
@@ -218,7 +216,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         partnerInfo = await DataFactory.partnerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
+          .withProductsType([plans.virgilhr[0]])
           .withBankTransfer(false)
           .withIsPublic(false)
           .build();
@@ -269,7 +267,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withIsPublic(false)
           .withPaymentOption("Member Portal Consumer")
-          .withProductsType([process.env.PLAN!])
+          .withProductsType([plans.virgilhr[0]])
           .build();
       });
 
@@ -312,7 +310,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([process.env.PLAN!])
+        .withProductsType([plans.virgilhr[0]])
         .withBankTransfer(true)
         .build();
 
@@ -344,10 +342,6 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       tag: "@TC38",
     },
     async ({ loginPage, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -358,7 +352,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withIsPublic(false)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
+          .withProductsType([plans.virgilhr[0]])
           .build();
       });
 
@@ -392,7 +386,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withIsPublic(false)
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
+          .withProductsType([plans.virgilhr[0]])
           .build();
       });
 
@@ -434,7 +428,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withIsPublic(false)
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
+          .withProductsType([plans.virgilhr[0]])
           .build();
       });
 
@@ -467,7 +461,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         partnerInfo = await DataFactory.partnerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
+          .withProductsType([plans.virgilhr[0]])
           .withBankTransfer(true)
           .withIsPublic(false)
           .build();
@@ -508,7 +502,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         partnerInfo = await DataFactory.partnerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
+          .withProductsType([plans.virgilhr[0]])
           .withBankTransfer(false)
           .withIsPublic(false)
           .build();
@@ -553,7 +547,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         partnerInfo = await DataFactory.partnerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
+          .withProductsType([plans.virgilhr[0]])
           .withBankTransfer(false)
           .withEmail("QATest_Brycen124@polandcampus.edu.pl")
           .withIsPublic(false)
@@ -593,7 +587,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         partnerInfo = await DataFactory.partnerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
+          .withProductsType([plans.virgilhr[0]])
           .withBankTransfer(true)
           .withIsPublic(false)
           .build();
@@ -638,7 +632,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         partnerInfo = await DataFactory.partnerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Member Portal Consumer")
-          .withProductsType([process.env.PLAN!])
+          .withProductsType([plans.virgilhr[0]])
           .withBankTransfer(true)
           .withIsPublic(false)
           .build();
@@ -677,7 +671,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         partnerInfo = await DataFactory.partnerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Member Portal Consumer")
-          .withProductsType([process.env.PLAN!])
+          .withProductsType([plans.virgilhr[0]])
           .withBankTransfer(true)
           .withIsPublic(false)
           .build();
@@ -718,7 +712,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         partnerInfo = await DataFactory.partnerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Member Portal Consumer")
-          .withProductsType([process.env.PLAN!])
+          .withProductsType([plans.virgilhr[0]])
           .withBankTransfer(true)
           .withIsPublic(false)
           .build();

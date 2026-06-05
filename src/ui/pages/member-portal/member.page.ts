@@ -4,7 +4,7 @@ import { CustomerInfo } from "src/objects";
 import { SignUpLocators } from "./locators/signup";
 
 export class MemberPage extends BasePage {
-  async fillFormToSignUp(customerInfo: CustomerInfo, hrSystem: string) {
+  async fillInputToSignUp(customerInfo: CustomerInfo) {
     const signUpBtnEl = await this.getLocator(MemberOnboardingLocators.signUpBtn);
     await signUpBtnEl.click();
 
@@ -16,6 +16,10 @@ export class MemberPage extends BasePage {
 
     const emailInputEl = await this.getLocator(SignUpLocators.emailInput);
     await emailInputEl.fill(customerInfo.accountInfo.email);
+  }
+
+  async fillFormToSignUp(customerInfo: CustomerInfo, hrSystem: string) {
+    await this.fillInputToSignUp(customerInfo);
 
     const passwordInputEl = await this.getLocator(SignUpLocators.passwordInput);
     await passwordInputEl.fill(customerInfo.accountInfo.password!);
@@ -38,6 +42,6 @@ export class MemberPage extends BasePage {
     const companyInputEl = await this.getLocator(SignUpLocators.companyNameInput);
     await companyInputEl.fill(customerInfo.company.companyName ?? "My company");
 
-    await signUpBtnEl.click();
+    await (await this.getLocator(MemberOnboardingLocators.signUpBtn)).click();
   }
 }

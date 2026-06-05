@@ -24,4 +24,12 @@ export class OnboardingMemberPotalFlow {
       console.error("Duplicated email");
     }
   }
+
+  public async fillDuplicatedEmailToSignUp(customerInfo: CustomerInfo) {
+    await this.page.goto(process.env.MEMBER_PORTAL_BASEURL!);
+
+    await this.page.waitForLoadState("domcontentloaded");
+
+    await this.customerPage.fillInputToSignUp(customerInfo);
+  }
 }

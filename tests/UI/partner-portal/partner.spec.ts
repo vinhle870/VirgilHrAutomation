@@ -1,8 +1,6 @@
 import { test, expect } from "src/fixtures";
-import { UiAssert } from "src/assertions";
 import { DataFactory, PersonDataGenerator } from "src/data-factory";
-import { plans } from "src/constant/static-data";
-import { Partner } from "src/objects";
+import { plans as plansUAT } from "src/constant/department.data.uat";
 
 test.describe("E2E -> Admin Portal -> Partner Management", () => {
   test(
@@ -19,17 +17,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
-          .withBankTransfer(true)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Partner/Consultant Owner")
+        .withProductsType([plansUAT.virgilhr[0]])
+        .withBankTransfer(true)
+        .build();
 
-      let newPartner;
       await test.step("Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
       });
@@ -41,9 +35,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       await test.step("Verify the partner user must change the system-generated password to a personal password", async () => {
         await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
-        const hometitle = await homeExceptAdminPage.getHomeTitle();
-
-        await expect(hometitle).toBeVisible({ timeout: 10000 });
+        await onboardingFlow.redirectToHomePage();
       });
     },
   );
@@ -53,7 +45,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@Verify that after a successful login, the partner user proceeds to make a payment through Stripe when Payment Options = Partner/Consultant Owner and Bank Transfer = OFF.",
     },
-    async ({ loginPage: loginAdminPage, onboardingFlow, homeExceptAdminPage, purchaseFlow, authFlow }, testInfo) => {
+    async ({ loginPage: loginAdminPage, onboardingFlow, purchaseFlow, authFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -62,15 +54,12 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginAdminPage.login();
       });
 
-      let partnerInfo: Partner;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withBankTransfer(false)
-          .withProductsType(Array.from(plans[0]))
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Partner/Consultant Owner")
+        .withBankTransfer(false)
+        .withProductsType([plansUAT.virgilhr[0]])
+        .build();
 
       await test.step("Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
@@ -105,7 +94,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@After a successful payment, the partner user is redirected to the Partner Homepage.",
     },
-    async ({ loginPage, homeExceptAdminPage, onboardingFlow, purchaseFlow }, testInfo) => {
+    async ({ loginPage, onboardingFlow, purchaseFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -114,15 +103,12 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
-          .withBankTransfer(false)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Partner/Consultant Owner")
+        .withProductsType([plansUAT.virgilhr[0]])
+        .withBankTransfer(false)
+        .build();
 
       await test.step("Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
@@ -147,7 +133,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@Verify that for other payment configurations, the partner user is not required to make any payment through Stripe.",
     },
-    async ({ loginPage: loginAdminPage, homeExceptAdminPage, onboardingFlow, authFlow }, testInfo) => {
+    async ({ loginPage: loginAdminPage, onboardingFlow, authFlow }, testInfo) => {
       const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
 
       testInfo.skip(!base, "API_BASE_URL is not configured");
@@ -156,15 +142,12 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginAdminPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info with other payment configurations", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
-          .withBankTransfer(true)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Partner/Consultant Owner")
+        .withProductsType([plansUAT.virgilhr[0]])
+        .withBankTransfer(true)
+        .build();
 
       await test.step("Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
@@ -195,15 +178,12 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginAdminPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info with other payment configurations", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([process.env.PLAN!])
-          .withBankTransfer(true)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Partner/Consultant Owner")
+        .withProductsType([plansUAT.virgilhr[0]])
+        .withBankTransfer(true)
+        .build();
 
       await test.step("Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
@@ -245,17 +225,18 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Member Portal Consumer").withProductsType([process.env.PLAN!]).build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Member Portal Consumer")
+        .withProductsType([plansUAT.virgilhr[0]])
+        .build();
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeo(partnerInfo);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
-        await onboardingFlow.verifyPartnerVisible(partnerInfo!);
+        await onboardingFlow.verifyPartnerVisible(partnerInfo);
       });
 
       await test.step("Credential the partner", async () => {

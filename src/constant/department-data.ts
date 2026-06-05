@@ -1,5 +1,5 @@
-import { plans as qaPlans } from "./department.plan.qa";
-import { plans as uatPlans } from "./department.plan.uat";
+import { emailSubjects as qaEmailSubjects, plans as qaPlans } from "./department.data.qa";
+import { emailSubjects as uatEmailSubjects, plans as uatPlans } from "./department.data.uat";
 
 const plansByEnv: Record<string, Record<string, string[]>> = {
   qa: qaPlans,
@@ -31,4 +31,9 @@ export function getPlansForDepartment(departmentName: string = process.env.DEPAR
     throw new Error(`No plans found for department "${departmentName}" (key: "${key}") in env "${env}". ` + `Available departments: ${Object.keys(envPlans).join(", ")}`);
   }
   return result;
+}
+
+export function getEmailSubjectForDepartment(): { SUBJECT_EMAIL_TO_JOIN_TEAM: string; SUBJECT_EMAIL_TO_PARTNER_CREDENTIAL: string; SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL: string } {
+  const env = normalizeEnv();
+  return env === "uat" ? uatEmailSubjects : qaEmailSubjects;
 }
