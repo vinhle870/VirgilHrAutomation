@@ -45,8 +45,10 @@ export class OnboardingFlow {
     await this.onboardingPartnerPotalFlow.eraseModal();
 
     await this.onboardingPartnerPotalFlow.fillFormToCreateBusiness(partnerInfo, owner);
+  }
 
-    return this.page.locator(BusinessLocator.ownerText);
+  public async verifyOwnerVisible() {
+    await UiAssert.allVisible([this.page.locator(BusinessLocator.ownerText)]);
   }
 
   public async verifyPartnerVisible(partnerInfo: Partner) {

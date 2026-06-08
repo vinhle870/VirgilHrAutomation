@@ -239,9 +239,9 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new business", async () => {
-        const owner = await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!);
+        await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!);
         await test.step("Verify owner", async () => {
-          await expect(owner!).toBeVisible();
+          await onboardingFlow.verifyOwnerVisible();
         });
       });
     },
@@ -286,9 +286,11 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       await test.step("Create owner", async () => {
         const ownerIfno = await PersonDataGenerator.generate();
 
-        const owner = await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerIfno!);
+        await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerIfno!);
+      });
 
-        await expect(owner!).toBeVisible();
+      await test.step("Verify owner visible", async () => {
+        await onboardingFlow.verifyOwnerVisible();
       });
     },
   );
@@ -456,16 +458,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans.virgilhr[0]])
-          .withBankTransfer(true)
-          .withIsPublic(false)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Partner/Consultant Owner")
+        .withProductsType([plans.virgilhr[0]])
+        .withBankTransfer(true)
+        .withIsPublic(false)
+        .build();
 
       await test.step("Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
@@ -476,7 +475,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Partner does not need to make a payment through tripe", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
         await onboardingFlow.redirectToHomePage();
       });
@@ -497,16 +496,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans.virgilhr[0]])
-          .withBankTransfer(false)
-          .withIsPublic(false)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Partner/Consultant Owner")
+        .withProductsType([plans.virgilhr[0]])
+        .withBankTransfer(false)
+        .withIsPublic(false)
+        .build();
 
       await test.step("Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
@@ -517,11 +513,11 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify partner needs to make a payment through tripe", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
         await onboardingFlow.validatePlanVisible();
 
-        await purchaseFlow.selectPlanBeforePurchase("", partnerInfo!.accountInfo?.email, "ASO Expert");
+        await purchaseFlow.selectPlanBeforePurchase("", partnerInfo!.accountInfo?.email, plans.virgilhr[0]);
 
         //   await expect(await partnerPage.getPlanToBuy(BuyPlanLocators.paymentIframe)).toBeVisible();
       });
@@ -542,17 +538,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans.virgilhr[0]])
-          .withBankTransfer(false)
-          .withEmail("QATest_Brycen124@polandcampus.edu.pl")
-          .withIsPublic(false)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Partner/Consultant Owner")
+        .withProductsType([plans.virgilhr[0]])
+        .withBankTransfer(false)
+        .withIsPublic(false)
+        .build();
 
       await test.step("Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
@@ -582,16 +574,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans.virgilhr[0]])
-          .withBankTransfer(true)
-          .withIsPublic(false)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Partner/Consultant Owner")
+        .withProductsType([plans.virgilhr[0]])
+        .withBankTransfer(true)
+        .withIsPublic(false)
+        .build();
 
       await test.step("Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
@@ -602,11 +591,11 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify With Payment Options = Partner/Consultant Owner, after successfully creating a Partner account, the user receives two credential emails", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
         await onboardingFlow.redirectToHomePage();
 
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Member", "Password@123");
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Member", "Password@123");
 
         await onboardingFlow.redirectToHomePage();
       });
@@ -627,16 +616,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Member Portal Consumer")
-          .withProductsType([plans.virgilhr[0]])
-          .withBankTransfer(true)
-          .withIsPublic(false)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Member Portal Consumer")
+        .withProductsType([plans.virgilhr[0]])
+        .withBankTransfer(true)
+        .withIsPublic(false)
+        .build();
 
       await test.step("Create a new partner with payment option = 'Member Portal Consumer'", async () => {
         await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
@@ -666,16 +652,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Member Portal Consumer")
-          .withProductsType([plans.virgilhr[0]])
-          .withBankTransfer(true)
-          .withIsPublic(false)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Member Portal Consumer")
+        .withProductsType([plans.virgilhr[0]])
+        .withBankTransfer(true)
+        .withIsPublic(false)
+        .build();
 
       await test.step("Create a new partner with payment option = 'Member Portal Consumer'", async () => {
         await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
@@ -686,7 +669,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify login only partner portal", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner Portal", "Password@123");
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner Portal", "Password@123");
 
         await onboardingFlow.redirectToHomePage();
       });
@@ -707,16 +690,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Member Portal Consumer")
-          .withProductsType([plans.virgilhr[0]])
-          .withBankTransfer(true)
-          .withIsPublic(false)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Member Portal Consumer")
+        .withProductsType([plans.virgilhr[0]])
+        .withBankTransfer(true)
+        .withIsPublic(false)
+        .build();
 
       await test.step("Create a new partner with payment option = 'Member Portal Consumer'", async () => {
         await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
@@ -726,15 +706,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await onboardingFlow.verifyPartnerVisible(partnerInfo!);
       });
 
-      let ownerAccount: any;
+      const ownerAccount = await PersonDataGenerator.generate();
       await test.step("Create a business and verify the owner can log in to Member Portal", async () => {
-        ownerAccount = await PersonDataGenerator.generate();
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerAccount!);
 
-        const owner = await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerAccount!);
-
-        await expect(owner!).toBeVisible();
+        await onboardingFlow.verifyOwnerVisible();
 
         await authFlow.activateIndividualCustomerAccountAndSetPassword(ownerAccount.email!, "Consumer", "Password@123");
 
