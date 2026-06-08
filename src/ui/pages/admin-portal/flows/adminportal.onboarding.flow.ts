@@ -44,11 +44,9 @@ export class OnboardingAdminPortalFlow {
 
   public getDuplicatedText = async (): Promise<Locator> => await this.partnerManagementPage.getDuplicatedText();
 
-  public async createCustomerFromCustomerManagementPage(customerInfo: CustomerInfo): Promise<Locator> {
+  public async createCustomerFromCustomerManagementPage(customerInfo: CustomerInfo): Promise<void> {
     await this.partnerManagementPage.accessToManagementPage("Member");
 
-    console.log("customerInfo", customerInfo);
-
-    return await this.customerManagementPage.fillFormToCreateCustomer(customerInfo);
+    await this.customerManagementPage.fillFormToCreateCustomer(customerInfo);
   }
 }

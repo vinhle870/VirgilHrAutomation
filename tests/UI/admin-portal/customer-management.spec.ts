@@ -19,12 +19,9 @@ test.describe("E2E -> Admin Portal -> Customer Management", () => {
         await loginPage.login();
       });
 
-      console.log("plans.virgilhr[0]:", plans.virgilhr[0]);
-
       let customerInfo;
       await test.step("Create customer info", async () => {
         customerInfo = await DataFactory.customerBuilder()
-
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withDepartment(process.env.DEPARTMENT!)
           .withBankStranfer(true)

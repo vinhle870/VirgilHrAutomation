@@ -7,9 +7,6 @@ const plansByEnv: Record<string, Record<string, string[]>> = {
 };
 
 function normalizeEnv(): string {
-  console.log("process.env.ENV:", process.env.ENV);
-  console.log("process.env.exec_env:", process.env.exec_env);
-
   return (process.env.exec_env ?? process.env.ENV ?? "qa").toLowerCase().trim();
 }
 
@@ -38,8 +35,6 @@ export function getPlansForDepartment(departmentName: string = process.env.DEPAR
 
 export function getEmailSubjectForDepartment(): { SUBJECT_EMAIL_TO_JOIN_TEAM: string; SUBJECT_EMAIL_TO_PARTNER_CREDENTIAL: string; SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL: string } {
   const env = normalizeEnv();
-
-  console.log(`Using email subjects for environment: ${env}`);
 
   return env === "uat" ? uatEmailSubjects : qaEmailSubjects;
 }

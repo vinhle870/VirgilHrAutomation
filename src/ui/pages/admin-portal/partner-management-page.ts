@@ -181,11 +181,11 @@ export class PartnerManagementPage extends BasePage {
     if (user instanceof Partner || user instanceof CustomerInfo) userPhoneNumber = user.accountInfo?.phoneNumber;
     else userPhoneNumber = user.phoneNumber;
 
-    console.log(user);
-
     const rawDetailLocator = CommonPartnerLocator.detailButton;
 
     const detailButtonLocator = rawDetailLocator.replace("phoneNumberValue", userPhoneNumber!);
+
+    await this.page.locator(detailButtonLocator).last().scrollIntoViewIfNeeded();
 
     await this.page.locator(detailButtonLocator).last().click({ timeout: 10000 });
   }

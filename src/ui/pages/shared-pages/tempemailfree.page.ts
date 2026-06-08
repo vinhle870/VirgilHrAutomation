@@ -3,6 +3,7 @@ import { BasePage } from "../base-page";
 import { TempEmailFreeLocators } from "./locators";
 import { expect } from "@playwright/test";
 import { Partner } from "src/objects/ipartner";
+import { getEmailSubjectForDepartment } from "src/constant/department-data";
 
 export class TempEmailFreePage extends BasePage {
   /**
@@ -12,7 +13,7 @@ export class TempEmailFreePage extends BasePage {
   public async acceptJoinTeamInvite(userEmail: string): Promise<void> {
     await this.registerNewEmail(userEmail);
 
-    const emailSubject = process.env.SUBJECT_TO_JOIN_TEAM;
+    const emailSubject = getEmailSubjectForDepartment().SUBJECT_EMAIL_TO_JOIN_TEAM;
 
     await this.openEmailBySubject(emailSubject!);
 

@@ -79,7 +79,7 @@ export class OnboardingFlow {
 
   public verifyOwnerRoleInUserPage = async (partnerInfo: Partner) => await this.onboardingPartnerPotalFlow.validateOwnerRoleInUserPage(partnerInfo);
 
-  public createCustomerFromCustomerManagementPage = async (customerInfo: CustomerInfo): Promise<Locator> => await this.onboardingAdminPortalFlow.createCustomerFromCustomerManagementPage(customerInfo);
+  public createCustomerFromCustomerManagementPage = async (customerInfo: CustomerInfo): Promise<void> => await this.onboardingAdminPortalFlow.createCustomerFromCustomerManagementPage(customerInfo);
 
   public validateReceivedOneEmail = async (partnerInfo: Partner) => this.tempEmailFreePage.validateReceivedOneEmail(partnerInfo);
 
