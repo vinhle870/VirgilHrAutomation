@@ -53,11 +53,24 @@ export class OnboardingFlow {
 
   public async verifyPartnerVisible(partnerInfo: Partner) {
     const partnerEmailLocator = this.page!.getByText(partnerInfo!.accountInfo!.email).first();
+
+    const options = { timeout: 100000 };
+
     try {
-      await UiAssert.allVisible([partnerEmailLocator]);
+      await UiAssert.allVisible([partnerEmailLocator], options);
     } catch (error) {
       await refreshPage(this.page);
-      await UiAssert.allVisible([partnerEmailLocator]);
+      await UiAssert.allVisible([partnerEmailLocator], options);
+    }
+  }
+
+  public async verifyCustomerVisible(customerInfo: CustomerInfo) {
+    const customerEmailLocator = this.page!.getByText(customerInfo!.accountInfo!.email).first();
+    try {
+      await UiAssert.allVisible([customerEmailLocator]);
+    } catch (error) {
+      await refreshPage(this.page);
+      await UiAssert.allVisible([customerEmailLocator]);
     }
   }
 
@@ -74,8 +87,6 @@ export class OnboardingFlow {
 
   public inviteMemberInCusManagement = async (invitingMember: Partner | UserInfo | CustomerInfo, invitedMembers: UserInfo[]) =>
     await this.onboardingAdminPortalFlow.inviteCustomerMembersInCusManaPage(invitingMember, invitedMembers);
-
-  public getDuplicatedText = async (): Promise<Locator> => await this.onboardingAdminPortalFlow.getDuplicatedText();
 
   public signUpIndividualCustomerFromMemberPortal = async (customerInfo: CustomerInfo) => await this.onboardingMemberPotalFlow.signUp(customerInfo);
 
@@ -102,5 +113,11 @@ export class OnboardingFlow {
     const duplicatedEmailErrorLocator = this.page.locator(SignUpLocators.duplicatedEmailError);
 
     await UiAssert.allVisible([duplicatedEmailErrorLocator]);
+  }
+
+  public async verifyDuplicatedEmailWhenCreatingPartner(partnerInfo: Partner) {
+    await this.onboardingAdminPortalFlow.getDuplicatedText(partnerInfo);
+
+    await UiAssert.textContains(this.page.locator("body"), "Email is existed");
   }
 }

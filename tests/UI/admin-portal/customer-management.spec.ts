@@ -30,6 +30,10 @@ test.describe("E2E -> Admin Portal -> Customer Management", () => {
         await onboardingFlow.createCustomerFromCustomerManagementPage(customerInfo!);
       });
 
+      await test.step("Verify a customer is created successfully", async () => {
+        await onboardingFlow.verifyCustomerVisible(customerInfo!);
+      });
+
       await test.step("Activate customer", async () => {
         await authFlow.activateIndividualCustomerAccountAndChangePassword(customerInfo!.accountInfo?.email!, "Member", "Password@123");
       });

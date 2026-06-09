@@ -16,7 +16,7 @@ export class PartnerManagementPage extends BasePage {
     super(page);
   }
 
-  public async fillCreatePartnerForm(partnerInfo: Partner) {
+  public async fillUserInfoToCreatePartner(partnerInfo: Partner) {
     this.page.locator(CommonPartnerLocator.createNewPartnerButton).click({ timeout: 5000 });
 
     await delay(5000);
@@ -58,6 +58,18 @@ export class PartnerManagementPage extends BasePage {
 
     await jobTitleElement.fill(partnerInfo.accountInfo!.jobTitle);
 
+    await this.page.locator(CreateNewPartnerModalLocator.email).fill(partnerInfo.accountInfo!.email);
+  }
+
+  public async getDuplicatedText(partnerInfo: Partner): Promise<void> {
+    await this.fillUserInfoToCreatePartner(partnerInfo);
+
+    await this.page.locator(CreateNewPartnerModalLocator.createPartnerButton).click();
+  }
+
+  public async fillCreatePartnerForm(partnerInfo: Partner) {
+    await this.fillUserInfoToCreatePartner(partnerInfo);
+
     if (partnerInfo.partnerInfo!.paymentOption) {
       await this.page.locator(CreateNewPartnerModalLocator.paymentOption).scrollIntoViewIfNeeded();
 
@@ -82,8 +94,6 @@ export class PartnerManagementPage extends BasePage {
         throw new Error("Product type does not exist");
       }
     }
-
-    await this.page.locator(CreateNewPartnerModalLocator.email).fill(partnerInfo.accountInfo!.email);
 
     if (partnerInfo.partnerInfo!.bankTransfer === true && partnerInfo.partnerInfo!.paymentOption === "Partner/Consultant Owner") {
       await this.page.locator(CreateNewPartnerModalLocator.bankTransfer).scrollIntoViewIfNeeded();
@@ -229,8 +239,6 @@ export class PartnerManagementPage extends BasePage {
     }
     return "Pass";
   }
-
-  public getDuplicatedText = async (): Promise<Locator> => await this.getLocator(CreateNewPartnerModalLocator.duplicatedEmailText);
 
   public moveToManagementCategory = async () => await this.page.locator(CommonAdminPortalLocator.managementCategory).click();
 

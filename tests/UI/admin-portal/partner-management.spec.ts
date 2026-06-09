@@ -202,16 +202,12 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC35",
     },
-    async ({ loginPage, onboardingFlow, purchaseFlow, authFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow, purchaseFlow, authFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
+      let partnerInfo: Partner;
       await test.step("Create partner info", async () => {
         partnerInfo = await DataFactory.partnerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
@@ -252,11 +248,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC36",
     },
-    async ({ loginPage, onboardingFlow, authFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow, authFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -300,21 +292,21 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC37",
     },
-    async ({ loginPage, onboardingFlow, authFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow, authFlow }) => {
       await test.step("Login to admin portal", async () => {
         await loginPage.login();
       });
 
-      const partnerInfo = await DataFactory.partnerBuilder()
-        .withDepartmentName(process.env.DEPARTMENT_NAME!)
-        .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plans[0]])
-        .withBankTransfer(true)
-        .build();
+      let partnerInfo: Partner;
+      await test.step("Create partner info", async () => {
+        partnerInfo = await DataFactory.partnerBuilder()
+          .withDepartmentName(process.env.DEPARTMENT_NAME!)
+          .withPaymentOption("Partner/Consultant Owner")
+          .withProductsType([plans[0]])
+          .withBankTransfer(true)
+          .withIsPublic(false)
+          .build();
+      });
 
       await test.step("Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
@@ -324,11 +316,11 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await onboardingFlow.verifyPartnerVisible(partnerInfo!);
       });
 
-      await test.step("Credential partner", async () => {
+      await test.step("Activate partner", async () => {
         await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo.accountInfo!.email, "Partner portal", "Password@123");
       });
 
-      await test.step("Crendential member", async () => {
+      await test.step("Activate member", async () => {
         await authFlow.activateCustomerAccount(partnerInfo!.accountInfo?.email!, "Password@123");
       });
 
@@ -400,12 +392,8 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await onboardingFlow.verifyPartnerVisible(partnerInfo!);
       });
 
-      await test.step("Create another partner and verify its email is duplicated ", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
-
-        const duplicatedEmailEl = await onboardingFlow.getDuplicatedText();
-
-        await expect(duplicatedEmailEl).toBeVisible();
+      await test.step("Verify duplicated email", async () => {
+        await onboardingFlow.verifyDuplicatedEmailWhenCreatingPartner(partnerInfo!);
       });
     },
   );

@@ -4,6 +4,8 @@ import { TempEmailFreePage } from "../pages/shared-pages/tempemailfree.page";
 import { WelcomeModal } from "../pages/shared-pages/welome.modal";
 import { MemberOnboardingLocators } from "../pages/member-portal/locators";
 import { getEmailSubjectForDepartment } from "src/constant/department-data";
+import delay from "src/utilities/delay";
+import refreshPage from "src/utilities/refresh";
 /**
  * This flow class contains methods related to the authentication process, such as logging in with valid accounts, accepting invitations, activating accounts, and changing passwords.
  * Flows:
@@ -63,7 +65,7 @@ export class AuthFlow {
    * @param newPassword
    */
   public async activateCustomerAccount(customerEmail: string, newPassword: string) {
-    const emailTitle = process.env.SUBJECT_TO_MEMBER_CREDENTIAL!;
+    const emailTitle = getEmailSubjectForDepartment().SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL!;
 
     const accountCrendential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(customerEmail, emailTitle);
 

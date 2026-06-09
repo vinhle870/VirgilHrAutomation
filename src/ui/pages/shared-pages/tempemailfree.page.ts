@@ -31,6 +31,7 @@ export class TempEmailFreePage extends BasePage {
     await this.registerNewEmail(email);
 
     //Open the email with the specific subject
+
     await this.openEmailBySubject(subject);
 
     let emailContentFrame;
@@ -55,6 +56,8 @@ export class TempEmailFreePage extends BasePage {
       if (subject.includes("Verify your email address")) loginLink = emailContentFrame.getByRole("link", { name: "Confirm email" });
 
       loginLink = emailContentFrame.getByRole("link", { name: "Login" });
+
+      await loginLink.scrollIntoViewIfNeeded({ timeout: 5000 });
     }
 
     //Get href
@@ -102,7 +105,7 @@ export class TempEmailFreePage extends BasePage {
     const emailSubjectLnk = TempEmailFreeLocators.emailSubject.replace("subjectValue", subject);
 
     //Click on Email Subject
-    await (await this.getLocator(emailSubjectLnk)).first().click();
+    await (await this.getLocator(emailSubjectLnk)).first().click({ timeout: 5000 });
   }
 
   public async validateReceivedOneEmail(partnerInfo?: Partner) {

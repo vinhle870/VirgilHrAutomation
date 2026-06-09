@@ -42,11 +42,13 @@ export class OnboardingAdminPortalFlow {
     await this.customerManagementPage.inviteCustomerMembers(invitedMembers);
   }
 
-  public getDuplicatedText = async (): Promise<Locator> => await this.partnerManagementPage.getDuplicatedText();
-
   public async createCustomerFromCustomerManagementPage(customerInfo: CustomerInfo): Promise<void> {
     await this.partnerManagementPage.accessToManagementPage("Member");
 
     await this.customerManagementPage.fillFormToCreateCustomer(customerInfo);
+  }
+
+  public async getDuplicatedText(partnerInfo: Partner) {
+    await this.partnerManagementPage.getDuplicatedText(partnerInfo);
   }
 }
