@@ -1,6 +1,6 @@
-import { test, expect } from "src/fixtures";
+import { test } from "src/fixtures";
 import { DataFactory, PersonDataGenerator } from "src/data-factory";
-import { plans as plansUAT } from "src/constant/department.data.uat";
+import { plans } from "src/constant/static-data";
 
 test.describe("E2E -> Admin Portal -> Partner Management", () => {
   test(
@@ -20,7 +20,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plansUAT.virgilhr[0]])
+        .withProductsType([plans[0]])
         .withBankTransfer(true)
         .build();
 
@@ -58,7 +58,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
         .withBankTransfer(false)
-        .withProductsType([plansUAT.virgilhr[0]])
+        .withProductsType([plans[0]])
         .build();
 
       await test.step("Create a new partner", async () => {
@@ -106,7 +106,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plansUAT.virgilhr[0]])
+        .withProductsType([plans[0]])
         .withBankTransfer(false)
         .build();
 
@@ -149,7 +149,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plansUAT.virgilhr[0]])
+        .withProductsType([plans[0]])
         .withBankTransfer(true)
         .build();
 
@@ -188,7 +188,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plansUAT.virgilhr[0]])
+        .withProductsType([plans[0]])
         .withBankTransfer(true)
         .build();
 
@@ -234,11 +234,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         await loginPage.login();
       });
 
-      const partnerInfo = await DataFactory.partnerBuilder()
-        .withDepartmentName(process.env.DEPARTMENT_NAME!)
-        .withPaymentOption("Member Portal Consumer")
-        .withProductsType([plansUAT.virgilhr[0]])
-        .build();
+      const partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Member Portal Consumer").withProductsType([plans[0]]).build();
 
       await test.step("Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeo(partnerInfo);

@@ -34,7 +34,7 @@ export class OnboardingAdminPortalFlow {
 
   public addCustomerMembersInPartManaPage = async (partner: Partner, invitedMembers: UserInfo[]) => await this.partnerManagementPage.addCustomerMembersInPartManaPage(partner, invitedMembers);
 
-  public async inviteCustomerMembersInCusManaPage(invitingMember: Partner | UserInfo, invitedMembers: UserInfo[]) {
+  public async inviteCustomerMembersInCusManaPage(invitingMember: Partner | UserInfo | CustomerInfo, invitedMembers: UserInfo[]) {
     await this.partnerManagementPage.accessToManagementPage("Customer");
 
     await this.partnerManagementPage.clickDetailButton(invitingMember);

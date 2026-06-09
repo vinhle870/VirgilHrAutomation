@@ -72,7 +72,7 @@ export class OnboardingFlow {
 
   public addMoreMembersInPartnerManagementPage = async (partner: Partner, invitedMembers: UserInfo[]) => await this.onboardingAdminPortalFlow.addCustomerMembersInPartManaPage(partner, invitedMembers);
 
-  public inviteMemberInCusManagement = async (invitingMember: Partner | UserInfo, invitedMembers: UserInfo[]) =>
+  public inviteMemberInCusManagement = async (invitingMember: Partner | UserInfo | CustomerInfo, invitedMembers: UserInfo[]) =>
     await this.onboardingAdminPortalFlow.inviteCustomerMembersInCusManaPage(invitingMember, invitedMembers);
 
   public getDuplicatedText = async (): Promise<Locator> => await this.onboardingAdminPortalFlow.getDuplicatedText();
