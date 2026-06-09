@@ -10,7 +10,6 @@ import { OnboardingMemberPotalFlow } from "../pages/member-portal/flows/memberpo
 import { TempEmailFreePage } from "../pages";
 import { HomePage } from "../pages/shared-pages/home.page";
 import delay from "src/utilities/delay";
-import { SignUpLocators } from "../pages/member-portal/locators/signup";
 
 /**
  * This flow class contains methods related to the onboarding process of both partner and member users, such as accepting invitations, credentialing, buying plans, and creating a business.
@@ -97,7 +96,7 @@ export class OnboardingFlow {
 
   public async verifyDuplicatedEmail(customerInfo: CustomerInfo) {
     await this.onboardingMemberPotalFlow.fillDuplicatedEmailToSignUp(customerInfo);
-    const duplicatedEmailErrorLocator = this.page.locator(SignUpLocators.duplicatedEmailError);
+    const duplicatedEmailErrorLocator = this.page.getByText('An account with this email id already exists');
 
     await UiAssert.allVisible([duplicatedEmailErrorLocator]);
   }
