@@ -124,7 +124,7 @@ export class PartnerManagementPage extends BasePage {
       await this.page.locator(CreateNewPartnerModalLocator.confirmButton).click();
   }
 
-  public async fillFormToAddPeo(peoPartners: PeoPartner[]) {
+  public async fillFormToAddPeo(peoPartners: PeoPartner) {
     const addPeoConsultantButtonEl = await this.getLocator(DetailOfPartnerLocator.addPeoConsultant_btn);
 
     await this.page.locator(DetailOfPartnerLocator.addPeoConsultant_btn).click();
@@ -155,34 +155,30 @@ export class PartnerManagementPage extends BasePage {
 
     const createButtonEl = this.page.locator(PeoConsultantAdditionLocator.createButton);
 
-    for (let i = 0; i < peoPartners.length; i++) {
-      if (i !== 0 && i < peoPartners.length - 1) await addPeoConsultantButtonEl.click();
+    await nameEl.fill(peoPartners.peoPartnerInfo?.name!);
 
-      await nameEl.fill(peoPartners[i].peoPartnerInfo?.name!);
+    await emailInputEl.fill(peoPartners.accountInfo?.email!);
 
-      await emailInputEl.fill(peoPartners[i].accountInfo?.email!);
+    await firstNameInputEl.fill(peoPartners.accountInfo?.firstName!);
 
-      await firstNameInputEl.fill(peoPartners[i].accountInfo?.firstName!);
+    await lastNameInputEl.fill(peoPartners.accountInfo?.lastName!);
 
-      await lastNameInputEl.fill(peoPartners[i].accountInfo?.lastName!);
+    await phoneNumberInputEl.fill(peoPartners.accountInfo?.phoneNumber!);
 
-      await phoneNumberInputEl.fill(peoPartners[i].accountInfo?.phoneNumber!);
+    await jobTitleInputEl.fill(peoPartners.accountInfo?.jobTitle!);
 
-      await jobTitleInputEl.fill(peoPartners[i].accountInfo?.jobTitle!);
+    if (peoPartners.peoPartnerInfo?.customBranding === true) await customBrandingEl.click();
 
-      if (peoPartners[i].peoPartnerInfo?.customBranding === true) await customBrandingEl.click();
+    if (peoPartners.peoPartnerInfo?.companyType === "Internal") await internalEl.click();
+    else await externalEl.click();
 
-      if (peoPartners[i].peoPartnerInfo?.companyType === "Internal") await internalEl.click();
-      else await externalEl.click();
+    if (peoPartners.peoPartnerInfo?.customBenefitsPlans === true) await customBenefitsPlanEl.click();
 
-      if (peoPartners[i].peoPartnerInfo?.customBenefitsPlans === true) await customBenefitsPlanEl.click();
+    if (peoPartners.peoPartnerInfo?.backURL !== "") await backURLEl.click();
 
-      if (peoPartners[i].peoPartnerInfo?.backURL !== "") await backURLEl.click();
+    if (peoPartners.peoPartnerInfo?.backText !== "") await backTextEl.click();
 
-      if (peoPartners[i].peoPartnerInfo?.backText !== "") await backTextEl.click();
-
-      await createButtonEl.click();
-    }
+    await createButtonEl.click();
   }
 
   public async clickDetailButton(user: Partner | UserInfo | CustomerInfo) {

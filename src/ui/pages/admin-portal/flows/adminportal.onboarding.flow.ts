@@ -15,7 +15,7 @@ export class OnboardingAdminPortalFlow {
     this.customerManagementPage = new CustomerManagementPage(this.page);
   }
 
-  public async createPartnerAndAddPeo(partnerInfo: Partner, peoPartners?: PeoPartner[], isAddPeo = false): Promise<void> {
+  public async createPartnerAndAddPeo(partnerInfo: Partner, peoPartners?: PeoPartner, isAddPeo = false): Promise<void> {
     await this.partnerManagementPage.accessToManagementPage("Partner");
 
     if (!isAddPeo) await this.partnerManagementPage.fillCreatePartnerForm(partnerInfo);
@@ -26,7 +26,7 @@ export class OnboardingAdminPortalFlow {
     await this.partnerManagementPage.clickDetailButton(partner);
   }
 
-  private async fillFormToAddPeo(partner: Partner, peoPartners: PeoPartner[]) {
+  private async fillFormToAddPeo(partner: Partner, peoPartners: PeoPartner) {
     await this.partnerManagementPage.clickDetailButton(partner);
 
     await this.partnerManagementPage.fillFormToAddPeo(peoPartners);

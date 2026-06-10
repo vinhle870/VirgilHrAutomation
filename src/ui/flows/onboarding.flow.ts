@@ -54,7 +54,7 @@ export class OnboardingFlow {
   public async verifyPartnerVisible(partnerInfo: Partner) {
     const partnerEmailLocator = this.page!.getByText(partnerInfo!.accountInfo!.email).first();
 
-    const options = { timeout: 100000 };
+    const options = { timeout: 10000 };
 
     try {
       await UiAssert.allVisible([partnerEmailLocator], options);
@@ -80,7 +80,7 @@ export class OnboardingFlow {
     UiAssert.urlMatches(currentUrl, containedURL);
   }
 
-  public createPartnerAndAddPeo = async (partnerInfo: Partner, peoPartners?: PeoPartner[], isAddPeo = false) =>
+  public createPartnerAndAddPeoInAdminPortal = async (partnerInfo: Partner, peoPartners?: PeoPartner, isAddPeo = false) =>
     await this.onboardingAdminPortalFlow.createPartnerAndAddPeo(partnerInfo, peoPartners, isAddPeo);
 
   public addMoreMembersInPartnerManagementPage = async (partner: Partner, invitedMembers: UserInfo[]) => await this.onboardingAdminPortalFlow.addCustomerMembersInPartManaPage(partner, invitedMembers);

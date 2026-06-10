@@ -25,7 +25,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         .build();
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -62,7 +62,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         .build();
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -111,7 +111,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         .build();
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -154,7 +154,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         .build();
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -193,7 +193,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         .build();
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -237,7 +237,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       const partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Member Portal Consumer").withProductsType([plans[0]]).build();
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
