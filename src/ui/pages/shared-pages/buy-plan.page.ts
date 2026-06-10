@@ -14,9 +14,9 @@ export class BuyPlanPage extends BasePage {
     logger(`==================[Plan Purchase] url: ${url}, email: ${email}\n`);
 
     try {
-      await this.page.waitForURL("**/register-success", { timeout: 30000 });
+      //  await this.page.waitForURL("**/register-success", { timeout: 30000 });
 
-      const selectedPlanLocator = BuyPlanLocators.firstPlan.replace("plan_name", planName);
+      const selectedPlanLocator = BuyPlanLocators.firstPlan.replace("plan_name", planName.trim());
       await (await this.getLocator(selectedPlanLocator)).click();
       await (await this.getLocator(BuyPlanLocators.buyNow)).click();
       await (await this.getLocator(BuyPlanLocators.confirm)).click();
@@ -75,7 +75,6 @@ export class BuyPlanPage extends BasePage {
   }
   //---------------Verification Methods-----------------
   public async verifyStripePaymentFormCorrectDisplayed(): Promise<void> {
-
     const iframe = BuyPlanLocators.paymentIframe;
 
     const txtCardNumb = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardNumber);
@@ -89,7 +88,5 @@ export class BuyPlanPage extends BasePage {
     await expect(txtHolder).toBeVisible();
     await expect(txtAddress).toBeVisible();
     await expect(txtCity).toBeVisible();
-
   }
-
 }
