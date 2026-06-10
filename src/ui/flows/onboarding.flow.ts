@@ -122,6 +122,4 @@ export class OnboardingFlow {
   }
 
   public verifyFillingFormIsRequired = async (customerInfo: CustomerInfo) => await this.onboardingMemberPotalFlow.veriryFillingFormIsRequired(customerInfo);
-
-  public validateReceivedOneEmailForCreatingCustomer = async (email: string) => await this.tempEmailFreePage.validateReceivedOneEmailForCreatingCustomer(email);
 }

@@ -109,4 +109,12 @@ export class AuthFlow {
 
     await this.page.goto(credential.hrefValue!);
   }
+
+  public validateReceivedOneEmailForCreatingCustomer = async (email: string) =>
+    await this.tempEmailFreePage.validateReceivedOneEmailForCreatingCustomer(email);
+
+  public validateTimeLimitedEmailForCreatingCustomer = async (email: string) => {
+    const subject = "Verify your email address";
+    await this.tempEmailFreePage.validateTimeLimitedEmailForCreatingCustomer(email, subject);
+  };
 }

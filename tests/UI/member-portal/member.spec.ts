@@ -108,8 +108,26 @@ test.describe("E2E -> Member portal", () => {
         await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!);
       });
 
-      await test.step("Activate account", async () => {
-        await onboardingFlow.validateReceivedOneEmailForCreatingCustomer(customerInfo!.accountInfo.email!);
+      await test.step("Verify recieve one confirmation email", async () => {
+        await authFlow.validateReceivedOneEmailForCreatingCustomer(customerInfo!.accountInfo.email!);
+      });
+    },
+  );
+
+  test(
+    "TC06",
+    {
+      tag: "@Verify that the confirmation email is only valid for 24 hours.",
+    },
+    async ({ onboardingFlow, authFlow }) => {
+      const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
+
+      await test.step("Fill form to sign up", async () => {
+        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!);
+      });
+
+      await test.step("Verify email is only valid for 24 hours", async () => {
+        await authFlow.validateTimeLimitedEmailForCreatingCustomer(customerInfo.accountInfo.email);
       });
     },
   );

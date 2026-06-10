@@ -141,4 +141,16 @@ export class TempEmailFreePage extends BasePage {
 
     await expect(memberEmail).toBeVisible();
   }
+
+  public async validateTimeLimitedEmailForCreatingCustomer(email: string, subject: string) {
+    await this.registerNewEmail(email);
+
+    await this.openEmailBySubject(subject);
+
+    const emailContentFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).last().contentFrame();
+
+    const timeLimitText = emailContentFrame.locator("strong:has-text('hours')");
+
+    await expect(timeLimitText).toBeVisible();
+  }
 }
