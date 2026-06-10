@@ -10,11 +10,7 @@ test.describe("E2E -> Admin Portal -> Customer Management", () => {
     {
       tag: "@TC56",
     },
-    async ({ loginPage, onboardingFlow, authFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow, authFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });

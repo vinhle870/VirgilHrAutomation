@@ -9,11 +9,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC30",
     },
-    async ({ loginPage, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -40,11 +36,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC31",
     },
-    async ({ loginPage: loginPage, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage: loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -75,11 +67,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC32",
     },
-    async ({ loginPage, authFlow, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, authFlow, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -131,11 +119,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC33",
     },
-    async ({ loginPage, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -165,10 +149,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC34",
     },
-    async ({ loginPage, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -334,7 +315,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC38",
     },
-    async ({ loginPage, onboardingFlow }, testInfo) => {
+    async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -364,11 +345,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC39",
     },
-    async ({ loginPage, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -402,11 +379,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC40",
     },
-    async ({ loginPage, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -436,11 +409,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC41",
     },
-    async ({ loginPage, authFlow, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, authFlow, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -474,11 +443,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC42",
     },
-    async ({ loginPage, authFlow, purchaseFlow, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, authFlow, purchaseFlow, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -516,11 +481,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC43",
     },
-    async ({ loginPage, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -552,11 +513,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC44",
     },
-    async ({ loginPage, authFlow, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, authFlow, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -594,11 +551,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@45",
     },
-    async ({ loginPage: loginPage, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage: loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -630,11 +583,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@46",
     },
-    async ({ loginPage, authFlow, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, authFlow, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -668,11 +617,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC47",
     },
-    async ({ loginPage, onboardingFlow, partnerPage, authFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow, partnerPage, authFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });

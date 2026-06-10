@@ -8,11 +8,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@Verify that after the first login, the system requires the partner user to change the system-generated password to a personal password.",
     },
-    async ({ loginPage, onboardingFlow, authFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow, authFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -45,11 +41,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@Verify that after a successful login, the partner user proceeds to make a payment through Stripe when Payment Options = Partner/Consultant Owner and Bank Transfer = OFF.",
     },
-    async ({ loginPage: loginAdminPage, onboardingFlow, purchaseFlow, authFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage: loginAdminPage, onboardingFlow, purchaseFlow, authFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginAdminPage.login();
       });
@@ -94,11 +86,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@After a successful payment, the partner user is redirected to the Partner Homepage.",
     },
-    async ({ loginPage, onboardingFlow, purchaseFlow, authFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow, purchaseFlow, authFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -137,11 +125,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@Verify that for other payment configurations, the partner user is not required to make any payment through Stripe.",
     },
-    async ({ loginPage: loginAdminPage, onboardingFlow, authFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage: loginAdminPage, onboardingFlow, authFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginAdminPage.login();
       });
@@ -176,11 +160,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@Verify that when Payment Options = Partner/Consultant Owner, the partner account is both the Owner of the Partner Team and the Owner of all Businesses under it.",
     },
-    async ({ loginPage: loginAdminPage, authFlow, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage: loginAdminPage, authFlow, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginAdminPage.login();
       });
@@ -225,11 +205,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@ Verify that when Payment Options = Member Portal Consumer, the partner account is the Owner of the Partner Team, while each Business has its own Owner.",
     },
-    async ({ loginPage, authFlow, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, authFlow, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });

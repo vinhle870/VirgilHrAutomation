@@ -1,5 +1,6 @@
 import { test } from "src/fixtures";
 import { DataFactory } from "src/data-factory";
+import { getPlansForDepartment } from "src/constant/department-data";
 
 test.describe("E2E -> Member portal", () => {
   test(
@@ -7,11 +8,7 @@ test.describe("E2E -> Member portal", () => {
     {
       tag: "@Verify that the user can create a new account by clicking the Sign Up button.",
     },
-    async ({ onboardingFlow, authFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ onboardingFlow, authFlow }) => {
       const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
 
       await test.step("Fill form to sign up", async () => {
@@ -150,6 +147,37 @@ test.describe("E2E -> Member portal", () => {
 
       await test.step("Verify user is redirected to Select Plan screen", async () => {
         await onboardingFlow.verifyURL("register-success");
+      });
+    },
+  );
+
+  test(
+    "TC08",
+    {
+      tag: "@On the Select Plan screen, the user can choose any available plan from the list.",
+    },
+    async ({ onboardingFlow, authFlow, purchaseFlow }) => {
+      const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
+      const plans = getPlansForDepartment();
+
+      await test.step("Fill form to sign up", async () => {
+        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!);
+      });
+
+      await test.step("Confirm email", async () => {
+        await authFlow.activateSignedUpCustomer(customerInfo!.accountInfo.email!);
+      });
+
+      await test.step("Select a plan from the list", async () => {
+        await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[0]);
+      });
+
+      await test.step("Buy the selected plan", async () => {
+        await purchaseFlow.submitSubscriptionPayment();
+      });
+
+      await test.step("Verify redirect to home page", async () => {
+        await onboardingFlow.redirectToHomePage();
       });
     },
   );
