@@ -6,7 +6,7 @@ import { PeoPartner } from "src/objects/ipeopartner";
 import { UiAssert } from "src/assertions";
 import { OnboardingAdminPortalFlow } from "../pages/admin-portal/flows/adminportal.onboarding.flow";
 import { OnboardingPartnerPotalFlow } from "../pages/partner-portal/flows/partnerportal.onboarding.flow";
-import { OnboardingMemberPotalFlow } from "../pages/member-portal/flows/memberportal.onboarding.flow";
+import { OnboardingMemberPortalFlow } from "../pages/member-portal/flows/memberportal.onboarding.flow";
 import { TempEmailFreePage } from "../pages";
 import { HomePage } from "../pages/shared-pages/home.page";
 import delay from "src/utilities/delay";
@@ -25,7 +25,7 @@ export class OnboardingFlow {
   private readonly page: Page;
   private readonly onboardingAdminPortalFlow: OnboardingAdminPortalFlow;
   private readonly onboardingPartnerPotalFlow: OnboardingPartnerPotalFlow;
-  private readonly onboardingMemberPotalFlow: OnboardingMemberPotalFlow;
+  private readonly onboardingMemberPotalFlow: OnboardingMemberPortalFlow;
   private readonly tempEmailFreePage: TempEmailFreePage;
   private readonly homeExceptAdminPage: HomePage;
 
@@ -33,7 +33,7 @@ export class OnboardingFlow {
     this.page = page;
     this.onboardingAdminPortalFlow = new OnboardingAdminPortalFlow(this.page);
     this.onboardingPartnerPotalFlow = new OnboardingPartnerPotalFlow(this.page);
-    this.onboardingMemberPotalFlow = new OnboardingMemberPotalFlow(this.page);
+    this.onboardingMemberPotalFlow = new OnboardingMemberPortalFlow(this.page);
     this.tempEmailFreePage = new TempEmailFreePage(this.page);
     this.homeExceptAdminPage = new HomePage(this.page);
   }
@@ -108,7 +108,7 @@ export class OnboardingFlow {
     await UiAssert.allVisible([homeTitle], { timeout: 30000 });
   };
 
-  public async verifyDuplicatedEmail(customerInfo: CustomerInfo) {
+  public async verifyDuplicatedEmailWhenCreatingCustomer(customerInfo: CustomerInfo) {
     await this.onboardingMemberPotalFlow.fillDuplicatedEmailToSignUp(customerInfo);
     const duplicatedEmailErrorLocator = this.page.locator(SignUpLocators.duplicatedEmailError);
 
@@ -120,4 +120,6 @@ export class OnboardingFlow {
 
     await UiAssert.textContains(this.page.locator("body"), "Email is existed");
   }
+
+  public veriryFillingFormIsRequired = async (customerInfo: CustomerInfo) => await this.onboardingMemberPotalFlow.veriryFillingFormIsRequired(customerInfo);
 }

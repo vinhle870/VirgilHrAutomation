@@ -2,7 +2,7 @@ import { Page } from "playwright/test";
 import { CustomerInfo } from "src/objects";
 import { MemberPage } from "../..";
 
-export class OnboardingMemberPotalFlow {
+export class OnboardingMemberPortalFlow {
   private page: Page;
   private customerPage: MemberPage;
 
@@ -30,6 +30,14 @@ export class OnboardingMemberPotalFlow {
 
     await this.page.waitForLoadState("domcontentloaded");
 
-    await this.customerPage.fillInputToSignUp(customerInfo);
+    await this.customerPage.fillInputOfTheFirstModalToSignUp(customerInfo);
+  }
+
+  public async veriryFillingFormIsRequired(customerInfo: CustomerInfo) {
+    await this.page.goto(process.env.MEMBER_PORTAL_BASEURL!);
+
+    await this.page.waitForLoadState("domcontentloaded");
+
+    await this.customerPage.veriryFillingFormIsRequired(customerInfo);
   }
 }

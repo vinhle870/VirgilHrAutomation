@@ -1,7 +1,7 @@
 import { test } from "src/fixtures";
 import { DataFactory } from "src/data-factory";
 
-test.describe("E2E -> Admin Portal -> Partner Management", () => {
+test.describe("E2E -> Member portal", () => {
   test(
     "TC01",
     {
@@ -69,7 +69,29 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       const duplicateCustomerInfo = await DataFactory.customerBuilder().withEmail(customerInfo!.accountInfo.email!).withPassword("Password@123").build();
 
       await test.step("Verify duplicated email", async () => {
-        await onboardingFlow.verifyDuplicatedEmail(duplicateCustomerInfo);
+        await onboardingFlow.verifyDuplicatedEmailWhenCreatingCustomer(duplicateCustomerInfo);
+      });
+    },
+  );
+
+  test(
+    "TC04",
+    {
+      tag: "@Verify that all fields on the Sign Up screen are required (except for the HR System field).",
+    },
+    async ({ onboardingFlow, authFlow }) => {
+      const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
+
+      await test.step("Verify inputs are required", async () => {
+        await onboardingFlow.veriryFillingFormIsRequired(customerInfo!);
+      });
+
+      await test.step("Activate account", async () => {
+        await authFlow.activateSignedUpCustomer(customerInfo!.accountInfo.email!);
+      });
+
+      await test.step("Verify the signed up customer login successfully", async () => {
+        await onboardingFlow.verifyURL("register-success");
       });
     },
   );

@@ -2,11 +2,12 @@ import { BasePage } from "../base-page";
 import { MemberOnboardingLocators } from "./locators";
 import { CustomerInfo } from "src/objects";
 import { SignUpLocators } from "./locators/signup";
+import { UiAssert } from "src/assertions";
+import { Locator } from "playwright/test";
 
 export class MemberPage extends BasePage {
-  async fillInputToSignUp(customerInfo: CustomerInfo) {
-    const signUpBtnEl = await this.getLocator(MemberOnboardingLocators.signUpBtn);
-    await signUpBtnEl.click();
+  public async fillInputOfTheFirstModalToSignUp(customerInfo: CustomerInfo, hasErrormessage = false) {
+    if (!hasErrormessage) await (await this.getLocator(MemberOnboardingLocators.signUpBtn)).click();
 
     const firstNameInputEl = await this.getLocator(SignUpLocators.firstNameInput);
     await firstNameInputEl.fill(customerInfo.accountInfo.firstName);
@@ -16,22 +17,13 @@ export class MemberPage extends BasePage {
 
     const emailInputEl = await this.getLocator(SignUpLocators.emailInput);
     await emailInputEl.fill(customerInfo.accountInfo.email);
-  }
-
-  async fillFormToSignUp(customerInfo: CustomerInfo, hrSystem: string) {
-    await this.fillInputToSignUp(customerInfo);
 
     const passwordInputEl = await this.getLocator(SignUpLocators.passwordInput);
     await passwordInputEl.fill(customerInfo.accountInfo.password!);
+  }
 
-    try {
-      await this.dropdown.selectByText(SignUpLocators.hrSystemDropdown, hrSystem);
-    } catch (error) {
-      throw new Error(`Failed to select HR system: ${hrSystem}. Error: ${(error as Error).message} does not exist in dropdown options.`);
-    }
-
-    const createAccountBtnEl = await this.getLocator(SignUpLocators.createAccountBtn);
-    await createAccountBtnEl.click();
+  public async fillInputOfTheSeccondModalToSignUp(customerInfo: CustomerInfo, hasErrorMessage = false) {
+    if (!hasErrorMessage) await (await this.getLocator(SignUpLocators.createAccountBtn)).click();
 
     const phoneNumberInputEl = await this.getLocator(SignUpLocators.phoneNumberInput);
     await phoneNumberInputEl.fill(customerInfo.accountInfo.phoneNumber);
@@ -43,5 +35,51 @@ export class MemberPage extends BasePage {
     await companyInputEl.fill(customerInfo.company.companyName ?? "My company");
 
     await (await this.getLocator(MemberOnboardingLocators.signUpBtn)).click();
+  }
+
+  async fillFormToSignUp(customerInfo: CustomerInfo, hrSystem: string) {
+    await this.fillInputOfTheFirstModalToSignUp(customerInfo);
+
+    try {
+      await this.dropdown.selectByText(SignUpLocators.hrSystemDropdown, hrSystem);
+    } catch (error) {
+      throw new Error(`Failed to select HR system: ${hrSystem}. Error: ${(error as Error).message} does not exist in dropdown options.`);
+    }
+
+    await this.fillInputOfTheSeccondModalToSignUp(customerInfo);
+  }
+
+  public async veriryFillingFormIsRequired(customerInfo: CustomerInfo) {
+    const signUpBtnEl = await this.getLocator(MemberOnboardingLocators.signUpBtn);
+    await signUpBtnEl.click();
+
+    const createAccountBtnEl = await this.getLocator(SignUpLocators.createAccountBtn);
+    await createAccountBtnEl.click();
+
+    const errorMessagesOfTheFirstModal = ["First name is missing", "Last name is missing", "Email is missing", "Password is missing"];
+    const errorMessageLocatorsOfTheFirstModal: Locator[] = [];
+
+    errorMessagesOfTheFirstModal.forEach(async (errorMessage) => {
+      errorMessageLocatorsOfTheFirstModal.push(await this.getLocator(SignUpLocators.missedField.replace("errormessage", errorMessage)));
+    });
+
+    await UiAssert.allVisible(errorMessageLocatorsOfTheFirstModal);
+
+    await this.fillInputOfTheFirstModalToSignUp(customerInfo, true);
+
+    await createAccountBtnEl.click();
+
+    await signUpBtnEl.click();
+
+    const errorMessagesOfTheSeccondModal = ["Phone number is missing", "Job title is missing", "Company name is missing"];
+    const errorMessageLocatorsOfTheSeccondtModal: Locator[] = [];
+
+    errorMessagesOfTheSeccondModal.forEach(async (errorMessage) => {
+      errorMessageLocatorsOfTheSeccondtModal.push(await this.getLocator(SignUpLocators.missedField.replace("errormessage", errorMessage)));
+    });
+
+    await UiAssert.allVisible(errorMessageLocatorsOfTheSeccondtModal);
+
+    await this.fillInputOfTheSeccondModalToSignUp(customerInfo, true);
   }
 }
