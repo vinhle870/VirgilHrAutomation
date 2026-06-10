@@ -131,4 +131,26 @@ test.describe("E2E -> Member portal", () => {
       });
     },
   );
+
+  test(
+    "TC07",
+    {
+      tag: "@Verify that after confirming the email, the user is redirected to the Select Plan screen.",
+    },
+    async ({ onboardingFlow, authFlow }) => {
+      const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
+
+      await test.step("Fill form to sign up", async () => {
+        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!);
+      });
+
+      await test.step("Confirm email", async () => {
+        await authFlow.activateSignedUpCustomer(customerInfo!.accountInfo.email!);
+      });
+
+      await test.step("Verify user is redirected to Select Plan screen", async () => {
+        await onboardingFlow.verifyURL("register-success");
+      });
+    },
+  );
 });
