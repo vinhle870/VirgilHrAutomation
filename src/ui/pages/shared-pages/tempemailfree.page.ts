@@ -4,6 +4,7 @@ import { TempEmailFreeLocators } from "./locators";
 import { expect } from "@playwright/test";
 import { Partner } from "src/objects/ipartner";
 import { getEmailSubjectForDepartment } from "src/constant/department-data";
+import { CustomerInfo } from "src/objects";
 
 export class TempEmailFreePage extends BasePage {
   /**
@@ -106,6 +107,15 @@ export class TempEmailFreePage extends BasePage {
 
     //Click on Email Subject
     await (await this.getLocator(emailSubjectLnk)).first().click({ timeout: 5000 });
+  }
+
+  public async validateReceivedOneEmailForCreatingCustomer(email: string) {
+    await this.registerNewEmail(email);
+
+    const subject = "Verify your email address";
+    const emailSubjectLnk = await this.getLocator(TempEmailFreeLocators.emailSubject.replace("subjectValue", subject));
+
+    await expect(emailSubjectLnk.first()).toBeVisible();
   }
 
   public async validateReceivedOneEmail(partnerInfo?: Partner) {

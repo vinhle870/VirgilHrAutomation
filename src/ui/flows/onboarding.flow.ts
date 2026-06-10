@@ -121,5 +121,7 @@ export class OnboardingFlow {
     await UiAssert.textContains(this.page.locator("body"), "Email is existed");
   }
 
-  public veriryFillingFormIsRequired = async (customerInfo: CustomerInfo) => await this.onboardingMemberPotalFlow.veriryFillingFormIsRequired(customerInfo);
+  public verifyFillingFormIsRequired = async (customerInfo: CustomerInfo) => await this.onboardingMemberPotalFlow.veriryFillingFormIsRequired(customerInfo);
+
+  public validateReceivedOneEmailForCreatingCustomer = async (email: string) => await this.tempEmailFreePage.validateReceivedOneEmailForCreatingCustomer(email);
 }

@@ -83,7 +83,7 @@ test.describe("E2E -> Member portal", () => {
       const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
 
       await test.step("Verify inputs are required", async () => {
-        await onboardingFlow.veriryFillingFormIsRequired(customerInfo!);
+        await onboardingFlow.verifyFillingFormIsRequired(customerInfo!);
       });
 
       await test.step("Activate account", async () => {
@@ -92,6 +92,24 @@ test.describe("E2E -> Member portal", () => {
 
       await test.step("Verify the signed up customer login successfully", async () => {
         await onboardingFlow.verifyURL("register-success");
+      });
+    },
+  );
+
+  test(
+    "TC05",
+    {
+      tag: "@Verify that after filling in all information and signing up, the user receives a confirmation email.",
+    },
+    async ({ onboardingFlow, authFlow }) => {
+      const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
+
+      await test.step("Fill form to sign up", async () => {
+        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!);
+      });
+
+      await test.step("Activate account", async () => {
+        await onboardingFlow.validateReceivedOneEmailForCreatingCustomer(customerInfo!.accountInfo.email!);
       });
     },
   );
