@@ -6,6 +6,7 @@ import { BusinessLocator } from "./locators/business";
 import { Partner, UserInfo } from "src/objects";
 import { CommonPartnerPortalLocator } from "./locators/common";
 import { BuyPlanLocators } from "../shared-pages/locators";
+import { plans } from "src/constant/static-data";
 
 export class PartnerPage extends BasePage {
   private readonly URL: string;
@@ -18,6 +19,7 @@ export class PartnerPage extends BasePage {
   public getAccountNotExist = () => this.page.locator(LoginFormLocators.validationMsg);
 
   public async validateOwnerRoleInUserPage(email: string) {
+    await this.eraseModal();
     const userPage = CommonPartnerPortalLocator.usersButton;
     this.page.locator(userPage).click({ timeout: 3000 });
 
@@ -80,7 +82,7 @@ export class PartnerPage extends BasePage {
   }
 
   public async validatePlanVisible() {
-    const plan = await this.getPlanToBuy(BuyPlanLocators.firstPlan);
+    const plan = await this.getPlanToBuy(BuyPlanLocators.firstPlan.replace("plan_name", plans[0].trim()));
     await expect(plan).toBeVisible();
   }
 

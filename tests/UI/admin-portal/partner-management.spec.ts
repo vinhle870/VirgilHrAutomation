@@ -1,4 +1,4 @@
-import { test, expect } from "src/fixtures";
+import { test } from "src/fixtures";
 import { DataFactory, PersonDataGenerator } from "src/data-factory";
 import { Partner } from "src/objects";
 import { plans } from "src/constant/static-data";
@@ -471,7 +471,9 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
         await purchaseFlow.selectPlanBeforePurchase("", partnerInfo!.accountInfo?.email, plans[0]);
 
-        //   await expect(await partnerPage.getPlanToBuy(BuyPlanLocators.paymentIframe)).toBeVisible();
+        await purchaseFlow.submitSubscriptionPayment();
+
+        await onboardingFlow.redirectToHomePage();
       });
     },
   );

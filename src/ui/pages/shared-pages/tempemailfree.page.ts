@@ -4,7 +4,6 @@ import { TempEmailFreeLocators } from "./locators";
 import { expect } from "@playwright/test";
 import { Partner } from "src/objects/ipartner";
 import { getEmailSubjectForDepartment } from "src/constant/department-data";
-import { CustomerInfo } from "src/objects";
 
 export class TempEmailFreePage extends BasePage {
   /**
@@ -32,18 +31,22 @@ export class TempEmailFreePage extends BasePage {
     await this.registerNewEmail(email);
 
     //Open the email with the specific subject
+    try {
+      await this.openEmailBySubject(subject);
+    } catch (error) {
+      await this.registerNewEmail(email);
+      await this.openEmailBySubject(subject);
+    }
 
-    await this.openEmailBySubject(subject);
-
-    let emailContentFrame;
-
-    emailContentFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).last().contentFrame();
+    let emailContentFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).last().contentFrame();
 
     let passwordRaw, password, hrefValue;
 
     let loginLink = emailContentFrame.getByRole("link", { name: "Login" });
 
-    if (subject.includes("Verify your email address")) loginLink = emailContentFrame.getByRole("link", { name: "Confirm email" });
+    const isVerify = subject.includes("Verify your email address");
+
+    if (isVerify) loginLink = emailContentFrame.getByRole("link", { name: "Confirm email" });
     else {
       passwordRaw = await emailContentFrame.locator(TempEmailFreeLocators.credentialPassword).first().textContent();
       password = passwordRaw?.replace(/Password\s*:/i, "").trim();
@@ -54,7 +57,7 @@ export class TempEmailFreePage extends BasePage {
     } catch (error) {
       emailContentFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).first().contentFrame();
 
-      if (subject.includes("Verify your email address")) loginLink = emailContentFrame.getByRole("link", { name: "Confirm email" });
+      if (isVerify) loginLink = emailContentFrame.getByRole("link", { name: "Confirm email" });
 
       loginLink = emailContentFrame.getByRole("link", { name: "Login" });
 
@@ -73,9 +76,16 @@ export class TempEmailFreePage extends BasePage {
     const emailLocalPart = userEmail.split("@")[0];
 
     const url = process.env.MAILBOX_URL || "";
-    await this.page.goto(url);
 
-    await this.page.waitForURL(url, { timeout: 30000 });
+    try {
+      await this.page.goto(url);
+      await this.page.waitForURL(url, { timeout: 30000 });
+    } catch (error) {
+      await delay(8000);
+
+      await this.page.goto(url);
+      await this.page.waitForURL(url, { timeout: 30000 });
+    }
 
     const newBtn = await this.getLocator(TempEmailFreeLocators.newButton);
 
@@ -103,10 +113,10 @@ export class TempEmailFreePage extends BasePage {
   }
 
   public async openEmailBySubject(subject: string): Promise<void> {
-    const emailSubjectLnk = TempEmailFreeLocators.emailSubject.replace("subjectValue", subject);
+    let emailSubjectLnk = TempEmailFreeLocators.emailSubject.replace("subjectValue", subject);
+    let emailSubjectLnkLocator = await this.getLocator(emailSubjectLnk);
 
-    //Click on Email Subject
-    await (await this.getLocator(emailSubjectLnk)).first().click({ timeout: 5000 });
+    await emailSubjectLnkLocator.first().click({ timeout: 10000 });
   }
 
   public async validateReceivedOneEmailForCreatingCustomer(email: string) {
