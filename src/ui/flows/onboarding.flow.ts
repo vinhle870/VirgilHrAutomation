@@ -7,7 +7,7 @@ import { UiAssert } from "src/assertions";
 import { OnboardingAdminPortalFlow } from "../pages/admin-portal/flows/adminportal.onboarding.flow";
 import { OnboardingPartnerPotalFlow } from "../pages/partner-portal/flows/partnerportal.onboarding.flow";
 import { OnboardingMemberPortalFlow } from "../pages/member-portal/flows/memberportal.onboarding.flow";
-import { TempEmailFreePage } from "../pages";
+import { EmailServicePage } from "../pages";
 import { HomePage } from "../pages/shared-pages/home.page";
 import delay from "src/utilities/delay";
 import { SignUpLocators } from "../pages/member-portal/locators/signup";
@@ -26,7 +26,7 @@ export class OnboardingFlow {
   private readonly onboardingAdminPortalFlow: OnboardingAdminPortalFlow;
   private readonly onboardingPartnerPotalFlow: OnboardingPartnerPotalFlow;
   private readonly onboardingMemberPotalFlow: OnboardingMemberPortalFlow;
-  private readonly tempEmailFreePage: TempEmailFreePage;
+  private readonly emailServicePage: EmailServicePage;
   private readonly homeExceptAdminPage: HomePage;
 
   constructor(page: Page) {
@@ -34,24 +34,22 @@ export class OnboardingFlow {
     this.onboardingAdminPortalFlow = new OnboardingAdminPortalFlow(this.page);
     this.onboardingPartnerPotalFlow = new OnboardingPartnerPotalFlow(this.page);
     this.onboardingMemberPotalFlow = new OnboardingMemberPortalFlow(this.page);
-    this.tempEmailFreePage = new TempEmailFreePage(this.page);
+    this.emailServicePage = new EmailServicePage(this.page);
     this.homeExceptAdminPage = new HomePage(this.page);
   }
 
-  public async createBusinessFromPartnerPortal(partnerInfo: Partner, owner?: UserInfo) {
+  public createBusinessFromPartnerPortal = async (partnerInfo: Partner, owner?: UserInfo) => {
     if (partnerInfo.partnerInfo?.paymentOption !== "Member Portal Consumer" && partnerInfo.partnerInfo?.paymentOption !== "Partner/Consultant Owner")
       throw new Error("Payment option must be Member Portal Consumer or Partner/Consultant Owner");
 
     await this.onboardingPartnerPotalFlow.eraseModal();
 
     await this.onboardingPartnerPotalFlow.fillFormToCreateBusiness(partnerInfo, owner);
-  }
+  };
 
-  public async verifyOwnerVisible() {
-    await UiAssert.allVisible([this.page.locator(BusinessLocator.ownerText)]);
-  }
+  public verifyOwnerVisible = async () => await UiAssert.allVisible([this.page.locator(BusinessLocator.ownerText)]);
 
-  public async verifyPartnerVisible(partnerInfo: Partner) {
+  public verifyPartnerVisible = async (partnerInfo: Partner) => {
     const partnerEmailLocator = this.page!.getByText(partnerInfo!.accountInfo!.email).first();
 
     const options = { timeout: 10000 };
@@ -62,9 +60,9 @@ export class OnboardingFlow {
       await refreshPage(this.page);
       await UiAssert.allVisible([partnerEmailLocator], options);
     }
-  }
+  };
 
-  public async verifyCustomerVisible(customerInfo: CustomerInfo) {
+  public verifyCustomerVisible = async (customerInfo: CustomerInfo) => {
     const customerEmailLocator = this.page!.getByText(customerInfo!.accountInfo!.email).first();
     try {
       await UiAssert.allVisible([customerEmailLocator]);
@@ -72,13 +70,13 @@ export class OnboardingFlow {
       await refreshPage(this.page);
       await UiAssert.allVisible([customerEmailLocator]);
     }
-  }
+  };
 
-  public async verifyURL(containedURL: string) {
+  public verifyURL = async (containedURL: string) => {
     await delay(15000);
     const currentUrl = this.page.url();
     UiAssert.urlMatches(currentUrl, containedURL);
-  }
+  };
 
   public createPartnerAndAddPeoInAdminPortal = async (partnerInfo: Partner, peoPartners?: PeoPartner, isAddPeo = false) =>
     await this.onboardingAdminPortalFlow.createPartnerAndAddPeo(partnerInfo, peoPartners, isAddPeo);
@@ -92,11 +90,11 @@ export class OnboardingFlow {
 
   public verifyOwnerRoleInUserPage = async (partnerInfo: Partner) => await this.onboardingPartnerPotalFlow.validateOwnerRoleInUserPage(partnerInfo);
 
-  public createCustomerFromCustomerManagementPage = async (customerInfo: CustomerInfo): Promise<void> => await this.onboardingAdminPortalFlow.createCustomerFromCustomerManagementPage(customerInfo);
+  public createCustomerFromCustomerManagementPage = async (customerInfo: CustomerInfo) => await this.onboardingAdminPortalFlow.createCustomerFromCustomerManagementPage(customerInfo);
 
-  public validateReceivedOneEmail = async (partnerInfo: Partner) => this.tempEmailFreePage.validateReceivedOneEmail(partnerInfo);
+  public validateReceivedOneEmail = async (partnerInfo: Partner) => this.emailServicePage.validateReceivedOneEmail(partnerInfo);
 
-  public validateReceivedTwoEmails = async (partnerInfo: Partner) => this.tempEmailFreePage.validateReceivedTwoEmails(partnerInfo);
+  public validateReceivedTwoEmails = async (partnerInfo: Partner) => this.emailServicePage.validateReceivedTwoEmails(partnerInfo);
 
   public validatePlanVisible = async () => await this.onboardingPartnerPotalFlow.validatePlanVisible();
 
@@ -108,18 +106,18 @@ export class OnboardingFlow {
     await UiAssert.allVisible([homeTitle], { timeout: 30000 });
   };
 
-  public async verifyDuplicatedEmailWhenCreatingCustomer(customerInfo: CustomerInfo) {
+  public verifyDuplicatedEmailWhenSignUpCustomer = async (customerInfo: CustomerInfo) => {
     await this.onboardingMemberPotalFlow.fillDuplicatedEmailToSignUp(customerInfo);
-    const duplicatedEmailErrorLocator = this.page.locator(SignUpLocators.duplicatedEmailError);
+    const duplicatedEmailErrorLocator = this.page.locator(SignUpLocators.errorMessage.replace("errormessage", "An account with this email id already exists"));
 
     await UiAssert.allVisible([duplicatedEmailErrorLocator]);
-  }
+  };
 
-  public async verifyDuplicatedEmailWhenCreatingPartner(partnerInfo: Partner) {
+  public verifyDuplicatedEmailWhenCreatingPartner = async (partnerInfo: Partner) => {
     await this.onboardingAdminPortalFlow.getDuplicatedText(partnerInfo);
 
     await UiAssert.textContains(this.page.locator("body"), "Email is existed");
-  }
+  };
 
   public verifyFillingFormIsRequired = async (customerInfo: CustomerInfo) => await this.onboardingMemberPotalFlow.veriryFillingFormIsRequired(customerInfo);
 }

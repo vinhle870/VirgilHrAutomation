@@ -6,7 +6,7 @@ import { UiAssert } from "src/assertions";
 import { Locator } from "playwright/test";
 
 export class MemberPage extends BasePage {
-  public async fillInputOfTheFirstModalToSignUp(customerInfo: CustomerInfo, hasErrormessage = false) {
+  public fillInputOfTheFirstModalToSignUp = async (customerInfo: CustomerInfo, hasErrormessage = false) => {
     if (!hasErrormessage) await (await this.getLocator(MemberOnboardingLocators.signUpBtn)).click();
 
     const firstNameInputEl = await this.getLocator(SignUpLocators.firstNameInput);
@@ -20,9 +20,9 @@ export class MemberPage extends BasePage {
 
     const passwordInputEl = await this.getLocator(SignUpLocators.passwordInput);
     await passwordInputEl.fill(customerInfo.accountInfo.password!);
-  }
+  };
 
-  public async fillInputOfTheSeccondModalToSignUp(customerInfo: CustomerInfo, hasErrorMessage = false) {
+  public fillInputOfTheSeccondModalToSignUp = async (customerInfo: CustomerInfo, hasErrorMessage = false) => {
     if (!hasErrorMessage) await (await this.getLocator(SignUpLocators.createAccountBtn)).click();
 
     const phoneNumberInputEl = await this.getLocator(SignUpLocators.phoneNumberInput);
@@ -35,9 +35,9 @@ export class MemberPage extends BasePage {
     await companyInputEl.fill(customerInfo.company.companyName ?? "My company");
 
     await (await this.getLocator(MemberOnboardingLocators.signUpBtn)).click();
-  }
+  };
 
-  async fillFormToSignUp(customerInfo: CustomerInfo, hrSystem: string) {
+  public fillFormToSignUp = async (customerInfo: CustomerInfo, hrSystem: string) => {
     await this.fillInputOfTheFirstModalToSignUp(customerInfo);
 
     try {
@@ -47,9 +47,9 @@ export class MemberPage extends BasePage {
     }
 
     await this.fillInputOfTheSeccondModalToSignUp(customerInfo);
-  }
+  };
 
-  public async veriryFillingFormIsRequired(customerInfo: CustomerInfo) {
+  public veriryFillingFormIsRequired = async (customerInfo: CustomerInfo) => {
     const signUpBtnEl = await this.getLocator(MemberOnboardingLocators.signUpBtn);
     await signUpBtnEl.click();
 
@@ -60,7 +60,7 @@ export class MemberPage extends BasePage {
     const errorMessageLocatorsOfTheFirstModal: Locator[] = [];
 
     errorMessagesOfTheFirstModal.forEach(async (errorMessage) => {
-      errorMessageLocatorsOfTheFirstModal.push(await this.getLocator(SignUpLocators.missedField.replace("errormessage", errorMessage)));
+      errorMessageLocatorsOfTheFirstModal.push(await this.getLocator(SignUpLocators.errorMessage.replace("errormessage", errorMessage)));
     });
 
     await UiAssert.allVisible(errorMessageLocatorsOfTheFirstModal);
@@ -75,11 +75,11 @@ export class MemberPage extends BasePage {
     const errorMessageLocatorsOfTheSeccondtModal: Locator[] = [];
 
     errorMessagesOfTheSeccondModal.forEach(async (errorMessage) => {
-      errorMessageLocatorsOfTheSeccondtModal.push(await this.getLocator(SignUpLocators.missedField.replace("errormessage", errorMessage)));
+      errorMessageLocatorsOfTheSeccondtModal.push(await this.getLocator(SignUpLocators.errorMessage.replace("errormessage", errorMessage)));
     });
 
     await UiAssert.allVisible(errorMessageLocatorsOfTheSeccondtModal);
 
     await this.fillInputOfTheSeccondModalToSignUp(customerInfo, true);
-  }
+  };
 }

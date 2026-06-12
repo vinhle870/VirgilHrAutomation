@@ -66,7 +66,7 @@ test.describe("E2E -> Member portal", () => {
       const duplicateCustomerInfo = await DataFactory.customerBuilder().withEmail(customerInfo!.accountInfo.email!).withPassword("Password@123").build();
 
       await test.step("Verify duplicated email", async () => {
-        await onboardingFlow.verifyDuplicatedEmailWhenCreatingCustomer(duplicateCustomerInfo);
+        await onboardingFlow.verifyDuplicatedEmailWhenSignUpCustomer(duplicateCustomerInfo);
       });
     },
   );

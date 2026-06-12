@@ -8,6 +8,5 @@ export class SignUpLocators {
   public static readonly phoneNumberInput = "xpath=//input[@placeholder='Phone number']";
   public static readonly jobTitleInput = "xpath=//input[@placeholder='Job title']";
   public static readonly companyNameInput = "xpath=//input[@placeholder='Company name']";
-  public static readonly duplicatedEmailError = "xpath=//span[text()='An account with this email id already exists']";
-  public static readonly missedField = "xpath=//span[text()='errormessage']";
+  public static readonly errorMessage = "xpath=//span[text()='errormessage']";
 }

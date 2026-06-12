@@ -15,40 +15,36 @@ export class OnboardingAdminPortalFlow {
     this.customerManagementPage = new CustomerManagementPage(this.page);
   }
 
-  public async createPartnerAndAddPeo(partnerInfo: Partner, peoPartners?: PeoPartner, isAddPeo = false): Promise<void> {
+  public createPartnerAndAddPeo = async (partnerInfo: Partner, peoPartners?: PeoPartner, isAddPeo = false): Promise<void> => {
     await this.partnerManagementPage.accessToManagementPage("Partner");
 
     if (!isAddPeo) await this.partnerManagementPage.fillCreatePartnerForm(partnerInfo);
     else await this.fillFormToAddPeo(partnerInfo!, peoPartners!);
-  }
+  };
 
-  public async clickDetailButton(partner: Partner) {
-    await this.partnerManagementPage.clickDetailButton(partner);
-  }
+  public clickDetailButton = async (partner: Partner) => await this.partnerManagementPage.clickDetailButton(partner);
 
-  private async fillFormToAddPeo(partner: Partner, peoPartners: PeoPartner) {
+  private fillFormToAddPeo = async (partner: Partner, peoPartners: PeoPartner) => {
     await this.partnerManagementPage.clickDetailButton(partner);
 
     await this.partnerManagementPage.fillFormToAddPeo(peoPartners);
-  }
+  };
 
   public addCustomerMembersInPartManaPage = async (partner: Partner, invitedMembers: UserInfo[]) => await this.partnerManagementPage.addCustomerMembersInPartManaPage(partner, invitedMembers);
 
-  public async inviteCustomerMembersInCusManaPage(invitingMember: Partner | UserInfo | CustomerInfo, invitedMembers: UserInfo[]) {
+  public inviteCustomerMembersInCusManaPage = async (invitingMember: Partner | UserInfo | CustomerInfo, invitedMembers: UserInfo[]) => {
     await this.partnerManagementPage.accessToManagementPage("Customer");
 
     await this.partnerManagementPage.clickDetailButton(invitingMember);
 
     await this.customerManagementPage.inviteCustomerMembers(invitedMembers);
-  }
+  };
 
-  public async createCustomerFromCustomerManagementPage(customerInfo: CustomerInfo): Promise<void> {
+  public createCustomerFromCustomerManagementPage = async (customerInfo: CustomerInfo): Promise<void> => {
     await this.partnerManagementPage.accessToManagementPage("Member");
 
     await this.customerManagementPage.fillFormToCreateCustomer(customerInfo);
-  }
+  };
 
-  public async getDuplicatedText(partnerInfo: Partner) {
-    await this.partnerManagementPage.getDuplicatedText(partnerInfo);
-  }
+  public getDuplicatedText = async (partnerInfo: Partner) => await this.partnerManagementPage.getDuplicatedText(partnerInfo);
 }
