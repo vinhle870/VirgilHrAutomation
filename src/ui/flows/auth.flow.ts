@@ -4,8 +4,6 @@ import { TempEmailFreePage } from "../pages/shared-pages/tempemailfree.page";
 import { WelcomeModal } from "../pages/shared-pages/welome.modal";
 import { MemberOnboardingLocators } from "../pages/member-portal/locators";
 import { getEmailSubjectForDepartment } from "src/constant/department-data";
-import delay from "src/utilities/delay";
-import refreshPage from "src/utilities/refresh";
 /**
  * This flow class contains methods related to the authentication process, such as logging in with valid accounts, accepting invitations, activating accounts, and changing passwords.
  * Flows:
@@ -110,8 +108,7 @@ export class AuthFlow {
     await this.page.goto(credential.hrefValue!);
   }
 
-  public validateReceivedOneEmailForCreatingCustomer = async (email: string) =>
-    await this.tempEmailFreePage.validateReceivedOneEmailForCreatingCustomer(email);
+  public validateReceivedOneEmailForCreatingCustomer = async (email: string) => await this.tempEmailFreePage.validateReceivedOneEmailForCreatingCustomer(email);
 
   public validateTimeLimitedEmailForCreatingCustomer = async (email: string) => {
     const subject = "Verify your email address";

@@ -34,6 +34,7 @@ export class TempEmailFreePage extends BasePage {
     try {
       await this.openEmailBySubject(subject);
     } catch (error) {
+      await delay(10000);
       await this.registerNewEmail(email);
       await this.openEmailBySubject(subject);
     }
