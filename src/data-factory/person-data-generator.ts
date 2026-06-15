@@ -12,19 +12,16 @@ import UserInfo from "src/objects/user-info";
  */
 export class PersonDataGenerator {
   static async generate(overrides?: Partial<UserInfo>): Promise<UserInfo> {
-    const seq1 = DataGenerate.getRandomInt(1, 999);
+    const seq = DataGenerate.getRandomInt(1, 99999);
 
-    const firstName =
-      overrides?.firstName ?? (await DataGenerate.generateFirstName());
-    const localPrefix = overrides?.firstName ?? `${firstName}${seq1}`;
-    const email = overrides?.email ?? `${localPrefix}@polandcampus.edu.pl`;
-    const password = overrides?.password ?? `Pass@123`;
-    const lastName =
-      overrides?.lastName ?? (await DataGenerate.generateLastName());
-    const jobTitle =
-      overrides?.jobTitle ?? (await DataGenerate.generatejobTitle());
-    const phoneNumber =
-      overrides?.phoneNumber ?? (await DataGenerate.generatePhoneNumber());
+    const firstName = overrides?.firstName ?? (await DataGenerate.generateFirstName()) + `${seq}`;
+    const isBeeinbox = (process.env.MAILBOX_URL || "").includes("beeinbox");
+    const localPrefix = overrides?.firstName ?? (isBeeinbox ? `QATest_${seq}${firstName}`.slice(0, 15) : `${firstName}`);
+    const email = overrides?.email ?? (isBeeinbox ? `${localPrefix}@beeinbox.edu.pl` : `${localPrefix}@polandcampus.edu.pl`);
+    const password = overrides?.password ?? `Password@123`;
+    const lastName = overrides?.lastName ?? (await DataGenerate.generateLastName());
+    const jobTitle = overrides?.jobTitle ?? (await DataGenerate.generatejobTitle());
+    const phoneNumber = overrides?.phoneNumber ?? (await DataGenerate.generatePhoneNumber());
 
     return {
       email,

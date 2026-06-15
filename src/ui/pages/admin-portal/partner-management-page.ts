@@ -16,7 +16,7 @@ export class PartnerManagementPage extends BasePage {
     super(page);
   }
 
-  public async fillCreatePartnerForm(partnerInfo: Partner) {
+  public fillUserInfoToCreatePartner = async (partnerInfo: Partner) => {
     this.page.locator(CommonPartnerLocator.createNewPartnerButton).click({ timeout: 5000 });
 
     await delay(5000);
@@ -58,6 +58,18 @@ export class PartnerManagementPage extends BasePage {
 
     await jobTitleElement.fill(partnerInfo.accountInfo!.jobTitle);
 
+    await this.page.locator(CreateNewPartnerModalLocator.email).fill(partnerInfo.accountInfo!.email);
+  };
+
+  public getDuplicatedText = async (partnerInfo: Partner): Promise<void> => {
+    await this.fillUserInfoToCreatePartner(partnerInfo);
+
+    await this.page.locator(CreateNewPartnerModalLocator.createPartnerButton).click();
+  };
+
+  public fillCreatePartnerForm = async (partnerInfo: Partner) => {
+    await this.fillUserInfoToCreatePartner(partnerInfo);
+
     if (partnerInfo.partnerInfo!.paymentOption) {
       await this.page.locator(CreateNewPartnerModalLocator.paymentOption).scrollIntoViewIfNeeded();
 
@@ -82,8 +94,6 @@ export class PartnerManagementPage extends BasePage {
         throw new Error("Product type does not exist");
       }
     }
-
-    await this.page.locator(CreateNewPartnerModalLocator.email).fill(partnerInfo.accountInfo!.email);
 
     if (partnerInfo.partnerInfo!.bankTransfer === true && partnerInfo.partnerInfo!.paymentOption === "Partner/Consultant Owner") {
       await this.page.locator(CreateNewPartnerModalLocator.bankTransfer).scrollIntoViewIfNeeded();
@@ -112,9 +122,9 @@ export class PartnerManagementPage extends BasePage {
 
     if (partnerInfo.partnerInfo?.bankTransfer === true && partnerInfo.partnerInfo.paymentOption === "Partner/Consultant Owner")
       await this.page.locator(CreateNewPartnerModalLocator.confirmButton).click();
-  }
+  };
 
-  public async fillFormToAddPeo(peoPartners: PeoPartner[]) {
+  public fillFormToAddPeo = async (peoPartners: PeoPartner) => {
     const addPeoConsultantButtonEl = await this.getLocator(DetailOfPartnerLocator.addPeoConsultant_btn);
 
     await this.page.locator(DetailOfPartnerLocator.addPeoConsultant_btn).click();
@@ -145,52 +155,48 @@ export class PartnerManagementPage extends BasePage {
 
     const createButtonEl = this.page.locator(PeoConsultantAdditionLocator.createButton);
 
-    for (let i = 0; i < peoPartners.length; i++) {
-      if (i !== 0 && i < peoPartners.length - 1) await addPeoConsultantButtonEl.click();
+    await nameEl.fill(peoPartners.peoPartnerInfo?.name!);
 
-      await nameEl.fill(peoPartners[i].peoPartnerInfo?.name!);
+    await emailInputEl.fill(peoPartners.accountInfo?.email!);
 
-      await emailInputEl.fill(peoPartners[i].accountInfo?.email!);
+    await firstNameInputEl.fill(peoPartners.accountInfo?.firstName!);
 
-      await firstNameInputEl.fill(peoPartners[i].accountInfo?.firstName!);
+    await lastNameInputEl.fill(peoPartners.accountInfo?.lastName!);
 
-      await lastNameInputEl.fill(peoPartners[i].accountInfo?.lastName!);
+    await phoneNumberInputEl.fill(peoPartners.accountInfo?.phoneNumber!);
 
-      await phoneNumberInputEl.fill(peoPartners[i].accountInfo?.phoneNumber!);
+    await jobTitleInputEl.fill(peoPartners.accountInfo?.jobTitle!);
 
-      await jobTitleInputEl.fill(peoPartners[i].accountInfo?.jobTitle!);
+    if (peoPartners.peoPartnerInfo?.customBranding === true) await customBrandingEl.click();
 
-      if (peoPartners[i].peoPartnerInfo?.customBranding === true) await customBrandingEl.click();
+    if (peoPartners.peoPartnerInfo?.companyType === "Internal") await internalEl.click();
+    else await externalEl.click();
 
-      if (peoPartners[i].peoPartnerInfo?.companyType === "Internal") await internalEl.click();
-      else await externalEl.click();
+    if (peoPartners.peoPartnerInfo?.customBenefitsPlans === true) await customBenefitsPlanEl.click();
 
-      if (peoPartners[i].peoPartnerInfo?.customBenefitsPlans === true) await customBenefitsPlanEl.click();
+    if (peoPartners.peoPartnerInfo?.backURL !== "") await backURLEl.click();
 
-      if (peoPartners[i].peoPartnerInfo?.backURL !== "") await backURLEl.click();
+    if (peoPartners.peoPartnerInfo?.backText !== "") await backTextEl.click();
 
-      if (peoPartners[i].peoPartnerInfo?.backText !== "") await backTextEl.click();
+    await createButtonEl.click();
+  };
 
-      await createButtonEl.click();
-    }
-  }
-
-  public async clickDetailButton(user: Partner | UserInfo | CustomerInfo) {
+  public clickDetailButton = async (user: Partner | UserInfo | CustomerInfo) => {
     let userPhoneNumber;
 
     if (user instanceof Partner || user instanceof CustomerInfo) userPhoneNumber = user.accountInfo?.phoneNumber;
     else userPhoneNumber = user.phoneNumber;
 
-    console.log(user);
-
     const rawDetailLocator = CommonPartnerLocator.detailButton;
 
     const detailButtonLocator = rawDetailLocator.replace("phoneNumberValue", userPhoneNumber!);
 
-    await this.page.locator(detailButtonLocator).last().click({ timeout: 10000 });
-  }
+    await this.page.locator(detailButtonLocator).last().scrollIntoViewIfNeeded();
 
-  async filter(partFilterInfo: IPartnerFilter): Promise<string> {
+    await this.page.locator(detailButtonLocator).last().click({ timeout: 10000 });
+  };
+
+  public filter = async (partFilterInfo: IPartnerFilter): Promise<string> => {
     try {
       const filterButtonEl = await this.getLocator(CommonPartnerLocator.filterPartnerButton);
 
@@ -211,9 +217,9 @@ export class PartnerManagementPage extends BasePage {
     }
 
     return "Pass";
-  }
+  };
 
-  public async sorting(typeOfSorting: string): Promise<string> {
+  public sorting = async (typeOfSorting: string): Promise<string> => {
     try {
       const managementCategory = await this.getLocator(CommonAdminPortalLocator.managementCategory);
 
@@ -228,13 +234,11 @@ export class PartnerManagementPage extends BasePage {
       return "Failed";
     }
     return "Pass";
-  }
-
-  public getDuplicatedText = async (): Promise<Locator> => await this.getLocator(CreateNewPartnerModalLocator.duplicatedEmailText);
+  };
 
   public moveToManagementCategory = async () => await this.page.locator(CommonAdminPortalLocator.managementCategory).click();
 
-  public async accessToManagementPage(category = "Partner") {
+  public accessToManagementPage = async (category = "Partner") => {
     await this.moveToManagementCategory();
 
     if (category === "Partner") {
@@ -254,11 +258,11 @@ export class PartnerManagementPage extends BasePage {
         await customerManagementCategory.last().click({ timeout: 5000 });
       }
     }
-  }
+  };
 
-  public async addCustomerMembersInPartManaPage(partner: Partner, invitedMembers: UserInfo[]) {
+  public addCustomerMembersInPartManaPage = async (partner: Partner, invitedMembers: UserInfo[]) => {
     await this.clickDetailButton(partner);
 
     await this.page.locator(DetailOfPartnerLocator.addMemberButton).click();
-  }
+  };
 }

@@ -2,7 +2,7 @@ import { Page } from "playwright/test";
 import { CustomerInfo } from "src/objects";
 import { MemberPage } from "../..";
 
-export class OnboardingMemberPotalFlow {
+export class OnboardingMemberPortalFlow {
   private page: Page;
   private customerPage: MemberPage;
 
@@ -11,7 +11,7 @@ export class OnboardingMemberPotalFlow {
     this.customerPage = new MemberPage(this.page);
   }
 
-  public async signUp(customerInfo: CustomerInfo, hrSystem = "Does not apply") {
+  public signUp = async (customerInfo: CustomerInfo, hrSystem = "Does not apply") => {
     await this.page.goto(process.env.MEMBER_PORTAL_BASEURL!);
 
     await this.page.waitForLoadState("domcontentloaded");
@@ -23,5 +23,21 @@ export class OnboardingMemberPotalFlow {
     } catch {
       console.error("Duplicated email");
     }
-  }
+  };
+
+  public fillDuplicatedEmailToSignUp = async (customerInfo: CustomerInfo) => {
+    await this.page.goto(process.env.MEMBER_PORTAL_BASEURL!);
+
+    await this.page.waitForLoadState("domcontentloaded");
+
+    await this.customerPage.fillInputOfTheFirstModalToSignUp(customerInfo);
+  };
+
+  public veriryFillingFormIsRequired = async (customerInfo: CustomerInfo) => {
+    await this.page.goto(process.env.MEMBER_PORTAL_BASEURL!);
+
+    await this.page.waitForLoadState("domcontentloaded");
+
+    await this.customerPage.veriryFillingFormIsRequired(customerInfo);
+  };
 }

@@ -6,6 +6,7 @@ import { BusinessLocator } from "./locators/business";
 import { Partner, UserInfo } from "src/objects";
 import { CommonPartnerPortalLocator } from "./locators/common";
 import { BuyPlanLocators } from "../shared-pages/locators";
+import { plans } from "src/constant/static-data";
 
 export class PartnerPage extends BasePage {
   private readonly URL: string;
@@ -17,16 +18,17 @@ export class PartnerPage extends BasePage {
 
   public getAccountNotExist = () => this.page.locator(LoginFormLocators.validationMsg);
 
-  public async validateOwnerRoleInUserPage(email: string) {
+  public validateOwnerRoleInUserPage = async (email: string) => {
+    await this.eraseModal();
     const userPage = CommonPartnerPortalLocator.usersButton;
     this.page.locator(userPage).click({ timeout: 3000 });
 
     await expect(this.page.locator(ClientPartnerPortalLocators.role.replace("emailValue", email))).toBeVisible({ timeout: 5000 });
-  }
+  };
 
   public getPlanToBuy = async (plan: string): Promise<Locator> => this.page.locator(plan);
 
-  public async fillFormToCreateBusiness(partnerInfo: Partner, owner?: UserInfo) {
+  public fillFormToCreateBusiness = async (partnerInfo: Partner, owner?: UserInfo) => {
     await this.page.locator(CommonPartnerPortalLocator.clientButton).click({ timeout: 10000 });
 
     await this.page.locator(BusinessLocator.businessTab).click({ timeout: 10000 });
@@ -57,9 +59,9 @@ export class PartnerPage extends BasePage {
     await this.page.locator(BusinessLocator.viewButton).click({ timeout: 20000 });
 
     await this.page.locator(BusinessLocator.ownerText).waitFor({ state: "visible", timeout: 5000 });
-  }
+  };
 
-  public async eraseModal() {
+  public eraseModal = async () => {
     try {
       await this.page.locator(CommonPartnerPortalLocator.closeButton).click({ timeout: 7000 });
     } catch (error) {
@@ -77,16 +79,16 @@ export class PartnerPage extends BasePage {
     } catch (error) {
       console.log("There is no modal");
     }
-  }
+  };
 
-  public async validatePlanVisible() {
-    const plan = await this.getPlanToBuy(BuyPlanLocators.firstPlan);
+  public validatePlanVisible = async () => {
+    const plan = await this.getPlanToBuy(BuyPlanLocators.firstPlan.replace("plan_name", plans[0].trim()));
     await expect(plan).toBeVisible();
-  }
+  };
 
-  public async validateAccountNotExist() {
+  public validateAccountNotExist = async () => {
     const accountNotExist = this.getAccountNotExist();
 
     await expect(accountNotExist).toBeVisible();
-  }
+  };
 }

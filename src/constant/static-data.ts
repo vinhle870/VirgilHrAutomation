@@ -1,6 +1,4 @@
-import {
-  getPlansForDepartment,
-} from "./department-plans";
+import { getPlansForDepartment } from "./department-data";
 
 const validCardInfo = {
   cardNumber: "4242 4242 4242 4242",
@@ -39,12 +37,4 @@ const localHR = "6891c8c2b34bb84b18eae816";
 
 const plans = getPlansForDepartment();
 
-export {
-  validCardInfo,
-  inValidCardInfo,
-  validIndustry,
-  validCountry,
-  paymentOptions,
-  localHR,
-  plans,
-};
+export { validCardInfo, inValidCardInfo, validIndustry, validCountry, paymentOptions, localHR, plans };

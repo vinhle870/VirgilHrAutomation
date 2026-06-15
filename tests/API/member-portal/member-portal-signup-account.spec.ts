@@ -11,44 +11,272 @@ test.describe(
     tag: ["@API", "@Member Portal", "@Sign Up", "@Consumer"],
   },
   () => {
-  test("TC001_API_Verify the API POST v1/Consumer/Consumers Without PartnerID returns 201-Created",
-    {
-      tag: [
-        "@TC001",
-        "@API",
-        "@Member Portal",
-        "@Sign Up",
-        "@Consumer",
-      ],
-    },
-    async ({
-    memberPortalService,
-    apiClient,
-    authenticationService,
-  }) => {
-    let consumerData!: Awaited<
-      ReturnType<ReturnType<typeof DataFactory.customerBuilder>["build"]>
-    >;
+    test(
+      "TC001_API_Verify the API POST v1/Consumer/Consumers Without PartnerID returns 201-Created",
+      {
+        tag: ["@TC001", "@API", "@Member Portal", "@Sign Up", "@Consumer"],
+      },
+      async ({ memberPortalService, apiClient, authenticationService }) => {
+        let consumerData!: Awaited<ReturnType<ReturnType<typeof DataFactory.customerBuilder>["build"]>>;
 
-    await test.step("Pre-condition: Build consumer payload", async () => {
-      const adminService = await AdminPortalService.create(
-        apiClient,
-        authenticationService,
-      );
-      const testData = new TestDataProvider(adminService);
-      const departmentID = await testData.getDepartmentId(
-        process.env.DEPARTMENT_NAME,
-      );
+        await test.step("Pre-condition: Build consumer payload", async () => {
+          const adminService = await AdminPortalService.create(apiClient, authenticationService);
+          const testData = new TestDataProvider(adminService);
+          const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
 
-      consumerData = await DataFactory.customerBuilder()
-        .forMemberPortal()
-        .withDepartment(departmentID)
-        .build();
-    });
+          consumerData = await DataFactory.customerBuilder().forMemberPortal().withDepartment(departmentID).build();
+        });
 
-    await test.step(
-      "POST v1/Consumer/Consumers and verify 201-Created response",
-      async () => {
+        await test.step("POST v1/Consumer/Consumers and verify 201-Created response", async () => {
+          const resp = await memberPortalService.signUpConsumer(consumerData);
+
+          expect(resp).toBeTruthy();
+          if (typeof (resp as any) === "string") {
+            expect((resp as any).length).toBeGreaterThan(0);
+          } else {
+            expect(Object.keys(resp as any).length).toBeGreaterThan(0);
+          }
+        });
+      },
+    );
+
+    test(
+      "TC007_API_Verify the API GET Payment/products returns 200-OK and the correct Plans list",
+      {
+        tag: ["@TC007", "@API", "@Member Portal", "@Payment", "@Plans"],
+      },
+      async ({ memberPortalService, authenticationService, apiClient }) => {
+        let consumerData!: Awaited<ReturnType<ReturnType<typeof DataFactory.customerBuilder>["build"]>>;
+        let customerAccountInfo: unknown;
+
+        await test.step("Pre-condition: Build consumer payload", async () => {
+          const adminService = await AdminPortalService.create(apiClient, authenticationService);
+          const testData = new TestDataProvider(adminService);
+          const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
+
+          consumerData = await DataFactory.customerBuilder().forMemberPortal().withDepartment(departmentID).build();
+          customerAccountInfo = consumerData.accountInfo;
+        });
+
+        const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+
+        await test.step("Sign up consumer, activate account, and obtain token", async () => {
+          await memberPortalService.signUpConsumer(consumerData);
+
+          await authenticationService.resetPasswordWithoutToken({ username: (customerAccountInfo as any).email, password: tempPassword }, undefined, "4");
+
+          await authenticationService.confirmEmailWithoutToken((customerAccountInfo as any).email, undefined, "4");
+        });
+
+        await test.step("GET Payment/products and verify plans list", async () => {
+          const consumerToken = await authenticationService.getAuthToken((customerAccountInfo as any).email, tempPassword, "4");
+
+          const plansResp = await memberPortalService.getPlansList(consumerData.company.departmentId!, consumerToken);
+
+          expect(plansResp).toBeDefined();
+          expect(typeof plansResp).toBe("object");
+          expect(Array.isArray(plansResp as any)).toBeTruthy();
+          expect(Object.keys(plansResp as any).length).toBeGreaterThan(0);
+          expect((plansResp as any)[0].name).not.toBe("");
+          expect((plansResp as any)[0].description).not.toBe("");
+          expect((plansResp as any)[0].companySize).not.toBe("");
+          expect(typeof (plansResp as any)[0].freeTrialAllowed).toBe("boolean");
+          expect(Array.isArray((plansResp as any)[0].benefits)).toBeTruthy();
+          expect(Object.keys((plansResp as any)[0].benefits).length).toBeGreaterThan(0);
+          expect((plansResp as any)[0].benefits[0].benefit).not.toBe("");
+          expect((plansResp as any)[0].benefits[0].benefitKey).not.toBe("");
+          expect(typeof (plansResp as any)[0].benefits[0].requiredPayment).toBe("boolean");
+          expect(typeof (plansResp as any)[0].benefits[0].isSame).toBe("boolean");
+        });
+      },
+    );
+
+    test(
+      "TC008_API_GET_v1/Payment/checkout return 200-OK with correct URL",
+      {
+        tag: ["@TC008", "@API", "@Member Portal", "@Payment", "@Checkout"],
+      },
+      async ({ memberPortalService, authenticationService, apiClient }, testInfo) => {
+        let consumerData!: Awaited<ReturnType<ReturnType<typeof DataFactory.customerBuilder>["build"]>>;
+        let customerAccountInfo: unknown;
+
+        await test.step("Pre-condition: Build consumer payload", async () => {
+          const adminService = await AdminPortalService.create(apiClient, authenticationService);
+          const testData = new TestDataProvider(adminService);
+          const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
+
+          consumerData = await DataFactory.customerBuilder().forMemberPortal().withDepartment(departmentID).build();
+          customerAccountInfo = consumerData.accountInfo;
+        });
+
+        const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+
+        let consumerToken: string;
+
+        await test.step("Sign up consumer, activate account, and obtain token", async () => {
+          await memberPortalService.signUpConsumer(consumerData);
+
+          await authenticationService.resetPasswordWithoutToken({ username: (customerAccountInfo as any).email, password: tempPassword }, undefined, "4");
+
+          await authenticationService.confirmEmailWithoutToken((customerAccountInfo as any).email, undefined, "4");
+
+          consumerToken = await authenticationService.getAuthToken((customerAccountInfo as any).email, tempPassword, "4");
+
+          expect(consumerToken).toBeDefined();
+          expect(typeof consumerToken).toBe("string");
+          expect(consumerToken.length).toBeGreaterThan(10);
+        });
+
+        await test.step("GET v1/Payment/checkout and verify return URL", async () => {
+          const planResponse = await memberPortalService.checkOutPlan("1", consumerToken);
+
+          const memberPortalBaseUrl = process.env.MEMBER_PORTAL_BASEURL;
+          if (!memberPortalBaseUrl) {
+            testInfo.skip(true, "MEMBER_PORTAL_BASEURL is not configured");
+            return;
+          }
+          const returnUrl = new URL(memberPortalBaseUrl);
+          expect(planResponse).toBeDefined();
+          expect(typeof planResponse).toBe("object");
+          expect(Object.keys(planResponse as any).length).toBeGreaterThan(0);
+          expect((planResponse as any).returnUrl).toContain(returnUrl.toString());
+        });
+      },
+    );
+
+    test(
+      "TC012_API_Verify GET Payment/Status returns 200-OK with correct status",
+      {
+        tag: ["@TC012", "@API", "@Member Portal", "@Payment", "@Status"],
+      },
+      async ({ memberPortalService, authenticationService, purchaseFlow, authFlow, apiClient }, testInfo) => {
+        const env = process.env.ENV;
+
+        testInfo.skip(env === "prod", "This test is not suitable for production environment");
+
+        let consumerData!: Awaited<ReturnType<ReturnType<typeof DataFactory.customerBuilder>["build"]>>;
+        let customerAccountInfo: unknown;
+        let planName: string;
+
+        await test.step("Pre-condition: Build consumer payload", async () => {
+          const adminService = await AdminPortalService.create(apiClient, authenticationService);
+          const testData = new TestDataProvider(adminService);
+          const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
+
+          consumerData = await DataFactory.customerBuilder().forMemberPortal().withDepartment(departmentID).build();
+          customerAccountInfo = consumerData.accountInfo;
+          planName = consumerData.plan;
+        });
+
+        const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+
+        let consumerToken: string;
+
+        await test.step("Sign up consumer, activate account, and obtain token", async () => {
+          await memberPortalService.signUpConsumer(consumerData);
+
+          await authenticationService.resetPasswordWithoutToken({ username: (customerAccountInfo as any).email, password: tempPassword }, undefined, "4");
+
+          await authenticationService.confirmEmailWithoutToken((customerAccountInfo as any).email, undefined, "4");
+
+          consumerToken = await authenticationService.getAuthToken((customerAccountInfo as any).email, tempPassword, "4");
+        });
+
+        await test.step("Checkout plan and complete payment (UI)", async () => {
+          const planResponse = await memberPortalService.checkOutPlan("1", consumerToken);
+
+          const planUrl = String((planResponse as any).returnUrl);
+
+          await authFlow.loginWithValidAccount(planUrl, (customerAccountInfo as any).email, tempPassword);
+
+          await purchaseFlow.buyPlanByCustomer(planUrl, (customerAccountInfo as any).email, planName);
+        });
+
+        await test.step("Verify GET Payment/subscription/me", async () => {
+          const consumerToken_2 = await authenticationService.getAuthToken((customerAccountInfo as any).email, tempPassword, "4");
+
+          const paymentSubscriptionResp = await memberPortalService.getPaymentSubscription(consumerToken_2);
+          expect(paymentSubscriptionResp).toBeDefined();
+          expect(typeof paymentSubscriptionResp).toBe("object");
+          expect((paymentSubscriptionResp as any).main).toBeDefined();
+          expect((paymentSubscriptionResp as any).handbookBuilder).toBeDefined();
+          expect((paymentSubscriptionResp as any).lms).toBeDefined();
+          expect((paymentSubscriptionResp as any).main.name).toContain(planName);
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("productType");
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("quantity");
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("productType");
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("price");
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("discount");
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("startDate");
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("endDate");
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("contractStartDate");
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("contractEndDate");
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("remainingDays");
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("planId");
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("isTrial");
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("isCanceled");
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("isPaymentLate");
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("cancelAtPeriodEnd");
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("canceledBy");
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("canceledDate");
+          expect((paymentSubscriptionResp as any).main).toHaveProperty("cancellationReason");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("name");
+          expect((paymentSubscriptionResp as any).handbookBuilder.name).toContain(planName);
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("productType");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("quantity");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("price");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("discount");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("startDate");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("endDate");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("contractStartDate");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("contractEndDate");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("remainingDays");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("isTrial");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("isCanceled");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("isPaymentLate");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("cancelAtPeriodEnd");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("canceledBy");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("canceledDate");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("cancellationReason");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("planId");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("currentPlan");
+          expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty("rootPlan");
+          expect(paymentSubscriptionResp as any).toHaveProperty("lms");
+
+          //****-----------------------------------------------------------------*****
+        });
+      },
+    );
+
+    test("TC014_UI_Verify that after a successful payment, the system automatically redirects the user to the Virgil homepage", async ({
+      memberPortalService,
+      authenticationService,
+      authFlow,
+      purchaseFlow,
+      apiClient,
+      page,
+    }, testInfo) => {
+      const env = process.env.ENV;
+
+      testInfo.skip(env === "prod", "This test is not suitable for production environment");
+
+      let consumerData!: Awaited<ReturnType<ReturnType<typeof DataFactory.customerBuilder>["build"]>>;
+      let customerAccountInfo: unknown;
+
+      await test.step("Pre-condition: Build consumer payload", async () => {
+        const adminService = await AdminPortalService.create(apiClient, authenticationService);
+        const testData = new TestDataProvider(adminService);
+        const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
+
+        consumerData = await DataFactory.customerBuilder().forMemberPortal().withDepartment(departmentID).build();
+        customerAccountInfo = consumerData.accountInfo;
+      });
+
+      const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+
+      let consumerToken: string;
+
+      await test.step("Sign up consumer, activate account, token, and GET Payment/products", async () => {
         const resp = await memberPortalService.signUpConsumer(consumerData);
 
         expect(resp).toBeTruthy();
@@ -57,175 +285,32 @@ test.describe(
         } else {
           expect(Object.keys(resp as any).length).toBeGreaterThan(0);
         }
-      },
-    );
-  });
 
-  test("TC007_API_Verify the API GET Payment/products returns 200-OK and the correct Plans list",
-    {
-      tag: [
-        "@TC007",
-        "@API",
-        "@Member Portal",
-        "@Payment",
-        "@Plans",
-      ],
-    },
-    async ({
-    memberPortalService,
-    authenticationService,
-    apiClient,
-  }) => {
-    let consumerData!: Awaited<
-      ReturnType<ReturnType<typeof DataFactory.customerBuilder>["build"]>
-    >;
-    let customerAccountInfo: unknown;
+        const resetResp = await authenticationService.resetPasswordWithoutToken({ username: (customerAccountInfo as any).email, password: tempPassword }, undefined, "4");
 
-    await test.step("Pre-condition: Build consumer payload", async () => {
-      const adminService = await AdminPortalService.create(
-        apiClient,
-        authenticationService,
-      );
-      const testData = new TestDataProvider(adminService);
-      const departmentID = await testData.getDepartmentId(
-        process.env.DEPARTMENT_NAME,
-      );
+        await authenticationService.confirmEmailWithoutToken((customerAccountInfo as any).email, undefined, "4");
 
-      consumerData = await DataFactory.customerBuilder()
-        .forMemberPortal()
-        .withDepartment(departmentID)
-        .build();
-      customerAccountInfo = consumerData.accountInfo;
-    });
+        expect(resetResp).toBeDefined();
+        expect(typeof resetResp).toBe("boolean");
 
-    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
-
-    await test.step(
-      "Sign up consumer, activate account, and obtain token",
-      async () => {
-        await memberPortalService.signUpConsumer(consumerData);
-
-        await authenticationService.resetPasswordWithoutToken(
-          { username: (customerAccountInfo as any).email, password: tempPassword },
-          undefined,
-          "4",
-        );
-
-        await authenticationService.confirmEmailWithoutToken(
-          (customerAccountInfo as any).email,
-          undefined,
-          "4",
-        );
-      },
-    );
-
-    await test.step("GET Payment/products and verify plans list", async () => {
-      const consumerToken = await authenticationService.getAuthToken(
-        (customerAccountInfo as any).email,
-        tempPassword,
-        "4",
-      );
-
-      const plansResp = await memberPortalService.getPlansList(
-        consumerData.company.departmentId!,
-        consumerToken,
-      );
-
-      expect(plansResp).toBeDefined();
-      expect(typeof plansResp).toBe("object");
-      expect(Array.isArray(plansResp as any)).toBeTruthy();
-      expect(Object.keys(plansResp as any).length).toBeGreaterThan(0);
-      expect((plansResp as any)[0].name).not.toBe("");
-      expect((plansResp as any)[0].description).not.toBe("");
-      expect((plansResp as any)[0].companySize).not.toBe("");
-      expect(typeof (plansResp as any)[0].freeTrialAllowed).toBe("boolean");
-      expect(Array.isArray((plansResp as any)[0].benefits)).toBeTruthy();
-      expect(Object.keys((plansResp as any)[0].benefits).length).toBeGreaterThan(0);
-      expect((plansResp as any)[0].benefits[0].benefit).not.toBe("");
-      expect((plansResp as any)[0].benefits[0].benefitKey).not.toBe("");
-      expect(typeof (plansResp as any)[0].benefits[0].requiredPayment).toBe("boolean");
-      expect(typeof (plansResp as any)[0].benefits[0].isSame).toBe("boolean");
-
-    });
-  });
-
-  test("TC008_API_GET_v1/Payment/checkout return 200-OK with correct URL",
-    {
-      tag: [
-        "@TC008",
-        "@API",
-        "@Member Portal",
-        "@Payment",
-        "@Checkout",
-      ],
-    },
-    async ({
-    memberPortalService,
-    authenticationService,
-    apiClient,
-  }, testInfo) => {
-    let consumerData!: Awaited<
-      ReturnType<ReturnType<typeof DataFactory.customerBuilder>["build"]>
-    >;
-    let customerAccountInfo: unknown;
-
-    await test.step("Pre-condition: Build consumer payload", async () => {
-      const adminService = await AdminPortalService.create(
-        apiClient,
-        authenticationService,
-      );
-      const testData = new TestDataProvider(adminService);
-      const departmentID = await testData.getDepartmentId(
-        process.env.DEPARTMENT_NAME,
-      );
-
-      consumerData = await DataFactory.customerBuilder()
-        .forMemberPortal()
-        .withDepartment(departmentID)
-        .build();
-      customerAccountInfo = consumerData.accountInfo;
-    });
-
-    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
-
-    let consumerToken: string;
-
-    await test.step(
-      "Sign up consumer, activate account, and obtain token",
-      async () => {
-        await memberPortalService.signUpConsumer(consumerData);
-
-        await authenticationService.resetPasswordWithoutToken(
-          { username: (customerAccountInfo as any).email, password: tempPassword },
-          undefined,
-          "4",
-        );
-
-        await authenticationService.confirmEmailWithoutToken(
-          (customerAccountInfo as any).email,
-          undefined,
-          "4",
-        );
-
-        consumerToken = await authenticationService.getAuthToken(
-          (customerAccountInfo as any).email,
-          tempPassword,
-          "4",
-        );
+        consumerToken = await authenticationService.getAuthToken((customerAccountInfo as any).email, tempPassword, "4");
 
         expect(consumerToken).toBeDefined();
         expect(typeof consumerToken).toBe("string");
         expect(consumerToken.length).toBeGreaterThan(10);
-      },
-    );
 
-    await test.step(
-      "GET v1/Payment/checkout and verify return URL",
-      async () => {
-        const planResponse = await memberPortalService.checkOutPlan(
-          "1",
-          consumerToken,
-        );
+        const plansResp = await memberPortalService.getPlansList(consumerData.company.departmentId!, consumerToken);
+
+        expect(plansResp).toBeDefined();
+        expect(typeof plansResp).toBe("object");
+        expect(Array.isArray(plansResp as any)).toBeTruthy();
+        expect(Object.keys(plansResp as any).length).toEqual(6);
+      });
+
+      let planResponse: Awaited<ReturnType<typeof memberPortalService.checkOutPlan>>;
+
+      await test.step("GET v1/Payment/checkout and verify return URL", async () => {
+        planResponse = await memberPortalService.checkOutPlan("1", consumerToken);
 
         const memberPortalBaseUrl = process.env.MEMBER_PORTAL_BASEURL;
         if (!memberPortalBaseUrl) {
@@ -237,680 +322,214 @@ test.describe(
         expect(typeof planResponse).toBe("object");
         expect(Object.keys(planResponse as any).length).toBeGreaterThan(0);
         expect((planResponse as any).returnUrl).toContain(returnUrl.toString());
-      },
-    );
-  });
+      });
 
-  test("TC012_API_Verify GET Payment/Status returns 200-OK with correct status",
-    {
-      tag: [
-        "@TC012",
-        "@API",
-        "@Member Portal",
-        "@Payment",
-        "@Status",
-      ],
-    },
-    async ({
-    memberPortalService,
-    authenticationService,
-    purchaseFlow,
-    authFlow,
-    apiClient,
-  }, testInfo) => {
-    const env   = process.env.ENV;
-
-    testInfo.skip(env === "prod", "This test is not suitable for production environment");
-
-    let consumerData!: Awaited<
-      ReturnType<ReturnType<typeof DataFactory.customerBuilder>["build"]>
-    >;
-    let customerAccountInfo: unknown;
-    let planName: string;
-
-    await test.step("Pre-condition: Build consumer payload", async () => {
-      const adminService = await AdminPortalService.create(
-        apiClient,
-        authenticationService,
-      );
-      const testData = new TestDataProvider(adminService);
-      const departmentID = await testData.getDepartmentId(
-        process.env.DEPARTMENT_NAME,
-      );
-
-      consumerData = await DataFactory.customerBuilder()
-        .forMemberPortal()
-        .withDepartment(departmentID)
-        .build();
-      customerAccountInfo = consumerData.accountInfo;
-      planName = consumerData.plan;
-    });
-
-    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
-
-    let consumerToken: string;
-
-    await test.step(
-      "Sign up consumer, activate account, and obtain token",
-      async () => {
-        await memberPortalService.signUpConsumer(consumerData);
-
-        await authenticationService.resetPasswordWithoutToken(
-          { username: (customerAccountInfo as any).email, password: tempPassword },
-          undefined,
-          "4",
-        );
-
-        await authenticationService.confirmEmailWithoutToken(
-          (customerAccountInfo as any).email,
-          undefined,
-          "4",
-        );
-
-        consumerToken = await authenticationService.getAuthToken(
-          (customerAccountInfo as any).email,
-          tempPassword,
-          "4",
-        );
-      },
-    );
-
-    await test.step(
-      "Checkout plan and complete payment (UI)",
-      async () => {
-        const planResponse = await memberPortalService.checkOutPlan(
-          "1",
-          consumerToken,
-        );
-
+      await test.step("Complete payment and verify redirect to Virgil home", async () => {
         const planUrl = String((planResponse as any).returnUrl);
 
-        await authFlow.loginWithValidAccount(
-          planUrl,
-          (customerAccountInfo as any).email,
-          tempPassword,
-        );
+        await authFlow.loginWithValidAccount(planUrl, (customerAccountInfo as any).email, tempPassword);
 
-        await purchaseFlow.buyPlanByCustomer(
-          planUrl,
-          (customerAccountInfo as any).email,
-          planName
-        );
-      },
-    );
-
-    await test.step(
-      "Verify GET Payment/subscription/me",
-      async () => {
-        const consumerToken_2 = await authenticationService.getAuthToken(
-          (customerAccountInfo as any).email,
-          tempPassword,
-          "4",
-        );
-
-        const paymentSubscriptionResp =
-          await memberPortalService.getPaymentSubscription(consumerToken_2);
-    expect(paymentSubscriptionResp).toBeDefined();
-    expect(typeof paymentSubscriptionResp).toBe("object");
-    expect((paymentSubscriptionResp as any).main).toBeDefined();
-    expect((paymentSubscriptionResp as any).handbookBuilder).toBeDefined();
-    expect((paymentSubscriptionResp as any).lms).toBeDefined();
-    expect((paymentSubscriptionResp as any).main.name).toContain(planName);
-    expect((paymentSubscriptionResp as any).main).toHaveProperty("productType");
-    expect((paymentSubscriptionResp as any).main).toHaveProperty("quantity");
-    expect((paymentSubscriptionResp as any).main).toHaveProperty("productType");
-    expect((paymentSubscriptionResp as any).main).toHaveProperty("price");
-    expect((paymentSubscriptionResp as any).main).toHaveProperty("discount");
-    expect((paymentSubscriptionResp as any).main).toHaveProperty("startDate");
-    expect((paymentSubscriptionResp as any).main).toHaveProperty("endDate");
-    expect((paymentSubscriptionResp as any).main).toHaveProperty(
-      "contractStartDate",
-    );
-    expect((paymentSubscriptionResp as any).main).toHaveProperty(
-      "contractEndDate",
-    );
-    expect((paymentSubscriptionResp as any).main).toHaveProperty(
-      "remainingDays",
-    );
-    expect((paymentSubscriptionResp as any).main).toHaveProperty("planId");
-    expect((paymentSubscriptionResp as any).main).toHaveProperty("isTrial");
-    expect((paymentSubscriptionResp as any).main).toHaveProperty("isCanceled");
-    expect((paymentSubscriptionResp as any).main).toHaveProperty(
-      "isPaymentLate",
-    );
-    expect((paymentSubscriptionResp as any).main).toHaveProperty(
-      "cancelAtPeriodEnd",
-    );
-    expect((paymentSubscriptionResp as any).main).toHaveProperty("canceledBy");
-    expect((paymentSubscriptionResp as any).main).toHaveProperty(
-      "canceledDate",
-    );
-    expect((paymentSubscriptionResp as any).main).toHaveProperty(
-      "cancellationReason",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "name",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder.name).toContain(
-      planName,
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "productType",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "quantity",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "price",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "discount",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "startDate",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "endDate",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "contractStartDate",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "contractEndDate",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "remainingDays",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "isTrial",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "isCanceled",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "isPaymentLate",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "cancelAtPeriodEnd",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "canceledBy",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "canceledDate",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "cancellationReason",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "planId",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "currentPlan",
-    );
-    expect((paymentSubscriptionResp as any).handbookBuilder).toHaveProperty(
-      "rootPlan",
-    );
-    expect((paymentSubscriptionResp as any)).toHaveProperty("lms");
-
-    //****-----------------------------------------------------------------*****
-      },
-    );
-  });
-
-  test("TC014_UI_Verify that after a successful payment, the system automatically redirects the user to the Virgil homepage", async ({
-    memberPortalService,
-    authenticationService,
-    authFlow,
-    purchaseFlow,
-    apiClient,
-    page,
-  }, testInfo) => {
-    const env   = process.env.ENV;
-
-    testInfo.skip(env === "prod", "This test is not suitable for production environment");
-
-    let consumerData!: Awaited<
-      ReturnType<ReturnType<typeof DataFactory.customerBuilder>["build"]>
-    >;
-    let customerAccountInfo: unknown;
-
-    await test.step("Pre-condition: Build consumer payload", async () => {
-      const adminService = await AdminPortalService.create(
-        apiClient,
-        authenticationService,
-      );
-      const testData = new TestDataProvider(adminService);
-      const departmentID = await testData.getDepartmentId(
-        process.env.DEPARTMENT_NAME,
-      );
-
-      consumerData = await DataFactory.customerBuilder()
-        .forMemberPortal()
-        .withDepartment(departmentID)
-        .build();
-      customerAccountInfo = consumerData.accountInfo;
-    });
-
-    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
-
-    let consumerToken: string;
-
-    await test.step(
-      "Sign up consumer, activate account, token, and GET Payment/products",
-      async () => {
-        const resp = await memberPortalService.signUpConsumer(consumerData);
-
-        expect(resp).toBeTruthy();
-        if (typeof (resp as any) === "string") {
-          expect((resp as any).length).toBeGreaterThan(0);
-        } else {
-          expect(Object.keys(resp as any).length).toBeGreaterThan(0);
-        }
-
-        const resetResp = await authenticationService.resetPasswordWithoutToken(
-          { username: (customerAccountInfo as any).email, password: tempPassword },
-          undefined,
-          "4",
-        );
-
-        await authenticationService.confirmEmailWithoutToken(
-          (customerAccountInfo as any).email,
-          undefined,
-          "4",
-        );
-
-        expect(resetResp).toBeDefined();
-        expect(typeof resetResp).toBe("boolean");
-
-        consumerToken = await authenticationService.getAuthToken(
-          (customerAccountInfo as any).email,
-          tempPassword,
-          "4",
-        );
-
-        expect(consumerToken).toBeDefined();
-        expect(typeof consumerToken).toBe("string");
-        expect(consumerToken.length).toBeGreaterThan(10);
-
-        const plansResp = await memberPortalService.getPlansList(
-          consumerData.company.departmentId!,
-          consumerToken,
-        );
-
-        expect(plansResp).toBeDefined();
-        expect(typeof plansResp).toBe("object");
-        expect(Array.isArray(plansResp as any)).toBeTruthy();
-        expect(Object.keys(plansResp as any).length).toEqual(6);
-      },
-    );
-
-    let planResponse: Awaited<
-      ReturnType<typeof memberPortalService.checkOutPlan>
-    >;
-
-    await test.step("GET v1/Payment/checkout and verify return URL", async () => {
-      planResponse = await memberPortalService.checkOutPlan(
-        "1",
-        consumerToken,
-      );
-
-      const memberPortalBaseUrl = process.env.MEMBER_PORTAL_BASEURL;
-      if (!memberPortalBaseUrl) {
-        testInfo.skip(true, "MEMBER_PORTAL_BASEURL is not configured");
-        return;
-      }
-      const returnUrl = new URL(memberPortalBaseUrl);
-      expect(planResponse).toBeDefined();
-      expect(typeof planResponse).toBe("object");
-      expect(Object.keys(planResponse as any).length).toBeGreaterThan(0);
-      expect((planResponse as any).returnUrl).toContain(returnUrl.toString());
-    });
-
-    await test.step(
-      "Complete payment and verify redirect to Virgil home",
-      async () => {
-        const planUrl = String((planResponse as any).returnUrl);
-
-        await authFlow.loginWithValidAccount(
-          planUrl,
-          (customerAccountInfo as any).email,
-          tempPassword,
-        );
-
-        await purchaseFlow.buyPlanByCustomer(
-          planUrl,
-          (customerAccountInfo as any).email,
-          consumerData.plan
-        );
+        await purchaseFlow.buyPlanByCustomer(planUrl, (customerAccountInfo as any).email, consumerData.plan);
 
         const urlRegex = new RegExp(`.*/home$`);
         expect(page.url()).toMatch(urlRegex);
-      },
-    );
-  });
-
-  test("TC015_API_Verify GET Plan/me returns 200-OK and correct paid plan details",
-    {
-      tag: [
-        "@TC015",
-        "@API",
-        "@Member Portal",
-        "@Plan",
-        "@Subscription",
-      ],
-    },
-    async ({
-    memberPortalService,
-    authenticationService,
-    authFlow,
-    purchaseFlow,
-    apiClient,
-  }, testInfo) => {
-    const env   = process.env.ENV;
-
-    testInfo.skip(env === "prod", "This test is not suitable for production environment");
-
-    let consumerData!: Awaited<
-      ReturnType<ReturnType<typeof DataFactory.customerBuilder>["build"]>
-    >;
-    let customerAccountInfo: unknown;
-
-    await test.step("Pre-condition: Build consumer payload", async () => {
-      const adminService = await AdminPortalService.create(
-        apiClient,
-        authenticationService,
-      );
-      const testData = new TestDataProvider(adminService);
-      const departmentID = await testData.getDepartmentId(
-        process.env.DEPARTMENT_NAME,
-      );
-
-      consumerData = await DataFactory.customerBuilder()
-        .forMemberPortal()
-        .withDepartment(departmentID)
-        .build();
-      customerAccountInfo = consumerData.accountInfo;
+      });
     });
 
-    const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
+    test(
+      "TC015_API_Verify GET Plan/me returns 200-OK and correct paid plan details",
+      {
+        tag: ["@TC015", "@API", "@Member Portal", "@Plan", "@Subscription"],
+      },
+      async ({ memberPortalService, authenticationService, authFlow, purchaseFlow, apiClient }, testInfo) => {
+        const env = process.env.ENV;
 
-    let consumerToken: string;
+        testInfo.skip(env === "prod", "This test is not suitable for production environment");
 
-    await test.step(
-      "Sign up consumer, activate account, and obtain token",
-      async () => {
-        const resp = await memberPortalService.signUpConsumer(consumerData);
+        let consumerData!: Awaited<ReturnType<ReturnType<typeof DataFactory.customerBuilder>["build"]>>;
+        let customerAccountInfo: unknown;
 
-        expect(resp).toBeTruthy();
-        if (typeof (resp as any) === "string") {
-          expect((resp as any).length).toBeGreaterThan(0);
-        } else {
-          expect(Object.keys(resp as any).length).toBeGreaterThan(0);
-        }
+        await test.step("Pre-condition: Build consumer payload", async () => {
+          const adminService = await AdminPortalService.create(apiClient, authenticationService);
+          const testData = new TestDataProvider(adminService);
+          const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
 
-        await authenticationService.resetPasswordWithoutToken(
-          { username: (customerAccountInfo as any).email, password: tempPassword },
-          undefined,
-          "4",
-        );
+          consumerData = await DataFactory.customerBuilder().forMemberPortal().withDepartment(departmentID).build();
+          customerAccountInfo = consumerData.accountInfo;
+        });
 
-        await authenticationService.confirmEmailWithoutToken(
-          (customerAccountInfo as any).email,
-          undefined,
-          "4",
-        );
+        const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
-        consumerToken = await authenticationService.getAuthToken(
-          (customerAccountInfo as any).email,
-          tempPassword,
-          "4",
-        );
+        let consumerToken: string;
+
+        await test.step("Sign up consumer, activate account, and obtain token", async () => {
+          const resp = await memberPortalService.signUpConsumer(consumerData);
+
+          expect(resp).toBeTruthy();
+          if (typeof (resp as any) === "string") {
+            expect((resp as any).length).toBeGreaterThan(0);
+          } else {
+            expect(Object.keys(resp as any).length).toBeGreaterThan(0);
+          }
+
+          await authenticationService.resetPasswordWithoutToken({ username: (customerAccountInfo as any).email, password: tempPassword }, undefined, "4");
+
+          await authenticationService.confirmEmailWithoutToken((customerAccountInfo as any).email, undefined, "4");
+
+          consumerToken = await authenticationService.getAuthToken((customerAccountInfo as any).email, tempPassword, "4");
+        });
+
+        await test.step("Checkout plan and complete payment (UI)", async () => {
+          const planResponse = await memberPortalService.checkOutPlan("1", consumerToken);
+
+          const planUrl = String((planResponse as any).returnUrl);
+
+          await authFlow.loginWithValidAccount(planUrl, (customerAccountInfo as any).email, tempPassword);
+
+          await purchaseFlow.buyPlanByCustomer(planUrl, (customerAccountInfo as any).email, consumerData.plan);
+        });
+
+        await test.step("GET Plan/me and verify subscribed plan details", async () => {
+          const newConsumerToken = await authenticationService.getAuthToken((customerAccountInfo as any).email, tempPassword, "4");
+
+          const planDetailsResp = await memberPortalService.getCurrentSubscribedPlan(newConsumerToken);
+          expect(planDetailsResp).toBeDefined();
+          expect(typeof planDetailsResp).toBe("object");
+          expect(planDetailsResp as any).toHaveProperty("id");
+          expect(planDetailsResp as any).toHaveProperty("name");
+          expect(planDetailsResp as any).toHaveProperty("priceId");
+          expect(planDetailsResp as any).toHaveProperty("departmentId");
+          expect(planDetailsResp as any).toHaveProperty("productType");
+          expect(planDetailsResp as any).toHaveProperty("licenseQuantity");
+          expect(planDetailsResp as any).toHaveProperty("b2CFeatureRestrictions");
+          expect(planDetailsResp as any).toHaveProperty("freeTrialRestrictions");
+          expect(planDetailsResp as any).toHaveProperty("price");
+          expect(planDetailsResp as any).toHaveProperty("partnerSetting");
+          //Verify some plan details
+          expect((planDetailsResp as any).departmentId).toBe(consumerData.company.departmentId);
+          const planName = consumerData.plan;
+          expect((planDetailsResp as any).name).toContain(planName);
+        });
       },
     );
 
-    await test.step(
-      "Checkout plan and complete payment (UI)",
-      async () => {
-        const planResponse = await memberPortalService.checkOutPlan(
-          "1",
-          consumerToken,
-        );
+    test(
+      "TC016_API Verify that new member portal user can be signed up under an existing partner",
+      {
+        tag: ["@TC016", "@API", "@Member Portal", "@Sign Up", "@Partner"],
+      },
+      async ({ apiClient, memberPortalService, authenticationService, authFlow, purchaseFlow }, testInfo) => {
+        const env = process.env.ENV;
 
-        const planUrl = String((planResponse as any).returnUrl);
+        testInfo.skip(env === "prod", "This test is not suitable for production environment");
 
-        await authFlow.loginWithValidAccount(
-          planUrl,
-          (customerAccountInfo as any).email,
-          tempPassword,
-        );
+        const paymentProductName: string = plans[1];
 
-        await purchaseFlow.buyPlanByCustomer(
-          planUrl,
-          (customerAccountInfo as any).email,
-          consumerData.plan
-        );
+        const adminService = await AdminPortalService.create(apiClient, authenticationService);
+
+        let partnerInfoRsp: Awaited<ReturnType<typeof adminService.searchPartner>>;
+
+        await test.step("Pre-condition: Create partner, activate, and obtain partner token", async () => {
+          const testData = new TestDataProvider(adminService);
+
+          const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
+
+          const productTypesAndNamesToSend: ProductInfo[] = await testData.getProductTypesBasedDepartmentId(departmentID);
+
+          const masterPlan: any = await testData.filterMasterPlanBasedName(departmentID, paymentProductName);
+
+          const masterPlanId = masterPlan.masterPlanId;
+
+          const partner = await DataFactory.partnerBuilder()
+            .withIsPublic(true)
+            .withWhoPay(0)
+            .withBankTransfer(true)
+            .withDepartment(departmentID)
+            .withFilterProductTypes(productTypesAndNamesToSend)
+            .withPlanId(masterPlanId)
+            .build();
+
+          await adminService.createPartner(partner);
+
+          partnerInfoRsp = await adminService.searchPartner(partner.partnerInfo?.name!);
+
+          const ParntertempPassword = "TempPass@" + Date.now().toString().slice(-4);
+
+          const partnerEmail = partner.accountInfo?.email!;
+
+          await authenticationService.resetPasswordWithoutToken({ username: partnerEmail, password: ParntertempPassword }, undefined, "5");
+
+          const confirmEmailResponse = await authenticationService.confirmEmailWithoutToken(partnerEmail, undefined, "5");
+
+          if (!confirmEmailResponse) {
+            throw new Error("Failed to confirm email");
+          }
+          expect(confirmEmailResponse).toBe(true);
+
+          await authenticationService.getAuthToken(partnerEmail, ParntertempPassword, "5");
+        });
+
+        let consumerData!: Awaited<ReturnType<ReturnType<typeof DataFactory.customerBuilder>["build"]>>;
+        let customerAccountInfo: unknown;
+        let consumerTempPassword: string;
+
+        await test.step("Member Portal: Sign up under partner, activate, GET Payment/products", async () => {
+          consumerData = await DataFactory.customerBuilder().forMemberPortal().withPartner(partnerInfoRsp.partnerId!).withDepartment(partnerInfoRsp.departmentId!).build();
+          customerAccountInfo = consumerData.accountInfo;
+
+          const resp = await memberPortalService.signUpConsumer(consumerData);
+
+          expect(resp).toBeTruthy();
+          if (typeof (resp as any) === "string") {
+            expect((resp as any).length).toBeGreaterThan(0);
+          } else {
+            expect(Object.keys(resp as any).length).toBeGreaterThan(0);
+          }
+
+          consumerTempPassword = "TempPass@" + Date.now().toString().slice(-4);
+          const tempPassword = consumerTempPassword;
+          const resetResp = await authenticationService.resetPasswordWithoutToken({ username: (customerAccountInfo as any).email, password: tempPassword }, undefined, "4");
+
+          await authenticationService.confirmEmailWithoutToken((customerAccountInfo as any).email, undefined, "4");
+
+          expect(resetResp).toBeDefined();
+          expect(typeof resetResp).toBe("boolean");
+
+          const consumerToken = await authenticationService.getAuthToken((customerAccountInfo as any).email, tempPassword, "4");
+
+          expect(consumerToken).toBeDefined();
+          expect(typeof consumerToken).toBe("string");
+          expect(consumerToken.length).toBeGreaterThan(10);
+
+          const plansResp = await memberPortalService.getPlansList(partnerInfoRsp.departmentId!, consumerToken);
+
+          expect(plansResp).toBeDefined();
+          expect(typeof plansResp).toBe("object");
+          expect(Array.isArray(plansResp as any)).toBeTruthy();
+          expect(Object.keys(plansResp as any).length).toEqual(6);
+        });
+
+        await test.step("GET Plan/me and verify plan details", async () => {
+          const newConsumerToken = await authenticationService.getAuthToken((customerAccountInfo as any).email, consumerTempPassword, "4");
+
+          const planDetailsResp = await memberPortalService.getCurrentSubscribedPlan(newConsumerToken);
+          expect(planDetailsResp).toBeDefined();
+          expect(typeof planDetailsResp).toBe("object");
+          expect(planDetailsResp as any).toHaveProperty("id");
+          expect(planDetailsResp as any).toHaveProperty("name");
+          expect(planDetailsResp as any).toHaveProperty("priceId");
+          expect(planDetailsResp as any).toHaveProperty("departmentId");
+          expect(planDetailsResp as any).toHaveProperty("productType");
+          expect(planDetailsResp as any).toHaveProperty("licenseQuantity");
+          expect(planDetailsResp as any).toHaveProperty("b2CFeatureRestrictions");
+          expect(planDetailsResp as any).toHaveProperty("freeTrialRestrictions");
+          expect(planDetailsResp as any).toHaveProperty("price");
+          expect(planDetailsResp as any).toHaveProperty("partnerSetting");
+          expect((planDetailsResp as any).departmentId).toBe(partnerInfoRsp.departmentId);
+
+          expect((planDetailsResp as any).name).toContain(paymentProductName);
+        });
       },
     );
-
-    await test.step("GET Plan/me and verify subscribed plan details", async () => {
-      const newConsumerToken = await authenticationService.getAuthToken(
-        (customerAccountInfo as any).email,
-        tempPassword,
-        "4",
-      );
-
-      const planDetailsResp =
-        await memberPortalService.getCurrentSubscribedPlan(newConsumerToken);
-    expect(planDetailsResp).toBeDefined();
-    expect(typeof planDetailsResp).toBe("object");
-    expect(planDetailsResp as any).toHaveProperty("id");
-    expect(planDetailsResp as any).toHaveProperty("name");
-    expect(planDetailsResp as any).toHaveProperty("priceId");
-    expect(planDetailsResp as any).toHaveProperty("departmentId");
-    expect(planDetailsResp as any).toHaveProperty("productType");
-    expect(planDetailsResp as any).toHaveProperty("licenseQuantity");
-    expect(planDetailsResp as any).toHaveProperty("b2CFeatureRestrictions");
-    expect(planDetailsResp as any).toHaveProperty("freeTrialRestrictions");
-    expect(planDetailsResp as any).toHaveProperty("price");
-    expect(planDetailsResp as any).toHaveProperty("partnerSetting");
-    //Verify some plan details
-    expect((planDetailsResp as any).departmentId).toBe(
-      consumerData.company.departmentId,
-    );
-    const planName = consumerData.plan;
-    expect((planDetailsResp as any).name).toContain(planName);
-      },
-    );
-  });
-
-  test("TC016_API Verify that new member portal user can be signed up under an existing partner",
-    {
-      tag: [
-        "@TC016",
-        "@API",
-        "@Member Portal",
-        "@Sign Up",
-        "@Partner",
-      ],
-    },
-    async ({
-    apiClient,
-    memberPortalService,
-    authenticationService,
-    authFlow,
-    purchaseFlow,
-  }, testInfo) => {
-    const env   = process.env.ENV;
-
-    testInfo.skip(env === "prod", "This test is not suitable for production environment");
-
-    const paymentProductName: string = plans[1];
-
-    const adminService = await AdminPortalService.create(
-      apiClient,
-      authenticationService,
-    );
-
-    let partnerInfoRsp: Awaited<
-      ReturnType<typeof adminService.searchPartner>
-    >;
-
-    await test.step(
-      "Pre-condition: Create partner, activate, and obtain partner token",
-      async () => {
-        const testData = new TestDataProvider(adminService);
-
-        const departmentID = await testData.getDepartmentId(
-          process.env.DEPARTMENT_NAME,
-        );
-
-        const productTypesAndNamesToSend: ProductInfo[] =
-          await testData.getProductTypesBasedDepartmentId(departmentID);
-
-        const masterPlan: any = await testData.filterMasterPlanBasedName(
-          departmentID,
-          paymentProductName,
-        );
-
-        const masterPlanId = masterPlan.masterPlanId;
-
-        const partner = await DataFactory.partnerBuilder()
-          .withIsPublic(true)
-          .withWhoPay(0)
-          .withBankTransfer(true)
-          .withDepartment(departmentID)
-          .withFilterProductTypes(productTypesAndNamesToSend)
-          .withPlanId(masterPlanId)
-          .build();
-
-        await adminService.createPartner(partner);
-
-        partnerInfoRsp = await adminService.searchPartner(
-          partner.partnerInfo?.name!,
-        );
-
-        const ParntertempPassword =
-          "TempPass@" + Date.now().toString().slice(-4);
-
-        const partnerEmail = partner.accountInfo?.email!;
-
-        await authenticationService.resetPasswordWithoutToken(
-          { username: partnerEmail, password: ParntertempPassword },
-          undefined,
-          "5",
-        );
-
-        const confirmEmailResponse =
-          await authenticationService.confirmEmailWithoutToken(
-            partnerEmail,
-            undefined,
-            "5",
-          );
-
-        if (!confirmEmailResponse) {
-          throw new Error("Failed to confirm email");
-        }
-        expect(confirmEmailResponse).toBe(true);
-
-        await authenticationService.getAuthToken(
-          partnerEmail,
-          ParntertempPassword,
-          "5",
-        );
-      },
-    );
-
-    let consumerData!: Awaited<
-      ReturnType<ReturnType<typeof DataFactory.customerBuilder>["build"]>
-    >;
-    let customerAccountInfo: unknown;
-    let consumerTempPassword: string;
-
-    await test.step(
-      "Member Portal: Sign up under partner, activate, GET Payment/products",
-      async () => {
-        consumerData = await DataFactory.customerBuilder()
-          .forMemberPortal()
-          .withPartner(partnerInfoRsp.partnerId!)
-          .withDepartment(partnerInfoRsp.departmentId!)
-          .build();
-        customerAccountInfo = consumerData.accountInfo;
-
-        const resp = await memberPortalService.signUpConsumer(consumerData);
-
-        expect(resp).toBeTruthy();
-        if (typeof (resp as any) === "string") {
-          expect((resp as any).length).toBeGreaterThan(0);
-        } else {
-          expect(Object.keys(resp as any).length).toBeGreaterThan(0);
-        }
-
-        consumerTempPassword = "TempPass@" + Date.now().toString().slice(-4);
-        const tempPassword = consumerTempPassword;
-        const resetResp = await authenticationService.resetPasswordWithoutToken(
-          { username: (customerAccountInfo as any).email, password: tempPassword },
-          undefined,
-          "4",
-        );
-
-        await authenticationService.confirmEmailWithoutToken(
-          (customerAccountInfo as any).email,
-          undefined,
-          "4",
-        );
-
-        expect(resetResp).toBeDefined();
-        expect(typeof resetResp).toBe("boolean");
-
-        const consumerToken = await authenticationService.getAuthToken(
-          (customerAccountInfo as any).email,
-          tempPassword,
-          "4",
-        );
-
-        expect(consumerToken).toBeDefined();
-        expect(typeof consumerToken).toBe("string");
-        expect(consumerToken.length).toBeGreaterThan(10);
-
-        const plansResp = await memberPortalService.getPlansList(
-          partnerInfoRsp.departmentId!,
-          consumerToken,
-        );
-
-        expect(plansResp).toBeDefined();
-        expect(typeof plansResp).toBe("object");
-        expect(Array.isArray(plansResp as any)).toBeTruthy();
-        expect(Object.keys(plansResp as any).length).toEqual(6);
-      },
-    );
-
-    await test.step("GET Plan/me and verify plan details", async () => {
-      const newConsumerToken = await authenticationService.getAuthToken(
-        (customerAccountInfo as any).email,
-        consumerTempPassword,
-        "4",
-      );
-
-      const planDetailsResp =
-        await memberPortalService.getCurrentSubscribedPlan(newConsumerToken);
-      expect(planDetailsResp).toBeDefined();
-      expect(typeof planDetailsResp).toBe("object");
-      expect(planDetailsResp as any).toHaveProperty("id");
-      expect(planDetailsResp as any).toHaveProperty("name");
-      expect(planDetailsResp as any).toHaveProperty("priceId");
-      expect(planDetailsResp as any).toHaveProperty("departmentId");
-      expect(planDetailsResp as any).toHaveProperty("productType");
-      expect(planDetailsResp as any).toHaveProperty("licenseQuantity");
-      expect(planDetailsResp as any).toHaveProperty("b2CFeatureRestrictions");
-      expect(planDetailsResp as any).toHaveProperty("freeTrialRestrictions");
-      expect(planDetailsResp as any).toHaveProperty("price");
-      expect(planDetailsResp as any).toHaveProperty("partnerSetting");
-      expect((planDetailsResp as any).departmentId).toBe(
-        partnerInfoRsp.departmentId,
-      );
-
-      expect((planDetailsResp as any).name).toContain(paymentProductName);
-    });
-  });
-});
+  },
+);

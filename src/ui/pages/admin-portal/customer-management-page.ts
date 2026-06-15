@@ -15,7 +15,7 @@ export class CustomerManagementPage extends BasePage {
     super(page);
   }
 
-  public async fillFormToCreateCustomer(customer: CustomerInfo): Promise<Locator> {
+  public fillFormToCreateCustomer = async (customer: CustomerInfo): Promise<Locator> => {
     const createButtonElement = await this.getLocator(CommonCustomerLocator.createNewCustomerButton);
     await createButtonElement.click();
 
@@ -102,17 +102,17 @@ export class CustomerManagementPage extends BasePage {
     if (customer.bankStranfer?.bankStranfer === true) await (await this.getLocator(CreateNewCustomerModalLocator.confirmButton)).click();
 
     return firstNameElelemt;
-  }
+  };
 
-  private async fillNumberOfEmployeesPerState(state: string, numberOfEmployeesPerState: number) {
+  private fillNumberOfEmployeesPerState = async (state: string, numberOfEmployeesPerState: number) => {
     const stateLocator = CreateNewCustomerModalLocator.numberOfEmployeesPerState.replace("stateValue", state);
 
     const numberOfEmployee = await this.getLocator(stateLocator);
 
     await numberOfEmployee.fill(numberOfEmployeesPerState.toString());
-  }
+  };
 
-  public async upgradePlan(customer: CustomerInfo, planToUpgrade: string) {
+  public upgradePlan = async (customer: CustomerInfo, planToUpgrade: string) => {
     if (customer.company.companySize?.includes("500+")) throw new Error("The current plan is maximun so it is impossible to upgrade");
 
     const phoneNumber = customer.accountInfo.phoneNumber;
@@ -155,7 +155,7 @@ export class CustomerManagementPage extends BasePage {
 
       await (await this.getLocator(UpgradePlanModalLocator.upgradeNowButton)).click();
     } else await (await this.getLocator(UpgradePlanModalLocator.requestPaymentButton)).click();
-  }
+  };
 
   public fillFormToInviteCustomerMembers = async (invitedMembers: UserInfo[]) => {
     const numberOfInvitedMembers = invitedMembers.length;
@@ -176,7 +176,7 @@ export class CustomerManagementPage extends BasePage {
     await (await this.getLocator(TeamInfoLocator.sendInviteButton)).click();
   };
 
-  public async inviteCustomerMembers(invitedMembers: UserInfo[]) {
+  public inviteCustomerMembers = async (invitedMembers: UserInfo[]) => {
     await this.page.locator(CustomerDetailModalLocator.viewDetailButton).click();
 
     try {
@@ -190,5 +190,5 @@ export class CustomerManagementPage extends BasePage {
     }
 
     await this.fillFormToInviteCustomerMembers(invitedMembers);
-  }
+  };
 }
