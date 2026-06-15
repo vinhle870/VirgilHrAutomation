@@ -1,7 +1,7 @@
-import { test, expect } from "src/fixtures";
+import { test } from "src/fixtures";
 import { DataFactory, PersonDataGenerator } from "src/data-factory";
 import { Partner } from "src/objects";
-import { plans } from "src/constant/department.data.uat";
+import { plans } from "src/constant/static-data";
 
 test.describe("E2E -> Admin Portal -> Partner Management", () => {
   test(
@@ -9,11 +9,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC30",
     },
-    async ({ loginPage, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -22,11 +18,11 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
         .withIsPublic(false)
-        .withProductsType([plans.virgilhr[0]])
+        .withProductsType([plans[0]])
         .build();
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -40,11 +36,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC31",
     },
-    async ({ loginPage: loginPage, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage: loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -55,13 +47,13 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
           .withBankTransfer(false)
-          .withProductsType([plans.virgilhr[0]])
+          .withProductsType([plans[0]])
           .withIsPublic(false)
           .build();
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -75,11 +67,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC32",
     },
-    async ({ loginPage, authFlow, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, authFlow, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -88,12 +76,12 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
         .withIsPublic(false)
-        .withProductsType([plans.virgilhr[0]])
+        .withProductsType([plans[0]])
         .withBankTransfer(true)
         .build();
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -109,19 +97,18 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         .withCompanyType("Internal")
         .withCustomBranding(true)
         .build();
-      const peoPartners = [peoPartnerInfo];
 
       await test.step("Add peo ", async () => {
         await loginPage.login();
 
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!, peoPartners!, true);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!, peoPartnerInfo!, true);
       });
 
       await test.step("Activate peo", async () => {
-        for (const member of peoPartners!) await authFlow.activateIndividualCustomerAccountAndChangePassword(member.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(peoPartnerInfo.accountInfo?.email!, "Partner portal", "Password@123");
       });
 
-      await test.step("Verify peoes are added successfully", async () => {
+      await test.step("Verify peo are added successfully", async () => {
         await onboardingFlow.redirectToHomePage();
       });
     },
@@ -132,11 +119,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC33",
     },
-    async ({ loginPage, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -147,12 +130,12 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
           .withSubDomain("")
-          .withProductsType([plans.virgilhr[0]])
+          .withProductsType([plans[0]])
           .build();
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify the domain is emty", async () => {
@@ -166,10 +149,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC34",
     },
-    async ({ loginPage, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -182,11 +162,11 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
             .withDepartmentName(process.env.DEPARTMENT_NAME!)
             .withIsPublic(false)
             .withPaymentOption(paymentOption)
-            .withProductsType([plans.virgilhr[0]])
+            .withProductsType([plans[0]])
             .build();
 
           await test.step(`Create partner with ${paymentOption}`, async () => {
-            await onboardingFlow.createPartnerAndAddPeo(partnerInfo);
+            await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo);
           });
 
           await test.step(`Verify create partner with ${paymentOption} successfully`, async () => {
@@ -202,28 +182,24 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC35",
     },
-    async ({ loginPage, onboardingFlow, purchaseFlow, authFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow, purchaseFlow, authFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
+      let partnerInfo: Partner;
       await test.step("Create partner info", async () => {
         partnerInfo = await DataFactory.partnerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans.virgilhr[0]])
+          .withProductsType([plans[0]])
           .withBankTransfer(false)
           .withIsPublic(false)
           .build();
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify the domain is emty", async () => {
@@ -239,9 +215,9 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Create a new business", async () => {
-        const owner = await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!);
+        await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!);
         await test.step("Verify owner", async () => {
-          await expect(owner!).toBeVisible();
+          await onboardingFlow.verifyOwnerVisible();
         });
       });
     },
@@ -252,11 +228,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC36",
     },
-    async ({ loginPage, onboardingFlow, authFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow, authFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -267,12 +239,12 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withIsPublic(false)
           .withPaymentOption("Member Portal Consumer")
-          .withProductsType([plans.virgilhr[0]])
+          .withProductsType([plans[0]])
           .build();
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify the partner is created successfully", async () => {
@@ -286,9 +258,11 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       await test.step("Create owner", async () => {
         const ownerIfno = await PersonDataGenerator.generate();
 
-        const owner = await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerIfno!);
+        await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerIfno!);
+      });
 
-        await expect(owner!).toBeVisible();
+      await test.step("Verify owner visible", async () => {
+        await onboardingFlow.verifyOwnerVisible();
       });
     },
   );
@@ -298,35 +272,35 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC37",
     },
-    async ({ loginPage, onboardingFlow, authFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow, authFlow }) => {
       await test.step("Login to admin portal", async () => {
         await loginPage.login();
       });
 
-      const partnerInfo = await DataFactory.partnerBuilder()
-        .withDepartmentName(process.env.DEPARTMENT_NAME!)
-        .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plans.virgilhr[0]])
-        .withBankTransfer(true)
-        .build();
+      let partnerInfo: Partner;
+      await test.step("Create partner info", async () => {
+        partnerInfo = await DataFactory.partnerBuilder()
+          .withDepartmentName(process.env.DEPARTMENT_NAME!)
+          .withPaymentOption("Partner/Consultant Owner")
+          .withProductsType([plans[0]])
+          .withBankTransfer(true)
+          .withIsPublic(false)
+          .build();
+      });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify the partner is created successfully", async () => {
         await onboardingFlow.verifyPartnerVisible(partnerInfo!);
       });
 
-      await test.step("Credential partner", async () => {
+      await test.step("Activate partner", async () => {
         await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo.accountInfo!.email, "Partner portal", "Password@123");
       });
 
-      await test.step("Crendential member", async () => {
+      await test.step("Activate member", async () => {
         await authFlow.activateCustomerAccount(partnerInfo!.accountInfo?.email!, "Password@123");
       });
 
@@ -341,7 +315,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC38",
     },
-    async ({ loginPage, onboardingFlow }, testInfo) => {
+    async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -352,12 +326,12 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withIsPublic(false)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans.virgilhr[0]])
+          .withProductsType([plans[0]])
           .build();
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -371,11 +345,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC39",
     },
-    async ({ loginPage, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -386,24 +356,20 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withIsPublic(false)
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans.virgilhr[0]])
+          .withProductsType([plans[0]])
           .build();
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
         await onboardingFlow.verifyPartnerVisible(partnerInfo!);
       });
 
-      await test.step("Create another partner and verify its email is duplicated ", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
-
-        const duplicatedEmailEl = await onboardingFlow.getDuplicatedText();
-
-        await expect(duplicatedEmailEl).toBeVisible();
+      await test.step("Verify duplicated email", async () => {
+        await onboardingFlow.verifyDuplicatedEmailWhenCreatingPartner(partnerInfo!);
       });
     },
   );
@@ -413,11 +379,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC40",
     },
-    async ({ loginPage, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -428,12 +390,12 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withIsPublic(false)
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans.virgilhr[0]])
+          .withProductsType([plans[0]])
           .build();
       });
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -447,28 +409,21 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC41",
     },
-    async ({ loginPage, authFlow, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, authFlow, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans.virgilhr[0]])
-          .withBankTransfer(true)
-          .withIsPublic(false)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Partner/Consultant Owner")
+        .withProductsType([plans[0]])
+        .withBankTransfer(true)
+        .withIsPublic(false)
+        .build();
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -476,7 +431,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Partner does not need to make a payment through tripe", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
         await onboardingFlow.redirectToHomePage();
       });
@@ -488,28 +443,21 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC42",
     },
-    async ({ loginPage, authFlow, purchaseFlow, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, authFlow, purchaseFlow, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans.virgilhr[0]])
-          .withBankTransfer(false)
-          .withIsPublic(false)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Partner/Consultant Owner")
+        .withProductsType([plans[0]])
+        .withBankTransfer(false)
+        .withIsPublic(false)
+        .build();
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -517,13 +465,15 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify partner needs to make a payment through tripe", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
         await onboardingFlow.validatePlanVisible();
 
-        await purchaseFlow.selectPlanBeforePurchase("", partnerInfo!.accountInfo?.email, "ASO Expert");
+        await purchaseFlow.selectPlanBeforePurchase("", partnerInfo!.accountInfo?.email, plans[0]);
 
-        //   await expect(await partnerPage.getPlanToBuy(BuyPlanLocators.paymentIframe)).toBeVisible();
+        await purchaseFlow.submitSubscriptionPayment();
+
+        await onboardingFlow.redirectToHomePage();
       });
     },
   );
@@ -533,29 +483,21 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC43",
     },
-    async ({ loginPage, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans.virgilhr[0]])
-          .withBankTransfer(false)
-          .withEmail("QATest_Brycen124@polandcampus.edu.pl")
-          .withIsPublic(false)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Partner/Consultant Owner")
+        .withProductsType([plans[0]])
+        .withBankTransfer(false)
+        .withIsPublic(false)
+        .build();
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -573,28 +515,21 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC44",
     },
-    async ({ loginPage, authFlow, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, authFlow, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans.virgilhr[0]])
-          .withBankTransfer(true)
-          .withIsPublic(false)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Partner/Consultant Owner")
+        .withProductsType([plans[0]])
+        .withBankTransfer(true)
+        .withIsPublic(false)
+        .build();
 
       await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -602,11 +537,11 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify With Payment Options = Partner/Consultant Owner, after successfully creating a Partner account, the user receives two credential emails", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
         await onboardingFlow.redirectToHomePage();
 
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Member", "Password@123");
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Member", "Password@123");
 
         await onboardingFlow.redirectToHomePage();
       });
@@ -618,28 +553,21 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@45",
     },
-    async ({ loginPage: loginPage, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage: loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Member Portal Consumer")
-          .withProductsType([plans.virgilhr[0]])
-          .withBankTransfer(true)
-          .withIsPublic(false)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Member Portal Consumer")
+        .withProductsType([plans[0]])
+        .withBankTransfer(true)
+        .withIsPublic(false)
+        .build();
 
       await test.step("Create a new partner with payment option = 'Member Portal Consumer'", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -657,28 +585,21 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@46",
     },
-    async ({ loginPage, authFlow, onboardingFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, authFlow, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Member Portal Consumer")
-          .withProductsType([plans.virgilhr[0]])
-          .withBankTransfer(true)
-          .withIsPublic(false)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Member Portal Consumer")
+        .withProductsType([plans[0]])
+        .withBankTransfer(true)
+        .withIsPublic(false)
+        .build();
 
       await test.step("Create a new partner with payment option = 'Member Portal Consumer'", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
@@ -686,7 +607,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify login only partner portal", async () => {
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner Portal", "Password@123");
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner Portal", "Password@123");
 
         await onboardingFlow.redirectToHomePage();
       });
@@ -698,43 +619,34 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
     {
       tag: "@TC47",
     },
-    async ({ loginPage, onboardingFlow, partnerPage, authFlow }, testInfo) => {
-      const base = process.env.API_BASE_URL ?? process.env.BASE_URL;
-
-      testInfo.skip(!base, "API_BASE_URL is not configured");
-
+    async ({ loginPage, onboardingFlow, partnerPage, authFlow }) => {
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
 
-      let partnerInfo;
-      await test.step("Create partner info", async () => {
-        partnerInfo = await DataFactory.partnerBuilder()
-          .withDepartmentName(process.env.DEPARTMENT_NAME!)
-          .withPaymentOption("Member Portal Consumer")
-          .withProductsType([plans.virgilhr[0]])
-          .withBankTransfer(true)
-          .withIsPublic(false)
-          .build();
-      });
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Member Portal Consumer")
+        .withProductsType([plans[0]])
+        .withBankTransfer(true)
+        .withIsPublic(false)
+        .build();
 
       await test.step("Create a new partner with payment option = 'Member Portal Consumer'", async () => {
-        await onboardingFlow.createPartnerAndAddPeo(partnerInfo!);
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
       await test.step("Verify newPartner is created successfully", async () => {
         await onboardingFlow.verifyPartnerVisible(partnerInfo!);
       });
 
-      let ownerAccount: any;
+      const ownerAccount = await PersonDataGenerator.generate();
       await test.step("Create a business and verify the owner can log in to Member Portal", async () => {
-        ownerAccount = await PersonDataGenerator.generate();
+        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerAccount!);
 
-        const owner = await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerAccount!);
-
-        await expect(owner!).toBeVisible();
+        await onboardingFlow.verifyOwnerVisible();
 
         await authFlow.activateIndividualCustomerAccountAndSetPassword(ownerAccount.email!, "Consumer", "Password@123");
 

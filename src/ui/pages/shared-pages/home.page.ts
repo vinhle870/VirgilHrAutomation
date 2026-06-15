@@ -6,9 +6,9 @@ export class HomePage extends BasePage {
     super(page);
   }
 
-  public async getHomeTitle(): Promise<Locator> {
+  public getHomeTitle = async (): Promise<Locator> => {
     const homeLocator = this.page.getByRole("heading", { level: 2, name: "Home" }).first();
     await homeLocator.waitFor({ state: "visible", timeout: 20000 });
     return homeLocator;
-  }
+  };
 }

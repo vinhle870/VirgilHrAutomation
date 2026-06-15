@@ -33,7 +33,5 @@ export class CreateNewPartnerModalLocator {
 
   public static readonly createPartnerButton = "xpath=//button[contains(text(),'Create')]";
 
-  public static readonly confirmButton = "//button[text()=' Confirm & Create ']";
-
-  public static readonly duplicatedEmailText = " //p[contains(text(),'Email is existed')]";
+  public static readonly confirmButton = "xpath=//button[text()=' Confirm & Create ']";
 }

@@ -1,6 +1,6 @@
 import { Page } from "@playwright/test";
 import { LoginPage } from "../pages";
-import { TempEmailFreePage } from "../pages/shared-pages/tempemailfree.page";
+import { EmailServicePage } from "../pages/shared-pages/emailservice.page";
 import { WelcomeModal } from "../pages/shared-pages/welome.modal";
 import { MemberOnboardingLocators } from "../pages/member-portal/locators";
 import { getEmailSubjectForDepartment } from "src/constant/department-data";
@@ -13,37 +13,22 @@ import { getEmailSubjectForDepartment } from "src/constant/department-data";
  * Flow #4: Change password for an existing account
  */
 export class AuthFlow {
-  private tempEmailFreePage: TempEmailFreePage;
+  private emailServicePage: EmailServicePage;
   private loginPage: LoginPage;
   private page: Page;
 
   constructor(page: Page) {
     this.page = page;
     this.loginPage = new LoginPage(this.page);
-    this.tempEmailFreePage = new TempEmailFreePage(this.page);
+    this.emailServicePage = new EmailServicePage(this.page);
   }
 
-  /**
-   *  Logs in with a valid account by filling the login form with the provided URL, username, and password, then submitting the form.
-   * @param url
-   * @param username
-   * @param password
-   */
-  async loginToAdminPortal() {
-    await this.loginPage.fillLoginForm(process.env.ADMIN_PORTAL_BASE_URL!, process.env.ADMIN_USERNAME!, process.env.ADMIN_PASSWORD!);
-  }
+  public loginToAdminPortal = async () => await this.loginPage.fillLoginForm(process.env.ADMIN_PORTAL_BASE_URL!, process.env.ADMIN_USERNAME!, process.env.ADMIN_PASSWORD!);
 
-  async loginToPortals(portalUrl: string, email: string, password: string) {
-    await this.loginPage.fillLoginForm(portalUrl, email, password);
-  }
+  public loginToPortals = async (portalUrl: string, email: string, password: string) => await this.loginPage.fillLoginForm(portalUrl, email, password);
 
-  /**
-   * Accepts an invitation for the user by retrieving the link from Email
-   * and completing the onboarding steps.
-   * Flows: Accept via invite link -> Set password -> Click on Join Team link -> Close modal
-   */
-  async acceptInviteAndJoinTeamByCustomer(customerEmail: string, password: string): Promise<void> {
-    await this.tempEmailFreePage.acceptJoinTeamInvite(customerEmail);
+  public acceptInviteAndJoinTeamByCustomer = async (customerEmail: string, password: string): Promise<void> => {
+    await this.emailServicePage.acceptJoinTeamInvite(customerEmail);
 
     await this.loginPage.currentPage.waitForLoadState("domcontentloaded");
 
@@ -54,18 +39,12 @@ export class AuthFlow {
     await this.loginPage.clickOnJoinTeamLink();
 
     await new WelcomeModal(this.loginPage.currentPage).closeModalWithOption("readyDiveIn");
-  }
+  };
 
-  /**
-   *  Activates the customer account by extracting credentials from the email, logging in, and optionally changing the password.
-   * @param customerEmail
-   * @param isChangePassword
-   * @param newPassword
-   */
-  public async activateCustomerAccount(customerEmail: string, newPassword: string) {
-    const emailTitle = process.env.SUBJECT_TO_MEMBER_CREDENTIAL!;
+  public activateCustomerAccount = async (customerEmail: string, newPassword: string) => {
+    const emailTitle = getEmailSubjectForDepartment().SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL!;
 
-    const accountCrendential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(customerEmail, emailTitle);
+    const accountCrendential = await this.emailServicePage.extractAccountCredentialFromInBox(customerEmail, emailTitle);
 
     const credentialPassword = accountCrendential.password;
 
@@ -74,37 +53,44 @@ export class AuthFlow {
     await this.loginToPortals(inviteUrl!, customerEmail, credentialPassword!);
 
     await this.loginPage.changePassword(credentialPassword!, newPassword!);
-  }
+  };
 
-  public async activateIndividualCustomerAccountAndSetPassword(email: string, portal: string, newPassword: string) {
+  public activateIndividualCustomerAccountAndSetPassword = async (email: string, portal: string, newPassword: string) => {
     const envSubject = getEmailSubjectForDepartment();
 
     const subject = portal === "Member" || portal === "Consumer" ? envSubject.SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL : envSubject.SUBJECT_EMAIL_TO_PARTNER_CREDENTIAL;
 
-    const credential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
+    const credential = await this.emailServicePage.extractAccountCredentialFromInBox(email, subject);
 
     await this.loginPage.fillLoginForm(credential.hrefValue!, email, credential.password!);
 
     await this.loginPage.setPassword(newPassword);
-  }
+  };
 
-  public async activateIndividualCustomerAccountAndChangePassword(email: string, portal: string, newPassword: string) {
+  public activateIndividualCustomerAccountAndChangePassword = async (email: string, portal: string, newPassword: string) => {
     const envSubject = getEmailSubjectForDepartment();
 
     const subject = portal === "Member" || portal === "Consumer" ? envSubject.SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL : envSubject.SUBJECT_EMAIL_TO_PARTNER_CREDENTIAL;
 
-    const credential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
+    const credential = await this.emailServicePage.extractAccountCredentialFromInBox(email, subject);
 
     await this.loginPage.fillLoginForm(credential.hrefValue!, email, credential.password!);
 
     await this.loginPage.changePassword(credential.password!, newPassword);
-  }
+  };
 
-  public async activateSignedUpCustomer(email: string) {
+  public activateSignedUpCustomer = async (email: string) => {
     const subject = "Verify your email address";
 
-    const credential = await this.tempEmailFreePage.extractAccountCredentialFromInBox(email, subject);
+    const credential = await this.emailServicePage.extractAccountCredentialFromInBox(email, subject);
 
     await this.page.goto(credential.hrefValue!);
-  }
+  };
+
+  public validateReceivedOneEmailForCreatingCustomer = async (email: string) => await this.emailServicePage.validateReceivedOneEmailForCreatingCustomer(email);
+
+  public validateTimeLimitedEmailForCreatingCustomer = async (email: string) => {
+    const subject = "Verify your email address";
+    await this.emailServicePage.validateTimeLimitedEmailForCreatingCustomer(email, subject);
+  };
 }
