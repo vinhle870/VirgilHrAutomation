@@ -103,7 +103,14 @@ export class EmailServicePage extends BasePage {
     const emailLocator = TempEmailFreeLocators.emailSubject.replace("subjectValue", subject);
     for (let i = 0; i < 10; i++) {
       try {
-        await (await this.getLocator(emailLocator)).first().click({ timeout: 5000 });
+        const el = await this.getLocator(emailLocator);
+        try {
+          await el.first().scrollIntoViewIfNeeded();
+          await el.first().click({ timeout: 5000, force: true });
+        } catch {
+          await el.last().scrollIntoViewIfNeeded();
+          await el.last().click({ timeout: 5000, force: true });
+        }
         return;
       } catch {
         await (await this.getLocator(TempEmailFreeLocators.refreshButton)).click();
