@@ -10,6 +10,7 @@ import { OnboardingMemberPortalFlow } from "../pages/member-portal/flows/memberp
 import { EmailServicePage } from "../pages";
 import { HomePage } from "../pages/shared-pages/home.page";
 import delay from "src/utilities/delay";
+import { SignUpLocators } from "../pages/member-portal/locators/signup";
 
 /**
  * This flow class contains methods related to the onboarding process of both partner and member users, such as accepting invitations, credentialing, buying plans, and creating a business.

@@ -99,7 +99,18 @@ export class EmailServicePage extends BasePage {
     await newBtn.waitFor({ state: "visible" });
   };
 
-  public openEmailBySubject = async (subject: string) => await (await this.getLocator(TempEmailFreeLocators.emailSubject.replace("subjectValue", subject))).first().click();
+  public openEmailBySubject = async (subject: string) => {
+    const emailLocator = TempEmailFreeLocators.emailSubject.replace("subjectValue", subject);
+    for (let i = 0; i < 10; i++) {
+      try {
+        await (await this.getLocator(emailLocator)).first().click({ timeout: 5000 });
+        return;
+      } catch {
+        await (await this.getLocator(TempEmailFreeLocators.refreshButton)).click();
+        await delay(3000);
+      }
+    }
+  };
 
   public validateReceivedOneEmailForCreatingCustomer = async (email: string) => {
     await this.registerNewEmail(email);
