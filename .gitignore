@@ -2,5 +2,5 @@ test-results/
 playwright-report/
 node_modules/
 sandbox/
-.env.uat
+.env
 .env.qa
