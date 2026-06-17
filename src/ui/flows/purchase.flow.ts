@@ -23,8 +23,8 @@ export class PurchaseFlow {
     await new WelcomeModal(this.page).closeModalWithOption("readyDiveIn");
   };
 
-  public selectPlanBeforePurchase = async (url: string, email: string | undefined, planNameOrPage: string | Page): Promise<void> => {
-    if (typeof planNameOrPage === "string") await new BuyPlanPage(this.page).selectPlan(url, email ?? "", planNameOrPage);
+  public selectPlanBeforePurchase = async (url: string, email: string | undefined, planNameOrPage: string | Page, expiration = false): Promise<void> => {
+    if (typeof planNameOrPage === "string") await new BuyPlanPage(this.page).selectPlan(url, email ?? "", planNameOrPage, expiration);
     else await new BuyPlanPage(planNameOrPage).selectPlan(url, email ?? "", "");
   };
 

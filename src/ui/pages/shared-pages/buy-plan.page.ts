@@ -8,18 +8,21 @@ export class BuyPlanPage extends BasePage {
     super(page);
   }
 
-  public selectPlan = async (url: string, email: string, planName: string): Promise<void> => {
+  public selectPlan = async (url: string, email: string, planName: string, expiration = false): Promise<void> => {
     const logger = (console.debug ?? console.log).bind(console);
     logger(`==================[Plan Purchase] url: ${url}, email: ${email}\n`);
 
+    const selectedPlanLocator = BuyPlanLocators.firstPlan.replace("plan_name", planName.trim());
     try {
-      const selectedPlanLocator = BuyPlanLocators.firstPlan.replace("plan_name", planName.trim());
-      await (await this.getLocator(selectedPlanLocator)).click();
-      await (await this.getLocator(BuyPlanLocators.buyNow)).click();
-      await (await this.getLocator(BuyPlanLocators.confirm)).click();
+      await (await this.getLocator(selectedPlanLocator)).first().click();
     } catch (error) {
-      throw new Error(`[selectPlan] Failed for plan "${planName}" (url: "${url}")\n${error}`);
+      await (await this.getLocator(selectedPlanLocator)).last().click();
     }
+
+    if (expiration) await (await this.getLocator(BuyPlanLocators.expirationOfPlan)).click();
+
+    await (await this.getLocator(BuyPlanLocators.buyNow)).click();
+    await (await this.getLocator(BuyPlanLocators.confirm)).click();
   };
 
   public fillBuyPlanForm = async (url: string, email: string, planName: string): Promise<void> => {
