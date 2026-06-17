@@ -235,6 +235,7 @@ export class PartnerBuilder {
 
     // Build partner-specific fields
     const seq = DataGenerate.getRandomInt(1, 9999);
+
     const name = overridedInfo.name ?? `${accountInfo.firstName}${seq}`;
     const subDomain = overridedInfo.subDomain ?? name;
     const bankTransfer = overridedInfo.bankTransfer ?? DataGenerate.generateBoolean();

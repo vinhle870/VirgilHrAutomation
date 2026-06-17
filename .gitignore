@@ -3,3 +3,4 @@ playwright-report/
 node_modules/
 sandbox/
 .env
+.env.qa

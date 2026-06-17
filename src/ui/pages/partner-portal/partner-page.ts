@@ -1,10 +1,12 @@
-import { Locator, Page } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 import { BasePage } from "../base-page";
 import { LoginFormLocators } from "../shared-pages/locators/login-form";
 import { ClientPartnerPortalLocators } from "./locators/client";
 import { BusinessLocator } from "./locators/business";
 import { Partner, UserInfo } from "src/objects";
 import { CommonPartnerPortalLocator } from "./locators/common";
+import { BuyPlanLocators } from "../shared-pages/locators";
+import { plans } from "src/constant/static-data";
 
 export class PartnerPage extends BasePage {
   private readonly URL: string;
@@ -12,23 +14,21 @@ export class PartnerPage extends BasePage {
     super(page);
     this.URL = "https://partner.qa.virgilhr.com";
   }
-  public getURL() {
-    return this.URL;
-  }
+  public getURL = () => this.URL;
 
-  public getAccountNotExist() {
-    return this.page.locator(LoginFormLocators.validationMsg);
-  }
+  public getAccountNotExist = () => this.page.locator(LoginFormLocators.validationMsg);
 
-  public getOwnerRoleInClientPage(email: string): Locator {
-    return this.page.locator(ClientPartnerPortalLocators.role.replace("emailValue", email));
-  }
+  public validateOwnerRoleInUserPage = async (email: string) => {
+    await this.eraseModal();
+    const userPage = CommonPartnerPortalLocator.usersButton;
+    this.page.locator(userPage).click({ timeout: 3000 });
 
-  public async getPlanToBuy(plan: string): Promise<Locator> {
-    return this.page.locator(plan);
-  }
+    await expect(this.page.locator(ClientPartnerPortalLocators.role.replace("emailValue", email))).toBeVisible({ timeout: 5000 });
+  };
 
-  public async fillFormToCreateBusiness(partnerInfo: Partner, owner?: UserInfo) {
+  public getPlanToBuy = async (plan: string): Promise<Locator> => this.page.locator(plan);
+
+  public fillFormToCreateBusiness = async (partnerInfo: Partner, owner?: UserInfo) => {
     await this.page.locator(CommonPartnerPortalLocator.clientButton).click({ timeout: 10000 });
 
     await this.page.locator(BusinessLocator.businessTab).click({ timeout: 10000 });
@@ -59,9 +59,9 @@ export class PartnerPage extends BasePage {
     await this.page.locator(BusinessLocator.viewButton).click({ timeout: 20000 });
 
     await this.page.locator(BusinessLocator.ownerText).waitFor({ state: "visible", timeout: 5000 });
-  }
+  };
 
-  public async eraseModal() {
+  public eraseModal = async () => {
     try {
       await this.page.locator(CommonPartnerPortalLocator.closeButton).click({ timeout: 7000 });
     } catch (error) {
@@ -79,5 +79,16 @@ export class PartnerPage extends BasePage {
     } catch (error) {
       console.log("There is no modal");
     }
-  }
+  };
+
+  public validatePlanVisible = async () => {
+    const plan = await this.getPlanToBuy(BuyPlanLocators.firstPlan.replace("plan_name", plans[0].trim()));
+    await expect(plan).toBeVisible();
+  };
+
+  public validateAccountNotExist = async () => {
+    const accountNotExist = this.getAccountNotExist();
+
+    await expect(accountNotExist).toBeVisible();
+  };
 }

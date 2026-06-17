@@ -14,6 +14,7 @@ export class CustomerInfo {
   company: Company = {} as Company;
   readonly members: UserInfo[] = [];
   bankStranfer?: IBankStranfer = {} as IBankStranfer;
+  contentAvailability: string = "United States";
 
   addMember(member: UserInfo): void {
     this.members.push(member);
