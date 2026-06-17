@@ -203,7 +203,6 @@ test.describe("E2E -> Member portal", () => {
 
         await test.step(`Select a plan from the list and buy plan - ${i === 0 ? "monthly" : "annually"}`, async () => {
           await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[5], i === 0);
-
           await purchaseFlow.submitSubscriptionPayment();
         });
 
@@ -237,6 +236,34 @@ test.describe("E2E -> Member portal", () => {
 
       await test.step("Verify redirect to Stripe checkout", async () => {
         await purchaseFlow.verifyStripePaymentFormCorrectDisplay();
+      });
+    },
+  );
+
+  test(
+    "TC11",
+    {
+      tag: "@On Stripe, the user enters card information and other related details.",
+    },
+    async ({ onboardingFlow, authFlow, purchaseFlow }) => {
+      const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
+      const plans = getPlansForDepartment();
+
+      await test.step("Fill form to sign up", async () => {
+        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!);
+      });
+
+      await test.step("Confirm email", async () => {
+        await authFlow.activateSignedUpCustomer(customerInfo!.accountInfo.email!);
+      });
+
+      await test.step("Select a plan and confirm payment", async () => {
+        await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[0]);
+        await purchaseFlow.submitSubscriptionPayment();
+      });
+
+      await test.step("Verify redirect to home page after payment", async () => {
+        await onboardingFlow.redirectToHomePage();
       });
     },
   );
