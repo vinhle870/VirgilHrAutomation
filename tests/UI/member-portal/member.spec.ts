@@ -181,4 +181,36 @@ test.describe("E2E -> Member portal", () => {
       });
     },
   );
+
+  test(
+    "TC09",
+    {
+      tag: "@After selecting a plan, the user can choose to pay annually or monthly, and apply a discount code.",
+    },
+    async ({ onboardingFlow, authFlow, purchaseFlow }) => {
+      const plans = getPlansForDepartment();
+
+      for (let i = 0; i <= 1; i++) {
+        const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
+
+        await test.step(`Fill form to sign up`, async () => {
+          await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!);
+        });
+
+        await test.step(`Confirm email`, async () => {
+          await authFlow.activateSignedUpCustomer(customerInfo!.accountInfo.email!);
+        });
+
+        await test.step(`Select a plan from the list and buy plan - ${i === 0 ? "monthly" : "annually"}`, async () => {
+          await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[5], i === 0);
+
+          await purchaseFlow.submitSubscriptionPayment();
+        });
+
+        await test.step(`Verify buy plan successfully - ${i === 0 ? "monthly" : "annually"}`, async () => {
+          await onboardingFlow.redirectToHomePage();
+        });
+      }
+    },
+  );
 });
