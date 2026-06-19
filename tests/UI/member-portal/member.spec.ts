@@ -269,34 +269,6 @@ test.describe("E2E -> Member portal", () => {
   );
 
   test(
-    "TC14",
-    {
-      tag: "@Verify that after a successful payment, the system automatically redirects the user to the Virgil homepage.",
-    },
-    async ({ onboardingFlow, authFlow, purchaseFlow }) => {
-      const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
-      const plans = getPlansForDepartment();
-
-      await test.step("Fill form to sign up", async () => {
-        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!);
-      });
-
-      await test.step("Confirm email", async () => {
-        await authFlow.activateSignedUpCustomer(customerInfo!.accountInfo.email!);
-      });
-
-      await test.step("Select a plan and submit payment", async () => {
-        await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[5]);
-        await purchaseFlow.submitSubscriptionPayment();
-      });
-
-      await test.step("Verify redirect to Virgil homepage after successful payment", async () => {
-        await onboardingFlow.redirectToHomePage();
-      });
-    },
-  );
-
-  test(
     "TC12",
     {
       tag: "@Verify that only valid cards can be processed for payment.",
@@ -353,6 +325,34 @@ test.describe("E2E -> Member portal", () => {
       await test.step("Enter invalid card and verify error", async () => {
         await purchaseFlow.submitInvalidCardPayment();
         await purchaseFlow.verifyCardPaymentError();
+      });
+    },
+  );
+
+  test(
+    "TC14",
+    {
+      tag: "@Verify that after a successful payment, the system automatically redirects the user to the Virgil homepage.",
+    },
+    async ({ onboardingFlow, authFlow, purchaseFlow }) => {
+      const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
+      const plans = getPlansForDepartment();
+
+      await test.step("Fill form to sign up", async () => {
+        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!);
+      });
+
+      await test.step("Confirm email", async () => {
+        await authFlow.activateSignedUpCustomer(customerInfo!.accountInfo.email!);
+      });
+
+      await test.step("Select a plan and submit payment", async () => {
+        await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[5]);
+        await purchaseFlow.submitSubscriptionPayment();
+      });
+
+      await test.step("Verify redirect to Virgil homepage after successful payment", async () => {
+        await onboardingFlow.redirectToHomePage();
       });
     },
   );
