@@ -34,9 +34,8 @@ test.describe(
         apiClient,
         authenticationService,
         adminPortalService,
-        onboardingFlow,
         memberPortalService,
-        tempEmailFreePage,
+        authFlow,
       }) => {
         const tempPassword = "Password@123";
         let planName = plans[4];
@@ -121,9 +120,7 @@ test.describe(
             for (let i = 0; i < memberData.length; i++) {
               const email = consumerData.members[i].email;
 
-              const username = email.split("@")[0];
-
-              await onboardingFlow.acceptInvitation(tempEmailFreePage, username);
+              await authFlow.acceptInviteAndJoinTeamByCustomer(email, tempPassword);
 
               const invitedMember = await authenticationService.getAuthToken(
                 memberData[i].accountInfo.email,
@@ -278,8 +275,7 @@ test.describe(
         authenticationService,
         adminPortalService,
         memberPortalService,
-        onboardingFlow,
-        tempEmailFreePage,
+        authFlow,
       }) => {
         const tempPassword = "Password@123";
         const customerDataName = "vinhle32006";
@@ -370,9 +366,7 @@ test.describe(
             for (let i = 0; i < consumerData.members.length; i++) {
               const email = consumerData.members[i].email;
 
-              const username = email.split("@")[0];
-
-              await onboardingFlow.acceptInvitation(tempEmailFreePage, username);
+              await authFlow.acceptInviteAndJoinTeamByCustomer(email, tempPassword);
 
               const invitedMember = await authenticationService.getAuthToken(
                 consumerData.members[i].email,
@@ -528,8 +522,7 @@ test.describe(
         authenticationService,
         adminPortalService,
         memberPortalService,
-        onboardingFlow,
-        tempEmailFreePage,
+        authFlow,
       }) => {
         const tempPassword = "Password@123";
         const customerDataName = "testingvinhlevinhle32006";
@@ -635,9 +628,7 @@ test.describe(
             for (let i = 0; i < consumerData.members.length; i++) {
               const memberEmail = consumerData.members[i].email;
 
-              const username = memberEmail.split("@")[0];
-
-              await onboardingFlow.acceptInvitation(tempEmailFreePage, username);
+              await authFlow.acceptInviteAndJoinTeamByCustomer(memberEmail, tempPassword);
 
               const member = await adminPortalService.getMemberInfo(
                 customerInfo,

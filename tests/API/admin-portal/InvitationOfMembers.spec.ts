@@ -18,7 +18,7 @@ test.describe(
       {
         tag: ["@TC57", "@API", "@Admin Portal", "@Invitation", "@Partner", "@Boarding"],
       },
-      async ({ apiClient, authenticationService, adminPortalService, partnerPortalService, onboardingFlow, memberPortalService, tempEmailFreePage }) => {
+      async ({ apiClient, authenticationService, adminPortalService, partnerPortalService, authFlow, memberPortalService }) => {
         const paymentProductName: string = plans[0];
         const tempPassword = "Password@123";
 
@@ -96,9 +96,7 @@ test.describe(
         await test.step("Onboarding: Accept invitation and verify GET Payment/subscription/me", async () => {
           const invitedEmail = customerWithMember.members[0].email;
 
-          const username = invitedEmail.split("@")[0];
-
-          await onboardingFlow.acceptInvitation(tempEmailFreePage, username);
+          await authFlow.acceptInviteAndJoinTeamByCustomer(invitedEmail, tempPassword);
 
           const invitedMemberToken = await authenticationService.getAuthToken(invitedEmail, tempPassword, "4");
 
@@ -166,7 +164,7 @@ test.describe(
       {
         tag: ["@TC62", "@API", "@Admin Portal", "@Invitation", "@Partner", "@Boarding"],
       },
-      async ({ apiClient, authenticationService, adminPortalService, partnerPortalService, onboardingFlow, memberPortalService, tempEmailFreePage }) => {
+      async ({ apiClient, authenticationService, adminPortalService, partnerPortalService, authFlow, memberPortalService }) => {
         const tempPassword = "Password@123";
         const paymentProductName: string = plans[0];
 
@@ -240,9 +238,7 @@ test.describe(
 
             const invitedEmail = customerWithMember.members[0].email;
 
-            const username = invitedEmail.split("@")[0];
-
-            await onboardingFlow.acceptInvitation(tempEmailFreePage, username);
+            await authFlow.acceptInviteAndJoinTeamByCustomer(invitedEmail, tempPassword);
 
             const invitedMember = await authenticationService.getAuthToken(invitedEmail, tempPassword, "4");
 

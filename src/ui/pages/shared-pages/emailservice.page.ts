@@ -3,15 +3,17 @@ import { BasePage } from "../base-page";
 import { TempEmailFreeLocators, BeeinboxLocators } from "./locators";
 import { expect } from "@playwright/test";
 import { Partner } from "src/objects/ipartner";
-import { getEmailSubjectForDepartment } from "src/constant/department-data";
+import { getEmailSubjectByDepartment } from "src/constant/department-data";
 
 export class EmailServicePage extends BasePage {
   private readonly mailboxUrl = process.env.MAILBOX_URL || "";
 
   public acceptJoinTeamInvite = async (userEmail: string): Promise<void> => {
+
+
     await this.registerNewEmail(userEmail);
 
-    const emailSubject = getEmailSubjectForDepartment().SUBJECT_EMAIL_TO_JOIN_TEAM;
+    const emailSubject = getEmailSubjectByDepartment().SUBJECT_EMAIL_TO_JOIN_TEAM;
 
     await this.openEmailBySubject(emailSubject!);
 

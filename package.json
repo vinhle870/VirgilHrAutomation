@@ -41,6 +41,9 @@
     "@faker-js/faker": "^10.1.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
-    "uuid": "^13.0.0"
+    "easy-yopmail": "^5.2.2",
+    "simple-maildrop": "^0.2.0",
+    "uuid": "^13.0.0",
+    "yopmail-helper": "^1.0.13"
   }
 }

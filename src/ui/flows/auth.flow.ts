@@ -3,7 +3,8 @@ import { LoginPage } from "../pages";
 import { EmailServicePage } from "../pages/shared-pages/emailservice.page";
 import { WelcomeModal } from "../pages/shared-pages/welome.modal";
 import { MemberOnboardingLocators } from "../pages/member-portal/locators";
-import { getEmailSubjectForDepartment } from "src/constant/department-data";
+import { getEmailSubjectByDepartment } from "src/constant/department-data";
+import { MaildropHandler } from "src/utilities/maildrop-handling";
 /**
  * This flow class contains methods related to the authentication process, such as logging in with valid accounts, accepting invitations, activating accounts, and changing passwords.
  * Flows:
@@ -28,6 +29,15 @@ export class AuthFlow {
   public loginToPortals = async (portalUrl: string, email: string, password: string) => await this.loginPage.fillLoginForm(portalUrl, email, password);
 
   public acceptInviteAndJoinTeamByCustomer = async (customerEmail: string, password: string): Promise<void> => {
+
+    if(process.env.MAILBOX_URL?.includes("maildrop")) {
+      const maildropHandler = new MaildropHandler();
+      const emailSubject = getEmailSubjectByDepartment().SUBJECT_EMAIL_TO_JOIN_TEAM;
+      const emailContent = await maildropHandler.readEmail(customerEmail, emailSubject, { format: 'html' });
+      const hrefValue = emailContent.content.match(/href="([^"]+)"/)?.[1];
+      console.log(`Extracted hrefValue from email content: ${hrefValue}`);
+    }
+    {
     await this.emailServicePage.acceptJoinTeamInvite(customerEmail);
 
     await this.loginPage.currentPage.waitForLoadState("domcontentloaded");
@@ -39,10 +49,12 @@ export class AuthFlow {
     await this.loginPage.clickOnJoinTeamLink();
 
     await new WelcomeModal(this.loginPage.currentPage).closeModalWithOption("readyDiveIn");
+    }
+
   };
 
   public activateCustomerAccount = async (customerEmail: string, newPassword: string) => {
-    const emailTitle = getEmailSubjectForDepartment().SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL!;
+    const emailTitle = getEmailSubjectByDepartment().SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL!;
 
     const accountCrendential = await this.emailServicePage.extractAccountCredentialFromInBox(customerEmail, emailTitle);
 
@@ -56,7 +68,7 @@ export class AuthFlow {
   };
 
   public activateIndividualCustomerAccountAndSetPassword = async (email: string, portal: string, newPassword: string) => {
-    const envSubject = getEmailSubjectForDepartment();
+    const envSubject = getEmailSubjectByDepartment();
 
     const subject = portal === "Member" || portal === "Consumer" ? envSubject.SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL : envSubject.SUBJECT_EMAIL_TO_PARTNER_CREDENTIAL;
 
@@ -67,16 +79,34 @@ export class AuthFlow {
     await this.loginPage.setPassword(newPassword);
   };
 
-  public activateIndividualCustomerAccountAndChangePassword = async (email: string, portal: string, newPassword: string) => {
-    const envSubject = getEmailSubjectForDepartment();
+  public activateAndChangePassIndividualCustomer = async (email: string, portal: string, newPassword: string) => {
+    const envSubject = getEmailSubjectByDepartment();
 
     const subject = portal === "Member" || portal === "Consumer" ? envSubject.SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL : envSubject.SUBJECT_EMAIL_TO_PARTNER_CREDENTIAL;
 
-    const credential = await this.emailServicePage.extractAccountCredentialFromInBox(email, subject);
+    let credential: { email: string; password: string | undefined; hrefValue: string | null | undefined } = {
+      email: "",
+      password: "",
+      hrefValue: "",
+    };
+    if(process.env.MAILBOX_URL?.includes("maildrop")) {
+      const mailDropHandler = new MaildropHandler();
+      const emailContent = await mailDropHandler.readEmail(email, subject, { format: 'html'});
 
+      const accCredential = mailDropHandler.parseCredentialsFromMailBody(emailContent.content);
+      credential = {
+        email: email,
+        password: accCredential.password,
+        hrefValue: accCredential.loginUrl,
+      };
+    }
+    else {
+    credential = await this.emailServicePage.extractAccountCredentialFromInBox(email, subject);
+    }
     await this.loginPage.fillLoginForm(credential.hrefValue!, email, credential.password!);
 
     await this.loginPage.changePassword(credential.password!, newPassword);
+
   };
 
   public activateSignedUpCustomer = async (email: string) => {

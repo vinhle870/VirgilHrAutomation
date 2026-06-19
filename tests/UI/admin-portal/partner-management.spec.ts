@@ -89,7 +89,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Activate partner", async () => {
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
       });
 
       const peoPartnerInfo = await DataFactory.peoPartnerBuilder()
@@ -105,7 +105,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Activate peo", async () => {
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(peoPartnerInfo.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(peoPartnerInfo.accountInfo?.email!, "Partner portal", "Password@123");
       });
 
       await test.step("Verify peo are added successfully", async () => {
@@ -207,7 +207,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Activate partner", async () => {
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo!.email, "Partner portal", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo!.email, "Partner portal", "Password@123");
       });
 
       await test.step("Buy plan", async () => {
@@ -252,7 +252,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Activate partner", async () => {
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
       });
 
       await test.step("Create owner", async () => {
@@ -297,7 +297,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Activate partner", async () => {
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo.accountInfo!.email, "Partner portal", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(partnerInfo.accountInfo!.email, "Partner portal", "Password@123");
       });
 
       await test.step("Activate member", async () => {
@@ -431,7 +431,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Partner does not need to make a payment through tripe", async () => {
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
         await onboardingFlow.redirectToHomePage();
       });
@@ -465,7 +465,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify partner needs to make a payment through tripe", async () => {
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
         await onboardingFlow.validatePlanVisible();
 
@@ -537,11 +537,11 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify With Payment Options = Partner/Consultant Owner, after successfully creating a Partner account, the user receives two credential emails", async () => {
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
         await onboardingFlow.redirectToHomePage();
 
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Member", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo?.email!, "Member", "Password@123");
 
         await onboardingFlow.redirectToHomePage();
       });
@@ -607,7 +607,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify login only partner portal", async () => {
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner Portal", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo?.email!, "Partner Portal", "Password@123");
 
         await onboardingFlow.redirectToHomePage();
       });
@@ -642,7 +642,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
 
       const ownerAccount = await PersonDataGenerator.generate();
       await test.step("Create a business and verify the owner can log in to Member Portal", async () => {
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
         await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerAccount!);
 
