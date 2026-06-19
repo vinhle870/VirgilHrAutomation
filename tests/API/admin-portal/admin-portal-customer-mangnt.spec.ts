@@ -21,7 +21,7 @@ test.describe(
         const testData = new TestDataProvider(adminPortalService);
 
         const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
-        paymentProductName = plans[1];
+        paymentProductName = plans[5];
 
         const masterPlan: any = await testData.filterMasterPlanBasedName(departmentID, paymentProductName);
         const masterPlanId = masterPlan.masterPlanId;
@@ -120,6 +120,7 @@ test.describe(
           consumerData = await DataFactory.customerBuilder()
             .forAdminPortal()
             .withCompanySize(filteredProductType)
+            .withProductType(filteredProductType)
             .withAdminOptions({ trialDays: 30 })
             .withPartner(partnerInfo.partnerId!)
             .withDepartment(partnerInfo.departmentId!)

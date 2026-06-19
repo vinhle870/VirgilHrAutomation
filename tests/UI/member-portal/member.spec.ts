@@ -267,4 +267,37 @@ test.describe("E2E -> Member portal", () => {
       });
     },
   );
+
+  test(
+    "TC12",
+    {
+      tag: "@Verify that only valid cards can be processed for payment.",
+    },
+    async ({ onboardingFlow, authFlow, purchaseFlow }) => {
+      const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
+      const plans = getPlansForDepartment();
+
+      await test.step("Fill form to sign up", async () => {
+        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!);
+      });
+
+      await test.step("Confirm email", async () => {
+        await authFlow.activateSignedUpCustomer(customerInfo!.accountInfo.email!);
+      });
+
+      await test.step("Select a plan and confirm payment", async () => {
+        await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[5]);
+      });
+
+      await test.step("Enter invalid card and verify error", async () => {
+        await purchaseFlow.submitInvalidCardPayment();
+        await purchaseFlow.verifyCardPaymentError();
+      });
+
+      await test.step("Enter valid card and verify payment success", async () => {
+        await purchaseFlow.retryWithValidCard();
+        await onboardingFlow.redirectToHomePage();
+      });
+    },
+  );
 });
