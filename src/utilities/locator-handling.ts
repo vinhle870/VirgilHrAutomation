@@ -40,7 +40,7 @@ export class LocatorHandling {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
     await this.waitForNetworkSettled(page, effectiveTimeout);
 
-    const frame = await page.locator(iframeSelector).contentFrame();
+    const frame = page.locator(iframeSelector).contentFrame();
     const locator = frame.locator(selector);
     await locator.first().waitFor({ state: "visible", timeout: effectiveTimeout });
     return locator;
