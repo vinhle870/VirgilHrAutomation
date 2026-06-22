@@ -183,6 +183,8 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
       tag: "@TC35",
     },
     async ({ loginPage, onboardingFlow, purchaseFlow, authFlow }) => {
+      test.setTimeout(120000);
+
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });

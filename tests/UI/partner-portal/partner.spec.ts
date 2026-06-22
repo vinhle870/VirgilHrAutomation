@@ -16,7 +16,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plans[0]])
+        .withProductsType([plans[5]])
         .withBankTransfer(true)
         .build();
 
@@ -50,7 +50,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
         .withBankTransfer(false)
-        .withProductsType([plans[0]])
+        .withProductsType([plans[5]])
         .build();
 
       await test.step("Create a new partner", async () => {
@@ -94,7 +94,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plans[0]])
+        .withProductsType([plans[5]])
         .withBankTransfer(false)
         .build();
 
@@ -133,7 +133,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plans[0]])
+        .withProductsType([plans[5]])
         .withBankTransfer(true)
         .build();
 
@@ -168,7 +168,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plans[0]])
+        .withProductsType([plans[5]])
         .withBankTransfer(true)
         .build();
 
@@ -210,7 +210,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
         await loginPage.login();
       });
 
-      const partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Member Portal Consumer").withProductsType([plans[0]]).build();
+      const partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Member Portal Consumer").withProductsType([plans[5]]).build();
 
       await test.step("Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo);

@@ -19,7 +19,7 @@ test.describe("E2E -> Admin Portal -> Customer Management", { tag: "@regression_
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withDepartment(process.env.DEPARTMENT!)
         .withBankStranfer(true)
-        .withCompanySize(plans[0])
+        .withCompanySize(plans[5])
         .build();
 
       await test.step("Create customer from Customer management page", async () => {
@@ -36,7 +36,7 @@ test.describe("E2E -> Admin Portal -> Customer Management", { tag: "@regression_
 
       let admins: UserInfo[];
       await test.step("Invite members (Role = Admin) in Customer management", async () => {
-         await authFlow.loginToAdminPortal();
+        await authFlow.loginToAdminPortal();
 
         admins = await CustomerFactory.generateMembers(2, "Admin");
 
