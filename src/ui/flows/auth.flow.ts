@@ -4,7 +4,8 @@ import { EmailServicePage } from "../pages/shared-pages/emailservice.page";
 import { WelcomeModal } from "../pages/shared-pages/welome.modal";
 import { MemberOnboardingLocators } from "../pages/member-portal/locators";
 import { getEmailSubjectByDepartment } from "src/constant/department-data";
-import { EmailCredentials, EmailMessage, MaildropHandler } from "src/utilities/maildrop-handling";
+import { EmailCredentials, EmailMessage, MailDropHandler, YopmailHandler } from "src/utilities/email-handling";
+
 
 /**
  * This flow class contains methods related to the authentication process,
@@ -22,24 +23,33 @@ export class AuthFlow {
   private loginPage: LoginPage;
   private page: Page;
 
+
   constructor(page: Page) {
     this.page = page;
     this.loginPage = new LoginPage(this.page);
     this.emailServicePage = new EmailServicePage(this.page);
+
   }
 
   // ─── Private helpers ─────────────────────────────────────────────────────────
 
-  /** Reads credentials from whichever inbox backend is active (maildrop API or UI-based inbox). */
+  /** Reads credentials from whichever inbox backend is active (maildrop, YOPmail, or UI-based inbox). */
   private getCredentials = async (email: string, subject: string): Promise<EmailCredentials> => {
-    if (process.env.MAILBOX_URL?.includes("maildrop")) {
-      const mailDropHandler = new MaildropHandler();
+    const mailboxUrl = process.env.MAILBOX_URL ?? "";
+
+    const apiHandler = mailboxUrl.includes("maildrop")
+      ? new MailDropHandler()
+      : mailboxUrl.includes("yopmail")
+        ? new YopmailHandler()
+        : null;
+
+    if (apiHandler) {
       let emailContent: EmailMessage | null = null;
 
       await expect.poll(
         async () => {
           try {
-            emailContent = await mailDropHandler.readEmail(email, subject, { format: "html" });
+            emailContent = await apiHandler.readEmail(email, subject, { format: "html" });
             return true;
           } catch {
             return false;
@@ -52,8 +62,9 @@ export class AuthFlow {
         },
       ).toBe(true);
 
-      return mailDropHandler.parseCredentialsFromMailBody(emailContent!.content);
+      return apiHandler.parseCredentialsFromMailBody(emailContent!.content);
     }
+
     return this.emailServicePage.extractAccountCredentialFromInBox(email, subject);
   };
 
@@ -79,7 +90,7 @@ export class AuthFlow {
    */
   public acceptInviteAndJoinTeamByCustomer = async (customerEmail: string, password: string): Promise<void> => {
     if (process.env.MAILBOX_URL?.includes("maildrop")) {
-      const mailDropHandler = new MaildropHandler();
+      const mailDropHandler = new MailDropHandler();
       const emailSubject = getEmailSubjectByDepartment().SUBJECT_EMAIL_TO_JOIN_TEAM;
       const emailContent = await mailDropHandler.readEmail(customerEmail, emailSubject, { format: "html" });
       const hrefMatch = emailContent.content.match(/href="([^"]+)"/);
@@ -145,7 +156,7 @@ export class AuthFlow {
     const subject = "Verify your email address";
 
     if (process.env.MAILBOX_URL?.includes("maildrop")) {
-      const mailDropHandler = new MaildropHandler();
+      const mailDropHandler = new MailDropHandler();
       const emailContent = await mailDropHandler.readEmail(email, subject, { format: "html" });
       const confirmMatch = emailContent.content.match(/<a[^>]+href="([^"]+)"[^>]*>\s*Confirm email\s*<\/a>/i);
       if (!confirmMatch) throw new Error("Confirmation URL not found in email content");

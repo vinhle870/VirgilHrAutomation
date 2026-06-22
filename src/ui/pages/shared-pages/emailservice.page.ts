@@ -4,7 +4,7 @@ import { TempEmailFreeLocators, BeeinboxLocators } from "./locators";
 import { expect } from "@playwright/test";
 import { Partner } from "src/objects/ipartner";
 import { getEmailSubjectByDepartment } from "src/constant/department-data";
-import { EmailCredentials } from "src/utilities/maildrop-handling";
+import { EmailCredentials } from "src/utilities/email-handling";
 
 export class EmailServicePage extends BasePage {
   private readonly mailboxUrl = process.env.MAILBOX_URL || "";
