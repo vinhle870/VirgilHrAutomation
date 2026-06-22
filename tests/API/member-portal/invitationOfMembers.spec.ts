@@ -11,7 +11,7 @@ import { AuthFlow } from "src/ui/flows";
 test.describe(
   "Invite members to a team",
   {
-    tag: ["@API", "@Member Portal", "@Invite Members", "@Organization", "@TC54", "@TC55"],
+    tag: ["@API", "@Member Portal", "@Invite Members", "@Organization", "@TC54", "@TC55", "@regression_API"],
   },
   () => {
     test(

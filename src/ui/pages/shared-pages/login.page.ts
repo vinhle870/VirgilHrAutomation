@@ -20,15 +20,10 @@ export class LoginPage extends BasePage {
     const logger = (console.debug ?? console.log).bind(console);
     logger(`==================[Login Form] url: ${url}, username: ${username}\n`);
 
-    try {
-      await this.page.goto(url);
-      await this.page.waitForLoadState("domcontentloaded", { timeout: 30000 });
-    } catch (error) {
-      await delay(5000);
 
       await this.page.goto(url);
       await this.page.waitForLoadState("domcontentloaded", { timeout: 30000 });
-    }
+
 
     const managementCategoryEl = this.page.locator(CommonAdminPortalLocator.managementCategory);
 

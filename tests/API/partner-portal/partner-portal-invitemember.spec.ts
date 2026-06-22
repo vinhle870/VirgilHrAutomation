@@ -10,7 +10,7 @@ import { CustomerInfo, Partner } from "src/objects";
 test.describe(
   "Partner management",
   {
-    tag: ["@API", "@Partner Portal", "@Business", "@Invite"],
+    tag: ["@API", "@Partner Portal", "@Business", "@Invite", "@regression_API"],
   },
   () => {
   test("TC63: API- POST /Partner/Manage/Partner/Business: Return 200-OK and correct Response",

@@ -4,11 +4,11 @@ import { CustomerFactory } from "src/data-factory/customer-factory";
 import UserInfo from "src/objects/user-info";
 import { plans } from "src/constant/static-data";
 
-test.describe("E2E -> Admin Portal -> Customer Management", () => {
+test.describe("E2E -> Admin Portal -> Customer Management", { tag: "@regression_UI" }, () => {
   test(
     "TC56 Verify that the admin can invite members to a team in Admin- portal - Customer management",
     {
-      tag: "@TC56_UI",
+      tag: "@TC56",
     },
     async ({ loginPage, onboardingFlow, authFlow }) => {
       await test.step("Login to Admin portal", async () => {

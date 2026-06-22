@@ -21,7 +21,7 @@ export class PartnerPage extends BasePage {
   public validateOwnerRoleInUserPage = async (email: string) => {
     await this.eraseModal();
     const userPage = CommonPartnerPortalLocator.usersButton;
-    this.page.locator(userPage).click({ timeout: 3000 });
+    await this.page.locator(userPage).click({ timeout: 3000 });
 
     await expect(this.page.locator(ClientPartnerPortalLocators.role.replace("emailValue", email))).toBeVisible({ timeout: 5000 });
   };

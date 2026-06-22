@@ -39,7 +39,7 @@ export class MaildropHandler {
   async readEmail(
     inbox: string,
     subject?: string,
-    options: ReadEmailOptions = {}
+    options: ReadEmailOptions = {},
   ): Promise<EmailMessage> {
     const { format = 'html' } = options;
     const mailAcc = inbox.split('@')[0];
@@ -47,11 +47,8 @@ export class MaildropHandler {
     const inboxData = await this.graphql<{ inbox: any[] }>(
       `query { inbox(mailbox:"${mailAcc}") { id headerfrom subject date } }`
     );
-
     const emails = inboxData.inbox ?? [];
-    const match = subject
-      ? emails.find((e: any) => e.subject?.includes(subject))
-      : emails[0];
+    const match = subject ? emails.find((e: any) => e.subject?.includes(subject)) : emails[0];
 
     if (!match) {
       const subjectClause = subject ? ` with subject "${subject}"` : '';
@@ -82,8 +79,19 @@ export class MaildropHandler {
     if (!loginUrlMatch) throw new Error('Login URL not found in email content');
 
     return {
-      password: passwordMatch[1].trim(),
+      password: this.decodeHtmlEntities(passwordMatch[1].trim()),
       loginUrl: loginUrlMatch[1],
     };
+  }
+
+  private decodeHtmlEntities(str: string): string {
+    return str
+      .replace(/&quot;/g, '"')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&apos;/g, "'")
+      .replace(/&#39;/g, "'")
+      .replace(/&#x27;/g, "'");
   }
 }

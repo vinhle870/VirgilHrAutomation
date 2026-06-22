@@ -17,13 +17,13 @@ export class PartnerManagementPage extends BasePage {
   }
 
   public fillUserInfoToCreatePartner = async (partnerInfo: Partner) => {
-    this.page.locator(CommonPartnerLocator.createNewPartnerButton).click({ timeout: 5000 });
+    await this.page.locator(CommonPartnerLocator.createNewPartnerButton).click({ timeout: 5000 });
 
-    await delay(5000);
+    await this.page.locator(CreateNewPartnerModalLocator.department).waitFor({ state: "visible" });
 
     await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo?.departmentName!, this.page, 5000);
 
-    await delay(3000);
+    await this.page.locator(CreateNewPartnerModalLocator.nameOfPartner).waitFor({ state: "visible" });
 
     if (partnerInfo.partnerInfo!.partnerLevel && partnerInfo.partnerInfo!.partnerLevel !== "Partner" && partnerInfo.partnerInfo!.partnerLevel !== "PEO/HR Consultant")
       throw new Error("Partner level does not exist");
@@ -122,6 +122,8 @@ export class PartnerManagementPage extends BasePage {
 
     if (partnerInfo.partnerInfo?.bankTransfer === true && partnerInfo.partnerInfo.paymentOption === "Partner/Consultant Owner")
       await this.page.locator(CreateNewPartnerModalLocator.confirmButton).click();
+
+    await this.page.locator(CreateNewPartnerModalLocator.createPartnerButton).waitFor({ state: "hidden" });
   };
 
   public fillFormToAddPeo = async (peoPartners: PeoPartner) => {
@@ -179,6 +181,9 @@ export class PartnerManagementPage extends BasePage {
     if (peoPartners.peoPartnerInfo?.backText !== "") await backTextEl.click();
 
     await createButtonEl.click();
+
+    await nameEl.waitFor({ state: "hidden"});
+
   };
 
   public clickDetailButton = async (user: Partner | UserInfo | CustomerInfo) => {
@@ -264,5 +269,9 @@ export class PartnerManagementPage extends BasePage {
     await this.clickDetailButton(partner);
 
     await this.page.locator(DetailOfPartnerLocator.addMemberButton).click();
+
+
   };
+
+
 }

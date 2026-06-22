@@ -2,7 +2,7 @@ import { test } from "src/fixtures";
 import { DataFactory, PersonDataGenerator } from "src/data-factory";
 import { plans } from "src/constant/static-data";
 
-test.describe("E2E -> Admin Portal -> Partner Management", () => {
+test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_UI" }, () => {
   test(
     "TC48",
     {

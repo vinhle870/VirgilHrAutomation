@@ -16,6 +16,7 @@ test.describe(
       "@Admin Portal",
       "@Customer Management",
       "@Invite Members",
+      "@regression_API",
     ],
   },
   () => {

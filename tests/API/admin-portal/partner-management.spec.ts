@@ -11,7 +11,7 @@ import delay from "src/utilities/delay";
 test.describe(
   "Partner managerment",
   {
-    tag: ["@API", "@Admin Portal", "@Partner Management"],
+    tag: ["@API", "@Admin Portal", "@Partner Management", "@regression_API"],
   },
   () => {
     test(

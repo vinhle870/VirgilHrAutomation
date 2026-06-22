@@ -3,11 +3,11 @@ import { DataFactory, PersonDataGenerator } from "src/data-factory";
 import { Partner } from "src/objects";
 import { plans } from "src/constant/static-data";
 
-test.describe("E2E -> Admin Portal -> Partner Management", () => {
+test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_UI" }, () => {
   test(
     "TC30 Verify that a partner account can only be created in the Admin Portal – Partner Management.",
     {
-      tag: "@TC30",
+      tag: ["@TC30", "@1_test"]
     },
     async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
@@ -34,7 +34,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
   test(
     "TC31 Verify when a Partner is being created, the admin can select its level as Partner or PEO/Consultant.",
     {
-      tag: "@TC31",
+      tag: "@TC31_UI",
     },
     async ({ loginPage: loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {

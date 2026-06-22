@@ -10,7 +10,7 @@ import { Partner } from "src/objects";
 test.describe(
   "Partner management",
   {
-    tag: ["@API", "@Admin Portal", "@Invitation", "@Partner"],
+    tag: ["@API", "@Admin Portal", "@Invitation", "@Partner", "@regression_API"],
   },
   () => {
     test(

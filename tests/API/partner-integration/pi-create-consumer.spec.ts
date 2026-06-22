@@ -12,7 +12,7 @@ import { CustomerInfo } from "src/objects";
 test.describe(
   "Partner Integration",
   {
-    tag: ["@API", "@Partner Integration", "@Consumer"],
+    tag: ["@API", "@Partner Integration", "@Consumer", "@regression_API"],
   },
   () => {
   test("PI_001_API POST /client/consumer: Return 201-Created and correct Response",
