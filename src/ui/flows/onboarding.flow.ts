@@ -9,7 +9,6 @@ import { OnboardingPartnerPotalFlow } from "../pages/partner-portal/flows/partne
 import { OnboardingMemberPortalFlow } from "../pages/member-portal/flows/memberportal.onboarding.flow";
 import { EmailServicePage } from "../pages";
 import { HomePage } from "../pages/shared-pages/home.page";
-import delay from "src/utilities/delay";
 import { SignUpLocators } from "../pages/member-portal/locators/signup";
 
 /**
@@ -52,30 +51,18 @@ export class OnboardingFlow {
   public verifyPartnerVisible = async (partnerInfo: Partner) => {
     const partnerEmailLocator = this.page!.getByText(partnerInfo!.accountInfo!.email).first();
 
-    const options = { timeout: 10000 };
-
-    try {
-      await UiAssert.allVisible([partnerEmailLocator], options);
-    } catch (error) {
-      await refreshPage(this.page);
-      await UiAssert.allVisible([partnerEmailLocator], options);
-    }
+     await UiAssert.allVisible([partnerEmailLocator]);
   };
 
   public verifyCustomerVisible = async (customerInfo: CustomerInfo) => {
     const customerEmailLocator = this.page!.getByText(customerInfo!.accountInfo!.email).first();
-    try {
-      await UiAssert.allVisible([customerEmailLocator]);
-    } catch (error) {
-      await refreshPage(this.page);
-      await UiAssert.allVisible([customerEmailLocator]);
-    }
+
+    await UiAssert.allVisible([customerEmailLocator]);
+
   };
 
   public verifyURL = async (containedURL: string) => {
-    await delay(15000);
-    const currentUrl = this.page.url();
-    UiAssert.urlMatches(currentUrl, containedURL);
+    await this.page.waitForURL(`**${containedURL}**`, { timeout: 30000 });
   };
 
   public createPartnerAndAddPeoInAdminPortal = async (partnerInfo: Partner, peoPartners?: PeoPartner, isAddPeo = false) =>

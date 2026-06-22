@@ -8,7 +8,7 @@ import { ProductInfo } from "src/objects/iproduct";
 test.describe(
   "MemberPortalService - signUpConsumer",
   {
-    tag: ["@API", "@Member Portal", "@Sign Up", "@Consumer"],
+    tag: ["@API", "@Member Portal", "@Sign Up", "@Consumer", "@regression_API"],
   },
   () => {
     test(
@@ -187,7 +187,7 @@ test.describe(
 
           const planUrl = String((planResponse as any).returnUrl);
 
-          await authFlow.loginWithValidAccount(planUrl, (customerAccountInfo as any).email, tempPassword);
+          await authFlow.loginToPortals(planUrl, (customerAccountInfo as any).email, tempPassword);
 
           await purchaseFlow.buyPlanByCustomer(planUrl, (customerAccountInfo as any).email, planName);
         });
@@ -327,7 +327,7 @@ test.describe(
       await test.step("Complete payment and verify redirect to Virgil home", async () => {
         const planUrl = String((planResponse as any).returnUrl);
 
-        await authFlow.loginWithValidAccount(planUrl, (customerAccountInfo as any).email, tempPassword);
+        await authFlow.loginToPortals(planUrl, (customerAccountInfo as any).email, tempPassword);
 
         await purchaseFlow.buyPlanByCustomer(planUrl, (customerAccountInfo as any).email, consumerData.plan);
 
@@ -384,7 +384,7 @@ test.describe(
 
           const planUrl = String((planResponse as any).returnUrl);
 
-          await authFlow.loginWithValidAccount(planUrl, (customerAccountInfo as any).email, tempPassword);
+          await authFlow.loginToPortals(planUrl, (customerAccountInfo as any).email, tempPassword);
 
           await purchaseFlow.buyPlanByCustomer(planUrl, (customerAccountInfo as any).email, consumerData.plan);
         });

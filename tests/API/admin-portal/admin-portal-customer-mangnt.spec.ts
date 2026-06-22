@@ -10,7 +10,7 @@ import delay from "src/utilities/delay";
 test.describe(
   "Admin Portal -> Customer Management",
   {
-    tag: ["@API", "@Admin Portal", "@Customer Management", "@Boarding"],
+    tag: ["@API", "@Admin Portal", "@Customer Management", "@Boarding", "@regression_API"],
   },
 
   () => {

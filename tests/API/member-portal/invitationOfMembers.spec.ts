@@ -6,11 +6,12 @@ import { TestDataProvider } from "src/test-data";
 import { ProductInfo } from "src/objects/iproduct";
 import { plans } from "src/constant/static-data";
 import delay from "src/utilities/delay";
+import { AuthFlow } from "src/ui/flows";
 
 test.describe(
   "Invite members to a team",
   {
-    tag: ["@API", "@Member Portal", "@Invite Members", "@Organization", "@TC54", "@TC55"],
+    tag: ["@API", "@Member Portal", "@Invite Members", "@Organization", "@TC54", "@TC55", "@regression_API"],
   },
   () => {
     test(
@@ -18,7 +19,7 @@ test.describe(
       {
         tag: ["@TC54", "@API", "@Member Portal", "@Invite Members", "@Organization"],
       },
-      async ({ apiClient, authenticationService, adminPortalService, memberPortalService, partnerPortalService, onboardingFlow, tempEmailFreePage }) => {
+      async ({ apiClient, authenticationService, adminPortalService, memberPortalService, partnerPortalService, authFlow }) => {
         //***************Pre-requisites: Prepare data for the test*******************************//
 
         const adminService = await AdminPortalService.create(apiClient, authenticationService);
@@ -105,9 +106,7 @@ test.describe(
         await test.step("Onboarding: Accept invitation and verify GET Payment/subscription/me", async () => {
           const invitedEmail = invitePayload.recipients[0].email;
 
-          const username = invitedEmail.split("@")[0];
-
-          await onboardingFlow.activateCustomerAccount(tempEmailFreePage, username);
+          await authFlow.activateCustomerAccount(invitedEmail, tempPassword);
 
           const invitedEmailToken = await authenticationService.getAuthToken(invitedEmail, tempPassword, "4");
 
@@ -175,7 +174,7 @@ test.describe(
       {
         tag: ["@TC55", "@API", "@Member Portal", "@Invite Members", "@Owner Admin"],
       },
-      async ({ apiClient, authenticationService, adminPortalService, partnerPortalService, memberPortalService, onboardingFlow, authFlow }) => {
+      async ({ apiClient, authenticationService, adminPortalService, partnerPortalService, memberPortalService, authFlow }) => {
         const adminService = await AdminPortalService.create(apiClient, authenticationService);
 
         const paymentProductName: string = plans[1];
@@ -262,9 +261,7 @@ test.describe(
 
           const adminEmail = adminPayload.recipients[0].email;
 
-          const username = adminEmail.split("@")[0];
-
-          await authFlow.activateCustomerAccount(tempEmailFreePage, username);
+          await authFlow.activateCustomerAccount(adminEmail, tempPassword);
 
           const adminToken = await authenticationService.getAuthToken(adminEmail, tempPassword, "4");
 
@@ -348,9 +345,7 @@ test.describe(
 
           expect(inviteUserResponse).toBeDefined();
 
-          const usernameToInvite = userPayload.recipients[0].email.split("@")[0];
-
-          await onboardingFlow.activateCustomerAccount(tempEmailFreePage, usernameToInvite);
+          await authFlow.activateCustomerAccount(userEmail, tempPassword);
 
           const userToken = await authenticationService.getAuthToken(userEmail, tempPassword, "4");
 

@@ -17,7 +17,7 @@ export class PersonDataGenerator {
     const firstName = overrides?.firstName ?? (await DataGenerate.generateFirstName()) + `${seq}`;
     const isBeeinbox = (process.env.MAILBOX_URL || "").includes("beeinbox");
     const localPrefix = overrides?.firstName ?? (isBeeinbox ? `QATest_${seq}${firstName}`.slice(0, 15) : `${firstName}`);
-    const email = overrides?.email ?? (isBeeinbox ? `${localPrefix}@beeinbox.edu.pl` : `${localPrefix}@polandcampus.edu.pl`);
+    const email = overrides?.email ?? (isBeeinbox ? `${localPrefix}@beeinbox.edu.pl` : `${localPrefix}@maildrop.cc`);
     const password = overrides?.password ?? `Password@123`;
     const lastName = overrides?.lastName ?? (await DataGenerate.generateLastName());
     const jobTitle = overrides?.jobTitle ?? (await DataGenerate.generatejobTitle());

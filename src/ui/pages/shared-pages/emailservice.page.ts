@@ -3,15 +3,18 @@ import { BasePage } from "../base-page";
 import { TempEmailFreeLocators, BeeinboxLocators } from "./locators";
 import { expect } from "@playwright/test";
 import { Partner } from "src/objects/ipartner";
-import { getEmailSubjectForDepartment } from "src/constant/department-data";
+import { getEmailSubjectByDepartment } from "src/constant/department-data";
+import { EmailCredentials } from "src/utilities/maildrop-handling";
 
 export class EmailServicePage extends BasePage {
   private readonly mailboxUrl = process.env.MAILBOX_URL || "";
 
   public acceptJoinTeamInvite = async (userEmail: string): Promise<void> => {
+
+
     await this.registerNewEmail(userEmail);
 
-    const emailSubject = getEmailSubjectForDepartment().SUBJECT_EMAIL_TO_JOIN_TEAM;
+    const emailSubject = getEmailSubjectByDepartment().SUBJECT_EMAIL_TO_JOIN_TEAM;
 
     await this.openEmailBySubject(emailSubject!);
 
@@ -28,7 +31,7 @@ export class EmailServicePage extends BasePage {
     await this.page.goto(hrefValue!);
   };
 
-  public extractAccountCredentialFromInBox = async (email: string, subject: string): Promise<{ email: string; password: string | undefined; hrefValue: string | null | undefined }> => {
+  public extractAccountCredentialFromInBox = async (email: string, subject: string): Promise<EmailCredentials> => {
     await this.registerNewEmail(email);
 
     await this.openEmailBySubject(subject);
@@ -49,19 +52,18 @@ export class EmailServicePage extends BasePage {
 
     try {
       await loginLink.scrollIntoViewIfNeeded({ timeout: 5000 });
-    } catch (error) {
+    } catch {
       emailContentFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).first().contentFrame();
-
-      if (isVerify) loginLink = emailContentFrame.getByRole("link", { name: "Confirm email" });
-
-      loginLink = emailContentFrame.getByRole("link", { name: "Login" });
-
+      loginLink = isVerify
+        ? emailContentFrame.getByRole("link", { name: "Confirm email" })
+        : emailContentFrame.getByRole("link", { name: "Login" });
       await loginLink.scrollIntoViewIfNeeded({ timeout: 5000 });
     }
 
     hrefValue = await loginLink.getAttribute("href");
+    if (!hrefValue) throw new Error(`Login URL not found in email (subject: "${subject}")`);
 
-    return { email, password, hrefValue };
+    return { password: password ?? "", loginUrl: hrefValue };
   };
 
   public registerNewEmail = async (userEmail: string) => {

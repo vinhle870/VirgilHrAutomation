@@ -2,7 +2,7 @@ import { test } from "src/fixtures";
 import { DataFactory } from "src/data-factory";
 import { getPlansForDepartment } from "src/constant/department-data";
 
-test.describe("E2E -> Member portal", () => {
+test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
   test(
     "TC01",
     {

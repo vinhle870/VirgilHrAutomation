@@ -8,7 +8,8 @@
     "install:browsers": "pnpm exec playwright install --with-deps",
     "test:playwright": "pnpm exec playwright test",
     "test:playwright:api": "pnpm exec playwright test tests/API",
-    "test:playwright:ui": "pnpm exec playwright test tests/UI --project=chromium --workers=1 --headed",
+    "test:regression:api": "pnpm exec playwright test --grep @regression_API",
+    "test:regression:ui": "pnpm exec playwright test --project=chromium --workers=1 --headed --grep @regression_UI",
     "test:playwright:chromium": "pnpm exec playwright test --project=chromium",
     "playwright:report": "pnpm exec playwright show-report",
     "playwright:codegen": "pnpm exec playwright codegen",
@@ -18,7 +19,8 @@
     "install:browsers": "Install Playwright browser binaries and system dependencies (run after install or when Playwright is upgraded).",
     "test:playwright": "Run the full Playwright suite under tests/ with ts-node and tsconfig-paths so src/* imports resolve.",
     "test:playwright:api": "Run only API specs under tests/API with the same TypeScript path setup as test:playwright.",
-    "test:playwright:ui": "Run only UI specs under tests/UI with the same TypeScript path setup as test:playwright.",
+    "test:regression:api": "Run the full API regression suite (tests tagged @regression_API).",
+    "test:regression:ui": "Run the full UI regression suite (tests tagged @regression_UI) on Chromium.",
     "test:playwright:chromium": "Run Playwright tests for the chromium project only (faster local/CI smoke).",
     "playwright:report": "Open the last HTML test report (run after a test run that produced playwright-report/).",
     "playwright:codegen": "Launch Playwright codegen to record locators and flows against a URL.",
@@ -41,6 +43,7 @@
     "@faker-js/faker": "^10.1.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
+    "simple-maildrop": "^0.2.0",
     "uuid": "^13.0.0"
   }
 }

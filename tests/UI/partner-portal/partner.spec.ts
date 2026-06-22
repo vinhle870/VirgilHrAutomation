@@ -2,7 +2,7 @@ import { test } from "src/fixtures";
 import { DataFactory, PersonDataGenerator } from "src/data-factory";
 import { plans } from "src/constant/static-data";
 
-test.describe("E2E -> Admin Portal -> Partner Management", () => {
+test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_UI" }, () => {
   test(
     "TC48",
     {
@@ -29,7 +29,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Verify the partner user must change the system-generated password to a personal password", async () => {
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
         await onboardingFlow.redirectToHomePage();
       });
@@ -62,7 +62,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Buy the plan through Stripe", async () => {
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo!.email!, "Partner portal", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo!.email!, "Partner portal", "Password@123");
 
         await purchaseFlow.selectPlanBeforePurchase("", partnerInfo.accountInfo!.email!, partnerInfo.partnerInfo!.productsType![0]);
       });
@@ -107,7 +107,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Activate the partner account and change password", async () => {
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo!.email!, "Partner portal", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo!.email!, "Partner portal", "Password@123");
       });
 
       await test.step("Buy plan through Stripe", async () => {
@@ -146,7 +146,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Activate the partner account and change password", async () => {
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
       });
 
       await test.step("Verify the partner user is not required to make any payment through Stripe.", async () => {
@@ -181,7 +181,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Activate the partner account and change password", async () => {
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
       });
 
       await test.step("Create business", async () => {
@@ -221,7 +221,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       });
 
       await test.step("Activate the partner", async () => {
-        await authFlow.activateIndividualCustomerAccountAndChangePassword(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
       });
 
       await test.step("Create a new business", async () => {

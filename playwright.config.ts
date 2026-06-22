@@ -12,26 +12,24 @@ const headed = (process.env.HEADED ?? "false").toLowerCase() === "true";
  */
 
 export default defineConfig({
-  // Increase global test timeout to allow slow page loads (milliseconds)
-  timeout: 600000,
+  timeout: 60000,
   testDir: "./tests",
   /* Run tests in files in parallel */
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: 1,
+  retries: 0,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [["html", { open: "always" }]],
+  /* Default assertion timeout — reads UI_ELEMENT_TIMEOUT_MS from .env. */
+  expect: { timeout: Number(process.env.UI_ELEMENT_TIMEOUT_MS) || 20000 },
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://localhost:3000',
-
-    /* Run browsers headed when HEADED=true */
-    headless: false,
 
     // Let the browser open a real window and use the system window size when headed
     viewport: null,
@@ -42,6 +40,9 @@ export default defineConfig({
       // start maximized and set a fallback window size when running headed
       args: headed ? ["--start-maximized", "--window-size=1920,1080"] : [],
     },
+
+    /* Capture screenshot on test failure. */
+    //screenshot: "only-on-failure",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on",

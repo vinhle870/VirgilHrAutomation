@@ -2,6 +2,8 @@ import { expect, Locator } from "@playwright/test";
 
 type VisibilityOptions = { timeout?: number; soft?: boolean };
 
+const getDefaultTimeout = () => Number(process.env.UI_ELEMENT_TIMEOUT_MS) || 20000;
+
 /**
  * Static helpers for Playwright locator assertions.
  *
@@ -20,7 +22,7 @@ export class UiAssert {
    */
   static async allVisible(locators: Locator[], options?: VisibilityOptions): Promise<void> {
     const ex = options?.soft ? expect.configure({ soft: true }) : expect;
-    await Promise.all(locators.map((l) => ex(l).toBeVisible({ timeout: options?.timeout })));
+    await Promise.all(locators.map((l) => ex(l).toBeVisible({ timeout: options?.timeout ?? getDefaultTimeout() })));
   }
 
   /**
@@ -28,7 +30,7 @@ export class UiAssert {
    */
   static async noneVisible(locators: Locator[], options?: VisibilityOptions): Promise<void> {
     const ex = options?.soft ? expect.configure({ soft: true }) : expect;
-    await Promise.all(locators.map((l) => ex(l).not.toBeVisible({ timeout: options?.timeout })));
+    await Promise.all(locators.map((l) => ex(l).not.toBeVisible({ timeout: options?.timeout ?? getDefaultTimeout() })));
   }
 
   /**
@@ -36,7 +38,7 @@ export class UiAssert {
    */
   static async textContains(locator: Locator, text: string, options?: VisibilityOptions): Promise<void> {
     const ex = options?.soft ? expect.configure({ soft: true }) : expect;
-    await ex(locator).toContainText(text, { timeout: options?.timeout });
+    await ex(locator).toContainText(text, { timeout: options?.timeout ?? getDefaultTimeout() });
   }
 
   /**
