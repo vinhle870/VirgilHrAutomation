@@ -123,6 +123,18 @@ export class AuthFlow {
     await this.loginPage.setPassword(newPassword);
   };
 
+  /** Reads credential email and returns the base portal URL (strips the path). */
+  public getPortalBaseUrl = async (email: string, portal: string): Promise<string> => {
+    const envSubject = getEmailSubjectByDepartment();
+    const subject = portal === "Member" || portal === "Consumer"
+      ? envSubject.SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL
+      : envSubject.SUBJECT_EMAIL_TO_PARTNER_CREDENTIAL;
+
+    const credential = await this.getCredentials(email, subject);
+    const url = new URL(credential.loginUrl);
+    return `${url.protocol}//${url.host}`;
+  };
+
   // ─── Password Change ─────────────────────────────────────────────────────────
 
   /** Activates an individual customer account and changes the temporary password to a new one. */

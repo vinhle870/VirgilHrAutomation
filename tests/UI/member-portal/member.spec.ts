@@ -1,6 +1,8 @@
 import { test } from "src/fixtures";
 import { DataFactory } from "src/data-factory";
 import { getPlansForDepartment } from "src/constant/department-data";
+import { Partner } from "src/objects";
+import { plans } from "src/constant/static-data";
 
 test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
   test(
@@ -353,6 +355,51 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
 
       await test.step("Verify redirect to Virgil homepage after successful payment", async () => {
         await onboardingFlow.redirectToHomePage();
+      });
+    },
+  );
+
+  test(
+    "TC16",
+    {
+      tag: "@Verify that new member portal user can be signed up under an existing partner.",
+    },
+    async ({ loginPage, onboardingFlow, authFlow }) => {
+      test.setTimeout(120000);
+
+      await test.step("Login to Admin portal", async () => {
+        await loginPage.login();
+      });
+
+      const partnerInfo = await DataFactory.partnerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withPaymentOption("Member Portal Consumer")
+        .withProductsType([plans[5]])
+        .withBankTransfer(false)
+        .withIsPublic(false)
+        .build();
+
+      await test.step("Create a new partner", async () => {
+        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
+      });
+
+      let partnerPortalBaseUrl: string;
+      await test.step("Get partner portal URL from credential email", async () => {
+        partnerPortalBaseUrl = await authFlow.getPortalBaseUrl(partnerInfo!.accountInfo!.email, "Member");
+      });
+
+      const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
+
+      await test.step("Sign up new member under partner", async () => {
+        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!, partnerInfo!.partnerInfo!.name, partnerPortalBaseUrl!);
+      });
+
+      await test.step("Confirm email", async () => {
+        await authFlow.activateSignedUpCustomer(customerInfo!.accountInfo.email!);
+      });
+
+      await test.step("Verify user is redirected to Select Plan screen", async () => {
+        await onboardingFlow.verifyURL("register-success");
       });
     },
   );

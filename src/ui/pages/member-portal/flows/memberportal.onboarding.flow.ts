@@ -11,8 +11,8 @@ export class OnboardingMemberPortalFlow {
     this.customerPage = new MemberPage(this.page);
   }
 
-  public signUp = async (customerInfo: CustomerInfo, hrSystem = "Does not apply") => {
-    await this.page.goto(process.env.MEMBER_PORTAL_BASEURL!);
+  public signUp = async (customerInfo: CustomerInfo, hrSystem = "Does not apply", url?: string) => {
+    await this.page.goto(url ?? process.env.MEMBER_PORTAL_BASEURL!);
 
     await this.page.waitForLoadState("domcontentloaded");
 
