@@ -18,7 +18,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
         .withIsPublic(false)
-        .withProductsType([plans[0]])
+        .withProductsType([plans[5]])
         .build();
 
       await test.step("Create a new partner", async () => {
@@ -47,7 +47,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
           .withBankTransfer(false)
-          .withProductsType([plans[0]])
+          .withProductsType([plans[5]])
           .withIsPublic(false)
           .build();
       });
@@ -76,7 +76,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
         .withIsPublic(false)
-        .withProductsType([plans[0]])
+        .withProductsType([plans[5]])
         .withBankTransfer(true)
         .build();
 
@@ -130,7 +130,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
           .withSubDomain("")
-          .withProductsType([plans[0]])
+          .withProductsType([plans[5]])
           .build();
       });
 
@@ -162,7 +162,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
             .withDepartmentName(process.env.DEPARTMENT_NAME!)
             .withIsPublic(false)
             .withPaymentOption(paymentOption)
-            .withProductsType([plans[0]])
+            .withProductsType([plans[5]])
             .build();
 
           await test.step(`Create partner with ${paymentOption}`, async () => {
@@ -192,7 +192,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         partnerInfo = await DataFactory.partnerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans[0]])
+          .withProductsType([plans[5]])
           .withBankTransfer(false)
           .withIsPublic(false)
           .build();
@@ -239,7 +239,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withIsPublic(false)
           .withPaymentOption("Member Portal Consumer")
-          .withProductsType([plans[0]])
+          .withProductsType([plans[5]])
           .build();
       });
 
@@ -282,7 +282,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
         partnerInfo = await DataFactory.partnerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans[0]])
+          .withProductsType([plans[5]])
           .withBankTransfer(true)
           .withIsPublic(false)
           .build();
@@ -326,7 +326,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withIsPublic(false)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans[0]])
+          .withProductsType([plans[5]])
           .build();
       });
 
@@ -356,7 +356,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withIsPublic(false)
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans[0]])
+          .withProductsType([plans[5]])
           .build();
       });
 
@@ -390,7 +390,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
           .withIsPublic(false)
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans[0]])
+          .withProductsType([plans[5]])
           .build();
       });
 
@@ -417,7 +417,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plans[0]])
+        .withProductsType([plans[5]])
         .withBankTransfer(true)
         .withIsPublic(false)
         .build();
@@ -451,7 +451,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plans[0]])
+        .withProductsType([plans[5]])
         .withBankTransfer(false)
         .withIsPublic(false)
         .build();
@@ -491,7 +491,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plans[0]])
+        .withProductsType([plans[5]])
         .withBankTransfer(false)
         .withIsPublic(false)
         .build();
@@ -523,7 +523,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plans[0]])
+        .withProductsType([plans[5]])
         .withBankTransfer(true)
         .withIsPublic(false)
         .build();
@@ -561,7 +561,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Member Portal Consumer")
-        .withProductsType([plans[0]])
+        .withProductsType([plans[5]])
         .withBankTransfer(true)
         .withIsPublic(false)
         .build();
@@ -593,7 +593,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Member Portal Consumer")
-        .withProductsType([plans[0]])
+        .withProductsType([plans[5]])
         .withBankTransfer(true)
         .withIsPublic(false)
         .build();
@@ -627,7 +627,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", () => {
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Member Portal Consumer")
-        .withProductsType([plans[0]])
+        .withProductsType([plans[5]])
         .withBankTransfer(true)
         .withIsPublic(false)
         .build();
