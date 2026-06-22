@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^10.1.0",
+    "axios": "^1.18.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
     "simple-maildrop": "^0.2.0",
