@@ -7,7 +7,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
   test(
     "TC30 Verify that a partner account can only be created in the Admin Portal – Partner Management.",
     {
-      tag: ["@TC30", "@1_test"]
+      tag: ["@TC30", "@1_test"],
     },
     async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
@@ -18,7 +18,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
         .withIsPublic(false)
-        .withProductsType([plans[5]])
+        .withProductsType([plans[0]])
         .build();
 
       await test.step("Create a new partner", async () => {
@@ -47,7 +47,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
           .withBankTransfer(false)
-          .withProductsType([plans[5]])
+          .withProductsType([plans[0]])
           .withIsPublic(false)
           .build();
       });
@@ -76,7 +76,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
         .withIsPublic(false)
-        .withProductsType([plans[5]])
+        .withProductsType([plans[0]])
         .withBankTransfer(true)
         .build();
 
@@ -130,7 +130,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
           .withSubDomain("")
-          .withProductsType([plans[5]])
+          .withProductsType([plans[0]])
           .build();
       });
 
@@ -162,7 +162,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
             .withDepartmentName(process.env.DEPARTMENT_NAME!)
             .withIsPublic(false)
             .withPaymentOption(paymentOption)
-            .withProductsType([plans[5]])
+            .withProductsType([plans[0]])
             .build();
 
           await test.step(`Create partner with ${paymentOption}`, async () => {
@@ -194,7 +194,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
         partnerInfo = await DataFactory.partnerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans[5]])
+          .withProductsType([plans[0]])
           .withBankTransfer(false)
           .withIsPublic(false)
           .build();
@@ -241,7 +241,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withIsPublic(false)
           .withPaymentOption("Member Portal Consumer")
-          .withProductsType([plans[5]])
+          .withProductsType([plans[0]])
           .build();
       });
 
@@ -284,7 +284,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
         partnerInfo = await DataFactory.partnerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans[5]])
+          .withProductsType([plans[0]])
           .withBankTransfer(true)
           .withIsPublic(false)
           .build();
@@ -328,7 +328,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withIsPublic(false)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans[5]])
+          .withProductsType([plans[0]])
           .build();
       });
 
@@ -358,7 +358,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
           .withIsPublic(false)
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans[5]])
+          .withProductsType([plans[0]])
           .build();
       });
 
@@ -392,7 +392,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
           .withIsPublic(false)
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
-          .withProductsType([plans[5]])
+          .withProductsType([plans[0]])
           .build();
       });
 
@@ -419,7 +419,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plans[5]])
+        .withProductsType([plans[0]])
         .withBankTransfer(true)
         .withIsPublic(false)
         .build();
@@ -453,7 +453,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plans[5]])
+        .withProductsType([plans[0]])
         .withBankTransfer(false)
         .withIsPublic(false)
         .build();
@@ -493,7 +493,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plans[5]])
+        .withProductsType([plans[0]])
         .withBankTransfer(false)
         .withIsPublic(false)
         .build();
@@ -525,7 +525,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Partner/Consultant Owner")
-        .withProductsType([plans[5]])
+        .withProductsType([plans[0]])
         .withBankTransfer(true)
         .withIsPublic(false)
         .build();
@@ -563,7 +563,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Member Portal Consumer")
-        .withProductsType([plans[5]])
+        .withProductsType([plans[0]])
         .withBankTransfer(true)
         .withIsPublic(false)
         .build();
@@ -595,7 +595,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Member Portal Consumer")
-        .withProductsType([plans[5]])
+        .withProductsType([plans[0]])
         .withBankTransfer(true)
         .withIsPublic(false)
         .build();
@@ -629,7 +629,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Member Portal Consumer")
-        .withProductsType([plans[5]])
+        .withProductsType([plans[0]])
         .withBankTransfer(true)
         .withIsPublic(false)
         .build();

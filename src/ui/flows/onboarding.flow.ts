@@ -1,7 +1,6 @@
-import { Locator, Page } from "@playwright/test";
+import { Page } from "@playwright/test";
 import { BusinessLocator } from "../pages/partner-portal/locators/business";
 import { CustomerInfo, Partner, UserInfo } from "src/objects";
-import refreshPage from "src/utilities/refresh";
 import { PeoPartner } from "src/objects/ipeopartner";
 import { UiAssert } from "src/assertions";
 import { OnboardingAdminPortalFlow } from "../pages/admin-portal/flows/adminportal.onboarding.flow";
@@ -51,14 +50,18 @@ export class OnboardingFlow {
   public verifyPartnerVisible = async (partnerInfo: Partner) => {
     const partnerEmailLocator = this.page!.getByText(partnerInfo!.accountInfo!.email).first();
 
-     await UiAssert.allVisible([partnerEmailLocator]);
+    await UiAssert.allVisible([partnerEmailLocator]);
   };
 
   public verifyCustomerVisible = async (customerInfo: CustomerInfo) => {
     const customerEmailLocator = this.page!.getByText(customerInfo!.accountInfo!.email).first();
 
-    await UiAssert.allVisible([customerEmailLocator]);
-
+    try {
+      await UiAssert.allVisible([customerEmailLocator], { timeout: 10000 });
+    } catch {
+      await this.page.reload();
+      await UiAssert.allVisible([customerEmailLocator]);
+    }
   };
 
   public verifyURL = async (containedURL: string) => {
@@ -78,6 +81,8 @@ export class OnboardingFlow {
   public verifyOwnerRoleInUserPage = async (partnerInfo: Partner) => await this.onboardingPartnerPotalFlow.validateOwnerRoleInUserPage(partnerInfo);
 
   public createCustomerFromCustomerManagementPage = async (customerInfo: CustomerInfo) => await this.onboardingAdminPortalFlow.createCustomerFromCustomerManagementPage(customerInfo);
+
+  public upgradePlanForCustomer = async (customerInfo: CustomerInfo, planToUpgrade: string) => await this.onboardingAdminPortalFlow.upgradePlanForCustomer(customerInfo, planToUpgrade);
 
   public validateReceivedOneEmail = async (partnerInfo: Partner) => this.emailServicePage.validateReceivedOneEmail(partnerInfo);
 

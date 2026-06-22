@@ -374,7 +374,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
       const partnerInfo = await DataFactory.partnerBuilder()
         .withDepartmentName(process.env.DEPARTMENT_NAME!)
         .withPaymentOption("Member Portal Consumer")
-        .withProductsType([plans[5]])
+        .withProductsType([plans[0]])
         .withBankTransfer(false)
         .withIsPublic(false)
         .build();
