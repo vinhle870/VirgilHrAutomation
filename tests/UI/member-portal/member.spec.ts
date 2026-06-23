@@ -1,6 +1,6 @@
 import { test } from "src/fixtures";
 import { DataFactory } from "src/data-factory";
-import { getPlansForDepartment } from "src/constant/department-data";
+import { getEmailSubjectByDepartment, getPlansForDepartment } from "src/constant/department-data";
 import { Partner } from "src/objects";
 import { plans } from "src/constant/static-data";
 
@@ -383,15 +383,12 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
         await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
-      let partnerPortalBaseUrl: string;
-      await test.step("Get partner portal URL from credential email", async () => {
-        partnerPortalBaseUrl = await authFlow.getPortalBaseUrl(partnerInfo!.accountInfo!.email, "Member");
-      });
-
       const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
 
       await test.step("Sign up new member under partner", async () => {
-        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!, partnerInfo!.partnerInfo!.name, partnerPortalBaseUrl!);
+        let partnerCredential = await authFlow.getCredentialsFromEmail(partnerInfo.accountInfo?.email!, getEmailSubjectByDepartment().CUSTOMER_ACC_ACTIVATE);
+
+        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!, partnerInfo!.partnerInfo!.name, partnerCredential.loginUrl);
       });
 
       await test.step("Confirm email", async () => {

@@ -1,6 +1,5 @@
 import { BusinessLocator } from "../pages/partner-portal/locators/business";
 import { CustomerInfo, Partner, UserInfo } from "src/objects";
-import refreshPage from "src/utilities/refresh"
 import { PeoPartner } from "src/objects/ipeopartner";
 import { UiAssert } from "src/assertions";
 import { OnboardingAdminPortalFlow } from "../pages/admin-portal/flows/adminportal.onboarding.flow";
@@ -9,6 +8,7 @@ import { OnboardingMemberPortalFlow } from "../pages/member-portal/flows/memberp
 import { EmailServicePage } from "../pages";
 import { HomePage } from "../pages/shared-pages/home.page";
 import { SignUpLocators } from "../pages/member-portal/locators/signup";
+import { Page } from "playwright/test";
 
 /**
  * This flow class contains methods related to the onboarding process of both partner and member users, such as accepting invitations, credentialing, buying plans, and creating a business.

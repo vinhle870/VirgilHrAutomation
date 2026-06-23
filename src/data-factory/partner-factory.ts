@@ -28,20 +28,11 @@ export class PartnerFactory {
    *   .build();
    * ```
    */
-  static async createPartner(
-    levelOfPartner: number,
-    adminService: AdminPortalService,
-    overrides?: Partial<Record<string, any>>,
-  ): Promise<Partner> {
+  static async createPartner(levelOfPartner: number, adminService: AdminPortalService, overrides?: Partial<Record<string, any>>): Promise<Partner> {
     // Step 1: Resolve dependencies from API
-    const departmentId =
-      overrides?.departmentId ??
-      (await PartnerFactory.generatePartnerID(adminService));
+    const departmentId = overrides?.departmentId ?? (await PartnerFactory.generatePartnerID(adminService));
 
-    const productTypes = await PartnerFactory.getUniqueProductTypesAndNames(
-      adminService,
-      departmentId,
-    );
+    const productTypes = await PartnerFactory.getUniqueProductTypesAndNames(adminService, departmentId);
 
     // Step 2: Build with pure builder (no API calls inside)
     const builder = new PartnerBuilder();
@@ -64,27 +55,19 @@ export class PartnerFactory {
     // Partner-specific overrides
     if (overrides?.name) builder.withPartnerName(overrides.name);
     if (overrides?.subDomain) builder.withSubDomain(overrides.subDomain);
-    if (overrides?.bankTransfer !== undefined)
-      builder.withBankTransfer(overrides.bankTransfer);
-    if (overrides?.canCustomUpdatePlan !== undefined)
-      builder.withCanCustomUpdatePlan(overrides.canCustomUpdatePlan);
-    if (overrides?.companyType !== undefined)
-      builder.withCompanyType(overrides.companyType);
-    if (overrides?.isPublic !== undefined)
-      builder.withIsPublic(overrides.isPublic);
-    if (overrides?.partnerType !== undefined)
-      builder.withPartnerType(overrides.partnerType);
-    if (overrides?.paymentEnable !== undefined)
-      builder.withPaymentEnable(overrides.paymentEnable);
+    if (overrides?.bankTransfer !== undefined) builder.withBankTransfer(overrides.bankTransfer);
+    if (overrides?.canCustomUpdatePlan !== undefined) builder.withCanCustomUpdatePlan(overrides.canCustomUpdatePlan);
+    if (overrides?.companyType !== undefined) builder.withCompanyType(overrides.companyType);
+    if (overrides?.isPublic !== undefined) builder.withIsPublic(overrides.isPublic);
+    if (overrides?.partnerType !== undefined) builder.withPartnerType(overrides.partnerType);
+    if (overrides?.paymentEnable !== undefined) builder.withPaymentEnable(overrides.paymentEnable);
     if (overrides?.whoPay !== undefined) builder.withWhoPay(overrides.whoPay);
 
     // Restriction overrides (product type IDs passed as raw numbers)
     if (overrides?.restriction) {
       const restrictionOverride = { ...overrides.restriction };
       if (restrictionOverride.feFilterProductTypes) {
-        builder.withFilterProductTypeIds(
-          restrictionOverride.feFilterProductTypes,
-        );
+        builder.withFilterProductTypeIds(restrictionOverride.feFilterProductTypes);
         delete restrictionOverride.feFilterProductTypes;
       }
       if (Object.keys(restrictionOverride).length > 0) {
@@ -97,16 +80,11 @@ export class PartnerFactory {
 
   // ── Service / Utility methods (API-dependent) ────────────────
 
-  public static async generatePartnerID(
-    adminService: AdminPortalService,
-    departmentName?: string,
-  ): Promise<string> {
+  public static async generatePartnerID(adminService: AdminPortalService, departmentName?: string): Promise<string> {
     PartnerFactory.departmentInfor = await adminService.getDepartmentsList();
 
     if (departmentName) {
-      const dept = PartnerFactory.departmentInfor.body.find(
-        (d: any) => d.name.toLowerCase() === departmentName.toLowerCase(),
-      );
+      const dept = PartnerFactory.departmentInfor.body.find((d: any) => d.name.toLowerCase() === departmentName.toLowerCase());
 
       if (dept) {
         return dept.id;
@@ -124,28 +102,19 @@ export class PartnerFactory {
     return id;
   }
 
-  public static async getDepartmentDomain(
-    departmenID: string,
-  ): Promise<string> {
-    const matchedDept = PartnerFactory.departmentInfor.body.find(
-      (dept: any) => dept.id === departmenID,
-    );
+  public static async getDepartmentDomain(departmenID: string): Promise<string> {
+    const matchedDept = PartnerFactory.departmentInfor.body.find((dept: any) => dept.id === departmenID);
 
     return matchedDept?.domain?.partner ?? null;
   }
 
-  public static async getUniqueProductTypesAndNames(
-    adminService: AdminPortalService,
-    departmentId: string,
-  ): Promise<ProductInfo[]> {
+  public static async getUniqueProductTypesAndNames(adminService: AdminPortalService, departmentId: string): Promise<ProductInfo[]> {
     const productTypesResponse = await adminService.getAllDepartmentsPlans();
     if (!productTypesResponse?.body) {
       return [];
     }
 
-    const department = productTypesResponse.body.find(
-      (d: any) => d.departmentId === departmentId,
-    );
+    const department = productTypesResponse.body.find((d: any) => d.departmentId === departmentId);
 
     if (!department?.plans) {
       return [];

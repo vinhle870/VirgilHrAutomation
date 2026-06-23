@@ -96,9 +96,7 @@ export class PeoPartnerBuilder {
     const peoPartner = new PeoPartner();
     const o = this.peoPartnerOverrides;
 
-    const accountInfo = await PersonDataGenerator.generate(
-      this.accountOverrides,
-    );
+    const accountInfo = await PersonDataGenerator.generate(this.accountOverrides);
     peoPartner.accountInfo = accountInfo;
 
     const seq = DataGenerate.getRandomInt(1, 9999);
