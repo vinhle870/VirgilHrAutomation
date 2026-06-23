@@ -14,7 +14,7 @@ export class EmailServicePage extends BasePage {
 
     await this.registerNewEmail(userEmail);
 
-    const emailSubject = getEmailSubjectByDepartment().SUBJECT_EMAIL_TO_JOIN_TEAM;
+    const emailSubject = getEmailSubjectByDepartment().JOIN_TEAM;
 
     await this.openEmailBySubject(emailSubject!);
 
