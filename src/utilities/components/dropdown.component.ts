@@ -15,7 +15,6 @@ export class DropdownComponent extends BaseComponent {
    */
   async selectOption(dropdownSelector: string, optionSelector: string, timeout?: number): Promise<void> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
-    await this.waitForNetworkSettled(effectiveTimeout);
 
     const dropdown = this.page.locator(dropdownSelector);
     await this.waitAndClick(dropdown, effectiveTimeout);
@@ -35,7 +34,6 @@ export class DropdownComponent extends BaseComponent {
    */
   async selectByText(dropdownSelector: string, optionText: string, page = this.page, timeout = 60000, optionListSelector?: string): Promise<void> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
-    await this.waitForNetworkSettled(effectiveTimeout);
 
     const dropdown = page.locator(dropdownSelector);
     await this.waitAndClick(dropdown, effectiveTimeout);
@@ -51,7 +49,6 @@ export class DropdownComponent extends BaseComponent {
    */
   async selectByTextForNthDropdown(dropdownSelector: string, optionText: string, dropdownIndex: number, optionListSelector?: string, timeout?: number): Promise<void> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
-    await this.waitForNetworkSettled(effectiveTimeout);
 
     const dropdown = this.page.locator(dropdownSelector).nth(dropdownIndex);
     await dropdown.waitFor({ state: "visible", timeout: effectiveTimeout });

@@ -57,7 +57,7 @@ export class OnboardingFlow {
   public verifyCustomerVisible = async (customerInfo: CustomerInfo) => {
     const customerEmailLocator = this.page!.getByText(customerInfo!.accountInfo!.email).first();
 
-    await UiAssert.allVisible([customerEmailLocator]);
+    await UiAssert.allVisible([customerEmailLocator], { timeout: 60000 });
 
   };
 

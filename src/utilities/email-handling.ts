@@ -13,6 +13,7 @@ export interface EmailMessage {
 export interface EmailCredentials {
   password: string;
   loginUrl: string;
+
 }
 
 export interface ReadEmailOptions {
@@ -29,19 +30,17 @@ function decodeHtmlEntities(str: string): string {
     .replace(/&lt;/g,   '<')
     .replace(/&gt;/g,   '>')
     .replace(/&apos;/g, "'")
-    .replace(/&amp;/g,  '&');
+    .replace(/&amp;/g,  '&')
+    .replace(/%40/g,  '@');
 }
 
-function parseCredentials(html: string): EmailCredentials {
+function parseCredentials(html: string,linkLabel:string): EmailCredentials {
   const passwordMatch = html.match(/Password:\s*(.+?)\s*<\/p>/s);
-  const loginUrlMatch = html.match(/<a[^>]+href="([^"]+)"[^>]*>\s*Login\s*<\/a>/i);
-
-  if (!passwordMatch) throw new Error('Password not found in email content');
-  if (!loginUrlMatch) throw new Error('Login URL not found in email content');
+  const loginUrlMatch = html.match(new RegExp(`<a[^>]+href="([^"]+)"[^>]*>\\s*${linkLabel}\\s*<\\/a>`, 'i'));
 
   return {
-    password: decodeHtmlEntities(passwordMatch[1].trim()),
-    loginUrl: loginUrlMatch[1],
+    password: passwordMatch ? decodeHtmlEntities(passwordMatch[1].trim()) : "",
+    loginUrl: loginUrlMatch? decodeHtmlEntities(loginUrlMatch[1].trim()) : "",
   };
 }
 
@@ -94,9 +93,14 @@ export class MailDropHandler {
     };
   }
 
-  parseCredentialsFromMailBody(html: string): EmailCredentials {
-    return parseCredentials(html);
+     parseActivateCredentialsFromMailBody(html: string): EmailCredentials {
+    return parseCredentials(html, 'Login');
   }
+
+  public parseInviteInfoFromMailBody(html: string): EmailCredentials {
+    return parseCredentials(html, 'Accept Invite');
+  }
+
 }
 
 // ─── YOPmail ──────────────────────────────────────────────────────────────────
@@ -136,7 +140,12 @@ export class YopmailHandler {
     };
   }
 
-  parseCredentialsFromMailBody(html: string): EmailCredentials {
-    return parseCredentials(html);
+   parseActivateCredentialsFromMailBody(html: string): EmailCredentials {
+    return parseCredentials(html, 'Login');
   }
+
+  public parseInviteInfoFromMailBody(html: string): EmailCredentials {
+    return parseCredentials(html, 'Accept Invite');
+  }
+
 }

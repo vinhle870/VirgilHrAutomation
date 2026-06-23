@@ -117,7 +117,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
   test(
     "TC33 When creating a new Partner, the admin can choose to assign a sub-domain to that Partner, or not.",
     {
-      tag: "@TC33",
+      tag: "@TC33_UI",
     },
     async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {

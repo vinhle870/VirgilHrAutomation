@@ -27,6 +27,8 @@ export default defineConfig({
   expect: { timeout: Number(process.env.UI_ELEMENT_TIMEOUT_MS) || 20000 },
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
+    /* Default timeout for individual actions (click, fill, waitFor, etc.) */
+    actionTimeout: Number(process.env.UI_ELEMENT_TIMEOUT_MS) || 20000,
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://localhost:3000',
 
@@ -41,10 +43,10 @@ export default defineConfig({
     },
 
     /* Capture screenshot on test failure. */
-    //screenshot: "only-on-failure",
+    screenshot: "only-on-failure",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: "on",
+    trace: "retain-on-failure",
   },
 
   /* Configure projects for major browsers */

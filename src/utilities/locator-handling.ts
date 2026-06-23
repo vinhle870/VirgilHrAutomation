@@ -27,7 +27,6 @@ export class LocatorHandling {
    */
   static async getLocator(page: Page, selector: string, timeout?: number): Promise<Locator> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
-    await this.waitForNetworkSettled(page, effectiveTimeout);
 
     const locator = page.locator(selector);
 
@@ -38,7 +37,6 @@ export class LocatorHandling {
 
   static async getLocatorInIframe(page: Page, iframeSelector: string, selector: string, timeout?: number): Promise<Locator> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
-    await this.waitForNetworkSettled(page, effectiveTimeout);
 
     const frame = await page.locator(iframeSelector).contentFrame();
     const locator = frame.locator(selector);
