@@ -4,7 +4,7 @@ export const plans: Record<string, string[]> = {
 };
 
 export const emailSubjects = {
-  SUBJECT_EMAIL_TO_JOIN_TEAM: "VirgilHR: Join your team",
-  SUBJECT_EMAIL_TO_PARTNER_CREDENTIAL: "HR Compliance - Partner Credential",
-  SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL: "HR Compliance: Your User Portal Credentials",
+  JOIN_TEAM: "VirgilHR: Join your team",
+  PARTNER_ACC_ACTIVATE: "HR Compliance - Partner Credential",
+  CUSTOMER_ACC_ACTIVATE: "HR Compliance: Your User Portal Credentials",
 };

@@ -33,7 +33,7 @@ export function getPlansForDepartment(departmentName: string = process.env.DEPAR
   return result;
 }
 
-export function getEmailSubjectByDepartment(): { SUBJECT_EMAIL_TO_JOIN_TEAM: string; SUBJECT_EMAIL_TO_PARTNER_CREDENTIAL: string; SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL: string } {
+export function getEmailSubjectByDepartment(): { JOIN_TEAM: string; PARTNER_ACC_ACTIVATE: string; CUSTOMER_ACC_ACTIVATE: string } {
   const env = normalizeEnv();
 
   return env === "uat" ? uatEmailSubjects : qaEmailSubjects;

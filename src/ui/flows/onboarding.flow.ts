@@ -1,6 +1,6 @@
-import { Page } from "@playwright/test";
 import { BusinessLocator } from "../pages/partner-portal/locators/business";
 import { CustomerInfo, Partner, UserInfo } from "src/objects";
+import refreshPage from "src/utilities/refresh"
 import { PeoPartner } from "src/objects/ipeopartner";
 import { UiAssert } from "src/assertions";
 import { OnboardingAdminPortalFlow } from "../pages/admin-portal/flows/adminportal.onboarding.flow";
@@ -56,12 +56,7 @@ export class OnboardingFlow {
   public verifyCustomerVisible = async (customerInfo: CustomerInfo) => {
     const customerEmailLocator = this.page!.getByText(customerInfo!.accountInfo!.email).first();
 
-    try {
-      await UiAssert.allVisible([customerEmailLocator], { timeout: 10000 });
-    } catch {
-      await this.page.reload();
-      await UiAssert.allVisible([customerEmailLocator]);
-    }
+    await UiAssert.allVisible([customerEmailLocator], { timeout: 60000 });
   };
 
   public verifyURL = async (containedURL: string) => {

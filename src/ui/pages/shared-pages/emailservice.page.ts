@@ -4,7 +4,7 @@ import { TempEmailFreeLocators, BeeinboxLocators } from "./locators";
 import { expect } from "@playwright/test";
 import { Partner } from "src/objects/ipartner";
 import { getEmailSubjectByDepartment } from "src/constant/department-data";
-import { EmailCredentials } from "src/utilities/maildrop-handling";
+import { EmailCredentials } from "src/utilities/email-handling";
 
 export class EmailServicePage extends BasePage {
   private readonly mailboxUrl = process.env.MAILBOX_URL || "";
@@ -14,7 +14,7 @@ export class EmailServicePage extends BasePage {
 
     await this.registerNewEmail(userEmail);
 
-    const emailSubject = getEmailSubjectByDepartment().SUBJECT_EMAIL_TO_JOIN_TEAM;
+    const emailSubject = getEmailSubjectByDepartment().JOIN_TEAM;
 
     await this.openEmailBySubject(emailSubject!);
 

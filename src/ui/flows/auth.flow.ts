@@ -4,7 +4,8 @@ import { EmailServicePage } from "../pages/shared-pages/emailservice.page";
 import { WelcomeModal } from "../pages/shared-pages/welome.modal";
 import { MemberOnboardingLocators } from "../pages/member-portal/locators";
 import { getEmailSubjectByDepartment } from "src/constant/department-data";
-import { EmailCredentials, EmailMessage, MaildropHandler } from "src/utilities/maildrop-handling";
+import { EmailCredentials, EmailMessage, MailDropHandler, YopmailHandler } from "src/utilities/email-handling";
+
 
 /**
  * This flow class contains methods related to the authentication process,
@@ -22,24 +23,33 @@ export class AuthFlow {
   private loginPage: LoginPage;
   private page: Page;
 
+
   constructor(page: Page) {
     this.page = page;
     this.loginPage = new LoginPage(this.page);
     this.emailServicePage = new EmailServicePage(this.page);
+
   }
 
   // ─── Private helpers ─────────────────────────────────────────────────────────
 
-  /** Reads credentials from whichever inbox backend is active (maildrop API or UI-based inbox). */
-  private getCredentials = async (email: string, subject: string): Promise<EmailCredentials> => {
-    if (process.env.MAILBOX_URL?.includes("maildrop")) {
-      const mailDropHandler = new MaildropHandler();
+  /** Reads credentials from whichever inbox backend is active (maildrop, YOPmail, or UI-based inbox). */
+  private getCredentialsFromEmail = async (email: string, subject: string): Promise<EmailCredentials> => {
+    const mailboxUrl = process.env.MAILBOX_URL ?? "";
+
+    const mailHandler = mailboxUrl.includes("maildrop")
+      ? new MailDropHandler()
+      : mailboxUrl.includes("yopmail")
+        ? new YopmailHandler()
+        : null;
+
+    if (mailHandler) {
       let emailContent: EmailMessage | null = null;
 
       await expect.poll(
         async () => {
           try {
-            emailContent = await mailDropHandler.readEmail(email, subject, { format: "html" });
+            emailContent = await mailHandler.readEmail(email, subject, { format: "html" });
             return true;
           } catch {
             return false;
@@ -52,8 +62,13 @@ export class AuthFlow {
         },
       ).toBe(true);
 
-      return mailDropHandler.parseCredentialsFromMailBody(emailContent!.content);
+      if(subject === getEmailSubjectByDepartment().CUSTOMER_ACC_ACTIVATE || subject === getEmailSubjectByDepartment().PARTNER_ACC_ACTIVATE) {
+        return mailHandler.parseActivateCredentialsFromMailBody(emailContent!.content);
+
+      }
+      return mailHandler.parseInviteInfoFromMailBody(emailContent!.content);
     }
+
     return this.emailServicePage.extractAccountCredentialFromInBox(email, subject);
   };
 
@@ -78,18 +93,11 @@ export class AuthFlow {
    * onboarding flow by setting a password and joining the team.
    */
   public acceptInviteAndJoinTeamByCustomer = async (customerEmail: string, password: string): Promise<void> => {
-    if (process.env.MAILBOX_URL?.includes("maildrop")) {
-      const mailDropHandler = new MaildropHandler();
-      const emailSubject = getEmailSubjectByDepartment().SUBJECT_EMAIL_TO_JOIN_TEAM;
-      const emailContent = await mailDropHandler.readEmail(customerEmail, emailSubject, { format: "html" });
-      const hrefMatch = emailContent.content.match(/href="([^"]+)"/);
-      if (!hrefMatch) throw new Error("Invite link not found in email content");
-      await this.page.goto(hrefMatch[1]);
-    } else {
-      await this.emailServicePage.acceptJoinTeamInvite(customerEmail);
-    }
 
-    await this.loginPage.currentPage.waitForLoadState("domcontentloaded");
+
+    const emailSubject = getEmailSubjectByDepartment().JOIN_TEAM;
+    const credential = await this.getCredentialsFromEmail(customerEmail, emailSubject);
+    await this.loginPage.currentPage.goto(credential.loginUrl);
     await this.page.locator(MemberOnboardingLocators.continueWithEmail).click();
     await this.loginPage.setPassword(password);
     await this.loginPage.clickOnJoinTeamLink();
@@ -100,8 +108,8 @@ export class AuthFlow {
 
   /** Retrieves credentials from the customer's inbox and activates the account by setting a new password. */
   public activateCustomerAccount = async (customerEmail: string, newPassword: string) => {
-    const emailTitle = getEmailSubjectByDepartment().SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL!;
-    const credential = await this.getCredentials(customerEmail, emailTitle);
+    const emailTitle = getEmailSubjectByDepartment().CUSTOMER_ACC_ACTIVATE!;
+    const credential = await this.getCredentialsFromEmail(customerEmail, emailTitle);
 
     await this.loginPage.fillLoginForm(credential.loginUrl, customerEmail, credential.password);
     await this.loginPage.changePassword(credential.password, newPassword);
@@ -114,10 +122,10 @@ export class AuthFlow {
   public activateIndividualCustomerAccountAndSetPassword = async (email: string, portal: string, newPassword: string) => {
     const envSubject = getEmailSubjectByDepartment();
     const subject = portal === "Member" || portal === "Consumer"
-      ? envSubject.SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL
-      : envSubject.SUBJECT_EMAIL_TO_PARTNER_CREDENTIAL;
+      ? envSubject.CUSTOMER_ACC_ACTIVATE
+      : envSubject.PARTNER_ACC_ACTIVATE;
 
-    const credential = await this.getCredentials(email, subject);
+    const credential = await this.getCredentialsFromEmail(email, subject);
 
     await this.loginPage.fillLoginForm(credential.loginUrl, email, credential.password);
     await this.loginPage.setPassword(newPassword);
@@ -141,10 +149,10 @@ export class AuthFlow {
   public activateAndChangePassIndividualCustomer = async (email: string, portal: string, newPassword: string) => {
     const envSubject = getEmailSubjectByDepartment();
     const subject = portal === "Member" || portal === "Consumer"
-      ? envSubject.SUBJECT_EMAIL_TO_MEMBER_CREDENTIAL
-      : envSubject.SUBJECT_EMAIL_TO_PARTNER_CREDENTIAL;
+      ? envSubject.CUSTOMER_ACC_ACTIVATE
+      : envSubject.PARTNER_ACC_ACTIVATE;
 
-    const credential = await this.getCredentials(email, subject);
+    const credential = await this.getCredentialsFromEmail(email, subject);
 
     await this.loginPage.fillLoginForm(credential.loginUrl, email, credential.password);
     await this.loginPage.changePassword(credential.password, newPassword);
@@ -157,7 +165,7 @@ export class AuthFlow {
     const subject = "Verify your email address";
 
     if (process.env.MAILBOX_URL?.includes("maildrop")) {
-      const mailDropHandler = new MaildropHandler();
+      const mailDropHandler = new MailDropHandler();
       const emailContent = await mailDropHandler.readEmail(email, subject, { format: "html" });
       const confirmMatch = emailContent.content.match(/<a[^>]+href="([^"]+)"[^>]*>\s*Confirm email\s*<\/a>/i);
       if (!confirmMatch) throw new Error("Confirmation URL not found in email content");

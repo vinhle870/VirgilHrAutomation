@@ -105,47 +105,4 @@ export class DataGenerate {
     return CollectionUtils.pickOne(departmentIDS);
   }
 
-  /**
-   * Generate a dynamic user payload with sensible defaults.
-   * You can pass `overrides` to replace any generated field.
-   */
-
-  /*
-    static async generateUserData(overrides?: Partial<Record<string, any>>): Promise<Record<string, any>> {
-        const { faker } = await import('@faker-js/faker');
-        const ts = format(new Date(), 'yyyyMMddHHmmss');
-        const seq = this.getRandomInt(1, 9999);
-        const localPrefix = overrides?.firstName ?? `VinhYopmail${seq}`;
-        const email = overrides?.email ?? `${localPrefix}@yopmail.com`;
-        const password = overrides?.password ?? `Vl@${ts.slice(-8)}`;
-        const firstName = overrides?.firstName ?? localPrefix;
-        const lastName = overrides?.lastName ?? 'Le';
-        const jobTitle = overrides?.jobTitle ?? 'test';
-        const companyName = overrides?.companyName ?? 'vinhyopmail.com';
-        const companySize = overrides?.companySize ?? '';
-        const phoneNumber = overrides?.phoneNumber ?? faker.helpers.replaceSymbols('+1##########');
-        const partnerId = overrides?.partnerId;
-        const source = overrides?.source ?? 'member';
-        const departmentId = overrides?.departmentId ?? '688897d5eb52b4af5573def4';
-        const ssoProvider = overrides?.ssoProvider ?? null;
-        const ssoToken = overrides?.ssoToken ?? null;
-
-        return {
-            email,
-            password,
-            firstName,
-            lastName,
-            jobTitle,
-            companyName,
-            companySize,
-            phoneNumber,
-            ...(partnerId && { partnerId }),
-            source,
-            departmentId,
-            ssoProvider,
-            ssoToken,
-            ...overrides,
-        };
-    }
-    */
 }
