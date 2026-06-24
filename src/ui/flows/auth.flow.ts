@@ -4,7 +4,7 @@ import { EmailServicePage } from "../pages/shared-pages/emailservice.page";
 import { WelcomeModal } from "../pages/shared-pages/welome.modal";
 import { MemberOnboardingLocators } from "../pages/member-portal/locators";
 import { getEmailSubjectByDepartment } from "src/constant/department-data";
-import { EmailCredentials, EmailMessage, MailDropHandler, YopmailHandler } from "src/utilities/email-handling";
+import { EmailCredentials, EmailMessage, YopmailHandler } from "src/utilities/email-handling";
 
 
 /**
@@ -23,68 +23,59 @@ export class AuthFlow {
   private loginPage: LoginPage;
   private page: Page;
 
-
   constructor(page: Page) {
     this.page = page;
     this.loginPage = new LoginPage(this.page);
     this.emailServicePage = new EmailServicePage(this.page);
-
   }
 
   // ─── Private helpers ─────────────────────────────────────────────────────────
 
-  /** Reads credentials from whichever inbox backend is active (maildrop, YOPmail, or UI-based inbox). */
-  private getCredentialsFromEmail = async (email: string, subject: string): Promise<EmailCredentials> => {
+  public getCredentialsFromEmail = async (email: string, subject: string): Promise<EmailCredentials> => {
     const mailboxUrl = process.env.MAILBOX_URL ?? "";
 
-    const mailHandler = mailboxUrl.includes("maildrop")
-      ? new MailDropHandler()
-      : mailboxUrl.includes("yopmail")
-        ? new YopmailHandler()
-        : null;
-
-    if (mailHandler) {
+    const pollEmail = async (handler: YopmailHandler): Promise<EmailMessage> => {
       let emailContent: EmailMessage | null = null;
+      await expect
+        .poll(
+          async () => {
+            try {
+              emailContent = await handler.readEmail(email, subject, { format: "html" });
+              return true;
+            } catch {
+              return false;
+            }
+          },
+          { message: `Email "${subject}" not received in ${email}`, timeout: 120000, intervals: [10000, 20000, 30000, 30000] },
+        )
+        .toBe(true);
+      return emailContent!;
+    };
 
-      await expect.poll(
-        async () => {
-          try {
-            emailContent = await mailHandler.readEmail(email, subject, { format: "html" });
-            return true;
-          } catch {
-            return false;
-          }
-        },
-        {
-          message: `Email "${subject}" not received in ${email}`,
-          timeout: 30000,
-          intervals: [3000, 5000, 5000],
-        },
-      ).toBe(true);
+    const parseContent = (handler: YopmailHandler, content: string): EmailCredentials => {
+      const envSubject = getEmailSubjectByDepartment();
+      return subject === envSubject.CUSTOMER_ACC_ACTIVATE || subject === envSubject.PARTNER_ACC_ACTIVATE
+        ? handler.parseActivateCredentialsFromMailBody(content)
+        : handler.parseInviteInfoFromMailBody(content);
+    };
 
-      if(subject === getEmailSubjectByDepartment().CUSTOMER_ACC_ACTIVATE || subject === getEmailSubjectByDepartment().PARTNER_ACC_ACTIVATE) {
-        return mailHandler.parseActivateCredentialsFromMailBody(emailContent!.content);
-
-      }
-      return mailHandler.parseInviteInfoFromMailBody(emailContent!.content);
+    if (mailboxUrl.includes("yopmail")) {
+      const handler = new YopmailHandler();
+      const emailContent = await pollEmail(handler);
+      return parseContent(handler, emailContent.content);
     }
+    if (mailboxUrl.includes("beeinbox")) return this.emailServicePage.extractAccountCredentialFromInBox(email, subject);
 
-    return this.emailServicePage.extractAccountCredentialFromInBox(email, subject);
+    throw new Error(`Unsupported mailbox: ${mailboxUrl}`);
   };
 
   // ─── Login ───────────────────────────────────────────────────────────────────
 
   /** Logs in to the admin portal using credentials from environment variables. */
-  public loginToAdminPortal = async () =>
-    await this.loginPage.fillLoginForm(
-      process.env.ADMIN_PORTAL_BASE_URL!,
-      process.env.ADMIN_USERNAME!,
-      process.env.ADMIN_PASSWORD!,
-    );
+  public loginToAdminPortal = async () => await this.loginPage.fillLoginForm(process.env.ADMIN_PORTAL_BASE_URL!, process.env.ADMIN_USERNAME!, process.env.ADMIN_PASSWORD!);
 
   /** Logs in to a given portal URL with the provided email and password. */
-  public loginToPortals = async (portalUrl: string, email: string, password: string) =>
-    await this.loginPage.fillLoginForm(portalUrl, email, password);
+  public loginToPortals = async (portalUrl: string, email: string, password: string) => await this.loginPage.fillLoginForm(portalUrl, email, password);
 
   // ─── Invitation ──────────────────────────────────────────────────────────────
 
@@ -93,8 +84,6 @@ export class AuthFlow {
    * onboarding flow by setting a password and joining the team.
    */
   public acceptInviteAndJoinTeamByCustomer = async (customerEmail: string, password: string): Promise<void> => {
-
-
     const emailSubject = getEmailSubjectByDepartment().JOIN_TEAM;
     const credential = await this.getCredentialsFromEmail(customerEmail, emailSubject);
     await this.loginPage.currentPage.goto(credential.loginUrl);
@@ -121,9 +110,7 @@ export class AuthFlow {
    */
   public activateIndividualCustomerAccountAndSetPassword = async (email: string, portal: string, newPassword: string) => {
     const envSubject = getEmailSubjectByDepartment();
-    const subject = portal === "Member" || portal === "Consumer"
-      ? envSubject.CUSTOMER_ACC_ACTIVATE
-      : envSubject.PARTNER_ACC_ACTIVATE;
+    const subject = portal === "Member" || portal === "Consumer" ? envSubject.CUSTOMER_ACC_ACTIVATE : envSubject.PARTNER_ACC_ACTIVATE;
 
     const credential = await this.getCredentialsFromEmail(email, subject);
 
@@ -136,9 +123,7 @@ export class AuthFlow {
   /** Activates an individual customer account and changes the temporary password to a new one. */
   public activateAndChangePassIndividualCustomer = async (email: string, portal: string, newPassword: string) => {
     const envSubject = getEmailSubjectByDepartment();
-    const subject = portal === "Member" || portal === "Consumer"
-      ? envSubject.CUSTOMER_ACC_ACTIVATE
-      : envSubject.PARTNER_ACC_ACTIVATE;
+    const subject = portal === "Member" || portal === "Consumer" ? envSubject.CUSTOMER_ACC_ACTIVATE : envSubject.PARTNER_ACC_ACTIVATE;
 
     const credential = await this.getCredentialsFromEmail(email, subject);
 
@@ -152,22 +137,12 @@ export class AuthFlow {
   public activateSignedUpCustomer = async (email: string) => {
     const subject = "Verify your email address";
 
-    if (process.env.MAILBOX_URL?.includes("maildrop")) {
-      const mailDropHandler = new MailDropHandler();
-      const emailContent = await mailDropHandler.readEmail(email, subject, { format: "html" });
-      const confirmMatch = emailContent.content.match(/<a[^>]+href="([^"]+)"[^>]*>\s*Confirm email\s*<\/a>/i);
-      if (!confirmMatch) throw new Error("Confirmation URL not found in email content");
-      await this.page.goto(confirmMatch[1]);
-      return;
-    }
-
-    const credential = await this.emailServicePage.extractAccountCredentialFromInBox(email, subject);
+    const credential = await this.getCredentialsFromEmail(email, subject);
     await this.page.goto(credential.loginUrl);
   };
 
   /** Asserts that exactly one verification email was received in the customer's inbox when creating a customer account. */
-  public validateReceivedOneEmailForCreatingCustomer = async (email: string) =>
-    await this.emailServicePage.validateReceivedOneEmailForCreatingCustomer(email);
+  public validateReceivedOneEmailForCreatingCustomer = async (email: string) => await this.emailServicePage.validateReceivedOneEmailForCreatingCustomer(email);
 
   /** Asserts that the verification email for a new customer contains a time-limited expiry notice (e.g. "X hours"). */
   public validateTimeLimitedEmailForCreatingCustomer = async (email: string) => {

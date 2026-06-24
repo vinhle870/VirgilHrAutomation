@@ -38,7 +38,7 @@ export class LocatorHandling {
   static async getLocatorInIframe(page: Page, iframeSelector: string, selector: string, timeout?: number): Promise<Locator> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
 
-    const frame = await page.locator(iframeSelector).contentFrame();
+    const frame = page.locator(iframeSelector).contentFrame();
     const locator = frame.locator(selector);
     await locator.first().waitFor({ state: "visible", timeout: effectiveTimeout });
     return locator;

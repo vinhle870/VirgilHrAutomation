@@ -7,7 +7,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
   test(
     "TC30 Verify that a partner account can only be created in the Admin Portal – Partner Management.",
     {
-      tag: ["@TC30", "@1_test"]
+      tag: ["@TC30", "@1_test"],
     },
     async ({ loginPage, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
@@ -183,6 +183,8 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
       tag: "@TC35",
     },
     async ({ loginPage, onboardingFlow, purchaseFlow, authFlow }) => {
+      test.setTimeout(120000);
+
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });

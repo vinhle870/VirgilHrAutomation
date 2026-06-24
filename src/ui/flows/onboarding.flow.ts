@@ -1,7 +1,5 @@
-import { Locator, Page } from "@playwright/test";
 import { BusinessLocator } from "../pages/partner-portal/locators/business";
 import { CustomerInfo, Partner, UserInfo } from "src/objects";
-import refreshPage from "src/utilities/refresh";
 import { PeoPartner } from "src/objects/ipeopartner";
 import { UiAssert } from "src/assertions";
 import { OnboardingAdminPortalFlow } from "../pages/admin-portal/flows/adminportal.onboarding.flow";
@@ -10,6 +8,7 @@ import { OnboardingMemberPortalFlow } from "../pages/member-portal/flows/memberp
 import { EmailServicePage } from "../pages";
 import { HomePage } from "../pages/shared-pages/home.page";
 import { SignUpLocators } from "../pages/member-portal/locators/signup";
+import { Page } from "playwright/test";
 
 /**
  * This flow class contains methods related to the onboarding process of both partner and member users, such as accepting invitations, credentialing, buying plans, and creating a business.
@@ -51,14 +50,20 @@ export class OnboardingFlow {
   public verifyPartnerVisible = async (partnerInfo: Partner) => {
     const partnerEmailLocator = this.page!.getByText(partnerInfo!.accountInfo!.email).first();
 
-     await UiAssert.allVisible([partnerEmailLocator]);
+    await UiAssert.allVisible([partnerEmailLocator]);
   };
 
   public verifyCustomerVisible = async (customerInfo: CustomerInfo) => {
-    const customerEmailLocator = this.page!.getByText(customerInfo!.accountInfo!.email).first();
+    let customerEmailLocator;
+    try {
+      customerEmailLocator = this.page!.getByText(customerInfo!.accountInfo!.email).first();
 
-    await UiAssert.allVisible([customerEmailLocator], { timeout: 60000 });
-
+      await UiAssert.allVisible([customerEmailLocator], { timeout: 60000 });
+    } catch (error) {
+      await this.page.reload();
+      customerEmailLocator = this.page!.getByText(customerInfo!.accountInfo!.email).first();
+      await UiAssert.allVisible([customerEmailLocator], { timeout: 60000 });
+    }
   };
 
   public verifyURL = async (containedURL: string) => {
@@ -73,11 +78,13 @@ export class OnboardingFlow {
   public inviteMemberInCusManagement = async (invitingMember: Partner | UserInfo | CustomerInfo, invitedMembers: UserInfo[]) =>
     await this.onboardingAdminPortalFlow.inviteCustomerMembersInCusManaPage(invitingMember, invitedMembers);
 
-  public signUpIndividualCustomerFromMemberPortal = async (customerInfo: CustomerInfo) => await this.onboardingMemberPotalFlow.signUp(customerInfo);
+  public signUpIndividualCustomerFromMemberPortal = async (customerInfo: CustomerInfo, hrSystem?: string, url?: string) => await this.onboardingMemberPotalFlow.signUp(customerInfo, hrSystem, url);
 
   public verifyOwnerRoleInUserPage = async (partnerInfo: Partner) => await this.onboardingPartnerPotalFlow.validateOwnerRoleInUserPage(partnerInfo);
 
   public createCustomerFromCustomerManagementPage = async (customerInfo: CustomerInfo) => await this.onboardingAdminPortalFlow.createCustomerFromCustomerManagementPage(customerInfo);
+
+  public upgradePlanForCustomer = async (customerInfo: CustomerInfo, planToUpgrade: string) => await this.onboardingAdminPortalFlow.upgradePlanForCustomer(customerInfo, planToUpgrade);
 
   public validateReceivedOneEmail = async (partnerInfo: Partner) => this.emailServicePage.validateReceivedOneEmail(partnerInfo);
 

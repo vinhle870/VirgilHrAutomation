@@ -6,7 +6,6 @@ import { CollectionUtils } from "src/utilities";
 import { ProductInfo } from "src/objects/iproduct";
 import Comparison from "src/utilities/compare";
 import { plans } from "src/constant/static-data";
-import delay from "src/utilities/delay";
 
 test.describe(
   "Partner managerment",

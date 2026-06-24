@@ -50,4 +50,8 @@ export class OnboardingAdminPortalFlow {
   };
 
   public getDuplicatedText = async (partnerInfo: Partner) => await this.partnerManagementPage.getDuplicatedText(partnerInfo);
+
+  public upgradePlanForCustomer = async (customerInfo: CustomerInfo, planToUpgrade: string): Promise<void> => {
+    await this.customerManagementPage.upgradePlan(customerInfo, planToUpgrade);
+  };
 }

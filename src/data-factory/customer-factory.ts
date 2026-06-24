@@ -24,11 +24,10 @@ export class CustomerFactory {
     const builder = new CustomerBuilder();
 
     // Portal
-    if (portal === "admin") {
+    if (portal === "admin")
       builder.forAdminPortal();
-    } else {
+    else
       builder.forMemberPortal();
-    }
 
     // Account overrides
     if (overrides?.email) builder.withEmail(overrides.email);

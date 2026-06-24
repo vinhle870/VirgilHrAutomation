@@ -181,13 +181,12 @@ export class ApiClient {
     }
 
     // --- Validation and Error Handling ---
-    if (status !== expectedStatus) {
+    if (status !== expectedStatus)
       throw new Error(
         `API call failed for ${method} ${fullUrl}. ` +
           `Expected status: ${expectedStatus}, Actual status: ${status}. ` +
           `Response body: ${isJson ? JSON.stringify(responseBody) : responseBody}`,
       );
-    }
 
     if (isJson) return responseBody as T;
     if (status === 204) return {} as T;

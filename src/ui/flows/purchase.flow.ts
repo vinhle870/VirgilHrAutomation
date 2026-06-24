@@ -28,12 +28,13 @@ export class PurchaseFlow {
     else await new BuyPlanPage(planNameOrPage).selectPlan(url, email ?? "", "");
   };
 
-  /*
-  async getTripeElements(page: Page) {
-    return await new BuyPlanPage(page).getBuyPlanPageElements();
-  }
-*/
   public submitSubscriptionPayment = async () => await new BuyPlanPage(this.page).fillPaymentFormWithValidCard();
+
+  public retryWithValidCard = async () => await new BuyPlanPage(this.page).retryPaymentWithValidCard();
+
+  public submitInvalidCardPayment = async () => await new BuyPlanPage(this.page).fillPaymentFormWithInvalidCard();
+
+  public verifyCardPaymentError = async () => await new BuyPlanPage(this.page).verifyCardError();
 
   public verifyStripePaymentFormCorrectDisplay = async () => await new BuyPlanPage(this.page).verifyStripePaymentFormCorrectDisplayed();
 

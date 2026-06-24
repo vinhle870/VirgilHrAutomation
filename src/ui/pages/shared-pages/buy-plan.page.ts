@@ -1,7 +1,6 @@
 import { expect, Page } from "@playwright/test";
 import { BasePage } from "../base-page";
 import { BuyPlanLocators } from "./locators";
-import delay from "src/utilities/delay";
 
 export class BuyPlanPage extends BasePage {
   constructor(page: Page) {
@@ -30,24 +29,70 @@ export class BuyPlanPage extends BasePage {
     await this.fillPaymentFormWithValidCard();
   };
 
-  public getBuyPlanPageElements = async () => {
-    const iframe = BuyPlanLocators.paymentIframe;
-
-    const txtCardNumb = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardNumber);
-    const txtCardCvc = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardCvc);
-    const txtHolder = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardHolderName);
-    const txtAddress = await this.getLocatorInIframe(iframe, BuyPlanLocators.billingAddress);
-    const txtCity = await this.getLocatorInIframe(iframe, BuyPlanLocators.billingCity);
-
-    return { txtCardNumb, txtCardCvc, txtHolder, txtAddress, txtCity };
-  };
-
   public fillPaymentFormWithValidCard = async (): Promise<void> => {
     const iframe = BuyPlanLocators.paymentIframe;
 
     try {
       const txtCardNumb = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardNumber);
-      await txtCardNumb.fill("4242 4242 4242 4242");
+      await txtCardNumb.click();
+      await txtCardNumb.pressSequentially("4242 4242 4242 4242", { delay: 500 });
+
+      const txtCardExp = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardExpiry);
+      await txtCardExp.fill("12/34");
+
+      const txtCardCvc = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardCvc);
+      await txtCardCvc.fill("123");
+
+      const txtHolder = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardHolderName);
+      await txtHolder.fill("Test User");
+
+      const txtAddress = await this.getLocatorInIframe(iframe, BuyPlanLocators.billingAddress);
+      await txtAddress.fill("123 Test St");
+
+      const txtCity = await this.getLocatorInIframe(iframe, BuyPlanLocators.billingCity);
+      await txtCity.fill("Test City");
+
+      const btnSubscribe = await this.getLocatorInIframe(iframe, BuyPlanLocators.subscribe);
+      for (let i = 0; i < 3; i++) {
+        await btnSubscribe.click();
+        await this.page.waitForTimeout(2000);
+        if (!(await btnSubscribe.isVisible())) break;
+      }
+    } catch (error) {
+      throw new Error(`[fillPaymentFormWithValidCard] A form field or button was not found or timed out.\n${error}`);
+    }
+
+    await this.page.waitForTimeout(10000);
+  };
+
+  public retryPaymentWithValidCard = async (): Promise<void> => {
+    const iframe = BuyPlanLocators.paymentIframe;
+
+    try {
+      const txtCardNumb = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardNumber);
+      await txtCardNumb.click({ clickCount: 3 });
+      await txtCardNumb.pressSequentially("4242 4242 4242 4242", { delay: 50 });
+
+      const btnSubscribe = await this.getLocatorInIframe(iframe, BuyPlanLocators.subscribe);
+      for (let i = 0; i < 3; i++) {
+        await btnSubscribe.click();
+        await this.page.waitForTimeout(2000);
+        if (!(await btnSubscribe.isVisible())) break;
+      }
+    } catch (error) {
+      throw new Error(`[retryPaymentWithValidCard] Card number field or subscribe button not found.\n${error}`);
+    }
+
+    await this.page.waitForTimeout(10000);
+  };
+
+  public fillPaymentFormWithInvalidCard = async (): Promise<void> => {
+    const iframe = BuyPlanLocators.paymentIframe;
+
+    try {
+      const txtCardNumb = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardNumber);
+      await txtCardNumb.click();
+      await txtCardNumb.pressSequentially("4242 4242 4242 0000", { delay: 50 });
 
       const txtCardExp = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardExpiry);
       await txtCardExp.fill("12/34");
@@ -67,10 +112,14 @@ export class BuyPlanPage extends BasePage {
       const btnSubscribe = await this.getLocatorInIframe(iframe, BuyPlanLocators.subscribe);
       await btnSubscribe.click();
     } catch (error) {
-      throw new Error(`[fillPaymentFormWithValidCard] A form field or button was not found or timed out.\n${error}`);
+      throw new Error(`[fillPaymentFormWithInvalidCard] A form field or button was not found or timed out.\n${error}`);
     }
+  };
 
-    await delay(10000);
+  public verifyCardError = async (): Promise<void> => {
+    const iframe = BuyPlanLocators.paymentIframe;
+    const errorEl = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardError);
+    await expect(errorEl.first()).toBeVisible({ timeout: 10000 });
   };
 
   public verifyStripePaymentFormCorrectDisplayed = async (): Promise<void> => {
