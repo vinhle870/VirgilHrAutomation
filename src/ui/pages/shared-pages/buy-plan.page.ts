@@ -2,7 +2,6 @@ import { expect, Page } from "@playwright/test";
 import { BasePage } from "../base-page";
 import { BuyPlanLocators } from "./locators";
 
-
 export class BuyPlanPage extends BasePage {
   constructor(page: Page) {
     super(page);
@@ -36,7 +35,7 @@ export class BuyPlanPage extends BasePage {
     try {
       const txtCardNumb = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardNumber);
       await txtCardNumb.click();
-      await txtCardNumb.pressSequentially("4242 4242 4242 4242", { delay: 50 });
+      await txtCardNumb.pressSequentially("4242 4242 4242 4242", { delay: 500 });
 
       const txtCardExp = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardExpiry);
       await txtCardExp.fill("12/34");
