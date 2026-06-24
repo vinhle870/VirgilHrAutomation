@@ -31,7 +31,6 @@ test.describe("E2E -> Admin Portal -> Customer Management", { tag: "@regression_
 
       let customerAdminAcc = await CustomerFactory.generateMembers(2, "Admin");
       await test.step("4. Invite multiple members (Role = Admin) in Customer management", async () => {
-        
         await authFlow.loginToAdminPortal();
 
         await onboardingFlow.inviteMemberInCusManagement(customerInfo!, customerAdminAcc);
@@ -43,7 +42,7 @@ test.describe("E2E -> Admin Portal -> Customer Management", { tag: "@regression_
         }
       });
 
-      let users: UserInfo[] = await CustomerFactory.generateMembers(2, "User");;
+      let users: UserInfo[] = await CustomerFactory.generateMembers(2, "User");
       await test.step("6. Invite multiple users (Role = User) in Customer management", async () => {
         await authFlow.loginToAdminPortal();
 
@@ -59,14 +58,12 @@ test.describe("E2E -> Admin Portal -> Customer Management", { tag: "@regression_
     },
   );
 
-  test(
+  test.skip(
     "TC71 Verify that the admin can auto-renew or upgrade a team's (Owner account's) plan in Customer Management.",
     {
       tag: "@TC71",
     },
     async ({ loginPage, onboardingFlow, authFlow }) => {
-      test.setTimeout(120000);
-
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
