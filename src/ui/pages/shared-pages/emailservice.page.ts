@@ -1,4 +1,4 @@
-import delay from "src/utilities/delay";
+
 import { BasePage } from "../base-page";
 import { TempEmailFreeLocators, BeeinboxLocators } from "./locators";
 import { expect } from "@playwright/test";
@@ -103,7 +103,7 @@ export class EmailServicePage extends BasePage {
   };
 
   public registerNewEmail = async (userEmail: string) => {
-    await delay(5000);
+    await this.page.waitForTimeout(5000);
     const emailLocalPart = userEmail.split("@")[0];
 
     await this.page.goto(this.mailboxUrl);
@@ -149,7 +149,7 @@ export class EmailServicePage extends BasePage {
         return;
       } catch {
         await (await this.getLocator(TempEmailFreeLocators.refreshButton)).click();
-        await delay(3000);
+        await this.page.waitForTimeout(3000);
       }
     }
   };
@@ -164,26 +164,42 @@ export class EmailServicePage extends BasePage {
   };
 
   public validateReceivedOneEmail = async (partnerInfo?: Partner) => {
-    await this.registerNewEmail(partnerInfo!.accountInfo?.email!);
-
+    const email = partnerInfo!.accountInfo?.email!;
+    if (this.mailboxUrl.includes("yopmail")) {
+      const handler = new YopmailHandler();
+      const { PARTNER_ACC_ACTIVATE } = getEmailSubjectByDepartment();
+      await expect.poll(async () => {
+        try { await handler.readEmail(email, PARTNER_ACC_ACTIVATE); return true; } catch { return false; }
+      }, { timeout: 30000 }).toBe(true);
+      await expect.poll(async () => {
+        try { const { inbox } = await require("easy-yopmail").getInbox(email.toLowerCase()); return !inbox?.some((e: any) => e.subject?.includes("User")); } catch { return false; }
+      }, { timeout: 5000 }).toBe(true);
+      return;
+    }
+    await this.registerNewEmail(email);
     const partnerCredentialCategory = this.page.locator(TempEmailFreeLocators.emailSubject.replace("subjectValue", "Partner")).first();
-
     await expect(partnerCredentialCategory).toBeVisible({ timeout: 30000 });
-
     const memberCredentialCategory = this.page.locator(TempEmailFreeLocators.emailSubject.replace("subjectValue", "User")).first();
-
     await expect(memberCredentialCategory).toBeHidden();
   };
 
   public validateReceivedTwoEmails = async (partnerInfo?: Partner) => {
-    await this.registerNewEmail(partnerInfo!.accountInfo?.email!);
-
+    const email = partnerInfo!.accountInfo?.email!;
+    if (this.mailboxUrl.includes("yopmail")) {
+      const handler = new YopmailHandler();
+      const { PARTNER_ACC_ACTIVATE, CUSTOMER_ACC_ACTIVATE } = getEmailSubjectByDepartment();
+      await expect.poll(async () => {
+        try { await handler.readEmail(email, PARTNER_ACC_ACTIVATE); return true; } catch { return false; }
+      }, { timeout: 30000 }).toBe(true);
+      await expect.poll(async () => {
+        try { await handler.readEmail(email, CUSTOMER_ACC_ACTIVATE); return true; } catch { return false; }
+      }, { timeout: 30000 }).toBe(true);
+      return;
+    }
+    await this.registerNewEmail(email);
     const partnerEmail = this.page.locator(TempEmailFreeLocators.emailSubject.replace("subjectValue", "Partner")).first();
-
     await expect(partnerEmail).toBeVisible({ timeout: 30000 });
-
     const memberEmail = this.page.locator(TempEmailFreeLocators.emailSubject.replace("subjectValue", "User")).first();
-
     await expect(memberEmail).toBeVisible();
   };
 

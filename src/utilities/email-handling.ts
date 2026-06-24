@@ -54,6 +54,9 @@ export class YopmailHandler {
     }
     const { inbox: emails } = await easyYopmail.getInbox(lowerCaseEmail);
 
+    const subjects = emails?.map((e: any) => decodeHtmlEntities(e.subject ?? "")) ?? [];
+    console.log(`[yopmail] inbox "${lowerCaseEmail}" has ${subjects.length} email(s):`, subjects);
+
     const match = subject ? emails?.find((e: any) => decodeHtmlEntities(e.subject ?? "").includes(subject)) : emails?.[0];
 
     if (!match) {

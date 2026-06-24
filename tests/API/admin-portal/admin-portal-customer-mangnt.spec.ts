@@ -5,7 +5,6 @@ import { plans } from "src/constant/static-data";
 import { CollectionUtils } from "src/utilities";
 import { CustomerInfo, Partner, ProductInfo, UserInfo } from "src/objects";
 import { TestDataProvider } from "src/test-data";
-import delay from "src/utilities/delay";
 
 test.describe(
   "Admin Portal -> Customer Management",

@@ -29,7 +29,7 @@ export class PartnerPage extends BasePage {
   public getPlanToBuy = async (plan: string): Promise<Locator> => this.page.locator(plan);
 
   public fillFormToCreateBusiness = async (partnerInfo: Partner, owner?: UserInfo) => {
-    await this.page.locator(CommonPartnerPortalLocator.clientButton).click({ timeout: 10000 });
+    await (await this.getLocator(CommonPartnerPortalLocator.clientButton)).click({ timeout: 10000 });
 
     await this.page.locator(BusinessLocator.businessTab).click({ timeout: 10000 });
 

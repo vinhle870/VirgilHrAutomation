@@ -3,7 +3,7 @@ import { BasePage } from "src/ui/pages/base-page";
 import { CommonAdminPortalLocator } from "./locators/common/common.locator";
 import { CustomerInfo, Partner, UserInfo } from "src/objects";
 import { CommonCustomerLocator } from "./locators/customer-management/common";
-import delay from "src/utilities/delay";
+
 import { CreateNewCustomerModalLocator } from "./locators/customer-management/new-customer-modal";
 import { CreateNewPartnerModalLocator } from "./locators/partner-management/locator/new-partner";
 import { CustomerDetailModalLocator } from "./locators/customer-management/customer-detail-modal";
@@ -19,7 +19,7 @@ export class CustomerManagementPage extends BasePage {
     const createButtonElement = await this.getLocator(CommonCustomerLocator.createNewCustomerButton);
     await createButtonElement.click();
 
-    await delay(3000);
+    await this.page.waitForTimeout(3000);
 
     const firstNameElelemt = await this.getLocator(CreateNewCustomerModalLocator.firstName);
 
@@ -47,7 +47,7 @@ export class CustomerManagementPage extends BasePage {
 
     await this.dropdown.selectByText(CreateNewCustomerModalLocator.department, customer.departmentName);
 
-    await delay(3000);
+    await this.page.waitForTimeout(3000);
 
     if (customer.freeTrial === true) await this.selectRadio("Free Trial");
 
@@ -65,7 +65,7 @@ export class CustomerManagementPage extends BasePage {
     else if (customer.company.industry) {
       for (let i = 0; i < customer.company.industry.length; i++) await this.dropdown.selectByText(CreateNewCustomerModalLocator.industry, customer.company.industry[i].value);
 
-      await delay(3000);
+      await this.page.waitForTimeout(3000);
     }
 
     if (customer.company.totalEmployees) {
@@ -75,7 +75,7 @@ export class CustomerManagementPage extends BasePage {
 
       numberOfEmployeeEl.fill(customer.company.totalEmployees.toString());
 
-      await delay(3000);
+      await this.page.waitForTimeout(3000);
     }
 
     if (customer.company.statesEmployee)

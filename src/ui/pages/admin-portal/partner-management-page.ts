@@ -3,7 +3,7 @@ import { BasePage } from "src/ui/pages/base-page";
 import { CommonAdminPortalLocator } from "./locators/common/common.locator";
 import { CommonPartnerLocator } from "./locators/partner-management/locator/common";
 import { CreateNewPartnerModalLocator } from "./locators/partner-management/locator/new-partner";
-import delay from "src/utilities/delay";
+
 import IPartnerFilter from "src/objects/ipartnerfilter";
 import { PartnerFilterLocator } from "./locators/partner-management/locator/filter-partner";
 import { CustomerInfo, Partner, UserInfo } from "src/objects";
@@ -208,10 +208,10 @@ export class PartnerManagementPage extends BasePage {
 
       if (partFilterInfo.level) await this.dropdown.selectByText(PartnerFilterLocator.searchedLevel, partFilterInfo.level);
 
-      await delay(5000);
+      await this.page.waitForTimeout(5000);
 
       if (partFilterInfo.department) await this.dropdown.selectByText(PartnerFilterLocator.searchedDepartment, partFilterInfo.department);
-      await delay(5000);
+      await this.page.waitForTimeout(5000);
 
       await (await this.getLocator(PartnerFilterLocator.applyButton)).click();
     } catch (error) {
@@ -238,7 +238,7 @@ export class PartnerManagementPage extends BasePage {
     return "Pass";
   };
 
-  public moveToManagementCategory = async () => await this.page.locator(CommonAdminPortalLocator.managementCategory).click();
+  public moveToManagementCategory = async () => await (await this.getLocator(CommonAdminPortalLocator.managementCategory)).click();
 
   public accessToManagementPage = async (category = "Partner") => {
     await this.moveToManagementCategory();

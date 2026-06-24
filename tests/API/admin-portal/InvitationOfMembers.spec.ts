@@ -4,7 +4,6 @@ import { CustomerBuilder, DataFactory } from "src/data-factory";
 import { TestDataProvider } from "src/test-data";
 import { ProductInfo } from "src/objects/iproduct";
 import { plans } from "src/constant/static-data";
-import delay from "src/utilities/delay";
 import { Partner } from "src/objects";
 
 test.describe(

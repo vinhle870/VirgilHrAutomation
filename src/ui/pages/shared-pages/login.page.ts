@@ -2,7 +2,7 @@ import { Page } from "@playwright/test";
 import { BasePage } from "../base-page";
 import { LoginFormLocators } from "./locators";
 import { CommonAdminPortalLocator } from "../admin-portal/locators/common/common.locator";
-import delay from "src/utilities/delay";
+
 
 export class LoginPage extends BasePage {
   constructor(page: Page) {

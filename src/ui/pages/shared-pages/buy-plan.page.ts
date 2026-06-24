@@ -1,7 +1,7 @@
 import { expect, Page } from "@playwright/test";
 import { BasePage } from "../base-page";
 import { BuyPlanLocators } from "./locators";
-import delay from "src/utilities/delay";
+
 
 export class BuyPlanPage extends BasePage {
   constructor(page: Page) {
@@ -54,12 +54,16 @@ export class BuyPlanPage extends BasePage {
       await txtCity.fill("Test City");
 
       const btnSubscribe = await this.getLocatorInIframe(iframe, BuyPlanLocators.subscribe);
-      await btnSubscribe.click();
+      for (let i = 0; i < 3; i++) {
+        await btnSubscribe.click();
+        await this.page.waitForTimeout(2000);
+        if (!(await btnSubscribe.isVisible())) break;
+      }
     } catch (error) {
       throw new Error(`[fillPaymentFormWithValidCard] A form field or button was not found or timed out.\n${error}`);
     }
 
-    await delay(10000);
+    await this.page.waitForTimeout(10000);
   };
 
   public retryPaymentWithValidCard = async (): Promise<void> => {
@@ -71,12 +75,16 @@ export class BuyPlanPage extends BasePage {
       await txtCardNumb.pressSequentially("4242 4242 4242 4242", { delay: 50 });
 
       const btnSubscribe = await this.getLocatorInIframe(iframe, BuyPlanLocators.subscribe);
-      await btnSubscribe.click();
+      for (let i = 0; i < 3; i++) {
+        await btnSubscribe.click();
+        await this.page.waitForTimeout(2000);
+        if (!(await btnSubscribe.isVisible())) break;
+      }
     } catch (error) {
       throw new Error(`[retryPaymentWithValidCard] Card number field or subscribe button not found.\n${error}`);
     }
 
-    await delay(10000);
+    await this.page.waitForTimeout(10000);
   };
 
   public fillPaymentFormWithInvalidCard = async (): Promise<void> => {

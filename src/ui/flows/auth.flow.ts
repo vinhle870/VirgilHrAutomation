@@ -5,7 +5,7 @@ import { WelcomeModal } from "../pages/shared-pages/welome.modal";
 import { MemberOnboardingLocators } from "../pages/member-portal/locators";
 import { getEmailSubjectByDepartment } from "src/constant/department-data";
 import { EmailCredentials, EmailMessage, YopmailHandler } from "src/utilities/email-handling";
-import delay from "src/utilities/delay";
+
 
 /**
  * This flow class contains methods related to the authentication process,
@@ -42,8 +42,7 @@ export class AuthFlow {
             try {
               emailContent = await handler.readEmail(email, subject, { format: "html" });
               return true;
-            } catch (err) {
-              console.error("[pollEmail]", err);
+            } catch {
               return false;
             }
           },
