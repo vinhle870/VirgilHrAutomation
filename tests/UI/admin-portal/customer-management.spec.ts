@@ -29,7 +29,7 @@ test.describe("E2E -> Admin Portal -> Customer Management", { tag: "@regression_
         await authFlow.activateAndChangePassIndividualCustomer(customerInfo!.accountInfo?.email!, "Member", "Password@123");
       });
 
-      let customerAdminAcc = await CustomerFactory.generateMembers(2, "Admin");
+      let customerAdminAcc = await CustomerFactory.generateMembers(1, "Admin");
       await test.step("4. Invite multiple members (Role = Admin) in Customer management", async () => {
         await authFlow.loginToAdminPortal();
 

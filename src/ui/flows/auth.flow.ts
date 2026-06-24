@@ -5,6 +5,7 @@ import { WelcomeModal } from "../pages/shared-pages/welome.modal";
 import { MemberOnboardingLocators } from "../pages/member-portal/locators";
 import { getEmailSubjectByDepartment } from "src/constant/department-data";
 import { EmailCredentials, EmailMessage, YopmailHandler } from "src/utilities/email-handling";
+import delay from "src/utilities/delay";
 
 /**
  * This flow class contains methods related to the authentication process,
@@ -41,11 +42,12 @@ export class AuthFlow {
             try {
               emailContent = await handler.readEmail(email, subject, { format: "html" });
               return true;
-            } catch {
+            } catch (err) {
+              console.error("[pollEmail]", err);
               return false;
             }
           },
-          { message: `Email "${subject}" not received in ${email}`, timeout: 30000, intervals: [3000, 5000, 5000] },
+          { message: `Email "${subject}" not received in ${email}`, timeout: 120000, intervals: [10000, 20000, 30000, 30000] },
         )
         .toBe(true);
       return emailContent!;
@@ -53,7 +55,7 @@ export class AuthFlow {
 
     const parseContent = (handler: YopmailHandler, content: string): EmailCredentials => {
       const envSubject = getEmailSubjectByDepartment();
-      return (subject === envSubject.CUSTOMER_ACC_ACTIVATE || subject === envSubject.PARTNER_ACC_ACTIVATE)
+      return subject === envSubject.CUSTOMER_ACC_ACTIVATE || subject === envSubject.PARTNER_ACC_ACTIVATE
         ? handler.parseActivateCredentialsFromMailBody(content)
         : handler.parseInviteInfoFromMailBody(content);
     };

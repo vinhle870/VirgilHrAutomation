@@ -114,11 +114,8 @@ export class EmailServicePage extends BasePage {
     await newBtn.click();
 
     const isBeeinbox = this.mailboxUrl.includes("beeinbox");
-    let usernameInput = await this.getLocator(isBeeinbox ? BeeinboxLocators.usernameInput : TempEmailFreeLocators.usernameInput);
 
-    await usernameInput.waitFor({ state: "visible" });
-
-    await usernameInput.fill(emailLocalPart);
+    await (await this.getLocator(BeeinboxLocators.usernameInput)).fill(emailLocalPart);
 
     if (!isBeeinbox) {
       const DomainDropdown = await this.getLocator(TempEmailFreeLocators.selectDomainDropdown);
@@ -144,10 +141,10 @@ export class EmailServicePage extends BasePage {
         const el = await this.getLocator(emailLocator);
         try {
           await el.first().scrollIntoViewIfNeeded();
-          await el.first().dispatchEvent('click');
+          await el.first().dispatchEvent("click");
         } catch {
           await el.last().scrollIntoViewIfNeeded();
-          await el.last().dispatchEvent('click');
+          await el.last().dispatchEvent("click");
         }
         return;
       } catch {

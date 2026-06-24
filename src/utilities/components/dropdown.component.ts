@@ -34,13 +34,21 @@ export class DropdownComponent extends BaseComponent {
    */
   async selectByText(dropdownSelector: string, optionText: string, page = this.page, timeout = 60000, optionListSelector?: string): Promise<void> {
     const effectiveTimeout = this.getEffectiveTimeout(timeout);
-
     const dropdown = page.locator(dropdownSelector);
-    await this.waitAndClick(dropdown, effectiveTimeout);
-
     const scope = optionListSelector ? page.locator(optionListSelector) : page;
     const option = scope.getByText(optionText, { exact: true });
-    await this.waitAndClick(option, effectiveTimeout);
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await this.waitAndClick(dropdown, effectiveTimeout);
+      try {
+        await option.last().waitFor({ state: "visible", timeout: 5000 });
+        await option.last().click({ timeout: 3000 });
+        return;
+      } catch {
+        // dropdown may have closed before option was ready, retry
+      }
+    }
+    throw new Error(`Failed to select option "${optionText}" from dropdown "${dropdownSelector}" after 3 attempts`);
   }
 
   /**
