@@ -31,11 +31,10 @@ test.describe(
           const resp = await memberPortalService.signUpConsumer(consumerData);
 
           expect(resp).toBeTruthy();
-          if (typeof (resp as any) === "string") {
+          if (typeof (resp as any) === "string")
             expect((resp as any).length).toBeGreaterThan(0);
-          } else {
+          else
             expect(Object.keys(resp as any).length).toBeGreaterThan(0);
-          }
         });
       },
     );
@@ -280,11 +279,10 @@ test.describe(
         const resp = await memberPortalService.signUpConsumer(consumerData);
 
         expect(resp).toBeTruthy();
-        if (typeof (resp as any) === "string") {
+        if (typeof (resp as any) === "string")
           expect((resp as any).length).toBeGreaterThan(0);
-        } else {
+        else
           expect(Object.keys(resp as any).length).toBeGreaterThan(0);
-        }
 
         const resetResp = await authenticationService.resetPasswordWithoutToken({ username: (customerAccountInfo as any).email, password: tempPassword }, undefined, "4");
 
@@ -366,11 +364,10 @@ test.describe(
           const resp = await memberPortalService.signUpConsumer(consumerData);
 
           expect(resp).toBeTruthy();
-          if (typeof (resp as any) === "string") {
+          if (typeof (resp as any) === "string")
             expect((resp as any).length).toBeGreaterThan(0);
-          } else {
+          else
             expect(Object.keys(resp as any).length).toBeGreaterThan(0);
-          }
 
           await authenticationService.resetPasswordWithoutToken({ username: (customerAccountInfo as any).email, password: tempPassword }, undefined, "4");
 
@@ -461,9 +458,8 @@ test.describe(
 
           const confirmEmailResponse = await authenticationService.confirmEmailWithoutToken(partnerEmail, undefined, "5");
 
-          if (!confirmEmailResponse) {
+          if (!confirmEmailResponse)
             throw new Error("Failed to confirm email");
-          }
           expect(confirmEmailResponse).toBe(true);
 
           await authenticationService.getAuthToken(partnerEmail, ParntertempPassword, "5");
@@ -480,11 +476,10 @@ test.describe(
           const resp = await memberPortalService.signUpConsumer(consumerData);
 
           expect(resp).toBeTruthy();
-          if (typeof (resp as any) === "string") {
+          if (typeof (resp as any) === "string")
             expect((resp as any).length).toBeGreaterThan(0);
-          } else {
+          else
             expect(Object.keys(resp as any).length).toBeGreaterThan(0);
-          }
 
           consumerTempPassword = "TempPass@" + Date.now().toString().slice(-4);
           const tempPassword = consumerTempPassword;

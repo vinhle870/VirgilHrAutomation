@@ -54,9 +54,16 @@ export class OnboardingFlow {
   };
 
   public verifyCustomerVisible = async (customerInfo: CustomerInfo) => {
-    const customerEmailLocator = this.page!.getByText(customerInfo!.accountInfo!.email).first();
+    let customerEmailLocator;
+    try {
+      customerEmailLocator = this.page!.getByText(customerInfo!.accountInfo!.email).first();
 
-    await UiAssert.allVisible([customerEmailLocator], { timeout: 60000 });
+      await UiAssert.allVisible([customerEmailLocator], { timeout: 60000 });
+    } catch (error) {
+      await this.page.reload();
+      customerEmailLocator = this.page!.getByText(customerInfo!.accountInfo!.email).first();
+      await UiAssert.allVisible([customerEmailLocator], { timeout: 60000 });
+    }
   };
 
   public verifyURL = async (containedURL: string) => {

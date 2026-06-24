@@ -4,7 +4,7 @@ import { EmailServicePage } from "../pages/shared-pages/emailservice.page";
 import { WelcomeModal } from "../pages/shared-pages/welome.modal";
 import { MemberOnboardingLocators } from "../pages/member-portal/locators";
 import { getEmailSubjectByDepartment } from "src/constant/department-data";
-import { EmailCredentials, EmailMessage, MailDropHandler, YopmailHandler } from "src/utilities/email-handling";
+import { EmailCredentials, EmailMessage, YopmailHandler } from "src/utilities/email-handling";
 
 /**
  * This flow class contains methods related to the authentication process,
@@ -30,40 +30,42 @@ export class AuthFlow {
 
   // ─── Private helpers ─────────────────────────────────────────────────────────
 
-  /** Reads credentials from whichever inbox backend is active (maildrop, YOPmail, or UI-based inbox). */
   public getCredentialsFromEmail = async (email: string, subject: string): Promise<EmailCredentials> => {
     const mailboxUrl = process.env.MAILBOX_URL ?? "";
 
-    const mailHandler = mailboxUrl.includes("maildrop") ? new MailDropHandler() : mailboxUrl.includes("yopmail") ? new YopmailHandler() : null;
-
-    if (mailHandler) {
+    const pollEmail = async (handler: YopmailHandler): Promise<EmailMessage> => {
       let emailContent: EmailMessage | null = null;
-
       await expect
         .poll(
           async () => {
             try {
-              emailContent = await mailHandler.readEmail(email, subject, { format: "html" });
+              emailContent = await handler.readEmail(email, subject, { format: "html" });
               return true;
             } catch {
               return false;
             }
           },
-          {
-            message: `Email "${subject}" not received in ${email}`,
-            timeout: 30000,
-            intervals: [3000, 5000, 5000],
-          },
+          { message: `Email "${subject}" not received in ${email}`, timeout: 30000, intervals: [3000, 5000, 5000] },
         )
         .toBe(true);
+      return emailContent!;
+    };
 
-      if (subject === getEmailSubjectByDepartment().CUSTOMER_ACC_ACTIVATE || subject === getEmailSubjectByDepartment().PARTNER_ACC_ACTIVATE) {
-        return mailHandler.parseActivateCredentialsFromMailBody(emailContent!.content);
-      }
-      return mailHandler.parseInviteInfoFromMailBody(emailContent!.content);
+    const parseContent = (handler: YopmailHandler, content: string): EmailCredentials => {
+      const envSubject = getEmailSubjectByDepartment();
+      return (subject === envSubject.CUSTOMER_ACC_ACTIVATE || subject === envSubject.PARTNER_ACC_ACTIVATE)
+        ? handler.parseActivateCredentialsFromMailBody(content)
+        : handler.parseInviteInfoFromMailBody(content);
+    };
+
+    if (mailboxUrl.includes("yopmail")) {
+      const handler = new YopmailHandler();
+      const emailContent = await pollEmail(handler);
+      return parseContent(handler, emailContent.content);
     }
+    if (mailboxUrl.includes("beeinbox")) return this.emailServicePage.extractAccountCredentialFromInBox(email, subject);
 
-    return this.emailServicePage.extractAccountCredentialFromInBox(email, subject);
+    throw new Error(`Unsupported mailbox: ${mailboxUrl}`);
   };
 
   // ─── Login ───────────────────────────────────────────────────────────────────
@@ -134,16 +136,7 @@ export class AuthFlow {
   public activateSignedUpCustomer = async (email: string) => {
     const subject = "Verify your email address";
 
-    if (process.env.MAILBOX_URL?.includes("maildrop")) {
-      const mailDropHandler = new MailDropHandler();
-      const emailContent = await mailDropHandler.readEmail(email, subject, { format: "html" });
-      const confirmMatch = emailContent.content.match(/<a[^>]+href="([^"]+)"[^>]*>\s*Confirm email\s*<\/a>/i);
-      if (!confirmMatch) throw new Error("Confirmation URL not found in email content");
-      await this.page.goto(confirmMatch[1]);
-      return;
-    }
-
-    const credential = await this.emailServicePage.extractAccountCredentialFromInBox(email, subject);
+    const credential = await this.getCredentialsFromEmail(email, subject);
     await this.page.goto(credential.loginUrl);
   };
 

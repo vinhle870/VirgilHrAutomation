@@ -31,30 +31,26 @@ export default class Comparison {
     // Legal FAQs
     const legalFAQs =
       benifitResponse.lms?.currentPlan?.b2CFeatureRestrictions?.legalFAQs;
-    if (legalFAQs) {
+    if (legalFAQs)
       expect(boughtPlan.body.legalFAQAllow).toBe(legalFAQs.allowed);
-    }
 
     // Law Comparison
     const lawComparison =
       benifitResponse.lms?.currentPlan?.b2CFeatureRestrictions?.lawComparison;
-    if (lawComparison) {
+    if (lawComparison)
       expect(boughtPlan.body.lawComparisonAllow).toBe(lawComparison.allowed);
-    }
 
     // Handbook
     const handbook =
       benifitResponse.lms?.currentPlan?.b2CFeatureRestrictions?.handbook;
-    if (handbook) {
+    if (handbook)
       expect(boughtPlan.body.handbook).toEqual(handbook);
-    }
 
     // Custom Branding
     const customBranding =
       benifitResponse.lms?.currentPlan?.b2CFeatureRestrictions?.customBranding;
-    if (customBranding) {
+    if (customBranding)
       expect(boughtPlan.body.customBranding).toEqual(customBranding);
-    }
 
     // Contact Experts
     const contactExperts =
@@ -73,53 +69,46 @@ export default class Comparison {
 
     // LMS
     const lms = benifitResponse.lms?.currentPlan?.b2CFeatureRestrictions?.lms;
-    if (lms) {
+    if (lms)
       expect(boughtPlan.body.lms).toEqual(lms);
-    }
 
     // HR Tools
     const hrTools =
       benifitResponse.lms?.currentPlan?.b2CFeatureRestrictions?.hrTools;
-    if (hrTools) {
+    if (hrTools)
       expect(boughtPlan.body.hrTools).toEqual(hrTools);
-    }
 
     // Product Support
     const productSupport =
       benifitResponse.lms?.currentPlan?.b2CFeatureRestrictions?.productSupport;
-    if (productSupport) {
+    if (productSupport)
       expect(boughtPlan.body.productSupport).toEqual(productSupport);
-    }
 
     // eSign
     const eSign =
       benifitResponse.lms?.currentPlan?.b2CFeatureRestrictions?.eSign;
-    if (eSign) {
+    if (eSign)
       expect(boughtPlan.body.eSign?.allowed).toBe(eSign.allowed);
-    }
 
     // Task Management
     const taskManagement =
       benifitResponse.lms?.currentPlan?.b2CFeatureRestrictions?.taskManagement;
-    if (taskManagement) {
+    if (taskManagement)
       expect(boughtPlan.body.taskManagement?.allowed).toBe(
         taskManagement.allowed,
       );
-    }
 
     // Reporting
     const reporting =
       benifitResponse.lms?.currentPlan?.b2CFeatureRestrictions?.reporting;
-    if (reporting) {
+    if (reporting)
       expect(boughtPlan.body.reporting?.allowed).toBe(reporting.allowed);
-    }
 
     // Resources
     const resources =
       benifitResponse.lms?.currentPlan?.b2CFeatureRestrictions?.resources;
-    if (resources) {
+    if (resources)
       expect(boughtPlan.body.resources?.allowed).toBe(resources.allowed);
-    }
 
     // So sánh thông tin currentPlan trong LMS
     if (benifitResponse.lms?.currentPlan) {

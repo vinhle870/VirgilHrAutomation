@@ -70,9 +70,8 @@ export class PartnerFactory {
         builder.withFilterProductTypeIds(restrictionOverride.feFilterProductTypes);
         delete restrictionOverride.feFilterProductTypes;
       }
-      if (Object.keys(restrictionOverride).length > 0) {
+      if (Object.keys(restrictionOverride).length > 0)
         builder.withRestriction(restrictionOverride);
-      }
     }
 
     return builder.build();
@@ -86,19 +85,17 @@ export class PartnerFactory {
     if (departmentName) {
       const dept = PartnerFactory.departmentInfor.body.find((d: any) => d.name.toLowerCase() === departmentName.toLowerCase());
 
-      if (dept) {
+      if (dept)
         return dept.id;
-      } else {
+      else
         throw new Error(`Department with name "${departmentName}" not found`);
-      }
     }
 
     const ids = PartnerFactory.departmentInfor.body.map((dept: any) => dept.id);
     let id = DataGenerate.generateDepartmentID(ids);
 
-    while (id == localHR) {
+    while (id == localHR)
       id = await PartnerFactory.generatePartnerID(adminService);
-    }
     return id;
   }
 
@@ -110,15 +107,13 @@ export class PartnerFactory {
 
   public static async getUniqueProductTypesAndNames(adminService: AdminPortalService, departmentId: string): Promise<ProductInfo[]> {
     const productTypesResponse = await adminService.getAllDepartmentsPlans();
-    if (!productTypesResponse?.body) {
+    if (!productTypesResponse?.body)
       return [];
-    }
 
     const department = productTypesResponse.body.find((d: any) => d.departmentId === departmentId);
 
-    if (!department?.plans) {
+    if (!department?.plans)
       return [];
-    }
 
     const seenProductTypes = new Set<number>();
 

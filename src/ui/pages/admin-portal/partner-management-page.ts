@@ -19,7 +19,7 @@ export class PartnerManagementPage extends BasePage {
   public fillUserInfoToCreatePartner = async (partnerInfo: Partner) => {
     await this.page.locator(CommonPartnerLocator.createNewPartnerButton).click({ timeout: 5000 });
 
-    await this.page.locator(CreateNewPartnerModalLocator.department).waitFor({ state: "visible" });
+    await (await this.getLocator(CreateNewPartnerModalLocator.department)).waitFor({ state: "visible" });
 
     await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo?.departmentName!, this.page, 5000);
 
@@ -127,8 +127,6 @@ export class PartnerManagementPage extends BasePage {
   };
 
   public fillFormToAddPeo = async (peoPartners: PeoPartner) => {
-    const addPeoConsultantButtonEl = await this.getLocator(DetailOfPartnerLocator.addPeoConsultant_btn);
-
     await this.page.locator(DetailOfPartnerLocator.addPeoConsultant_btn).click();
 
     const nameEl = this.page.locator(PeoConsultantAdditionLocator.nameInput);
@@ -182,8 +180,7 @@ export class PartnerManagementPage extends BasePage {
 
     await createButtonEl.click();
 
-    await nameEl.waitFor({ state: "hidden"});
-
+    await nameEl.waitFor({ state: "hidden" });
   };
 
   public clickDetailButton = async (user: Partner | UserInfo | CustomerInfo) => {
@@ -269,9 +266,5 @@ export class PartnerManagementPage extends BasePage {
     await this.clickDetailButton(partner);
 
     await this.page.locator(DetailOfPartnerLocator.addMemberButton).click();
-
-
   };
-
-
 }

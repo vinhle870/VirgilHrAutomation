@@ -45,10 +45,9 @@ export class UiAssert {
    * Assert that a URL matches a pattern (string suffix or regex).
    */
   static urlMatches(url: string, pattern: string | RegExp): void {
-    if (typeof pattern === "string") {
+    if (typeof pattern === "string")
       expect(url).toContain(pattern);
-    } else {
+    else
       expect(url).toMatch(pattern);
-    }
   }
 }

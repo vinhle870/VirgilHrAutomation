@@ -4,14 +4,12 @@ import { TempEmailFreeLocators, BeeinboxLocators } from "./locators";
 import { expect } from "@playwright/test";
 import { Partner } from "src/objects/ipartner";
 import { getEmailSubjectByDepartment } from "src/constant/department-data";
-import { EmailCredentials } from "src/utilities/email-handling";
+import { EmailCredentials, EmailMessage, YopmailHandler } from "src/utilities/email-handling";
 
 export class EmailServicePage extends BasePage {
   private readonly mailboxUrl = process.env.MAILBOX_URL || "";
 
   public acceptJoinTeamInvite = async (userEmail: string): Promise<void> => {
-
-
     await this.registerNewEmail(userEmail);
 
     const emailSubject = getEmailSubjectByDepartment().JOIN_TEAM;
@@ -19,16 +17,49 @@ export class EmailServicePage extends BasePage {
     await this.openEmailBySubject(emailSubject!);
 
     const isBeeinbox = this.mailboxUrl.includes("beeinbox");
-    const acceptInviteBtn = await this.getLocatorInIframe(
-      isBeeinbox ? TempEmailFreeLocators.credentialIframe : TempEmailFreeLocators.iframeToAcceptIvite,
-      TempEmailFreeLocators.acceptInviteButton
-    );
+    const acceptInviteBtn = await this.getLocatorInIframe(isBeeinbox ? TempEmailFreeLocators.credentialIframe : TempEmailFreeLocators.iframeToAcceptIvite, TempEmailFreeLocators.acceptInviteButton);
 
     await acceptInviteBtn.scrollIntoViewIfNeeded();
 
     const hrefValue = await acceptInviteBtn.getAttribute("href");
 
     await this.page.goto(hrefValue!);
+  };
+
+  public getCredentialsFromEmail = async (email: string, subject: string): Promise<EmailCredentials> => {
+    const isYopmail = this.mailboxUrl.includes("yopmail");
+    const isBeeinbox = this.mailboxUrl.includes("beeinbox");
+
+    if (isYopmail) {
+      const handler = new YopmailHandler();
+      let emailContent: EmailMessage | null = null;
+
+      await expect
+        .poll(
+          async () => {
+            try {
+              emailContent = await handler.readEmail(email, subject, { format: "html" });
+              return true;
+            } catch {
+              return false;
+            }
+          },
+          { message: `Email "${subject}" not received in ${email}`, timeout: 30000, intervals: [3000, 5000, 5000] },
+        )
+        .toBe(true);
+
+      const isVerify = subject.includes("Verify your email address");
+      if (isVerify) {
+        const confirmMatch = emailContent!.content.match(/<a[^>]+href="([^"]+)"[^>]*>\s*Confirm email\s*<\/a>/i);
+        if (!confirmMatch) throw new Error("Confirmation URL not found in email content");
+        return { password: "", loginUrl: confirmMatch[1] };
+      }
+
+      return handler.parseActivateCredentialsFromMailBody(emailContent!.content);
+    }
+    if (isBeeinbox) return this.extractAccountCredentialFromInBox(email, subject);
+
+    throw new Error(`Unsupported mailbox: ${this.mailboxUrl}`);
   };
 
   public extractAccountCredentialFromInBox = async (email: string, subject: string): Promise<EmailCredentials> => {
@@ -39,6 +70,13 @@ export class EmailServicePage extends BasePage {
     let emailContentFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).last().contentFrame();
 
     let passwordRaw, password, hrefValue;
+
+    if (subject.includes("Join your team")) {
+      const acceptInviteBtn = emailContentFrame.getByRole("link", { name: "Accept Invite" });
+      const hrefValue = await acceptInviteBtn.getAttribute("href");
+      if (!hrefValue) throw new Error(`Accept Invite URL not found in email (subject: "${subject}")`);
+      return { password: "", loginUrl: hrefValue };
+    }
 
     let loginLink = emailContentFrame.getByRole("link", { name: "Login" });
 
@@ -54,9 +92,7 @@ export class EmailServicePage extends BasePage {
       await loginLink.scrollIntoViewIfNeeded({ timeout: 5000 });
     } catch {
       emailContentFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).first().contentFrame();
-      loginLink = isVerify
-        ? emailContentFrame.getByRole("link", { name: "Confirm email" })
-        : emailContentFrame.getByRole("link", { name: "Login" });
+      loginLink = isVerify ? emailContentFrame.getByRole("link", { name: "Confirm email" }) : emailContentFrame.getByRole("link", { name: "Login" });
       await loginLink.scrollIntoViewIfNeeded({ timeout: 5000 });
     }
 
@@ -108,10 +144,10 @@ export class EmailServicePage extends BasePage {
         const el = await this.getLocator(emailLocator);
         try {
           await el.first().scrollIntoViewIfNeeded();
-          await el.first().click({ timeout: 5000, force: true });
+          await el.first().dispatchEvent('click');
         } catch {
           await el.last().scrollIntoViewIfNeeded();
-          await el.last().click({ timeout: 5000, force: true });
+          await el.last().dispatchEvent('click');
         }
         return;
       } catch {

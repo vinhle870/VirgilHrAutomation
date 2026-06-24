@@ -217,10 +217,9 @@ export class PlatinumPlan {
       platinumPlan.restriction.pricingRuleLMS = null;
     }
 
-    if (platinumPlan.restriction.contactExperts.isLimit) {
+    if (platinumPlan.restriction.contactExperts.isLimit)
       platinumPlan.restriction.contactExperts.numberOfContactExpertQuery =
         overrides?.restriction?.contactExperts?.numberOfContactExpertQuery ?? 5;
-    }
 
     if (platinumPlan.restriction.lms.requirePayment) {
       platinumPlan.restriction.lms.requirePaymentExtraConfig = false;

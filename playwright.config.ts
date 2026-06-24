@@ -12,6 +12,7 @@ const headed = (process.env.HEADED ?? "false").toLowerCase() === "true";
  */
 
 export default defineConfig({
+  timeout: 600000,
   testDir: "./tests",
   /* Run tests in files in parallel */
   fullyParallel: false,

@@ -1,5 +1,3 @@
-import axios from "axios";
-
 // ─── Shared interfaces ────────────────────────────────────────────────────────
 
 export interface EmailMessage {
@@ -41,52 +39,6 @@ function parseCredentials(html: string, linkLabel: string): EmailCredentials {
     password: passwordMatch ? decodeHtmlEntities(passwordMatch[1].trim()) : "",
     loginUrl: loginUrlMatch ? decodeHtmlEntities(loginUrlMatch[1].trim()) : "",
   };
-}
-
-// ─── Maildrop ─────────────────────────────────────────────────────────────────
-
-const MAILDROP_API = "https://api.maildrop.cc/graphql";
-const REQUEST_TIMEOUT = 10000;
-
-export class MailDropHandler {
-  private async graphql<T>(query: string): Promise<T> {
-    const response = await axios.post(MAILDROP_API, { query }, { headers: { "Content-Type": "application/json" }, timeout: REQUEST_TIMEOUT });
-    return response.data.data;
-  }
-
-  async readEmail(inbox: string, subject?: string, options: ReadEmailOptions = {}): Promise<EmailMessage> {
-    const { format = "html" } = options;
-    const mailAcc = inbox.split("@")[0];
-
-    const inboxData = await this.graphql<{ inbox: any[] }>(`query { inbox(mailbox:"${mailAcc}") { id headerfrom subject date } }`);
-    const emails = inboxData.inbox ?? [];
-    const match = subject ? emails.find((e: any) => e.subject?.includes(subject)) : emails[0];
-
-    if (!match) {
-      const subjectClause = subject ? ` with subject "${subject}"` : "";
-      throw new Error(`No email${subjectClause} found in inbox '${mailAcc}'.`);
-    }
-
-    const messageData = await this.graphql<{ message: any }>(`query { message(mailbox:"${mailAcc}", id:"${match.id}") { id headerfrom subject date html data } }`);
-
-    const msg = messageData.message;
-
-    return {
-      id: msg.id,
-      from: msg.headerfrom,
-      subject: msg.subject,
-      date: msg.date,
-      content: format === "html" ? (msg.html ?? "") : (msg.data ?? ""),
-    };
-  }
-
-  parseActivateCredentialsFromMailBody(html: string): EmailCredentials {
-    return parseCredentials(html, "Login");
-  }
-
-  public parseInviteInfoFromMailBody(html: string): EmailCredentials {
-    return parseCredentials(html, "Accept Invite");
-  }
 }
 
 // ─── YOPmail ──────────────────────────────────────────────────────────────────
