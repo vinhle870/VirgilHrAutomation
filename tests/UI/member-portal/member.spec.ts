@@ -1,5 +1,7 @@
 import { test } from "src/fixtures";
 import { DataFactory } from "src/data-factory";
+import { CustomerFactory } from "src/data-factory/customer-factory";
+import UserInfo from "src/objects/user-info";
 import { getEmailSubjectByDepartment, getPlansForDepartment } from "src/constant/department-data";
 import { Partner } from "src/objects";
 import { plans } from "src/constant/static-data";
@@ -397,6 +399,46 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
 
       await test.step("Verify user is redirected to Select Plan screen", async () => {
         await onboardingFlow.verifyURL("register-success");
+      });
+    },
+  );
+
+  test(
+    "TC54",
+    {
+      tag: "@Verify that a user can invite members to a team in the Member Portal – Organization tab.",
+    },
+    async ({ loginPage, onboardingFlow, authFlow, purchaseFlow }) => {
+      const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
+
+      await test.step("Fill form to sign up", async () => {
+        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!);
+      });
+
+      await test.step("Confirm email", async () => {
+        await authFlow.activateSignedUpCustomer(customerInfo!.accountInfo.email!);
+      });
+
+      await test.step("Select plan and submit payment", async () => {
+        await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[0]);
+        await purchaseFlow.submitSubscriptionPayment();
+      });
+
+      await test.step("Verify redirect to home page", async () => {
+        await onboardingFlow.redirectToHomePage();
+      });
+
+      const members: UserInfo[] = await CustomerFactory.generateMembers(2, "User");
+      await test.step("Invite members via Organization tab", async () => {
+        await loginPage.login();
+        await onboardingFlow.inviteMemberInCusManagement(customerInfo!, members);
+      });
+
+      await test.step("Verify invited members accept and join team successfully", async () => {
+        for (const member of members) {
+          await authFlow.acceptInviteAndJoinTeamByCustomer(member.email, "Password@123");
+          await onboardingFlow.redirectToHomePage();
+        }
       });
     },
   );
