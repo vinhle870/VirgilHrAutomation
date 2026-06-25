@@ -165,7 +165,7 @@ export class EmailServicePage extends BasePage {
       const handler = new YopmailHandler();
       await expect.poll(async () => {
         try { await handler.readEmail(email, subject); return true; } catch { return false; }
-      }, { timeout: 60000, intervals: [10000, 20000, 30000] }).toBe(true);
+      }, { timeout: 120000, intervals: [10000, 20000, 30000, 30000] }).toBe(true);
       return;
     }
     await this.registerNewEmail(email);
@@ -221,7 +221,7 @@ export class EmailServicePage extends BasePage {
           const msg = await handler.readEmail(email, subject, { format: "html" });
           return msg.content.includes("hours");
         } catch { return false; }
-      }, { timeout: 60000, intervals: [10000, 20000, 30000] }).toBe(true);
+      }, { timeout: 120000, intervals: [10000, 20000, 30000, 30000] }).toBe(true);
       return;
     }
     await this.registerNewEmail(email);
