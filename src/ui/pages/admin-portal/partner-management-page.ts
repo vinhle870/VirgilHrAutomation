@@ -118,12 +118,19 @@ export class PartnerManagementPage extends BasePage {
 
     if (partnerInfo.partnerInfo?.internal === true) await this.page.locator(CreateNewPartnerModalLocator.internal).click();
 
-    await this.page.locator(CreateNewPartnerModalLocator.createPartnerButton).click();
+    const createBtn = this.page.locator(CreateNewPartnerModalLocator.createPartnerButton);
+    const hasBankTransfer = partnerInfo.partnerInfo?.bankTransfer === true && partnerInfo.partnerInfo.paymentOption === "Partner/Consultant Owner";
 
-    if (partnerInfo.partnerInfo?.bankTransfer === true && partnerInfo.partnerInfo.paymentOption === "Partner/Consultant Owner")
-      await this.page.locator(CreateNewPartnerModalLocator.confirmButton).click();
+    for (let i = 0; i < 3; i++) {
+      await createBtn.click();
+      await this.page.waitForTimeout(2000);
+      if (!(await createBtn.isVisible())) break;
+      if (hasBankTransfer && (await this.page.locator(CreateNewPartnerModalLocator.confirmButton).isVisible())) break;
+    }
 
-    await this.page.locator(CreateNewPartnerModalLocator.createPartnerButton).waitFor({ state: "hidden" });
+    if (hasBankTransfer) await this.page.locator(CreateNewPartnerModalLocator.confirmButton).click();
+
+    await createBtn.waitFor({ state: "hidden", timeout: 50000 });
   };
 
   public fillFormToAddPeo = async (peoPartners: PeoPartner) => {

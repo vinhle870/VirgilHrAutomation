@@ -180,10 +180,10 @@ export class EmailServicePage extends BasePage {
       const { PARTNER_ACC_ACTIVATE } = getEmailSubjectByDepartment();
       await expect.poll(async () => {
         try { await handler.readEmail(email, PARTNER_ACC_ACTIVATE); return true; } catch { return false; }
-      }, { timeout: 30000 }).toBe(true);
+      }, { timeout: 60000, intervals: [10000, 20000, 30000] }).toBe(true);
       await expect.poll(async () => {
         try { const { inbox } = await require("easy-yopmail").getInbox(email.toLowerCase()); return !inbox?.some((e: any) => e.subject?.includes("User")); } catch { return false; }
-      }, { timeout: 5000 }).toBe(true);
+      }, { timeout: 30000, intervals: [10000, 20000] }).toBe(true);
       return;
     }
     await this.registerNewEmail(email);
@@ -200,10 +200,10 @@ export class EmailServicePage extends BasePage {
       const { PARTNER_ACC_ACTIVATE, CUSTOMER_ACC_ACTIVATE } = getEmailSubjectByDepartment();
       await expect.poll(async () => {
         try { await handler.readEmail(email, PARTNER_ACC_ACTIVATE); return true; } catch { return false; }
-      }, { timeout: 30000 }).toBe(true);
+      }, { timeout: 60000, intervals: [10000, 20000, 30000] }).toBe(true);
       await expect.poll(async () => {
         try { await handler.readEmail(email, CUSTOMER_ACC_ACTIVATE); return true; } catch { return false; }
-      }, { timeout: 30000 }).toBe(true);
+      }, { timeout: 60000, intervals: [10000, 20000, 30000] }).toBe(true);
       return;
     }
     await this.registerNewEmail(email);
