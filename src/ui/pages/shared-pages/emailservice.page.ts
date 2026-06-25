@@ -44,7 +44,7 @@ export class EmailServicePage extends BasePage {
               return false;
             }
           },
-          { message: `Email "${subject}" not received in ${email}`, timeout: 30000, intervals: [3000, 5000, 5000] },
+          { message: `Email "${subject}" not received in ${email}`, timeout: 120000, intervals: [10000, 20000, 30000, 30000] },
         )
         .toBe(true);
 
@@ -170,7 +170,7 @@ export class EmailServicePage extends BasePage {
     }
     await this.registerNewEmail(email);
     const emailSubjectLnk = await this.getLocator(TempEmailFreeLocators.emailSubject.replace("subjectValue", subject));
-    await expect(emailSubjectLnk.first()).toBeVisible();
+    await expect(emailSubjectLnk.first()).toBeVisible({ timeout: 30000 });
   };
 
   public validateReceivedOneEmail = async (partnerInfo?: Partner) => {
@@ -210,7 +210,7 @@ export class EmailServicePage extends BasePage {
     const partnerEmail = this.page.locator(TempEmailFreeLocators.emailSubject.replace("subjectValue", "Partner")).first();
     await expect(partnerEmail).toBeVisible({ timeout: 30000 });
     const memberEmail = this.page.locator(TempEmailFreeLocators.emailSubject.replace("subjectValue", "User")).first();
-    await expect(memberEmail).toBeVisible();
+    await expect(memberEmail).toBeVisible({ timeout: 30000 });
   };
 
   public validateTimeLimitedEmailForCreatingCustomer = async (email: string, subject: string) => {
