@@ -13,7 +13,7 @@ export class OnboardingPartnerPotalFlow {
 
   public eraseModal = async () => await this.partnerPage.eraseModal();
 
-  public fillFormToCreateBusiness = async (partberInfo: Partner, owner?: UserInfo) => await this.partnerPage.fillFormToCreateBusiness(partberInfo, owner);
+  public fillFormToCreateBusiness = async (partnerInfo: Partner, owner?: UserInfo) => await this.partnerPage.fillFormToCreateBusiness(partnerInfo, owner);
 
   public validateOwnerRoleInUserPage = async (partnerInfo: Partner) => await this.partnerPage.validateOwnerRoleInUserPage(partnerInfo.accountInfo!.email!);
 

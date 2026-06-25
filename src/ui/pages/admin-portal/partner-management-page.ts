@@ -99,13 +99,13 @@ export class PartnerManagementPage extends BasePage {
       await this.page.locator(CreateNewPartnerModalLocator.bankTransfer).scrollIntoViewIfNeeded();
       await this.page.locator(CreateNewPartnerModalLocator.bankTransfer).click();
 
-      if (partnerInfo.partnerInfo!.plan && !partnerInfo.partnerInfo!.productsType) {
+      if (partnerInfo.partnerInfo!.plan && !partnerInfo.partnerInfo!.productsType)
         try {
           await this.dropdown.selectByText(CreateNewPartnerModalLocator.plan, partnerInfo.partnerInfo!.plan);
         } catch (error) {
           throw new Error("Plan does not exist");
         }
-      }
+
       const numberOfLabelsInBillingCycle = await this.page.locator(CreateNewPartnerModalLocator.billingCycle).count();
 
       if (partnerInfo.partnerInfo!.billingCycleRadio && numberOfLabelsInBillingCycle == 2)
@@ -122,7 +122,11 @@ export class PartnerManagementPage extends BasePage {
     const hasBankTransfer = partnerInfo.partnerInfo?.bankTransfer === true && partnerInfo.partnerInfo.paymentOption === "Partner/Consultant Owner";
 
     for (let i = 0; i < 3; i++) {
-      await createBtn.click();
+      try {
+        await createBtn.click({ force: true, timeout: 5000 });
+      } catch {
+        break;
+      }
       await this.page.waitForTimeout(2000);
       if (!(await createBtn.isVisible())) break;
       if (hasBankTransfer && (await this.page.locator(CreateNewPartnerModalLocator.confirmButton).isVisible())) break;

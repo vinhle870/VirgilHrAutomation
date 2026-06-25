@@ -59,9 +59,7 @@ export class MemberPage extends BasePage {
     const errorMessagesOfTheFirstModal = ["First name is missing", "Last name is missing", "Email is missing", "Password is missing"];
     const errorMessageLocatorsOfTheFirstModal: Locator[] = [];
 
-    for (const errorMessage of errorMessagesOfTheFirstModal) {
-      errorMessageLocatorsOfTheFirstModal.push(await this.getLocator(SignUpLocators.errorMessage.replace("errormessage", errorMessage)));
-    }
+    for (const errorMessage of errorMessagesOfTheFirstModal) errorMessageLocatorsOfTheFirstModal.push(await this.getLocator(SignUpLocators.errorMessage.replace("errormessage", errorMessage)));
 
     await UiAssert.allVisible(errorMessageLocatorsOfTheFirstModal);
 
