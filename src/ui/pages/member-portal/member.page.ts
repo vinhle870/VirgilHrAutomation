@@ -59,9 +59,9 @@ export class MemberPage extends BasePage {
     const errorMessagesOfTheFirstModal = ["First name is missing", "Last name is missing", "Email is missing", "Password is missing"];
     const errorMessageLocatorsOfTheFirstModal: Locator[] = [];
 
-    errorMessagesOfTheFirstModal.forEach(async (errorMessage) => {
+    for (const errorMessage of errorMessagesOfTheFirstModal) {
       errorMessageLocatorsOfTheFirstModal.push(await this.getLocator(SignUpLocators.errorMessage.replace("errormessage", errorMessage)));
-    });
+    }
 
     await UiAssert.allVisible(errorMessageLocatorsOfTheFirstModal);
 
@@ -74,9 +74,9 @@ export class MemberPage extends BasePage {
     const errorMessagesOfTheSeccondModal = ["Phone number is missing", "Job title is missing", "Company name is missing"];
     const errorMessageLocatorsOfTheSeccondtModal: Locator[] = [];
 
-    errorMessagesOfTheSeccondModal.forEach(async (errorMessage) => {
+    for (const errorMessage of errorMessagesOfTheSeccondModal) {
       errorMessageLocatorsOfTheSeccondtModal.push(await this.getLocator(SignUpLocators.errorMessage.replace("errormessage", errorMessage)));
-    });
+    }
 
     await UiAssert.allVisible(errorMessageLocatorsOfTheSeccondtModal);
 
