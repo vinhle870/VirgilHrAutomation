@@ -60,7 +60,6 @@ test.describe(
         });
 
         const partnerToken = await test.step("Steps: Get auth token from Partner", async () => {
-          delay(30000);
           const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
           const email = partnerInfo.accountInfo?.email!;
@@ -165,7 +164,6 @@ test.describe(
         const partnerId = await test.step("CALL API -> create partner", async () => {
           return await adminService.createPartner(partnerInfo);
 
-          delay(30000);
         });
 
         const partnerToken = await test.step("CALL API -> get auth token from Partner", async () => {
@@ -293,7 +291,6 @@ test.describe(
         });
 
         const partnerToken = await test.step("Steps: Activate partner account and get auth token", async () => {
-          delay(30000);
 
           const tempPassword = "Password@123";
           const email = partnerInfo.accountInfo?.email!;
@@ -402,7 +399,6 @@ test.describe(
           return await adminService.createPartner(partnerInfo);
         });
 
-        delay(30000);
 
         if (partnerResponse) {
           const partnerToken = await test.step("Steps: Activate partner account and get auth token", async () => {

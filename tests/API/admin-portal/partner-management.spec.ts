@@ -46,7 +46,6 @@ test.describe(
         await test.step("Create partner and verify partner id response", async () => {
           const response = await adminService.createPartner(partnerInfo);
 
-          delay(20000);
 
           expect(response).toBeDefined();
           expect(typeof response).toBe("string");
@@ -93,7 +92,6 @@ test.describe(
 
           await adminService.createPartner(peoInfo);
 
-          delay(20000);
 
           const peoLevel = (await adminService.searchPartnerByText(nameOfPeoInfo)).entities[0].level;
 
@@ -157,7 +155,6 @@ test.describe(
               .build();
             const responseOfPartner = await adminService.createPartner(partnerInfo);
 
-            delay(20000);
 
             expect(responseOfPartner).toBeDefined();
             expect(typeof responseOfPartner).toBe("string");
@@ -197,7 +194,6 @@ test.describe(
               .build();
             await adminService.createPartner(partnerInfo);
 
-            delay(20000);
 
             const nameOfPartnerInfo = partnerInfo.partnerInfo?.name!;
 
@@ -241,7 +237,6 @@ test.describe(
 
           await adminService.createPartner(partnerInfo);
 
-          delay(20000);
         });
 
         const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
@@ -299,7 +294,6 @@ test.describe(
 
           await adminService.createPartner(partnerInfo);
 
-          delay(20000);
         });
 
         const tempPassword = "Password@123";
@@ -401,7 +395,6 @@ test.describe(
 
           await adminService.createPartner(partnerInfo);
 
-          delay(20000);
         });
 
         const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
@@ -442,7 +435,6 @@ test.describe(
 
           await adminService.createPartner(partnerInfo);
 
-          delay(20000);
         });
 
         const tempPassword = "Password@123";
@@ -484,7 +476,6 @@ test.describe(
 
           await adminService.createPartner(partnerInfo);
 
-          delay(20000);
         });
 
         const email = partnerInfo.accountInfo?.email!;

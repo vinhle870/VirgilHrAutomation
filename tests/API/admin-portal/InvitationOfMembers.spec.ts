@@ -54,7 +54,6 @@ test.describe(
 
         await test.step("Pre-condition: Call API /Manage/Organization/Partner -> Create partner and delay 30 seconds to wait for the partner to be created", async () => {
           partner = await adminService.createPartner(partnerInfo);
-          delay(30000);
           partnerEmail = partnerInfo.accountInfo?.email!;
         });
 
@@ -200,7 +199,6 @@ test.describe(
 
           partner = await adminService.createPartner(partnerInfo);
 
-          delay(20000);
 
           email = partnerInfo.accountInfo?.email ?? "";
 
