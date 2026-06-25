@@ -108,9 +108,9 @@ export class EmailServicePage extends BasePage {
   };
 
   public registerNewEmail = async (userEmail: string) => {
-    await this.page.waitForTimeout(5000);
     const emailLocalPart = userEmail.split("@")[0];
 
+    await this.page.waitForTimeout(15000);
     await this.page.goto(this.mailboxUrl);
     await this.page.waitForURL(this.mailboxUrl, { timeout: 30000 });
 
