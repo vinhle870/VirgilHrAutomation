@@ -31,7 +31,7 @@ export class CreateNewPartnerModalLocator {
 
   public static readonly internal = "xpath=//span[contains(text(),'Internal')]/preceding-sibling::span";
 
-  public static readonly createPartnerButton = "xpath=//button[contains(text(),'Create')]";
+  public static readonly createPartnerButton = "xpath=//button[normalize-space(text())='Create']";
 
   public static readonly confirmButton = "xpath=//button[text()=' Confirm & Create ']";
 }
