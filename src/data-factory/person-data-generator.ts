@@ -2,6 +2,9 @@ import { format } from "date-fns";
 import { DataGenerate } from "src/utilities";
 import UserInfo from "src/objects/user-info";
 
+const BEEINBOX_DOMAINS = ["beeinbox.com", "superbee.my", "ussteel.xyz", "beeinbox.edu.pl", "chinasteel.xyz", "obee.info"];
+let beeinboxDomainIndex = 0;
+
 /**
  * Shared utility that generates person/account data with sensible defaults.
  * Used by CustomerBuilder, PartnerBuilder, and any future builders
