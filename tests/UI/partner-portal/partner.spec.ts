@@ -185,7 +185,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
       });
 
       await test.step("Create business", async () => {
-        const ownerInfor = await PersonDataGenerator.generate();
+        const ownerInfor = await PersonDataGenerator.generate({ emailDomain: "ussteel.xyz" });
 
         await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerInfor!);
       });
@@ -225,7 +225,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
       });
 
       await test.step("Create a new business", async () => {
-        const ownerAccount = await PersonDataGenerator.generate();
+        const ownerAccount = await PersonDataGenerator.generate({ emailDomain: "ussteel.xyz" });
 
         await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerAccount);
       });

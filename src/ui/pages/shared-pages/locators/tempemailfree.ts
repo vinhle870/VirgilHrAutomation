@@ -2,7 +2,7 @@ export class TempEmailFreeLocators {
   static readonly newButton: string = "(//div[text()='New'])[2]";
   static readonly usernameInput: string = "(//input[@placeholder='Enter Username'])[2]";
   static readonly selectDomainDropdown: string = "(//input[@placeholder='Select Domain'])[2]";
-  static readonly domainOption: string = "(//a[text()='polandcampus.edu.pl'])[2]";
+  static readonly domainOption: string = "(//a[text()='domain'])[2]";
   static readonly createEmailButton: string = "(//input[@value='Create'])[2]";
 
   public static readonly iframeToAcceptIvite: string = "xpath=//iframe";

@@ -21,7 +21,7 @@ export class PartnerManagementPage extends BasePage {
 
     await (await this.getLocator(CreateNewPartnerModalLocator.department)).waitFor({ state: "visible" });
 
-    await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo?.departmentName!, this.page, 5000);
+    await this.dropdown.selectByText(CreateNewPartnerModalLocator.department, partnerInfo.partnerInfo?.departmentName!, this.page, 3000);
 
     await this.page.locator(CreateNewPartnerModalLocator.nameOfPartner).waitFor({ state: "visible" });
 

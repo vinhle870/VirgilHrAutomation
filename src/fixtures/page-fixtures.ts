@@ -49,15 +49,4 @@ export const test = base.extend<PageFixtures>({
   homeExceptAdminPage: async ({ page }, use) => {
     await use(new HomePage(page));
   },
-
-  mailboxFallback: [
-    async ({}, use, testInfo) => {
-      const originalUrl = process.env.MAILBOX_URL;
-      if (testInfo.retry > 0 && originalUrl?.includes("yopmail")) process.env.MAILBOX_URL = "https://beeinbox.com/";
-
-      await use();
-      process.env.MAILBOX_URL = originalUrl ?? "";
-    },
-    { auto: true },
-  ],
 });

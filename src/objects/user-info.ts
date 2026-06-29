@@ -15,4 +15,5 @@ export default interface UserInfo {
   partnerConsumerType?: number;
   localPrefix?: string;
   invitedRole?: string;
+  emailDomain?: string;
 }

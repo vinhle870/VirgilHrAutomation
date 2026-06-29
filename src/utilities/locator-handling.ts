@@ -30,7 +30,7 @@ export class LocatorHandling {
 
     const locator = page.locator(selector);
 
-    await locator.first().waitFor({ state: "visible", timeout: effectiveTimeout });
+    await locator.first().waitFor({ state: "attached", timeout: effectiveTimeout });
 
     return locator;
   }
@@ -40,7 +40,7 @@ export class LocatorHandling {
 
     const frame = page.locator(iframeSelector).contentFrame();
     const locator = frame.locator(selector);
-    await locator.first().waitFor({ state: "visible", timeout: effectiveTimeout });
+    await locator.first().waitFor({ state: "attached", timeout: effectiveTimeout });
     return locator;
   }
 }

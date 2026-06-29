@@ -258,7 +258,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
       });
 
       await test.step("Create owner", async () => {
-        const ownerIfno = await PersonDataGenerator.generate();
+        const ownerIfno = await PersonDataGenerator.generate({ emailDomain: "chinasteel.xyz" });
 
         await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerIfno!);
       });
@@ -642,7 +642,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
         await onboardingFlow.verifyPartnerVisible(partnerInfo!);
       });
 
-      const ownerAccount = await PersonDataGenerator.generate();
+      const ownerAccount = await PersonDataGenerator.generate({ emailDomain: "chinasteel.xyz" });
       await test.step("Create a business and verify the owner can log in to Member Portal", async () => {
         await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
@@ -650,7 +650,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
 
         await onboardingFlow.verifyOwnerVisible();
 
-        await authFlow.activateIndividualCustomerAccountAndSetPassword(ownerAccount.email!, "Consumer", "Password@123");
+        await authFlow.activateAndChangePassIndividualCustomer(ownerAccount.email!, "Consumer", "Password@123");
 
         await onboardingFlow.redirectToHomePage();
       });
