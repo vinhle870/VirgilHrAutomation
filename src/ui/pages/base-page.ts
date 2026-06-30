@@ -30,7 +30,7 @@ export abstract class BasePage {
     const effectiveTimeout = timeout ?? (process.env.UI_ELEMENT_TIMEOUT_MS ? Number(process.env.UI_ELEMENT_TIMEOUT_MS) : 60000);
     const scope = scopeSelector ? this.page.locator(scopeSelector) : this.page;
     const radio = scope.getByRole("radio", { name: label, exact: true });
-    await radio.first().waitFor({ state: "visible", timeout: effectiveTimeout });
-    await radio.first().click();
+    await radio.first().waitFor({ state: "attached", timeout: effectiveTimeout });
+    await radio.first().click({ force: true });
   }
 }

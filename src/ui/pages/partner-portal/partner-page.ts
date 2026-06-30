@@ -64,21 +64,15 @@ export class PartnerPage extends BasePage {
   public eraseModal = async () => {
     try {
       await this.page.locator(CommonPartnerPortalLocator.closeButton).click({ timeout: 7000 });
-    } catch (error) {
-      console.log("There is no closing button");
-    }
+    } catch {}
 
     try {
       await this.page.locator(CommonPartnerPortalLocator.closeTestModal).first().click({ timeout: 7000 });
-    } catch (error) {
-      console.log("There is no closing modal");
-    }
+    } catch {}
 
     try {
       await this.page.locator(CommonPartnerPortalLocator.closeTestModal).first().click({ timeout: 7000 });
-    } catch (error) {
-      console.log("There is no modal");
-    }
+    } catch {}
   };
 
   public validatePlanVisible = async () => {

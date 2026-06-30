@@ -38,7 +38,6 @@ test.describe(
       await test.step("Create partner and verify partner id response", async () => {
         const response = await adminPortalService.createPartner(partnerData);
 
-        delay(20000);
 
         expect(response).toBeDefined();
         expect(typeof response).toBe("string");

@@ -8,5 +8,5 @@ export const plans: Record<string, string[]> = {
 export const emailSubjects = {
   JOIN_TEAM: "VirgilHR: Join your team",
   PARTNER_ACC_ACTIVATE: "VirgilHR - Your Partner Portal Credentials",
-  CUSTOMER_ACC_ACTIVATE: "VirgilHR: Your User Portal Credentials",
+  CUSTOMER_ACC_ACTIVATE: "VirgilHR - Your User Portal Credentials",
 };

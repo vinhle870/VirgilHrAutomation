@@ -59,9 +59,9 @@ export class CustomerManagementPage extends BasePage {
       if (customer?.bankStranfer?.payYearly === false) await (await this.getLocator(CreateNewCustomerModalLocator.payYear)).click();
     }
 
-    if (customer?.internal === true) (await this.getLocator(CreateNewCustomerModalLocator.internal)).click();
+    if (customer?.internal === true) await (await this.getLocator(CreateNewCustomerModalLocator.internal)).click();
 
-    if (customer.company.consultant === true) (await this.getLocator(CreateNewCustomerModalLocator.consultant)).click();
+    if (customer.company.consultant === true) await (await this.getLocator(CreateNewCustomerModalLocator.consultant)).click();
     else if (customer.company.industry) {
       for (let i = 0; i < customer.company.industry.length; i++) await this.dropdown.selectByText(CreateNewCustomerModalLocator.industry, customer.company.industry[i].value);
 
@@ -73,7 +73,7 @@ export class CustomerManagementPage extends BasePage {
 
       const numberOfEmployeeEl = await this.getLocator(CreateNewCustomerModalLocator.numberOfEmployee);
 
-      numberOfEmployeeEl.fill(customer.company.totalEmployees.toString());
+      await numberOfEmployeeEl.fill(customer.company.totalEmployees.toString());
 
       await this.page.waitForTimeout(3000);
     }

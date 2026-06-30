@@ -14,6 +14,7 @@ type PageFixtures = {
   customerManagementPage: CustomerManagementPage;
   partnerPage: PartnerPage;
   homeExceptAdminPage: HomePage;
+  mailboxFallback: void;
 };
 
 export const test = base.extend<PageFixtures>({

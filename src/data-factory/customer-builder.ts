@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import { CustomerInfo } from "src/objects/customer";
 import { Company } from "src/objects/company";
 import { DataGenerate } from "src/utilities";
@@ -64,6 +66,19 @@ export interface IBankStranfer {
  * ```
  */
 export class CustomerBuilder {
+  private static readonly DOMAINS = ["ussteel.xyz", "superbee.my"];
+  private static readonly DOMAIN_INDEX_FILE = path.resolve(__dirname, "../../.member-domain-index");
+
+  private static getNextDomain(): string {
+    let index = 0;
+    try {
+      const raw = fs.readFileSync(CustomerBuilder.DOMAIN_INDEX_FILE, "utf8");
+      index = parseInt(raw.trim(), 10) || 0;
+    } catch {}
+    fs.writeFileSync(CustomerBuilder.DOMAIN_INDEX_FILE, String((index + 1) % CustomerBuilder.DOMAINS.length), "utf8");
+    return CustomerBuilder.DOMAINS[index];
+  }
+
   private portal: PortalType = "member";
   private accountOverrides: Partial<UserInfo> = {};
   private companyNameOverride?: string;
@@ -344,7 +359,7 @@ export class CustomerBuilder {
     const customer = new CustomerInfo();
 
     // Generate account info
-    const accountInfo = await PersonDataGenerator.generate(this.accountOverrides);
+    const accountInfo = await PersonDataGenerator.generate({ emailDomain: CustomerBuilder.getNextDomain(), ...this.accountOverrides });
     customer.accountInfo = accountInfo;
 
     // Generate company info

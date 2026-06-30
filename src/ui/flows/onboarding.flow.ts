@@ -66,9 +66,7 @@ export class OnboardingFlow {
     }
   };
 
-  public verifyURL = async (containedURL: string) => {
-    await this.page.waitForURL(`**${containedURL}**`, { timeout: 30000 });
-  };
+  public verifyURL = async (containedURL: string) => await this.page.waitForURL(`**${containedURL}**`, { timeout: 30000 });
 
   public createPartnerAndAddPeoInAdminPortal = async (partnerInfo: Partner, peoPartners?: PeoPartner, isAddPeo = false) =>
     await this.onboardingAdminPortalFlow.createPartnerAndAddPeo(partnerInfo, peoPartners, isAddPeo);

@@ -1,4 +1,3 @@
-import { format } from "date-fns";
 import { DataGenerate } from "src/utilities";
 import UserInfo from "src/objects/user-info";
 
@@ -15,9 +14,9 @@ export class PersonDataGenerator {
     const seq = DataGenerate.getRandomInt(1, 99999);
 
     const firstName = overrides?.firstName ?? (await DataGenerate.generateFirstName()) + `${seq}`;
-    const isBeeinbox = (process.env.MAILBOX_URL || "").includes("beeinbox");
-    const localPrefix = overrides?.firstName ?? (isBeeinbox ? `QATest_${seq}${firstName}`.slice(0, 15) : `${firstName}`);
-    const email = overrides?.email ?? (isBeeinbox ? `${localPrefix}@beeinbox.edu.pl` : `${localPrefix.replace(/_/g, "")}@yopmail.com`);
+    const localPrefix = overrides?.localPrefix ?? `QATest_${seq}${firstName}`.slice(0, 15);
+    const email = overrides?.email ?? `${localPrefix}@${overrides?.emailDomain ?? "superbee.my"}`;
+
     const password = overrides?.password ?? `Password@123`;
     const lastName = overrides?.lastName ?? (await DataGenerate.generateLastName());
     const jobTitle = overrides?.jobTitle ?? (await DataGenerate.generatejobTitle());

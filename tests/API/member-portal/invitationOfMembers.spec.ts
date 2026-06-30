@@ -80,7 +80,6 @@ test.describe(
         await test.step("Create partner, business, and obtain Member Portal token", async () => {
           partnerResponse = await adminService.createPartner(partnerInfo);
 
-          delay(20000);
 
           email = partnerInfo.accountInfo?.email!;
 
@@ -221,7 +220,6 @@ test.describe(
 
           owner = await adminService.createPartner(partnerInfo);
 
-          delay(20000);
 
           email = partnerInfo.accountInfo?.email ?? "";
 

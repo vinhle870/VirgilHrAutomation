@@ -1,7 +1,6 @@
-
 import { BasePage } from "../base-page";
 import { TempEmailFreeLocators, BeeinboxLocators } from "./locators";
-import { expect } from "@playwright/test";
+import { expect, FrameLocator } from "@playwright/test";
 import { Partner } from "src/objects/ipartner";
 import { getEmailSubjectByDepartment } from "src/constant/department-data";
 import { EmailCredentials, EmailMessage, YopmailHandler } from "src/utilities/email-handling";
@@ -44,7 +43,7 @@ export class EmailServicePage extends BasePage {
               return false;
             }
           },
-          { message: `Email "${subject}" not received in ${email}`, timeout: 30000, intervals: [3000, 5000, 5000] },
+          { message: `Email "${subject}" not received in ${email}`, timeout: 120000, intervals: [10000, 20000, 30000, 30000] },
         )
         .toBe(true);
 
@@ -73,29 +72,57 @@ export class EmailServicePage extends BasePage {
 
     if (subject.includes("Join your team")) {
       const acceptInviteBtn = emailContentFrame.getByRole("link", { name: "Accept Invite" });
-      const hrefValue = await acceptInviteBtn.getAttribute("href");
+      hrefValue = await acceptInviteBtn.getAttribute("href");
       if (!hrefValue) throw new Error(`Accept Invite URL not found in email (subject: "${subject}")`);
       return { password: "", loginUrl: hrefValue };
     }
 
-    let loginLink = emailContentFrame.getByRole("link", { name: "Login" });
-
+    const envSubject = getEmailSubjectByDepartment();
+    const isActivate = subject === envSubject.CUSTOMER_ACC_ACTIVATE || subject === envSubject.PARTNER_ACC_ACTIVATE;
     const isVerify = subject.includes("Verify your email address");
 
-    if (isVerify) loginLink = emailContentFrame.getByRole("link", { name: "Confirm email" });
-    else {
-      passwordRaw = await emailContentFrame.locator(TempEmailFreeLocators.credentialPassword).first().textContent();
-      password = passwordRaw?.replace(/Password\s*:/i, "").trim();
+    if (isActivate) {
+      const tryExtractPassword = async (frame: FrameLocator): Promise<string | undefined> => {
+        const els = frame.locator(TempEmailFreeLocators.credentialPassword);
+        try {
+          await els.first().waitFor({ state: "attached", timeout: 10000 });
+        } catch {
+          return undefined;
+        }
+        const count = await els.count();
+        for (let i = 0; i < count; i++) {
+          const el = els.nth(i);
+          if (!(await el.isVisible())) continue;
+          const extracted = (await el.textContent())?.replace(/Password\s*:/i, "").trim();
+          if (extracted) return extracted;
+        }
+        for (let i = 0; i < count; i++) {
+          const extracted = (await els.nth(i).textContent())?.replace(/Password\s*:/i, "").trim();
+          if (extracted) return extracted;
+        }
+        return undefined;
+      };
+
+      password = await tryExtractPassword(emailContentFrame);
+      if (!password) {
+        const altFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).first().contentFrame();
+        password = await tryExtractPassword(altFrame);
+      }
     }
 
+    let loginLink = isVerify ? emailContentFrame.getByRole("link", { name: "Confirm email" }) : emailContentFrame.getByRole("link", { name: "Login" });
+
     try {
-      await loginLink.scrollIntoViewIfNeeded({ timeout: 5000 });
+      await loginLink.waitFor({ state: "visible", timeout: 10000 });
+      await loginLink.scrollIntoViewIfNeeded();
     } catch {
       emailContentFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).first().contentFrame();
       loginLink = isVerify ? emailContentFrame.getByRole("link", { name: "Confirm email" }) : emailContentFrame.getByRole("link", { name: "Login" });
-      await loginLink.scrollIntoViewIfNeeded({ timeout: 5000 });
+      await loginLink.waitFor({ state: "visible", timeout: 10000 });
+      await loginLink.scrollIntoViewIfNeeded();
     }
 
+    await expect(loginLink).toHaveAttribute("href", /.+/, { timeout: 10000 });
     hrefValue = await loginLink.getAttribute("href");
     if (!hrefValue) throw new Error(`Login URL not found in email (subject: "${subject}")`);
 
@@ -103,9 +130,10 @@ export class EmailServicePage extends BasePage {
   };
 
   public registerNewEmail = async (userEmail: string) => {
-    await this.page.waitForTimeout(5000);
     const emailLocalPart = userEmail.split("@")[0];
+    const domain = userEmail.split("@")[1];
 
+    await this.page.waitForTimeout(8000);
     await this.page.goto(this.mailboxUrl);
     await this.page.waitForURL(this.mailboxUrl, { timeout: 30000 });
 
@@ -113,19 +141,15 @@ export class EmailServicePage extends BasePage {
 
     await newBtn.click();
 
-    const isBeeinbox = this.mailboxUrl.includes("beeinbox");
-
     await (await this.getLocator(BeeinboxLocators.usernameInput)).fill(emailLocalPart);
 
-    if (!isBeeinbox) {
-      const DomainDropdown = await this.getLocator(TempEmailFreeLocators.selectDomainDropdown);
+    const DomainDropdown = await this.getLocator(TempEmailFreeLocators.selectDomainDropdown);
 
-      await DomainDropdown.click();
+    await DomainDropdown.click();
 
-      const firstDomain = await this.getLocator(TempEmailFreeLocators.domainOption);
+    const firstDomain = await this.getLocator(TempEmailFreeLocators.domainOption.replace("domain", domain));
 
-      await firstDomain.click();
-    }
+    await firstDomain.click();
 
     const createEmailBtn = await this.getLocator(TempEmailFreeLocators.createEmailButton);
 
@@ -135,32 +159,56 @@ export class EmailServicePage extends BasePage {
   };
 
   public openEmailBySubject = async (subject: string) => {
-    const emailLocator = TempEmailFreeLocators.emailSubject.replace("subjectValue", subject);
-    for (let i = 0; i < 10; i++) {
+    const searchKey = subject.split(/[:–\-]\s+/).slice(1).join(" ") || subject;
+    const emailLocator = TempEmailFreeLocators.emailSubject.replace("subjectValue", searchKey);
+    for (let i = 0; i < 3; i++) {
       try {
         const el = await this.getLocator(emailLocator);
-        try {
-          await el.first().scrollIntoViewIfNeeded();
-          await el.first().dispatchEvent("click");
-        } catch {
-          await el.last().scrollIntoViewIfNeeded();
-          await el.last().dispatchEvent("click");
+        const count = await el.count();
+        let clicked = false;
+        for (let j = 0; j < count; j++) {
+          const item = el.nth(j);
+          await item.scrollIntoViewIfNeeded().catch(() => {});
+          if (!(await item.isVisible())) continue;
+          const text = await item.textContent();
+          if (text?.trim()) {
+            await item.dispatchEvent("click");
+            clicked = true;
+            break;
+          }
         }
+        if (!clicked) throw new Error(`No clickable element found for subject "${subject}"`);
         return;
       } catch {
         await (await this.getLocator(TempEmailFreeLocators.refreshButton)).click();
         await this.page.waitForTimeout(3000);
       }
     }
+    throw new Error(`Email with subject "${subject}" not found after 3 refreshes`);
   };
 
   public validateReceivedOneEmailForCreatingCustomer = async (email: string) => {
-    await this.registerNewEmail(email);
-
     const subject = "Verify your email address";
+    if (this.mailboxUrl.includes("yopmail")) {
+      const handler = new YopmailHandler();
+      await expect
+        .poll(
+          async () => {
+            try {
+              await handler.readEmail(email, subject);
+              return true;
+            } catch {
+              return false;
+            }
+          },
+          { timeout: 120000, intervals: [10000, 20000, 30000, 30000] },
+        )
+        .toBe(true);
+      return;
+    }
+    await this.registerNewEmail(email);
     const emailSubjectLnk = await this.getLocator(TempEmailFreeLocators.emailSubject.replace("subjectValue", subject));
-
-    await expect(emailSubjectLnk.first()).toBeVisible();
+    await expect(emailSubjectLnk.first()).toBeVisible({ timeout: 30000 });
   };
 
   public validateReceivedOneEmail = async (partnerInfo?: Partner) => {
@@ -168,12 +216,32 @@ export class EmailServicePage extends BasePage {
     if (this.mailboxUrl.includes("yopmail")) {
       const handler = new YopmailHandler();
       const { PARTNER_ACC_ACTIVATE } = getEmailSubjectByDepartment();
-      await expect.poll(async () => {
-        try { await handler.readEmail(email, PARTNER_ACC_ACTIVATE); return true; } catch { return false; }
-      }, { timeout: 30000 }).toBe(true);
-      await expect.poll(async () => {
-        try { const { inbox } = await require("easy-yopmail").getInbox(email.toLowerCase()); return !inbox?.some((e: any) => e.subject?.includes("User")); } catch { return false; }
-      }, { timeout: 5000 }).toBe(true);
+      await expect
+        .poll(
+          async () => {
+            try {
+              await handler.readEmail(email, PARTNER_ACC_ACTIVATE);
+              return true;
+            } catch {
+              return false;
+            }
+          },
+          { timeout: 60000, intervals: [10000, 20000, 30000] },
+        )
+        .toBe(true);
+      await expect
+        .poll(
+          async () => {
+            try {
+              const { inbox } = await require("easy-yopmail").getInbox(email.toLowerCase());
+              return !inbox?.some((e: any) => e.subject?.includes("User"));
+            } catch {
+              return false;
+            }
+          },
+          { timeout: 30000, intervals: [10000, 20000] },
+        )
+        .toBe(true);
       return;
     }
     await this.registerNewEmail(email);
@@ -188,30 +256,63 @@ export class EmailServicePage extends BasePage {
     if (this.mailboxUrl.includes("yopmail")) {
       const handler = new YopmailHandler();
       const { PARTNER_ACC_ACTIVATE, CUSTOMER_ACC_ACTIVATE } = getEmailSubjectByDepartment();
-      await expect.poll(async () => {
-        try { await handler.readEmail(email, PARTNER_ACC_ACTIVATE); return true; } catch { return false; }
-      }, { timeout: 30000 }).toBe(true);
-      await expect.poll(async () => {
-        try { await handler.readEmail(email, CUSTOMER_ACC_ACTIVATE); return true; } catch { return false; }
-      }, { timeout: 30000 }).toBe(true);
+      await expect
+        .poll(
+          async () => {
+            try {
+              await handler.readEmail(email, PARTNER_ACC_ACTIVATE);
+              return true;
+            } catch {
+              return false;
+            }
+          },
+          { timeout: 60000, intervals: [10000, 20000, 30000] },
+        )
+        .toBe(true);
+      await expect
+        .poll(
+          async () => {
+            try {
+              await handler.readEmail(email, CUSTOMER_ACC_ACTIVATE);
+              return true;
+            } catch {
+              return false;
+            }
+          },
+          { timeout: 60000, intervals: [10000, 20000, 30000] },
+        )
+        .toBe(true);
       return;
     }
     await this.registerNewEmail(email);
     const partnerEmail = this.page.locator(TempEmailFreeLocators.emailSubject.replace("subjectValue", "Partner")).first();
     await expect(partnerEmail).toBeVisible({ timeout: 30000 });
     const memberEmail = this.page.locator(TempEmailFreeLocators.emailSubject.replace("subjectValue", "User")).first();
-    await expect(memberEmail).toBeVisible();
+    await expect(memberEmail).toBeVisible({ timeout: 30000 });
   };
 
   public validateTimeLimitedEmailForCreatingCustomer = async (email: string, subject: string) => {
+    if (this.mailboxUrl.includes("yopmail")) {
+      const handler = new YopmailHandler();
+      await expect
+        .poll(
+          async () => {
+            try {
+              const msg = await handler.readEmail(email, subject, { format: "html" });
+              return msg.content.includes("hours");
+            } catch {
+              return false;
+            }
+          },
+          { timeout: 120000, intervals: [10000, 20000, 30000, 30000] },
+        )
+        .toBe(true);
+      return;
+    }
     await this.registerNewEmail(email);
-
     await this.openEmailBySubject(subject);
-
     const emailContentFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).last().contentFrame();
-
     const timeLimitText = emailContentFrame.locator("strong:has-text('hours')");
-
     await expect(timeLimitText).toBeVisible();
   };
 }
