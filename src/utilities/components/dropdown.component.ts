@@ -1,3 +1,4 @@
+import { expect } from "@playwright/test";
 import { BaseComponent } from "./base-component";
 
 /**
@@ -38,17 +39,11 @@ export class DropdownComponent extends BaseComponent {
     const scope = optionListSelector ? page.locator(optionListSelector) : page;
     const option = scope.getByText(optionText, { exact: true });
 
-    for (let attempt = 0; attempt < 3; attempt++) {
+    await expect(async () => {
       await this.waitAndClick(dropdown, effectiveTimeout);
-      try {
-        await option.last().waitFor({ state: "visible", timeout: 5000 });
-        await option.last().click({ timeout: 3000 });
-        return;
-      } catch {
-        // dropdown may have closed before option was ready, retry
-      }
-    }
-    throw new Error(`Failed to select option "${optionText}" from dropdown "${dropdownSelector}" after 3 attempts`);
+      await option.last().waitFor({ state: "visible", timeout: 5000 });
+      await option.last().click({ timeout: 3000 });
+    }).toPass({ timeout: 15000 });
   }
 
   /**

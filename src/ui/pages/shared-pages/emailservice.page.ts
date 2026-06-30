@@ -68,7 +68,7 @@ export class EmailServicePage extends BasePage {
 
     let emailContentFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).last().contentFrame();
 
-    let passwordRaw, password, hrefValue;
+    let password, hrefValue;
 
     if (subject.includes("Join your team")) {
       const acceptInviteBtn = emailContentFrame.getByRole("link", { name: "Accept Invite" });
@@ -79,7 +79,7 @@ export class EmailServicePage extends BasePage {
 
     const envSubject = getEmailSubjectByDepartment();
     const isActivate = subject === envSubject.CUSTOMER_ACC_ACTIVATE || subject === envSubject.PARTNER_ACC_ACTIVATE;
-    const isVerify = subject.includes("Verify your email address");
+    const isVerify = subject.includes("Verify your email address") || subject.includes("Verify Your Email");
 
     if (isActivate) {
       const tryExtractPassword = async (frame: FrameLocator): Promise<string | undefined> => {
@@ -159,29 +159,36 @@ export class EmailServicePage extends BasePage {
   };
 
   public openEmailBySubject = async (subject: string) => {
-    const searchKey = subject.split(/[:–\-]\s+/).slice(1).join(" ") || subject;
+    const searchKey =
+      subject
+        .split(/[:–\-]\s+/)
+        .slice(1)
+        .join(" ") || subject;
     const emailLocator = TempEmailFreeLocators.emailSubject.replace("subjectValue", searchKey);
-    await expect(async () => {
-      const el = this.page.locator(emailLocator);
-      await el.first().waitFor({ state: "attached", timeout: 30000 });
-      const count = await el.count();
-      let clicked = false;
-      for (let j = 0; j < count; j++) {
-        const item = el.nth(j);
-        await item.scrollIntoViewIfNeeded().catch(() => {});
-        if (!(await item.isVisible())) continue;
-        const text = await item.textContent();
-        if (text?.trim()) {
-          await item.click({ force: true });
-          clicked = true;
-          break;
+    for (let i = 0; i < 3; i++) {
+      try {
+        const el = await this.getLocator(emailLocator);
+        const count = await el.count();
+        let clicked = false;
+        for (let j = 0; j < count; j++) {
+          const item = el.nth(j);
+          await item.scrollIntoViewIfNeeded().catch(() => {});
+          if (!(await item.isVisible())) continue;
+          const text = await item.textContent();
+          if (text?.trim()) {
+            await item.dispatchEvent("click");
+            clicked = true;
+            break;
+          }
         }
-      }
-      if (!clicked) {
+        if (!clicked) throw new Error(`No clickable element found for subject "${subject}"`);
+        return;
+      } catch {
         await (await this.getLocator(TempEmailFreeLocators.refreshButton)).click();
-        throw new Error(`No clickable element found for subject "${subject}"`);
+        await this.page.waitForTimeout(3000);
       }
-    }).toPass({ timeout: 120000, intervals: [3000] });
+    }
+    throw new Error(`Email with subject "${subject}" not found after 3 refreshes`);
   };
 
   public validateReceivedOneEmailForCreatingCustomer = async (email: string) => {

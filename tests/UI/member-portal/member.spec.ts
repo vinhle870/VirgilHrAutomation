@@ -386,13 +386,13 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
       const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
 
       await test.step("Sign up new member under partner", async () => {
-        let partnerCredential = await authFlow.getCredentialsFromEmail(partnerInfo.accountInfo?.email!, getEmailSubjectByDepartment().CUSTOMER_ACC_ACTIVATE);
+        const partnerCredential = await authFlow.getCredentialsFromEmail(partnerInfo.accountInfo?.email!, getEmailSubjectByDepartment().PARTNER_ACC_ACTIVATE);
 
-        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!, partnerInfo!.partnerInfo!.name, partnerCredential.loginUrl);
+        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!, partnerInfo!.partnerInfo!.name, partnerCredential.loginUrl.replace("partner", "member"));
       });
 
       await test.step("Confirm email", async () => {
-        await authFlow.activateSignedUpCustomer(customerInfo!.accountInfo.email!);
+        await authFlow.activateSignedUpCustomerUnderAPartner(customerInfo!.accountInfo.email!);
       });
 
       await test.step("Verify user is redirected to Select Plan screen", async () => {
