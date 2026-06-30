@@ -1,5 +1,3 @@
-import fs from "fs";
-import path from "path";
 import IPartnerInfo, { Partner } from "src/objects/ipartner";
 import { ProductInfo } from "src/objects/iproduct";
 import UserInfo from "src/objects/user-info";
@@ -41,17 +39,8 @@ export interface RestrictionOptions {
  */
 export class PartnerBuilder {
   private static readonly DOMAINS = ["beeinbox.edu.pl", "obee.info", "beeinbox.com", "chinasteel.xyz"];
-  private static readonly DOMAIN_INDEX_FILE = path.resolve(__dirname, "../../.partner-domain-index");
 
-  private static getNextDomain(): string {
-    let index = 0;
-    try {
-      const raw = fs.readFileSync(PartnerBuilder.DOMAIN_INDEX_FILE, "utf8");
-      index = parseInt(raw.trim(), 10) || 0;
-    } catch {}
-    fs.writeFileSync(PartnerBuilder.DOMAIN_INDEX_FILE, String((index + 1) % PartnerBuilder.DOMAINS.length), "utf8");
-    return PartnerBuilder.DOMAINS[index];
-  }
+  private static getNextDomain = (): string => PartnerBuilder.DOMAINS[Math.floor(Math.random() * PartnerBuilder.DOMAINS.length)];
 
   private accountOverrides: Partial<UserInfo> = {};
   private partnerOverrides: Partial<IPartnerInfo> = {};
