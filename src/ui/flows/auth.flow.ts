@@ -6,7 +6,6 @@ import { MemberOnboardingLocators } from "../pages/member-portal/locators";
 import { getEmailSubjectByDepartment } from "src/constant/department-data";
 import { EmailCredentials, EmailMessage, YopmailHandler } from "src/utilities/email-handling";
 
-
 /**
  * This flow class contains methods related to the authentication process,
  * such as logging in with valid accounts, accepting invitations, activating
@@ -136,6 +135,13 @@ export class AuthFlow {
   /** Confirms a signed-up customer's email address by clicking the verification link from their inbox. */
   public activateSignedUpCustomer = async (email: string) => {
     const subject = "Verify your email address";
+
+    const credential = await this.getCredentialsFromEmail(email, subject);
+    await this.page.goto(credential.loginUrl);
+  };
+
+  public activateSignedUpCustomerUnderAPartner = async (email: string) => {
+    const subject = "Verify Your Email";
 
     const credential = await this.getCredentialsFromEmail(email, subject);
     await this.page.goto(credential.loginUrl);

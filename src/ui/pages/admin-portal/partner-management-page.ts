@@ -1,4 +1,4 @@
-import { Locator, Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 import { BasePage } from "src/ui/pages/base-page";
 import { CommonAdminPortalLocator } from "./locators/common/common.locator";
 import { CommonPartnerLocator } from "./locators/partner-management/locator/common";
@@ -89,7 +89,9 @@ export class PartnerManagementPage extends BasePage {
       await this.page.locator(CreateNewPartnerModalLocator.productsType).scrollIntoViewIfNeeded();
 
       try {
-        for (let i = 0; i < partnerInfo.partnerInfo!.productsType.length; ++i) await this.dropdown.selectByText(CreateNewPartnerModalLocator.productsType, partnerInfo.partnerInfo!.productsType[i]);
+        for (const type of partnerInfo.partnerInfo!.productsType) {
+          await this.dropdown.selectByText(CreateNewPartnerModalLocator.productsType, type);
+        }
       } catch (error) {
         throw new Error("Product type does not exist");
       }
@@ -121,16 +123,12 @@ export class PartnerManagementPage extends BasePage {
     const createBtn = this.page.locator(CreateNewPartnerModalLocator.createPartnerButton);
     const hasBankTransfer = partnerInfo.partnerInfo?.bankTransfer === true && partnerInfo.partnerInfo.paymentOption === "Partner/Consultant Owner";
 
-    for (let i = 0; i < 3; i++) {
-      try {
-        await createBtn.click({ force: true, timeout: 5000 });
-      } catch {
-        break;
-      }
-      await this.page.waitForTimeout(2000);
-      if (!(await createBtn.isVisible())) break;
-      if (hasBankTransfer && (await this.page.locator(CreateNewPartnerModalLocator.confirmButton).isVisible())) break;
-    }
+    await expect(async () => {
+      if (await createBtn.isVisible()) await createBtn.click({ force: true });
+      const createBtnGone = !(await createBtn.isVisible());
+      const confirmVisible = hasBankTransfer && (await this.page.locator(CreateNewPartnerModalLocator.confirmButton).isVisible());
+      expect(createBtnGone || confirmVisible).toBe(true);
+    }).toPass({ timeout: 15000, intervals: [2000] });
 
     if (hasBankTransfer) await this.page.locator(CreateNewPartnerModalLocator.confirmButton).click();
 

@@ -11,7 +11,7 @@ export class TempEmailFreeLocators {
 
   public static readonly refreshButton: string = "(//div[text()='Refresh'])[2]";
 
-  public static emailSubject: string = "xpath=//div[contains(@class,'w-1/2')][contains(text(),'subjectValue')]";
+  public static emailSubject: string = "xpath=//div[contains(@class,'w-1/2')][contains(.,'subjectValue')]";
 
   public static readonly credentialIframe: string = "iframe.min-h-tm-half";
 

@@ -189,7 +189,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
   test(
     "TC09",
     {
-      tag: ["@retry", "@After selecting a plan, the user can choose to pay annually or monthly, and apply a discount code."],
+      tag: "@After selecting a plan, the user can choose to pay annually or monthly, and apply a discount code.",
     },
     async ({ onboardingFlow, authFlow, purchaseFlow }) => {
       const plans = getPlansForDepartment();
@@ -275,7 +275,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
   test(
     "TC12",
     {
-      tag: ["@retry", "@Verify that only valid cards can be processed for payment."],
+      tag: "@Verify that only valid cards can be processed for payment.",
     },
     async ({ onboardingFlow, authFlow, purchaseFlow }) => {
       const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
@@ -308,7 +308,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
   test(
     "TC13",
     {
-      tag: ["@retry", "@Verify that all invalid cards are declined."],
+      tag: "@Verify that all invalid cards are declined.",
     },
     async ({ onboardingFlow, authFlow, purchaseFlow }) => {
       const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
@@ -336,7 +336,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
   test(
     "TC14",
     {
-      tag: ["@retry", "@Verify that after a successful payment, the system automatically redirects the user to the Virgil homepage."],
+      tag: "@Verify that after a successful payment, the system automatically redirects the user to the Virgil homepage.",
     },
     async ({ onboardingFlow, authFlow, purchaseFlow }) => {
       const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
@@ -386,13 +386,13 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
       const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
 
       await test.step("Sign up new member under partner", async () => {
-        let partnerCredential = await authFlow.getCredentialsFromEmail(partnerInfo.accountInfo?.email!, getEmailSubjectByDepartment().CUSTOMER_ACC_ACTIVATE);
+        const partnerCredential = await authFlow.getCredentialsFromEmail(partnerInfo.accountInfo?.email!, getEmailSubjectByDepartment().PARTNER_ACC_ACTIVATE);
 
-        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!, partnerInfo!.partnerInfo!.name, partnerCredential.loginUrl);
+        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!, partnerInfo!.partnerInfo!.name, partnerCredential.loginUrl.replace("partner", "member"));
       });
 
       await test.step("Confirm email", async () => {
-        await authFlow.activateSignedUpCustomer(customerInfo!.accountInfo.email!);
+        await authFlow.activateSignedUpCustomerUnderAPartner(customerInfo!.accountInfo.email!);
       });
 
       await test.step("Verify user is redirected to Select Plan screen", async () => {

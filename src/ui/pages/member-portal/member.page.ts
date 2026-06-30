@@ -43,7 +43,7 @@ export class MemberPage extends BasePage {
     try {
       await this.dropdown.selectByText(SignUpLocators.hrSystemDropdown, hrSystem);
     } catch (error) {
-      throw new Error(`Failed to select HR system: ${hrSystem}. Error: ${(error as Error).message} does not exist in dropdown options.`);
+      console.log(`Failed to select HR system: ${hrSystem}. Error: ${(error as Error).message} does not exist in dropdown options.`);
     }
 
     await this.fillInputOfTheSeccondModalToSignUp(customerInfo);

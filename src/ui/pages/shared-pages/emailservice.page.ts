@@ -68,7 +68,7 @@ export class EmailServicePage extends BasePage {
 
     let emailContentFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).last().contentFrame();
 
-    let passwordRaw, password, hrefValue;
+    let password, hrefValue;
 
     if (subject.includes("Join your team")) {
       const acceptInviteBtn = emailContentFrame.getByRole("link", { name: "Accept Invite" });
@@ -79,7 +79,7 @@ export class EmailServicePage extends BasePage {
 
     const envSubject = getEmailSubjectByDepartment();
     const isActivate = subject === envSubject.CUSTOMER_ACC_ACTIVATE || subject === envSubject.PARTNER_ACC_ACTIVATE;
-    const isVerify = subject.includes("Verify your email address");
+    const isVerify = subject.includes("Verify your email address") || subject.includes("Verify Your Email");
 
     if (isActivate) {
       const tryExtractPassword = async (frame: FrameLocator): Promise<string | undefined> => {
@@ -159,7 +159,11 @@ export class EmailServicePage extends BasePage {
   };
 
   public openEmailBySubject = async (subject: string) => {
-    const searchKey = subject.split(/[:–\-]\s+/).slice(1).join(" ") || subject;
+    const searchKey =
+      subject
+        .split(/[:–\-]\s+/)
+        .slice(1)
+        .join(" ") || subject;
     const emailLocator = TempEmailFreeLocators.emailSubject.replace("subjectValue", searchKey);
     for (let i = 0; i < 3; i++) {
       try {

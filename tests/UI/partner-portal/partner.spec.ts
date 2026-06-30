@@ -6,7 +6,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
   test(
     "TC48",
     {
-      tag: ["@retry", "@Verify that after the first login, the system requires the partner user to change the system-generated password to a personal password."],
+      tag: "@Verify that after the first login, the system requires the partner user to change the system-generated password to a personal password.",
     },
     async ({ loginPage, onboardingFlow, authFlow }) => {
       await test.step("Login to Admin portal", async () => {
@@ -39,7 +39,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
   test(
     "TC49",
     {
-      tag: ["@retry", "@Verify that after a successful login, the partner user proceeds to make a payment through Stripe when Payment Options = Partner/Consultant Owner and Bank Transfer = OFF."],
+      tag: "@Verify that after a successful login, the partner user proceeds to make a payment through Stripe when Payment Options = Partner/Consultant Owner and Bank Transfer = OFF.",
     },
     async ({ loginPage: loginAdminPage, onboardingFlow, purchaseFlow, authFlow }) => {
       await test.step("Login to Admin portal", async () => {
@@ -84,7 +84,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
   test(
     "TC50",
     {
-      tag: ["@retry", "@After a successful payment, the partner user is redirected to the Partner Homepage."],
+      tag: "@After a successful payment, the partner user is redirected to the Partner Homepage.",
     },
     async ({ loginPage, onboardingFlow, purchaseFlow, authFlow }) => {
       await test.step("Login to Admin portal", async () => {
@@ -123,7 +123,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
   test(
     "TC51",
     {
-      tag: ["@retry", "@Verify that for other payment configurations, the partner user is not required to make any payment through Stripe."],
+      tag: "@Verify that for other payment configurations, the partner user is not required to make any payment through Stripe.",
     },
     async ({ loginPage: loginAdminPage, onboardingFlow, authFlow }) => {
       await test.step("Login to Admin portal", async () => {
@@ -158,7 +158,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
   test(
     "TC52",
     {
-      tag: ["@retry", "@Verify that when Payment Options = Partner/Consultant Owner, the partner account is both the Owner of the Partner Team and the Owner of all Businesses under it."],
+      tag: "@Verify that when Payment Options = Partner/Consultant Owner, the partner account is both the Owner of the Partner Team and the Owner of all Businesses under it.",
     },
     async ({ loginPage: loginAdminPage, authFlow, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
@@ -203,7 +203,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
   test(
     "TC53",
     {
-      tag: ["@retry", "@ Verify that when Payment Options = Member Portal Consumer, the partner account is the Owner of the Partner Team, while each Business has its own Owner."],
+      tag: "@ Verify that when Payment Options = Member Portal Consumer, the partner account is the Owner of the Partner Team, while each Business has its own Owner.",
     },
     async ({ loginPage, authFlow, onboardingFlow }) => {
       await test.step("Login to Admin portal", async () => {
