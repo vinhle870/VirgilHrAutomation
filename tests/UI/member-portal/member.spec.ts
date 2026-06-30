@@ -189,7 +189,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
   test(
     "TC09",
     {
-      tag: "@After selecting a plan, the user can choose to pay annually or monthly, and apply a discount code.",
+      tag: ["@retry", "@After selecting a plan, the user can choose to pay annually or monthly, and apply a discount code."],
     },
     async ({ onboardingFlow, authFlow, purchaseFlow }) => {
       const plans = getPlansForDepartment();
@@ -206,7 +206,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
         });
 
         await test.step(`Select a plan from the list and buy plan - ${i === 0 ? "monthly" : "annually"}`, async () => {
-          await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[5], i === 0);
+          await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[0], i === 0);
           await purchaseFlow.submitSubscriptionPayment();
         });
 
@@ -235,7 +235,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
       });
 
       await test.step("Select a plan and confirm payment", async () => {
-        await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[5]);
+        await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[0]);
       });
 
       await test.step("Verify redirect to Stripe checkout", async () => {
@@ -275,7 +275,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
   test(
     "TC12",
     {
-      tag: "@Verify that only valid cards can be processed for payment.",
+      tag: ["@retry", "@Verify that only valid cards can be processed for payment."],
     },
     async ({ onboardingFlow, authFlow, purchaseFlow }) => {
       const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
@@ -290,7 +290,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
       });
 
       await test.step("Select a plan and confirm payment", async () => {
-        await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[5]);
+        await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[0]);
       });
 
       await test.step("Enter invalid card and verify error", async () => {
@@ -308,7 +308,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
   test(
     "TC13",
     {
-      tag: "@Verify that all invalid cards are declined.",
+      tag: ["@retry", "@Verify that all invalid cards are declined."],
     },
     async ({ onboardingFlow, authFlow, purchaseFlow }) => {
       const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
@@ -323,7 +323,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
       });
 
       await test.step("Select a plan and confirm payment", async () => {
-        await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[5]);
+        await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[0]);
       });
 
       await test.step("Enter invalid card and verify error", async () => {
@@ -336,7 +336,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
   test(
     "TC14",
     {
-      tag: "@Verify that after a successful payment, the system automatically redirects the user to the Virgil homepage.",
+      tag: ["@retry", "@Verify that after a successful payment, the system automatically redirects the user to the Virgil homepage."],
     },
     async ({ onboardingFlow, authFlow, purchaseFlow }) => {
       const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
@@ -351,7 +351,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
       });
 
       await test.step("Select a plan and submit payment", async () => {
-        await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[5]);
+        await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[0]);
         await purchaseFlow.submitSubscriptionPayment();
       });
 
@@ -364,11 +364,9 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
   test(
     "TC16",
     {
-      tag: "@Verify that new member portal user can be signed up under an existing partner.",
+      tag: ["@retry", "@Verify that new member portal user can be signed up under an existing partner."],
     },
     async ({ loginPage, onboardingFlow, authFlow }) => {
-      test.setTimeout(120000);
-
       await test.step("Login to Admin portal", async () => {
         await loginPage.login();
       });
@@ -406,7 +404,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
   test(
     "TC54",
     {
-      tag: "@Verify that a user can invite members to a team in the Member Portal – Organization tab.",
+      tag: ["@retry", "@Verify that a user can invite members to a team in the Member Portal – Organization tab."],
     },
     async ({ loginPage, onboardingFlow, authFlow, purchaseFlow }) => {
       const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();

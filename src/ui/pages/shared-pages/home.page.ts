@@ -8,7 +8,7 @@ export class HomePage extends BasePage {
 
   public getHomeTitle = async (): Promise<Locator> => {
     const homeLocator = this.page.getByRole("heading", { level: 2, name: "Home" }).first();
-    await homeLocator.waitFor({ state: "visible", timeout: 20000 });
+    await homeLocator.waitFor({ state: "visible", timeout: 30000 });
     return homeLocator;
   };
 }

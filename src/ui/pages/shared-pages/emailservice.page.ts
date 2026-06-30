@@ -168,10 +168,10 @@ export class EmailServicePage extends BasePage {
         let clicked = false;
         for (let j = 0; j < count; j++) {
           const item = el.nth(j);
+          await item.scrollIntoViewIfNeeded().catch(() => {});
           if (!(await item.isVisible())) continue;
           const text = await item.textContent();
           if (text?.trim()) {
-            await item.scrollIntoViewIfNeeded();
             await item.dispatchEvent("click");
             clicked = true;
             break;
