@@ -1,14 +1,15 @@
 import { Page } from "playwright/test";
-import { CustomerInfo } from "src/objects";
+import { CustomerInfo, UserInfo } from "src/objects";
 import { MemberPage } from "../..";
+import { WelcomeModal } from "../../shared-pages/welome.modal";
 
 export class OnboardingMemberPortalFlow {
   private page: Page;
-  private customerPage: MemberPage;
+  private memberPage: MemberPage;
 
   constructor(page: Page) {
     this.page = page;
-    this.customerPage = new MemberPage(this.page);
+    this.memberPage = new MemberPage(this.page);
   }
 
   public signUp = async (customerInfo: CustomerInfo, hrSystem = "Does not apply", url?: string) => {
@@ -16,7 +17,7 @@ export class OnboardingMemberPortalFlow {
 
     await this.page.waitForLoadState("domcontentloaded");
 
-    await this.customerPage.fillFormToSignUp(customerInfo, hrSystem);
+    await this.memberPage.fillFormToSignUp(customerInfo, hrSystem);
 
     try {
       await this.page.waitForSelector(`text=${customerInfo.accountInfo.email}`, { timeout: 3000 });
@@ -30,7 +31,7 @@ export class OnboardingMemberPortalFlow {
 
     await this.page.waitForLoadState("domcontentloaded");
 
-    await this.customerPage.fillInputOfTheFirstModalToSignUp(customerInfo);
+    await this.memberPage.fillInputOfTheFirstModalToSignUp(customerInfo);
   };
 
   public veriryFillingFormIsRequired = async (customerInfo: CustomerInfo) => {
@@ -38,6 +39,12 @@ export class OnboardingMemberPortalFlow {
 
     await this.page.waitForLoadState("domcontentloaded");
 
-    await this.customerPage.veriryFillingFormIsRequired(customerInfo);
+    await this.memberPage.veriryFillingFormIsRequired(customerInfo);
+  };
+
+  public inviteMemberInOrganizationTabMemberPortal = async (invitedMembers: UserInfo[]) => {
+    await new WelcomeModal(this.page).closeModalWithOption("readyDiveIn");
+    await this.memberPage.moveToManageYourTeamModal();
+    await this.memberPage.fillFormToInviteCustomerMembers(invitedMembers);
   };
 }

@@ -406,7 +406,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
     {
       tag: ["@retry", "@Verify that a user can invite members to a team in the Member Portal – Organization tab."],
     },
-    async ({ loginPage, onboardingFlow, authFlow, purchaseFlow }) => {
+    async ({ onboardingFlow, authFlow, purchaseFlow }) => {
       const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
 
       await test.step("Fill form to sign up", async () => {
@@ -426,10 +426,9 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
         await onboardingFlow.redirectToHomePage();
       });
 
-      const members: UserInfo[] = await CustomerFactory.generateMembers(2, "User");
+      const members: UserInfo[] = await CustomerFactory.generateMembers(1, "User");
       await test.step("Invite members via Organization tab", async () => {
-        await loginPage.login();
-        await onboardingFlow.inviteMemberInCusManagement(customerInfo!, members);
+        await onboardingFlow.inviteMemberInOrganizationTabMemberPortal(members);
       });
 
       await test.step("Verify invited members accept and join team successfully", async () => {

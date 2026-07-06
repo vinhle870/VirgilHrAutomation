@@ -76,6 +76,8 @@ export class OnboardingFlow {
   public inviteMemberInCusManagement = async (invitingMember: Partner | UserInfo | CustomerInfo, invitedMembers: UserInfo[]) =>
     await this.onboardingAdminPortalFlow.inviteCustomerMembersInCusManaPage(invitingMember, invitedMembers);
 
+  public inviteMemberInOrganizationTabMemberPortal = async (invitedMembers: UserInfo[]) => await this.onboardingMemberPotalFlow.inviteMemberInOrganizationTabMemberPortal(invitedMembers);
+
   public signUpIndividualCustomerFromMemberPortal = async (customerInfo: CustomerInfo, hrSystem?: string, url?: string) => await this.onboardingMemberPotalFlow.signUp(customerInfo, hrSystem, url);
 
   public verifyOwnerRoleInUserPage = async (partnerInfo: Partner) => await this.onboardingPartnerPotalFlow.validateOwnerRoleInUserPage(partnerInfo);
