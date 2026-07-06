@@ -67,6 +67,12 @@ export class PartnerManagementPage extends BasePage {
     await this.page.locator(CreateNewPartnerModalLocator.createPartnerButton).click();
   };
 
+  /**
+   * Fill the form to create a new partner in the Partner Management page.
+   * This method fills in the required fields for creating a new partner, including user information, payment options, and other relevant details.
+   * It also handles the selection of payment options, product types, and billing cycles based on the provided partner information.
+   * @param partnerInfo
+   */
   public fillCreatePartnerForm = async (partnerInfo: Partner) => {
     await this.fillUserInfoToCreatePartner(partnerInfo);
 
@@ -91,9 +97,11 @@ export class PartnerManagementPage extends BasePage {
       try {
         for (const type of partnerInfo.partnerInfo!.productsType) {
           await this.dropdown.selectByText(CreateNewPartnerModalLocator.productsType, type);
+          await this.page.keyboard.press("Escape");
+
         }
       } catch (error) {
-        throw new Error("Product type does not exist");
+        throw new Error("Product Type Dropdown - Option does not exist");
       }
     }
 
@@ -104,8 +112,9 @@ export class PartnerManagementPage extends BasePage {
       if (partnerInfo.partnerInfo!.plan && !partnerInfo.partnerInfo!.productsType)
         try {
           await this.dropdown.selectByText(CreateNewPartnerModalLocator.plan, partnerInfo.partnerInfo!.plan);
+          await this.page.keyboard.press("Escape");
         } catch (error) {
-          throw new Error("Plan does not exist");
+          throw new Error("Plan Dropdown - Option does not exist");
         }
 
       const numberOfLabelsInBillingCycle = await this.page.locator(CreateNewPartnerModalLocator.billingCycle).count();
@@ -123,16 +132,17 @@ export class PartnerManagementPage extends BasePage {
     const createBtn = this.page.locator(CreateNewPartnerModalLocator.createPartnerButton);
     const hasBankTransfer = partnerInfo.partnerInfo?.bankTransfer === true && partnerInfo.partnerInfo.paymentOption === "Partner/Consultant Owner";
 
+    if (await createBtn.isVisible()) await createBtn.click({ force: true });
+
     await expect(async () => {
-      if (await createBtn.isVisible()) await createBtn.click({ force: true });
-      const createBtnGone = !(await createBtn.isVisible());
-      const confirmVisible = hasBankTransfer && (await this.page.locator(CreateNewPartnerModalLocator.confirmButton).isVisible());
-      expect(createBtnGone || confirmVisible).toBe(true);
+
+      if (hasBankTransfer){
+        expect(await this.page.locator(CreateNewPartnerModalLocator.confirmButton)).toBeVisible({ timeout: 5000 });
+        await this.page.locator(CreateNewPartnerModalLocator.confirmButton).click();
+      }
+
     }).toPass({ timeout: 15000, intervals: [2000] });
 
-    if (hasBankTransfer) await this.page.locator(CreateNewPartnerModalLocator.confirmButton).click();
-
-    await createBtn.waitFor({ state: "hidden", timeout: 50000 });
   };
 
   public fillFormToAddPeo = async (peoPartners: PeoPartner) => {

@@ -18,8 +18,10 @@ export class OnboardingAdminPortalFlow {
   public createPartnerAndAddPeo = async (partnerInfo: Partner, peoPartners?: PeoPartner, isAddPeo = false): Promise<void> => {
     await this.partnerManagementPage.accessToManagementPage("Partner");
 
-    if (!isAddPeo) await this.partnerManagementPage.fillCreatePartnerForm(partnerInfo);
-    else await this.fillFormToAddPeo(partnerInfo!, peoPartners!);
+    if (!isAddPeo)
+      await this.partnerManagementPage.fillCreatePartnerForm(partnerInfo);
+    else
+      await this.fillFormToAddPeo(partnerInfo!, peoPartners!);
 
 
   };
@@ -30,7 +32,7 @@ export class OnboardingAdminPortalFlow {
     await this.partnerManagementPage.clickDetailButton(partner);
 
     await this.partnerManagementPage.fillFormToAddPeo(peoPartners);
-    
+
   };
 
   public addCustomerMembersInPartManaPage = async (partner: Partner, invitedMembers: UserInfo[]) => await this.partnerManagementPage.addCustomerMembersInPartManaPage(partner, invitedMembers);

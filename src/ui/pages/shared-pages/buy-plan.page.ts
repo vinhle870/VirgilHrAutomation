@@ -69,7 +69,8 @@ export class BuyPlanPage extends BasePage {
 
     try {
       const txtCardNumb = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardNumber);
-      await txtCardNumb.click({ clickCount: 3 });
+      //await txtCardNumb.click({ clickCount: 3 });
+      await txtCardNumb.clear();
       await txtCardNumb.pressSequentially("4242 4242 4242 4242", { delay: 50 });
 
       const btnSubscribe = await this.getLocatorInIframe(iframe, BuyPlanLocators.subscribe);
@@ -118,10 +119,11 @@ export class BuyPlanPage extends BasePage {
     }
   };
 
-  public verifyCardError = async (): Promise<void> => {
+  public getCardNumberValidation = async (): Promise<string> => {
     const iframe = BuyPlanLocators.paymentIframe;
     const errorEl = await this.getLocatorInIframe(iframe, BuyPlanLocators.cardError);
     await expect(errorEl.first()).toBeVisible({ timeout: 10000 });
+    return (await errorEl.first().textContent()) ?? "";
   };
 
   public verifyStripePaymentFormCorrectDisplayed = async (): Promise<void> => {

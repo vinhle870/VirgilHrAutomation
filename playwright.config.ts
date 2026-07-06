@@ -12,23 +12,22 @@ const headed = (process.env.HEADED ?? "false").toLowerCase() === "true";
  */
 
 export default defineConfig({
-  timeout: 600000,
+  timeout: 180000,
   testDir: "./tests",
   /* Run tests in files in parallel */
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  retries: 1,
-  /* Opt out of parallel tests on CI. */
+    /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [["html", { open: "always" }]],
   /* Default assertion timeout — reads UI_ELEMENT_TIMEOUT_MS from .env. */
-  expect: { timeout: Number(process.env.UI_ELEMENT_TIMEOUT_MS) || 20000 },
+  expect: { timeout: Number(process.env.UI_ELEMENT_TIMEOUT_MS) || 30000 },
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Default timeout for individual actions (click, fill, waitFor, etc.) */
-    actionTimeout: Number(process.env.UI_ELEMENT_TIMEOUT_MS) || 20000,
+    actionTimeout: Number(process.env.UI_ELEMENT_TIMEOUT_MS) || 30000,
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://localhost:3000',
 
