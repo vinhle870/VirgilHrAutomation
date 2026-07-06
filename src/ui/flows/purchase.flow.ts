@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 import { BuyPlanPage } from "../pages/shared-pages/buy-plan.page";
 import { WelcomeModal } from "../pages/shared-pages/welome.modal";
 import { Partner } from "src/objects";
@@ -34,7 +34,10 @@ export class PurchaseFlow {
 
   public submitInvalidCardPayment = async () => await new BuyPlanPage(this.page).fillPaymentFormWithInvalidCard();
 
-  public verifyCardPaymentError = async () => await new BuyPlanPage(this.page).verifyCardError();
+  public verifyCardPaymentError = async (validationMsg: string) => {
+    const actualMsg = await new BuyPlanPage(this.page).getCardNumberValidation();
+    expect(actualMsg).toContain(validationMsg);
+  };
 
   public verifyStripePaymentFormCorrectDisplay = async () => await new BuyPlanPage(this.page).verifyStripePaymentFormCorrectDisplayed();
 

@@ -1,5 +1,5 @@
-import { Page } from "playwright/test";
 import { CustomerInfo, UserInfo } from "src/objects";
+import { expect, Page } from "playwright/test";
 import { MemberPage } from "../..";
 import { WelcomeModal } from "../../shared-pages/welome.modal";
 
@@ -13,17 +13,15 @@ export class OnboardingMemberPortalFlow {
   }
 
   public signUp = async (customerInfo: CustomerInfo, hrSystem = "Does not apply", url?: string) => {
-    await this.page.goto(url ?? process.env.MEMBER_PORTAL_BASEURL! + "auth/login");
+    const targetUrl = url ?? process.env.MEMBER_PORTAL_BASEURL! + "auth/login";
 
-    await this.page.waitForLoadState("domcontentloaded");
+    await expect(async () => {
+      await this.page.goto(targetUrl, { waitUntil: "load" });
+
+      expect(this.page.url()).toBe(targetUrl);
+    }).toPass();
 
     await this.memberPage.fillFormToSignUp(customerInfo, hrSystem);
-
-    try {
-      await this.page.waitForSelector(`text=${customerInfo.accountInfo.email}`, { timeout: 3000 });
-    } catch {
-      console.error("Duplicated email");
-    }
   };
 
   public fillDuplicatedEmailToSignUp = async (customerInfo: CustomerInfo) => {

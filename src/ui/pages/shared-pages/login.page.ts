@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 import { BasePage } from "../base-page";
 import { LoginFormLocators } from "./locators";
 import { CommonAdminPortalLocator } from "../admin-portal/locators/common/common.locator";
@@ -20,9 +20,10 @@ export class LoginPage extends BasePage {
     const logger = (console.debug ?? console.log).bind(console);
     logger(`==================[Login Form] url: ${url}, username: ${username}\n`);
 
+      await expect(async () => {
+        await this.page.goto(url, { waitUntil: "load" });
 
-      await this.page.goto(url);
-      await this.page.waitForLoadState("domcontentloaded", { timeout: 30000 });
+      }).toPass();
 
 
     const managementCategoryEl = this.page.locator(CommonAdminPortalLocator.managementCategory);
