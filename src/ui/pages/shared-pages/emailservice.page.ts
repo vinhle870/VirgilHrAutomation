@@ -71,7 +71,15 @@ export class EmailServicePage extends BasePage {
     let password, hrefValue;
 
     if (subject.includes("Join your team")) {
-      const acceptInviteBtn = emailContentFrame.getByRole("link", { name: "Accept Invite" });
+      await this.page.waitForLoadState("networkidle", { timeout: 10000 }).catch(() => {});
+      let acceptInviteBtn = emailContentFrame.getByRole("link", { name: "Accept Invite" });
+      try {
+        await acceptInviteBtn.waitFor({ state: "visible", timeout: 30000 });
+      } catch {
+        emailContentFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).first().contentFrame();
+        acceptInviteBtn = emailContentFrame.getByRole("link", { name: "Accept Invite" });
+        await acceptInviteBtn.waitFor({ state: "visible", timeout: 30000 });
+      }
       hrefValue = await acceptInviteBtn.getAttribute("href");
       if (!hrefValue) throw new Error(`Accept Invite URL not found in email (subject: "${subject}")`);
       return { password: "", loginUrl: hrefValue };
