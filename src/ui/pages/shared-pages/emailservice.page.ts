@@ -199,8 +199,7 @@ export class EmailServicePage extends BasePage {
     throw new Error(`Email with subject "${subject}" not found after 3 refreshes`);
   };
 
-  public validateReceivedOneEmailForCreatingCustomer = async (email: string) => {
-    const subject = "Verify your email address";
+  public validateReceivedOneEmailForCreatingCustomer = async (email: string, subject = "Verify your email address") => {
     if (this.mailboxUrl.includes("yopmail")) {
       const handler = new YopmailHandler();
       await expect
