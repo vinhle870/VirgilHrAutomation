@@ -78,6 +78,8 @@ export class OnboardingFlow {
 
   public inviteMemberInOrganizationTabMemberPortal = async (invitedMembers: UserInfo[]) => await this.onboardingMemberPotalFlow.inviteMemberInOrganizationTabMemberPortal(invitedMembers);
 
+  public verifyCannotInviteMembersInMemberPortal = async () => await this.onboardingMemberPotalFlow.verifyCannotInviteMembersInMemberPortal();
+
   public signUpIndividualCustomerFromMemberPortal = async (customerInfo: CustomerInfo, hrSystem?: string, url?: string) => await this.onboardingMemberPotalFlow.signUp(customerInfo, hrSystem, url);
 
   public verifyOwnerRoleInUserPage = async (partnerInfo: Partner) => await this.onboardingPartnerPotalFlow.validateOwnerRoleInUserPage(partnerInfo);
@@ -96,8 +98,7 @@ export class OnboardingFlow {
 
   public redirectToHomePage = async () => {
     const homeTitle = await this.homeExceptAdminPage.getHomeTitle();
-
-    await UiAssert.allVisible([homeTitle], { timeout: 30000 });
+    await homeTitle.waitFor({ state: "visible", timeout: 0 });
   };
 
   public verifyDuplicatedEmailWhenSignUpCustomer = async (customerInfo: CustomerInfo) => {

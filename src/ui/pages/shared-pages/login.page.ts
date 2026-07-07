@@ -3,7 +3,6 @@ import { BasePage } from "../base-page";
 import { LoginFormLocators } from "./locators";
 import { CommonAdminPortalLocator } from "../admin-portal/locators/common/common.locator";
 
-
 export class LoginPage extends BasePage {
   constructor(page: Page) {
     super(page);
@@ -20,11 +19,9 @@ export class LoginPage extends BasePage {
     const logger = (console.debug ?? console.log).bind(console);
     logger(`==================[Login Form] url: ${url}, username: ${username}\n`);
 
-      await expect(async () => {
-        await this.page.goto(url, { waitUntil: "load" });
-
-      }).toPass();
-
+    await expect(async () => {
+      await this.page.goto(url, { waitUntil: "load" });
+    }).toPass();
 
     const managementCategoryEl = this.page.locator(CommonAdminPortalLocator.managementCategory);
 

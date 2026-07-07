@@ -3,7 +3,7 @@ import { MemberOnboardingLocators } from "./locators";
 import { CustomerInfo, UserInfo } from "src/objects";
 import { SignUpLocators } from "./locators/signup";
 import { UiAssert } from "src/assertions";
-import { Locator } from "playwright/test";
+import { expect, Locator } from "playwright/test";
 import { OrganizationLocators } from "./locators/organization";
 import { CommonMemberPortalLocators } from "./locators/common";
 import { TeamInfoLocator } from "../admin-portal/locators/customer-management/team-imformation";
@@ -88,10 +88,18 @@ export class MemberPage extends BasePage {
     await this.page.locator(CommonMemberPortalLocators.myAccountButton).last().click();
     await (await this.getLocator(OrganizationLocators.organizationTab)).click();
     await (await this.getLocator(OrganizationLocators.manageYourTeamTab)).click();
-    await (await this.getLocator(OrganizationLocators.inviteMore)).click();
+    const inviteMore = this.page.locator(OrganizationLocators.inviteMore);
+    if (await inviteMore.isVisible({ timeout: 5000 }).catch(() => false)) await inviteMore.click();
+  };
+
+  public verifyCannotInviteMembers = async () => {
+    await this.page.locator(CommonMemberPortalLocators.myAccountButton).last().click();
+    await expect(this.page.locator(OrganizationLocators.organizationTab)).toBeHidden({ timeout: 5000 });
   };
 
   public fillFormToInviteCustomerMembers = async (invitedMembers: UserInfo[]) => {
+    const gotItBtn = this.page.locator(CommonMemberPortalLocators.gotItBtn);
+    await this.page.addLocatorHandler(gotItBtn, async () => await gotItBtn.first().click({ force: true }));
     for (let i = 0; i < invitedMembers.length; i++) {
       if (i > 0) await (await this.getLocator(TeamInfoLocator.addMoreButton)).click();
       await (await this.getLocator(TeamInfoLocator.emailInput)).nth(i).fill(invitedMembers[i].email);
@@ -102,6 +110,7 @@ export class MemberPage extends BasePage {
       const role = invitedMembers[i].invitedRole;
       if (typeof role === "string") await this.dropdown.selectByText(TeamInfoLocator.roleDropdown, role);
     }
+    await this.page.removeLocatorHandler(gotItBtn);
     await (await this.getLocator(TeamInfoLocator.sendInviteButton)).click();
   };
 }

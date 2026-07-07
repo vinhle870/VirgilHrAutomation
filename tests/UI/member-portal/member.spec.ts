@@ -295,11 +295,10 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
 
       await test.step("Enter invalid card info", async () => {
         await purchaseFlow.submitInvalidCardPayment();
-
       });
 
       await test.step("Verify validation message on the Tripe Payment screen", async () => {
-       await purchaseFlow.verifyCardPaymentError('Your card was declined.');
+        await purchaseFlow.verifyCardPaymentError("Your card was declined.");
       });
 
       await test.step("Enter valid card and verify payment success", async () => {
@@ -340,7 +339,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
   test(
     "TC16: Verify that new member portal user can be signed up under an existing partner.",
     {
-      tag: [ "@TC16"],
+      tag: ["@TC16"],
     },
     async ({ loginPage, onboardingFlow, authFlow }) => {
       await test.step("Login to Admin portal", async () => {
@@ -380,7 +379,7 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
   test(
     "TC54: Verify that a user can invite members to a team in the Member Portal – Organization tab.",
     {
-      tag: [ "@TC54"],
+      tag: ["@TC54"],
     },
     async ({ onboardingFlow, authFlow, purchaseFlow }) => {
       const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
@@ -412,6 +411,55 @@ test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
           await authFlow.acceptInviteAndJoinTeamByCustomer(member.email, "Password@123");
           await onboardingFlow.redirectToHomePage();
         }
+      });
+    },
+  );
+
+  test(
+    "TC55: Verify that in the Member Portal, only the Owner and Admin of a team can invite members to that team.",
+    {
+      tag: "@TC55",
+    },
+    async ({ onboardingFlow, authFlow, purchaseFlow }) => {
+      const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
+
+      await test.step("Fill form to sign up", async () => {
+        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!);
+      });
+
+      await test.step("Confirm email", async () => {
+        await authFlow.activateSignedUpCustomer(customerInfo!.accountInfo.email!);
+      });
+
+      await test.step("Select plan and submit payment", async () => {
+        await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[0]);
+        await purchaseFlow.submitSubscriptionPayment();
+      });
+
+      await test.step("Verify redirect to home page", async () => {
+        await onboardingFlow.redirectToHomePage();
+      });
+
+      const usersWithAdminRole: UserInfo[] = await CustomerFactory.generateMembers(1, "Admin");
+      await test.step("The owner invites a User with role of admin", async () => {
+        await onboardingFlow.inviteMemberInOrganizationTabMemberPortal(usersWithAdminRole);
+      });
+
+      await test.step("The admin user accepts invite and joins team", async () => {
+        await authFlow.acceptInviteAndJoinTeamByCustomer(usersWithAdminRole[0].email, "Password@123");
+      });
+
+      const memberWithUserRole: UserInfo[] = await CustomerFactory.generateMembers(1, "User");
+      await test.step("The admin user invites a member with the role of user", async () => {
+        await onboardingFlow.inviteMemberInOrganizationTabMemberPortal(memberWithUserRole);
+      });
+
+      await test.step("The member user accepts invite and joins team", async () => {
+        await authFlow.acceptInviteAndJoinTeamByCustomer(memberWithUserRole[0].email, "Password@123");
+      });
+
+      await test.step("Verify User role cannot invite members", async () => {
+        await onboardingFlow.verifyCannotInviteMembersInMemberPortal();
       });
     },
   );
