@@ -1,9 +1,12 @@
 import { BasePage } from "../base-page";
 import { MemberOnboardingLocators } from "./locators";
-import { CustomerInfo } from "src/objects";
+import { CustomerInfo, UserInfo } from "src/objects";
 import { SignUpLocators } from "./locators/signup";
 import { UiAssert } from "src/assertions";
-import { Locator } from "playwright/test";
+import { expect, Locator } from "playwright/test";
+import { OrganizationLocators } from "./locators/organization";
+import { CommonMemberPortalLocators } from "./locators/common";
+import { TeamInfoLocator } from "../admin-portal/locators/customer-management/team-imformation";
 
 export class MemberPage extends BasePage {
   public fillInputOfTheFirstModalToSignUp = async (customerInfo: CustomerInfo, hasErrormessage = false) => {
@@ -79,5 +82,35 @@ export class MemberPage extends BasePage {
     await UiAssert.allVisible(errorMessageLocatorsOfTheSeccondtModal);
 
     await this.fillInputOfTheSeccondModalToSignUp(customerInfo, true);
+  };
+
+  public moveToManageYourTeamModal = async () => {
+    await this.page.locator(CommonMemberPortalLocators.myAccountButton).last().click();
+    await (await this.getLocator(OrganizationLocators.organizationTab)).click();
+    await (await this.getLocator(OrganizationLocators.manageYourTeamTab)).click();
+    const inviteMore = this.page.locator(OrganizationLocators.inviteMore);
+    if (await inviteMore.isVisible({ timeout: 5000 }).catch(() => false)) await inviteMore.click();
+  };
+
+  public verifyCannotInviteMembers = async () => {
+    await this.page.locator(CommonMemberPortalLocators.myAccountButton).last().click();
+    await expect(this.page.locator(OrganizationLocators.organizationTab)).toBeHidden({ timeout: 5000 });
+  };
+
+  public fillFormToInviteCustomerMembers = async (invitedMembers: UserInfo[]) => {
+    const gotItBtn = this.page.locator(CommonMemberPortalLocators.gotItBtn);
+    await this.page.addLocatorHandler(gotItBtn, async () => await gotItBtn.first().click({ force: true }));
+    for (let i = 0; i < invitedMembers.length; i++) {
+      if (i > 0) await (await this.getLocator(TeamInfoLocator.addMoreButton)).click();
+      await (await this.getLocator(TeamInfoLocator.emailInput)).nth(i).fill(invitedMembers[i].email);
+      await (await this.getLocator(TeamInfoLocator.firstNameInput)).nth(i).fill(invitedMembers[i].firstName);
+      await (await this.getLocator(TeamInfoLocator.lastNameInput)).nth(i).fill(invitedMembers[i].lastName);
+      await (await this.getLocator(TeamInfoLocator.phoneInput)).nth(i).fill(invitedMembers[i].phoneNumber);
+      await (await this.getLocator(TeamInfoLocator.jobTitleInput)).nth(i).fill(invitedMembers[i].jobTitle);
+      const role = invitedMembers[i].invitedRole;
+      if (typeof role === "string") await this.dropdown.selectByText(TeamInfoLocator.roleDropdown, role);
+    }
+    await this.page.removeLocatorHandler(gotItBtn);
+    await (await this.getLocator(TeamInfoLocator.sendInviteButton)).click();
   };
 }

@@ -1,28 +1,28 @@
+import { CustomerInfo, UserInfo } from "src/objects";
 import { expect, Page } from "playwright/test";
-import { CustomerInfo } from "src/objects";
 import { MemberPage } from "../..";
+import { WelcomeModal } from "../../shared-pages/welome.modal";
+import { CommonMemberPortalLocators } from "../locators/common";
 
 export class OnboardingMemberPortalFlow {
   private page: Page;
-  private customerPage: MemberPage;
+  private memberPage: MemberPage;
 
   constructor(page: Page) {
     this.page = page;
-    this.customerPage = new MemberPage(this.page);
+    this.memberPage = new MemberPage(this.page);
   }
 
   public signUp = async (customerInfo: CustomerInfo, hrSystem = "Does not apply", url?: string) => {
-
     const targetUrl = url ?? process.env.MEMBER_PORTAL_BASEURL! + "auth/login";
 
     await expect(async () => {
-      await this.page.goto(targetUrl,{ waitUntil: "load" });
+      await this.page.goto(targetUrl, { waitUntil: "load" });
 
       expect(this.page.url()).toBe(targetUrl);
     }).toPass();
 
-    await this.customerPage.fillFormToSignUp(customerInfo, hrSystem);
-
+    await this.memberPage.fillFormToSignUp(customerInfo, hrSystem);
   };
 
   public fillDuplicatedEmailToSignUp = async (customerInfo: CustomerInfo) => {
@@ -30,7 +30,7 @@ export class OnboardingMemberPortalFlow {
 
     await this.page.waitForLoadState("domcontentloaded");
 
-    await this.customerPage.fillInputOfTheFirstModalToSignUp(customerInfo);
+    await this.memberPage.fillInputOfTheFirstModalToSignUp(customerInfo);
   };
 
   public veriryFillingFormIsRequired = async (customerInfo: CustomerInfo) => {
@@ -38,6 +38,19 @@ export class OnboardingMemberPortalFlow {
 
     await this.page.waitForLoadState("domcontentloaded");
 
-    await this.customerPage.veriryFillingFormIsRequired(customerInfo);
+    await this.memberPage.veriryFillingFormIsRequired(customerInfo);
+  };
+
+  public verifyCannotInviteMembersInMemberPortal = async () => await this.memberPage.verifyCannotInviteMembers();
+
+  public inviteMemberInOrganizationTabMemberPortal = async (invitedMembers: UserInfo[]) => {
+    const welcomeModal = new WelcomeModal(this.page);
+    await welcomeModal.closeSetupLaterModal();
+    await welcomeModal.closeModalWithOption("readyDiveIn");
+    const gotItBtn = this.page.locator(CommonMemberPortalLocators.gotItBtn);
+    await this.page.addLocatorHandler(gotItBtn, async () => await gotItBtn.first().click({ force: true }));
+    await this.memberPage.moveToManageYourTeamModal();
+    await this.memberPage.fillFormToInviteCustomerMembers(invitedMembers);
+    await this.page.removeLocatorHandler(gotItBtn);
   };
 }

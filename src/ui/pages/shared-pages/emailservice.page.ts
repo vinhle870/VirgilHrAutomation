@@ -71,7 +71,15 @@ export class EmailServicePage extends BasePage {
     let password, hrefValue;
 
     if (subject.includes("Join your team")) {
-      const acceptInviteBtn = emailContentFrame.getByRole("link", { name: "Accept Invite" });
+      await this.page.waitForLoadState("networkidle", { timeout: 10000 }).catch(() => {});
+      let acceptInviteBtn = emailContentFrame.getByRole("link", { name: "Accept Invite" });
+      try {
+        await acceptInviteBtn.waitFor({ state: "visible", timeout: 30000 });
+      } catch {
+        emailContentFrame = this.page.locator(TempEmailFreeLocators.credentialIframe).first().contentFrame();
+        acceptInviteBtn = emailContentFrame.getByRole("link", { name: "Accept Invite" });
+        await acceptInviteBtn.waitFor({ state: "visible", timeout: 30000 });
+      }
       hrefValue = await acceptInviteBtn.getAttribute("href");
       if (!hrefValue) throw new Error(`Accept Invite URL not found in email (subject: "${subject}")`);
       return { password: "", loginUrl: hrefValue };
@@ -191,8 +199,7 @@ export class EmailServicePage extends BasePage {
     throw new Error(`Email with subject "${subject}" not found after 3 refreshes`);
   };
 
-  public validateReceivedOneEmailForCreatingCustomer = async (email: string) => {
-    const subject = "Verify your email address";
+  public validateReceivedOneEmailForCreatingCustomer = async (email: string, subject = "Verify your email address") => {
     if (this.mailboxUrl.includes("yopmail")) {
       const handler = new YopmailHandler();
       await expect

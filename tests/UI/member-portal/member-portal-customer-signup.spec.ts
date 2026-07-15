@@ -295,11 +295,10 @@ test.describe("E2E -> Member portal", { tag: ["@regression_UI", "@member_portal"
 
       await test.step("Enter invalid card info", async () => {
         await purchaseFlow.submitInvalidCardPayment();
-
       });
 
       await test.step("Verify validation message on the Tripe Payment screen", async () => {
-       await purchaseFlow.verifyCardPaymentError('Your card was declined.');
+        await purchaseFlow.verifyCardPaymentError("Your card was declined.");
       });
 
       await test.step("Enter valid card and verify payment success", async () => {
@@ -340,7 +339,7 @@ test.describe("E2E -> Member portal", { tag: ["@regression_UI", "@member_portal"
   test(
     "TC16: Verify that new member portal user can be signed up under an existing partner.",
     {
-      tag: [ "@TC16"],
+      tag: ["@TC16"],
     },
     async ({ loginPage, onboardingFlow, authFlow }) => {
       await test.step("Login to Admin portal", async () => {
@@ -377,43 +376,5 @@ test.describe("E2E -> Member portal", { tag: ["@regression_UI", "@member_portal"
     },
   );
 
-  test(
-    "TC54: Verify that a user can invite members to a team in the Member Portal – Organization tab.",
-    {
-      tag: [ "@TC54"],
-    },
-    async ({ loginPage, onboardingFlow, authFlow, purchaseFlow }) => {
-      const customerInfo = await DataFactory.customerBuilder().withPassword("Password@123").build();
 
-      await test.step("Fill form to sign up", async () => {
-        await onboardingFlow.signUpIndividualCustomerFromMemberPortal(customerInfo!);
-      });
-
-      await test.step("Confirm email", async () => {
-        await authFlow.activateSignedUpCustomer(customerInfo!.accountInfo.email!);
-      });
-
-      await test.step("Select plan and submit payment", async () => {
-        await purchaseFlow.selectPlanBeforePurchase("", customerInfo!.accountInfo.email!, plans[0]);
-        await purchaseFlow.submitSubscriptionPayment();
-      });
-
-      await test.step("Verify redirect to home page", async () => {
-        await onboardingFlow.redirectToHomePage();
-      });
-
-      const members: UserInfo[] = await CustomerFactory.generateMembers(2, "User");
-      await test.step("Invite members via Organization tab", async () => {
-        await loginPage.login();
-        await onboardingFlow.inviteMemberInCusManagement(customerInfo!, members);
-      });
-
-      await test.step("Verify invited members accept and join team successfully", async () => {
-        for (const member of members) {
-          await authFlow.acceptInviteAndJoinTeamByCustomer(member.email, "Password@123");
-          await onboardingFlow.redirectToHomePage();
-        }
-      });
-    },
-  );
 });

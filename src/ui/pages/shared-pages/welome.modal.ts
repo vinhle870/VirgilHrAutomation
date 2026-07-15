@@ -25,4 +25,10 @@ export class WelcomeModal extends BasePage {
     const urlRegex = new RegExp(`.*/home$`);
     await this.page.waitForURL(urlRegex);
   }
+
+  public closeSetupLaterModal = async () => {
+    try {
+      await (await this.getLocator(WelcomeModalLocators.setUpLater)).click({ timeout: 5000 });
+    } catch (error) {}
+  };
 }
