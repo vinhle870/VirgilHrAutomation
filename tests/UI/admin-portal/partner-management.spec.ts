@@ -3,7 +3,7 @@ import { DataFactory, PersonDataGenerator } from "src/data-factory";
 import { Partner } from "src/objects";
 import { plans } from "src/constant/static-data";
 
-test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_UI" }, () => {
+test.describe("E2E -> Admin Portal -> Partner Management", { tag: ["@regression_UI", "@partner_management"] }, () => {
   test(
     "TC30 Verify that a partner account can only be created in the Admin Portal – Partner Management.",
     {
@@ -185,12 +185,12 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
     async ({ loginPage, onboardingFlow, purchaseFlow, authFlow }) => {
       test.setTimeout(120000);
 
-      await test.step("Login to Admin portal", async () => {
+      await test.step("1 - Login to Admin portal", async () => {
         await loginPage.login();
       });
 
       let partnerInfo: Partner;
-      await test.step("Create partner info", async () => {
+      await test.step("2 - Create partner info", async () => {
         partnerInfo = await DataFactory.partnerBuilder()
           .withDepartmentName(process.env.DEPARTMENT_NAME!)
           .withPaymentOption("Partner/Consultant Owner")
@@ -200,28 +200,30 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_U
           .build();
       });
 
-      await test.step("Create a new partner", async () => {
+      await test.step("3 - Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
-      await test.step("Verify the domain is emty", async () => {
+      await test.step("4 - Verify the domain is empty", async () => {
         await onboardingFlow.verifyPartnerVisible(partnerInfo!);
       });
 
-      await test.step("Activate partner", async () => {
+      await test.step("5 - Activate partner", async () => {
         await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo!.email, "Partner portal", "Password@123");
       });
 
-      await test.step("Buy plan", async () => {
+      await test.step("6 - Buy plan", async () => {
         await purchaseFlow.buyPlanInPartnerPortal(partnerInfo!);
       });
 
-      await test.step("Create a new business", async () => {
+      await test.step("7 - Create a new business", async () => {
         await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!);
-        await test.step("Verify owner", async () => {
+
+      });
+
+       await test.step("8 - Verify owner", async () => {
           await onboardingFlow.verifyOwnerVisible();
         });
-      });
     },
   );
 

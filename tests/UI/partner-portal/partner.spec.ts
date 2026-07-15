@@ -2,7 +2,7 @@ import { test } from "src/fixtures";
 import { DataFactory, PersonDataGenerator } from "src/data-factory";
 import { plans } from "src/constant/static-data";
 
-test.describe("E2E -> Admin Portal -> Partner Management", { tag: "@regression_UI" }, () => {
+test.describe("E2E -> Admin Portal -> Partner Management", { tag: ["@regression_UI", "@partner_portal"] }, () => {
   test(
     "TC48: Verify that after the first login, the system requires the partner user to change the system-generated password to a personal password.",
     {

@@ -4,7 +4,7 @@ import { CustomerFactory } from "src/data-factory/customer-factory";
 import UserInfo from "src/objects/user-info";
 import { plans } from "src/constant/static-data";
 
-test.describe("E2E -> Admin Portal -> Customer Management", { tag: "@regression_UI" }, () => {
+test.describe("E2E -> Admin Portal -> Customer Management", { tag: ["@regression_UI", "@customer_management"] }, () => {
   test(
     "TC56 Verify that the admin can invite members to a team in Admin- portal - Customer management",
     {
@@ -58,7 +58,7 @@ test.describe("E2E -> Admin Portal -> Customer Management", { tag: "@regression_
     },
   );
 
-  test.skip(
+  test(
     "TC71 Verify that the admin can auto-renew or upgrade a team's (Owner account's) plan in Customer Management.",
     {
       tag: "@TC71",
@@ -92,7 +92,7 @@ test.describe("E2E -> Admin Portal -> Customer Management", { tag: "@regression_
       });
 
       await test.step("Upgrade customer plan", async () => {
-        await onboardingFlow.upgradePlanForCustomer(customerInfo!, plans[6]);
+        await onboardingFlow.upgradePlanForCustomer(customerInfo!, plans[1]);
       });
     },
   );

@@ -6,7 +6,7 @@ import { getEmailSubjectByDepartment, getPlansForDepartment } from "src/constant
 import { Partner } from "src/objects";
 import { plans } from "src/constant/static-data";
 
-test.describe("E2E -> Member portal", { tag: "@regression_UI" }, () => {
+test.describe("E2E -> Member portal", { tag: ["@regression_UI", "@member_portal"] }, () => {
   test(
     "TC01: Verify that the user can create a new account by clicking the Sign Up button.",
     {
