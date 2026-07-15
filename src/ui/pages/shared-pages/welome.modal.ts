@@ -16,7 +16,10 @@ export class WelcomeModal extends BasePage {
 
     if (option === "readyDiveIn") {
       const btnReadyDiveIn = await this.getLocator(WelcomeModalLocators.readyDiveIn, 60000);
-      await btnReadyDiveIn.click();
+      if(await btnReadyDiveIn.isVisible()) {
+        await btnReadyDiveIn.click();
+      }
+
     }
 
     const urlRegex = new RegExp(`.*/home$`);
