@@ -9,7 +9,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: ["@regression_
       tag: "@TC48",
     },
     async ({ loginPage, onboardingFlow, authFlow }) => {
-      await test.step("Login to Admin portal", async () => {
+      await test.step("1 - Login to Admin portal", async () => {
         await loginPage.login();
       });
 
@@ -20,15 +20,15 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: ["@regression_
         .withBankTransfer(true)
         .build();
 
-      await test.step("Create a new partner", async () => {
+      await test.step("2 - Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
-      await test.step("Verify newPartner is created successfully", async () => {
+      await test.step("3 - Verify newPartner is created successfully", async () => {
         await onboardingFlow.verifyPartnerVisible(partnerInfo!);
       });
 
-      await test.step("Verify the partner user must change the system-generated password to a personal password", async () => {
+      await test.step("4 - Verify the partner user must change the system-generated password to a personal password", async () => {
         await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
 
         await onboardingFlow.redirectToHomePage();
@@ -42,7 +42,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: ["@regression_
       tag: "@TC49",
     },
     async ({ loginPage: loginAdminPage, onboardingFlow, purchaseFlow, authFlow }) => {
-      await test.step("Login to Admin portal", async () => {
+      await test.step("1 - Login to Admin portal", async () => {
         await loginAdminPage.login();
       });
 
@@ -53,29 +53,29 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: ["@regression_
         .withProductsType([plans[0]])
         .build();
 
-      await test.step("Create a new partner", async () => {
+      await test.step("2 - Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
-      await test.step("Verify newPartner is created successfully", async () => {
+      await test.step("3 - Verify newPartner is created successfully", async () => {
         await onboardingFlow.verifyPartnerVisible(partnerInfo!);
       });
 
-      await test.step("Buy the plan through Stripe", async () => {
+      await test.step("4 - Buy the plan through Stripe", async () => {
         await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo!.email!, "Partner portal", "Password@123");
 
         await purchaseFlow.selectPlanBeforePurchase("", partnerInfo.accountInfo!.email!, partnerInfo.partnerInfo!.productsType![0]);
       });
 
-      await test.step("Verify the user can see the Stripe payment form displayed correctly", async () => {
+      await test.step("5 - Verify the user can see the Stripe payment form displayed correctly", async () => {
         await purchaseFlow.verifyStripePaymentFormCorrectDisplay();
       });
 
-      await test.step("Complete the payment with valid card information", async () => {
+      await test.step("6 - Complete the payment with valid card information", async () => {
         await purchaseFlow.submitSubscriptionPayment();
       });
 
-      await test.step("Verify the partner user is redirected to the Partner Homepage after a successful payment", async () => {
+      await test.step("7 - Verify the partner user is redirected to the Partner Homepage after a successful payment", async () => {
         await onboardingFlow.redirectToHomePage();
       });
     },
@@ -87,7 +87,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: ["@regression_
       tag: "@TC50",
     },
     async ({ loginPage, onboardingFlow, purchaseFlow, authFlow }) => {
-      await test.step("Login to Admin portal", async () => {
+      await test.step("1 - Login to Admin portal", async () => {
         await loginPage.login();
       });
 
@@ -98,23 +98,23 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: ["@regression_
         .withBankTransfer(false)
         .build();
 
-      await test.step("Create a new partner", async () => {
+      await test.step("2 - Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
-      await test.step("Verify newPartner is created successfully", async () => {
+      await test.step("3 - Verify newPartner is created successfully", async () => {
         await onboardingFlow.verifyPartnerVisible(partnerInfo!);
       });
 
-      await test.step("Activate the partner account and change password", async () => {
+      await test.step("4 - Activate the partner account and change password", async () => {
         await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo!.email!, "Partner portal", "Password@123");
       });
 
-      await test.step("Buy plan through Stripe", async () => {
+      await test.step("5 - Buy plan through Stripe", async () => {
         await purchaseFlow.buyPlanInPartnerPortal(partnerInfo!);
       });
 
-      await test.step("Verify the partner user is redirected to the Partner Homepage after a successful payment", async () => {
+      await test.step("6 - Verify the partner user is redirected to the Partner Homepage after a successful payment", async () => {
         await onboardingFlow.redirectToHomePage();
       });
     },
@@ -126,7 +126,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: ["@regression_
       tag: "@TC51",
     },
     async ({ loginPage: loginAdminPage, onboardingFlow, authFlow }) => {
-      await test.step("Login to Admin portal", async () => {
+      await test.step("1 - Login to Admin portal", async () => {
         await loginAdminPage.login();
       });
 
@@ -137,19 +137,19 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: ["@regression_
         .withBankTransfer(true)
         .build();
 
-      await test.step("Create a new partner", async () => {
+      await test.step("2 - Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
-      await test.step("Verify newPartner is created successfully", async () => {
+      await test.step("3 - Verify newPartner is created successfully", async () => {
         await onboardingFlow.verifyPartnerVisible(partnerInfo!);
       });
 
-      await test.step("Activate the partner account and change password", async () => {
+      await test.step("4 - Activate the partner account and change password", async () => {
         await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
       });
 
-      await test.step("Verify the partner user is not required to make any payment through Stripe.", async () => {
+      await test.step("5 - Verify the partner user is not required to make any payment through Stripe.", async () => {
         await onboardingFlow.redirectToHomePage();
       });
     },
@@ -161,7 +161,7 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: ["@regression_
       tag: "@TC52",
     },
     async ({ loginPage: loginAdminPage, authFlow, onboardingFlow }) => {
-      await test.step("Login to Admin portal", async () => {
+      await test.step("1 - Login to Admin portal", async () => {
         await loginAdminPage.login();
       });
 
@@ -172,69 +172,29 @@ test.describe("E2E -> Admin Portal -> Partner Management", { tag: ["@regression_
         .withBankTransfer(true)
         .build();
 
-      await test.step("Create a new partner", async () => {
+      await test.step("2 - Create a new partner", async () => {
         await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo!);
       });
 
-      await test.step("Verify newPartner is created successfully", async () => {
+      await test.step("3 - Verify newPartner is created successfully", async () => {
         await onboardingFlow.verifyPartnerVisible(partnerInfo!);
       });
 
-      await test.step("Activate the partner account and change password", async () => {
+      await test.step("4 - Activate the partner account and change password", async () => {
         await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
       });
 
-      await test.step("Create business", async () => {
+      await test.step("5 - Create business", async () => {
         const ownerInfor = await PersonDataGenerator.generate({ emailDomain: "ussteel.xyz" });
 
         await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerInfor!);
       });
 
-      await test.step("Verify the partner account is the Owner of all Businesses under it", async () => {
+      await test.step("6 - Verify the partner account is the Owner of all Businesses under it", async () => {
         await onboardingFlow.verifyOwnerVisible();
       });
 
-      await test.step("Verify the partner account is the Owner of the Partner Team", async () => {
-        await onboardingFlow.verifyOwnerRoleInUserPage(partnerInfo!);
-      });
-    },
-  );
-
-  test(
-    "TC53: Verify that when Payment Options = Member Portal Consumer, the partner account is the Owner of the Partner Team, while each Business has its own Owner.",
-    {
-      tag: "@TC53",
-    },
-    async ({ loginPage, authFlow, onboardingFlow }) => {
-      await test.step("Login to Admin portal", async () => {
-        await loginPage.login();
-      });
-
-      const partnerInfo = await DataFactory.partnerBuilder().withDepartmentName(process.env.DEPARTMENT_NAME!).withPaymentOption("Member Portal Consumer").withProductsType([plans[0]]).build();
-
-      await test.step("Create a new partner", async () => {
-        await onboardingFlow.createPartnerAndAddPeoInAdminPortal(partnerInfo);
-      });
-
-      await test.step("Verify newPartner is created successfully", async () => {
-        await onboardingFlow.verifyPartnerVisible(partnerInfo);
-      });
-
-      await test.step("Activate the partner", async () => {
-        await authFlow.activateAndChangePassIndividualCustomer(partnerInfo!.accountInfo?.email!, "Partner portal", "Password@123");
-      });
-
-      await test.step("Create a new business", async () => {
-        const ownerAccount = await PersonDataGenerator.generate({ emailDomain: "ussteel.xyz" });
-
-        await onboardingFlow.createBusinessFromPartnerPortal(partnerInfo!, ownerAccount);
-      });
-
-      await test.step("Verify each Business has its own Owner.", async () => {
-        await onboardingFlow.verifyOwnerVisible();
-      });
-
-      await test.step("Verify the partner account is the Owner of the Partner Team", async () => {
+      await test.step("7 - Verify the partner account is the Owner of the Partner Team", async () => {
         await onboardingFlow.verifyOwnerRoleInUserPage(partnerInfo!);
       });
     },

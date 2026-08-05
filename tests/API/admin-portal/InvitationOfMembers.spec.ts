@@ -32,7 +32,7 @@ test.describe(
         let businessId: string;
         let businessList: Awaited<ReturnType<typeof partnerPortalService.getBusinessList>>;
 
-        await test.step("Pre-condition: Genereate partner, activate account", async () => {
+        await test.step("1 - Pre-condition: Genereate partner, activate account", async () => {
           const testData = new TestDataProvider(adminPortalService);
 
           const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
@@ -52,12 +52,12 @@ test.describe(
             .build();
         });
 
-        await test.step("Pre-condition: Call API /Manage/Organization/Partner -> Create partner and delay 30 seconds to wait for the partner to be created", async () => {
+        await test.step("2 - Pre-condition: Call API /Manage/Organization/Partner -> Create partner and delay 30 seconds to wait for the partner to be created", async () => {
           partner = await adminService.createPartner(partnerInfo);
           partnerEmail = partnerInfo.accountInfo?.email!;
         });
 
-        await test.step("Pre-condition: CALL API /Partner/Manage/Partner/Business -> Add business with partner token", async () => {
+        await test.step("3 - Pre-condition: CALL API /Partner/Manage/Partner/Business -> Add business with partner token", async () => {
           customerWithMember = await new CustomerBuilder().withMember().build();
 
           await authenticationService.resetPasswordWithoutToken({ username: partnerEmail, password: tempPassword }, undefined, "5");
@@ -70,7 +70,7 @@ test.describe(
           expect(business).toBeDefined();
         });
 
-        await test.step("Call API /Partner/Manage/Partner/Business -> Verify created Business Data is available", async () => {
+        await test.step("4 - Call API /Partner/Manage/Partner/Business -> Verify created Business Data is available", async () => {
           businessList = await partnerPortalService.getBusinessList(partnerToken);
 
           businessId = businessList.entities[0].id;
@@ -79,7 +79,7 @@ test.describe(
           expect(typeof businessId).toBe("string");
         });
 
-        await test.step("Partner Portal: Invite member to business", async () => {
+        await test.step("5 - Partner Portal: Invite member to business", async () => {
           await partnerPortalService.inviteMember(businessId, customerWithMember.members, partnerToken);
 
           expect(businessList).toBeDefined();
@@ -91,7 +91,7 @@ test.describe(
           expect(typeof businessList.entities[0].id).toBe("string");
         });
 
-        await test.step("Onboarding: Accept invitation and verify GET Payment/subscription/me", async () => {
+        await test.step("6 - Onboarding: Accept invitation and verify GET Payment/subscription/me", async () => {
           const invitedEmail = customerWithMember.members[0].email;
 
           await authFlow.acceptInviteAndJoinTeamByCustomer(invitedEmail, tempPassword);
@@ -176,7 +176,7 @@ test.describe(
         let email: string;
         let partnerToken: string;
 
-        await test.step("Pre-condition: Create partner, invitee payload, activate partner, obtain token", async () => {
+        await test.step("1 - Pre-condition: Create partner, invitee payload, activate partner, obtain token", async () => {
           const testData = new TestDataProvider(adminPortalService);
 
           const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
@@ -209,7 +209,7 @@ test.describe(
           partnerToken = await authenticationService.getAuthToken(email, tempPassword, "5");
         });
 
-        await test.step("For each team: create business, invite member, accept invitation, verify GET Payment/subscription/me", async () => {
+        await test.step("2 - For each team: create business, invite member, accept invitation, verify GET Payment/subscription/me", async () => {
           for (let i = 0; i < 2; i++) {
             const businessName = `${partnerInfo.accountInfo?.firstName}_${i}`;
 

@@ -88,6 +88,55 @@ export class OnboardingFlow {
 
   public upgradePlanForCustomer = async (customerInfo: CustomerInfo, planToUpgrade: string) => await this.onboardingAdminPortalFlow.upgradePlanForCustomer(customerInfo, planToUpgrade);
 
+  /**
+   * Reopen the customer's Details modal and verify the Subscription section shows the expected plan.
+   */
+  public verifySubscriptionPlanOfCustomer = async (customerInfo: CustomerInfo, expectedPlan: string) => {
+    try {
+      await this.assertSubscriptionPlanOfCustomer(customerInfo, expectedPlan);
+    } catch (error) {
+      await this.assertSubscriptionPlanOfCustomer(customerInfo, expectedPlan);
+    }
+  };
+
+  private assertSubscriptionPlanOfCustomer = async (customerInfo: CustomerInfo, expectedPlan: string) => {
+    //Reload first: it dismisses the modal the upgrade leaves open and refreshes the plan shown in the Details modal
+    await this.page.reload();
+
+    await this.onboardingAdminPortalFlow.openCustomerDetails(customerInfo);
+
+    const subscriptionPlanLocator = await this.onboardingAdminPortalFlow.getSubscriptionPlanOfCustomer();
+
+    await UiAssert.textContains(subscriptionPlanLocator, expectedPlan, { timeout: 60000 });
+  };
+
+  /**
+   * Reload the current page to dismiss any modal a previous step left open.
+   *
+   * Needed before left-menu navigation (`Management` -> `Customer/Partner Management`): an open
+   * modal's `b-modal__wrapper` overlays the page and intercepts the pointer events meant for the
+   * menu item, so the click times out with "subtree intercepts pointer events".
+   */
+  public dismissOpenModals = async () => await this.page.reload();
+
+  /**
+   * Asserts the `Upgrade Plan` action is NOT offered for the given account in Customer Management.
+   * Used for accounts that must not be upgradable: non-Owner team members, and Owners linked to a
+   * Partner/Consultant (their plan is managed through the Partner instead).
+   */
+  public verifyUpgradePlanNotAvailable = async (user: Partner | UserInfo | CustomerInfo) => {
+    await this.onboardingAdminPortalFlow.openDetailsInCustomerManagement(user);
+
+    await UiAssert.noneVisible([this.onboardingAdminPortalFlow.getUpgradePlanButton()]);
+  };
+
+  /** Asserts the `Upgrade Plan` action IS offered — the positive control for `verifyUpgradePlanNotAvailable`. */
+  public verifyUpgradePlanAvailable = async (user: Partner | UserInfo | CustomerInfo) => {
+    await this.onboardingAdminPortalFlow.openDetailsInCustomerManagement(user);
+
+    await UiAssert.allVisible([this.onboardingAdminPortalFlow.getUpgradePlanButton()]);
+  };
+
   public validateReceivedOneEmail = async (partnerInfo: Partner) => this.emailServicePage.validateReceivedOneEmail(partnerInfo);
 
   public validateReceivedTwoEmails = async (partnerInfo: Partner) => this.emailServicePage.validateReceivedTwoEmails(partnerInfo);

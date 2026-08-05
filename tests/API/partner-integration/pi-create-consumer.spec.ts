@@ -29,7 +29,7 @@ test.describe(
 
         let consumerData!: CustomerInfo;
         const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
-        await test.step("Pre-condition: Build consumer payload", async () => {
+        await test.step("1 - Pre-condition: Build consumer payload", async () => {
           consumerData = await DataFactory.customerBuilder().forMemberPortal().withDepartment(departmentID).build();
         });
 
@@ -39,12 +39,12 @@ test.describe(
         });
 
         //*************PRE-CONDITION #2: GET CLIENT PLANS LIST************//
-        await test.step("Pre-condition: Get client plans list", async () => {
+        await test.step("2 - Pre-condition: Get client plans list", async () => {
           const getClientPlansListResponse: any = await partnerIntegrationService.getClientPlansList(token);
         });
 
         //*************STEPS #2: RESET PASSWORD AND CONFIRM EMAIL************//
-        await test.step("Steps: Reset password and confirm email", async () => {
+        await test.step("3 - Steps: Reset password and confirm email", async () => {
           const resetResp = await authenticationService.resetPasswordWithoutToken({ username: (consumerData as any).email, password: tempPassword }, undefined, "4");
 
           //Activate the user account if needed (depends on system settings)
@@ -55,12 +55,12 @@ test.describe(
 
         // STEP #4: GET PLANS: GET Payment/products
         let plansResp!: object;
-        await test.step("Steps: Get plans list With Consumer Token", async () => {
+        await test.step("4 - Steps: Get plans list With Consumer Token", async () => {
           const consumerToken = await authenticationService.getAuthToken((consumerData as any).email, tempPassword, "4");
           plansResp = await memberPortalService.getPlansList(consumerData.company.departmentId!, consumerToken);
         });
         //*************POST-Condition: Verify the Response************//
-        await test.step("Post-condition: Verify the response", async () => {
+        await test.step("5 - Post-condition: Verify the response", async () => {
           expect(plansResp).toBeDefined();
           expect(typeof plansResp).toBe("object");
           expect(Array.isArray(plansResp as any)).toBeTruthy();

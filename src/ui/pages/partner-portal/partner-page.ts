@@ -62,13 +62,10 @@ export class PartnerPage extends BasePage {
   };
 
   public eraseModal = async () => {
-    try {
-      await this.page.locator(CommonPartnerPortalLocator.closeButton).click({ timeout: 7000 });
-    } catch {}
+    if (await this.page.locator(CommonPartnerPortalLocator.closeButton).first().isVisible({ timeout: 7000 })) await this.page.locator(CommonPartnerPortalLocator.closeButton).click({ timeout: 7000 });
 
-    if(await this.page.locator(CommonPartnerPortalLocator.closeTestModal).first().isVisible({ timeout: 7000 }))
+    if (await this.page.locator(CommonPartnerPortalLocator.closeTestModal).first().isVisible({ timeout: 7000 }))
       await this.page.locator(CommonPartnerPortalLocator.closeTestModal).first().click({ timeout: 7000 });
-
   };
 
   public validatePlanVisible = async () => {

@@ -1,0 +1,239 @@
+#,Ticket ID,Priority,Scenario,Steps Details,Expected Result,Status
+1,,High,Verify that the user can create a new account by clicking the Sign Up button.,"GIVEN User is in Member portal
+WHEN User clicks ""Sign up"" button ",THEN the user can create a new account by clicking the Sign Up button.,PASSED
+2,,Medium,Verify that the user can fill in all required information on the Sign Up screen.,"GIVEN User is in Member portal
+WHEN User clicks ""Sign up"" button 
+AND User fills in all required information",THEN the user can fill in all required information on the Sign Up screen.,PASSED
+3,,High,Verify that the email address is unique.,"GIVEN User is in Member portal
+WHEN User clicks ""Sign up"" button 
+AND User fills in all required information",THEN the email address is unique.,PASSED
+4,,Medium,Verify that all fields on the Sign Up screen are required (except for the HR System field).,"GIVEN User is in Member portal
+WHEN User clicks ""Sign up"" button 
+AND User fills in all required information",THEN all fields on the Sign Up screen are required (except for the HR System field).,PASSED
+5,,High,"Verify that after filling in all information and signing up, the user receives a confirmation email.","GIVEN User creates an account successfully in member portal
+WHEN User checks the mailbox 
+","THEN after filling in all information and signing up, the user receives a confirmation email.",PASSED
+6,,Low,Verify that the confirmation email is only valid for 24 hours.,"GIVEN User creates an account successfully in member portal
+WHEN User checks the mailbox 
+",THEN the confirmation email is only valid for 24 hours.,PASSED
+7,,Medium,"Verify that after confirming the email, the user is redirected to the Select Plan screen.","GIVEN User creates an account successfully in member portal
+WHEN User checks the mailbox ","THEN after confirming the email, the user is redirected to the Select Plan screen.",PASSED 
+8,,High,"On the Select Plan screen, the user can choose any available plan from the list.","GIVEN User creates an account successfully in member portal
+WHEN User checks the mailbox 
+AND User confirms the email","THEN on the Select Plan screen, the user can choose any available plan from the list.",PASSED
+9,,Medium,"After selecting a plan, the user can choose to pay annually or monthly, and apply a discount code.","GIVEN User creates an account successfully in member portal
+WHEN User selects plan","THEN after selecting a plan, the user can choose to pay annually or monthly, and apply a discount code.",PASSED
+10,,High,"After confirming the payment, the user is redirected to Stripe for checkout.","GIVEN User creates an account successfully in member portal
+WHEN User selects plan
+AND User makes payment through Stripe","THEN after confirming the payment, the user is redirected to Stripe for checkout.",PASSED
+11,,Medium,"On Stripe, the user enters card information and other related details.","GIVEN User creates an account successfully in member portal
+WHEN User selects plan
+AND User makes payment through Stripe","THEN on Stripe, the user enters card information and other related details.",PASSED
+12,,High,Verify that only valid cards can be processed for payment.,"GIVEN User creates an account successfully in member portal
+WHEN User selects plan
+AND User makes payment through Stripe",THEN only valid cards can be processed for payment.,PASSED
+13,,Medium,Verify that all invalid cards are declined.,"GIVEN User creates an account successfully in member portal
+WHEN User selects plan
+AND User makes payment through Stripe",THEN all invalid cards are declined.,PASSED
+14,,High,"Verify that after a successful payment, the system automatically redirects the user to the Virgil homepage.","GIVEN User creates an account successfully in member portal
+WHEN User selects plan
+AND User makes payment through Stripe","THEN after a successful payment, the system automatically redirects the user to the Virgil homepage.",PASSED
+15,,High,"Verify that after a successful payment, the user is granted access to Virgil according to the benefits included in the selected plan","GIVEN User creates an account successfully in member portal
+WHEN User selects plan
+AND User makes payment through Stripe","THEN after a successful payment, the user is granted access to Virgil according to the benefits included in the selected plan.",PASSED
+16,,High,Verify that new member portal user can be signed up under an existing partner,"GIVEN an existing partner is still activate
+When new user open sign up page on Member Portal
+And provide PartnerName
+And Submit the SignUp",Then user sign-up successfully,PASSED
+17,,High,Verify that the admin can create a new member account in Customer Management by clicking the Create New button.,"GIVEN User is on Customer management page of Admin portal 
+WHEN User clicks on ""Create new"" button ",THEN the admin can create a new member account in Customer Management by clicking the Create New button.,PASSED
+18,,Medium,"In the New Customer modal, the admin fills in the customer-related information.","GIVEN User is on Customer management page of Admin portal 
+WHEN User clicks on ""Create new"" button 
+AND User fills in the customer-related information.","THEN in the New Customer modal, the admin fills in the customer-related information.",PASSED
+19,,Medium,"In the New Customer modal, the admin can specify whether the account is a paid account or a free trial account.","GIVEN User is on Customer management page of Admin portal 
+WHEN User clicks on ""Create new"" button 
+AND User fills in the customer-related information.","THEN in the New Customer modal, the admin can specify whether the account is a paid account or a free trial account.",PASSED
+20,,Medium,"In the New Customer modal, the admin can enable or disable Bank Transfer.","GIVEN User is on Customer management page of Admin portal 
+WHEN User clicks on ""Create new"" button 
+AND User fills in the customer-related information.","THEN in the New Customer modal, the admin can enable or disable Bank Transfer.",PASSED
+21,,High,"When Bank Transfer = ON, the user is assigned a plan and does not need to make a payment through Stripe.","GIVEN User is on Customer management page of Admin portal 
+WHEN User clicks on ""Create new"" button 
+AND User fills in the customer-related information.","THEN when Bank Transfer = ON, the user is assigned a plan and does not need to make a payment through Stripe.",PASSED
+22,,High,"When Bank Transfer = OFF, the user selects a plan on the Select Plan screen and must complete the payment through Stripe.","GIVEN User is on Customer management page of Admin portal 
+WHEN User clicks on ""Create new"" button 
+AND User fills in the customer-related information.","THEN when Bank Transfer = OFF, the user selects a plan on the Select Plan screen and must complete the payment through Stripe.",PASSED
+23,,Medium,"When Bank Transfer = ON, the user receives two emails after the account is successfully created: a credential email and a plan benefit notification email.","GIVEN User is on Customer management page of Admin portal 
+WHEN User clicks on ""Create new"" button 
+AND User fills in the customer-related information.","THEN when Bank Transfer = ON, the user receives two emails after the account is successfully created: a credential email and a plan benefit notification email.",PASSED
+24,,Medium,"When Bank Transfer = OFF, the user receives one email after the account is successfully created: the credential email.","GIVEN User is on Customer management page of Admin portal 
+WHEN User clicks on ""Create new"" button 
+AND User fills in the customer-related information.","THEN when Bank Transfer = OFF, the user receives one email after the account is successfully created: the credential email.",PASSED
+25,,High,Verify that the user can successfully log in using the credentials provided in the credential email.,"GIVEN User is on Customer management page of Admin portal 
+WHEN User creates a new account successfully
+AND User checks the mailbox",THEN the user can successfully log in using the credentials provided in the credential email.,PASSED
+26,,Medium,"For accounts that use a system-generated password for the first login, the system will require the user to change it to a personal password.","GIVEN User is on Customer management page of Admin portal 
+WHEN User creates a new account successfully
+AND User logins for the first time","THEN for accounts that use a system-generated password for the first login, the system will require the user to change it to a personal password.",
+27,,High,"When Bank Transfer = ON, after changing the password, the user is redirected directly to the Homepage with the pre-assigned plan.","GIVEN User is on Customer management page of Admin portal 
+WHEN User creates a new account successfully
+AND User logins for the first time","THEN when Bank Transfer = ON, after changing the password, the user is redirected directly to the Homepage with the pre-assigned plan.",
+28,,High,"When Bank Transfer = OFF, after changing the password, the user is redirected to the Select Plan screen to choose and purchase a plan.","GIVEN User is on Customer management page of Admin portal 
+WHEN User creates a new account successfully
+AND User logins for the first time","THEN when Bank Transfer = OFF, after changing the password, the user is redirected to the Select Plan screen to choose and purchase a plan.",
+29,,Medium,"For Free Trial accounts, the user is also assigned a plan along with a limited number of free usage days.","GIVEN User is on Customer management page of Admin portal 
+WHEN User creates a new account successfully
+AND User logins for the first time","THEN for Free Trial accounts, the user is also assigned a plan along with a limited number of free usage days.",
+30,,High,Verify that a partner account can only be created in the Admin Portal – Partner Management.,"GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account ",THEN a partner account can only be created in the Admin Portal – Partner Management.,
+31,,High,"When a Partner is created, the admin can select its level as Partner or PEO/Consultant.","GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account ","THEN when a Partner is created, the admin can select its level as Partner or PEO/Consultant.",
+32,,Medium,"Verify that a Partner is at a higher level than a PEO/Consultant, meaning one Partner can contain one or multiple PEOs/Consultants.","GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account ","THEN a Partner is at a higher level than a PEO/Consultant, meaning one Partner can contain one or multiple PEOs/Consultants.",
+33,,Medium,"When creating a new Partner, the admin can choose to assign a sub-domain to that Partner, or not.","GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account 
+AND User fills information","THEN when creating a new Partner, the admin can choose to assign a sub-domain to that Partner, or not.",
+34,,High,"For Payment Options, the admin can select either Partner/Consultant Owner or Member Portal Consumer.","GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account 
+AND User fills information","THEN for Payment Options, the admin can select either Partner/Consultant Owner or Member Portal Consumer.",
+35,,High,"With Payment Options = Partner/Consultant Owner, the user will make payments in the Partner Portal, and the Partner account will be the owner of all Businesses.","GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account 
+AND User fills information","THEN with Payment Options = Partner/Consultant Owner, the user will make payments in the Partner Portal, and the Partner account will be the owner of all Businesses.",
+36,,High,"With Payment Options = Member Portal Consumer, the user does not handle payments, and each Business will have its own owner.","GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account 
+AND User fills information","THEN with Payment Options = Member Portal Consumer, the user does not handle payments, and each Business will have its own owner.",
+37,,Medium,"Verify that when creating a new Partner, the admin can allow certain benefits to appear in the Member Portal.","GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account 
+AND User fills information","THEN when creating a new Partner, the admin can allow certain benefits to appear in the Member Portal.",
+38,,Medium,Verify that the admin can specify which plans a Partner can use for its Businesses via the Product Type field.,"GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account 
+AND User fills information",THEN the admin can specify which plans a Partner can use for its Businesses via the Product Type field.,
+39,,High,Verify that the Partner email must be unique (no duplicates allowed).,"GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account 
+AND User fills information",THEN the Partner email must be unique (no duplicates allowed).,
+40,,High,Verify that the admin can enable Bank Transfer for a new Partner.,"GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account 
+AND User fills information",THEN the admin can enable Bank Transfer for a new Partner.,
+41,,High,"When Bank Transfer = ON, the Partner user is assigned a plan and does not need to make a payment through Stripe.","GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account 
+AND User fills information","THEN when Bank Transfer = ON, the Partner user is assigned a plan and does not need to make a payment through Stripe.",
+42,,High,"When Bank Transfer = OFF, the Partner user is not pre-assigned a plan, but instead selects a plan via the Select Plan screen and pays through Stripe.","GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account 
+AND User fills information","THEN when Bank Transfer = OFF, the Partner user is not pre-assigned a plan, but instead selects a plan via the Select Plan screen and pays through Stripe.",
+43,,Medium,"With Payment Options = Partner/Consultant Owner, after successfully creating a Partner account, the user receives two credential emails — one for the Partner Portal and one for the Member Portal.","GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account successfully
+AND User checks the mailbox","THEN with Payment Options = Partner/Consultant Owner, after successfully creating a Partner account, the user receives two credential emails — one for the Partner Portal and one for the Member Portal.",
+44,,High,"For Payment Options = Partner/Consultant Owner, the Owner account can log in to both the Member Portal and the Partner Portal.","GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account successfully
+AND User checks the mailbox","THEN for Payment Options = Partner/Consultant Owner, the Owner account can log in to both the Member Portal and the Partner Portal.",
+45,,Medium,"With Payment Options = Member Portal Consumer, after successfully creating a Partner account, the user receives one credential email — for the Partner Portal.","GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account successfully
+AND User checks the mailbox","THEN with Payment Options = Member Portal Consumer, after successfully creating a Partner account, the user receives one credential email — for the Partner Portal.",
+46,,High,"For Payment Options = Member Portal Consumer, the Owner of the Partner/Consultant can only log in to the Partner Portal.","GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account successfully
+AND User checks the mailbox","THEN for Payment Options = Member Portal Consumer, the Owner of the Partner/Consultant can only log in to the Partner Portal.",
+47,,High,"For Businesses under a Partner with Payment Options = Member Portal Consumer, the Business Owner cannot log in to the Partner Portal.","GIVEN User is on Partner management page of Admin portal 
+WHEN User creates a new Partner/Consultant account successfully
+AND User checks the mailbox","THEN for Businesses under a Partner with Payment Options = Member Portal Consumer, the Business Owner cannot log in to the Partner Portal.",
+48,,Medium,"Verify that after the first login, the system requires the partner user to change the system-generated password to a personal password.","GIVEN User is on Partner portal
+WHEN User creates a new Partner/Consultant account successfully
+AND User logs in for the first time","THEN after the first login, the system requires the partner user to change the system-generated password to a personal password.",
+49,,High,"Verify that after a successful login, the partner user proceeds to make a payment through Stripe when Payment Options = Partner/Consultant Owner and Bank Transfer = OFF.","GIVEN User is on Partner portal
+WHEN User creates a new Partner/Consultant account successfully
+AND User logs in for the first time","THEN after a successful login, the partner user proceeds to make a payment through Stripe when Payment Options = Partner/Consultant Owner and Bank Transfer = OFF.",
+50,,High,"After a successful payment, the partner user is redirected to the Partner Homepage.","GIVEN User is on Partner portal
+WHEN User creates a new Partner/Consultant account successfully
+AND User makes payment successfully","THEN after a successful payment, the partner user is redirected to the Partner Homepage.",
+51,,High,"Verify that for other payment configurations, the partner user is not required to make any payment through Stripe.","GIVEN User is on Partner portal
+WHEN User creates a new Partner/Consultant account successfully
+AND User logs in for the first time","THEN for other payment configurations, the partner user is not required to make any payment through Stripe.",
+52,,High,"Verify that when Payment Options = Partner/Consultant Owner, the partner account is both the Owner of the Partner Team and the Owner of all Businesses under it.","GIVEN User is on Partner portal
+WHEN User creates a new Partner/Consultant account successfully
+AND User logs in for the first time","THEN when Payment Options = Partner/Consultant Owner, the partner account is both the Owner of the Partner Team and the Owner of all Businesses under it.",
+53,,High,"Verify that when Payment Options = Member Portal Consumer, the partner account is the Owner of the Partner Team, while each Business has its own Owner.","GIVEN User is on Partner portal
+WHEN User creates a new Partner/Consultant account successfully
+AND User logs in for the first time","THEN when Payment Options = Member Portal Consumer, the partner account is the Owner of the Partner Team, while each Business has its own Owner.",
+54,,High,Verify that a user can invite members to a team in the Member Portal – Organization tab.,"GIVEN User is on Organization tab of Member portal
+WHEN User clicks ""Invite more"" button ",THEN a user can invite members to a team in the Member Portal – Organization tab.,
+55,,High,"In the Member Portal, only the Owner and Admin of a team can invite members to that team.","GIVEN User is on Organization tab of Member portal
+WHEN User clicks ""Invite more"" button ",THEN only the Owner and Admin of a team can invite members to that team in the Member Portal.,
+56,,High,Verify that the admin can invite members to a team in the Admin Portal – Customer Management.,"GIVEN User is on Customer management page of Admin portal
+WHEN User views details of an account
+AND User clicks ""Add more member(s)"" button",THEN the admin can invite members to a team in the Admin Portal – Customer Management.,
+57,,Medium,"In the Admin Portal, the admin can invite members to a team from the Details page of any account.","GIVEN User is on Customer management page of Admin portal
+WHEN User views details of an account
+AND User clicks ""Add more member(s)"" button",THEN the admin can invite members to a team from the Details page of any account in the Admin Portal.,
+58,,High,"Verify that after being invited, the account receives an invitation email.","GIVEN User is on Customer management page of Admin portal
+WHEN User invites a member to team successfully
+AND User checks the mailbox","THEN after being invited, the account receives an invitation email.",
+59,,Medium,"Verify that after confirming the invitation email, the user is redirected to the Password Confirmation screen.","GIVEN User is on Customer management page of Admin portal
+WHEN User invites a member to team successfully
+AND User accepts the invitation","THEN after confirming the invitation email, the user is redirected to the Password Confirmation screen.",
+60,,High,"Verify that after confirming the password, the user is added as a team member with the role assigned during the invitation.","GIVEN User is on Customer management page of Admin portal
+WHEN User invites a member to team successfully
+AND User accepts the invitation","THEN after confirming the password, the user is added as a team member with the role assigned during the invitation.",
+61,,High,Verify that team members are granted permissions according to their assigned roles.,"GIVEN User is on Customer management page of Admin portal
+WHEN User invites a member to team successfully
+AND User accepts the invitation",THEN team members are granted permissions according to their assigned roles.,
+62,,Medium,Verify that an account can belong to one or multiple teams.,"GIVEN User is on Customer management page of Admin portal
+WHEN User invites a member to team successfully
+AND User accepts the invitation",THEN an account can belong to one or multiple teams.,
+63,,High,Verify that the Partner Owner/Admin can create a new Business in the Clients page – Business tab.,"GIVEN User is on Clients page of Partner portal
+WHEN User creates a new Business ",THEN the Partner Owner/Admin can create a new Business in the Clients page – Business tab.,
+64,,High,Verify that members can be invited to a Business during the Business creation process.,"GIVEN User is on Clients page of Partner portal
+WHEN User creates a new Business 
+AND User invites members to business",THEN members can be invited to a Business during the Business creation process.,
+65,,High,Verify that members can also be invited to a Business after it has been successfully created.,"GIVEN User is on Clients page of Partner portal
+WHEN User creates a new Business successfully
+AND User invites members to business",THEN members can also be invited to a Business after it has been successfully created.,
+66,,High,"For Businesses under a Partner with Payment Options = Partner/Consultant Owner, the Partner account Owner is also the Owner of all Businesses, and any invited members will have roles other than Owner.","GIVEN User is on Clients page of Partner portal
+WHEN User creates a new Business successfully
+AND User invites members to business","THEN for Businesses under a Partner with Payment Options = Partner/Consultant Owner, the Partner account Owner is also the Owner of all Businesses, and any invited members will have roles other than Owner.",
+67,,High,"For Businesses under a Partner with Payment Options = Member Portal Consumer, the first invited member becomes the Owner of that Business.","GIVEN User is on Clients page of Partner portal
+WHEN User creates a new Business successfully
+AND User invites members to business","THEN for Businesses under a Partner with Payment Options = Member Portal Consumer, the first invited member becomes the Owner of that Business.",
+68,,Medium,"For a Partner with Payment Options = Partner/Consultant Owner, an account can also create a new Business by itself, with that account assigned as an Admin role in the Member Portal.","GIVEN User is on Sign up page of Member portal
+WHEN User creates a new account
+AND User selects partner/consultant at HR system field","THEN for a Partner with Payment Options = Partner/Consultant Owner, an account can also create a new Business by itself, with that account assigned as an Admin role in the Member Portal.",
+69,,Medium,"For a Partner with Payment Options = Member Portal Consumer, an account can also create a new Business by itself, with that account assigned as an Owner role in the Member Portal.","GIVEN User is on Sign up page of Member portal
+WHEN User creates a new account
+AND User selects partner/consultant at HR system field","THEN for a Partner with Payment Options = Member Portal Consumer, an account can also create a new Business by itself, with that account assigned as an Owner role in the Member Portal.",
+70,,High,Verify that the Owner/Admin of a Business can invite members from the Member Portal.,"GIVEN User is Owner/Admin of a Business
+WHEN User logs in Member portal
+AND User invites members to team",THEN the Owner/Admin of a Business can invite members from the Member Portal.,
+71,,High,Verify that the admin can auto-renew or upgrade a team’s (Owner account’s) plan in Customer Management.,"GIVEN User is on Customer management page of Admin portal 
+WHEN User views details of an Owner account",THEN the admin can auto-renew or upgrade a team’s (Owner account’s) plan in Customer Management.,
+72,,High,Verify that only the Owner of a team can have their plan auto-renewed or upgraded.,"GIVEN User is on Customer management page of Admin portal 
+WHEN User views details of an Owner account",THEN only the Owner of a team can have their plan auto-renewed or upgraded.,
+73,,High,"Verify that after performing an auto-renew or upgrade, the team’s plan is successfully renewed or upgraded.","GIVEN User is on Customer management page of Admin portal 
+WHEN User views details of an Owner account","THEN after performing an auto-renew or upgrade, the team’s plan is successfully renewed or upgraded.",
+74,,High,Verify that the Auto-Renew Plan function allows the admin to modify the plan’s benefits and price when the plan is renewed.,"GIVEN User is on Customer management page of Admin portal 
+WHEN User views details of an Owner account
+AND User uses Auto-Renew plan feature",THEN the Auto-Renew Plan function allows the admin to modify the plan’s benefits and price when the plan is renewed.,
+75,,High,"Verify that for official accounts, the Auto-Renew Plan does not change the plan immediately, but only when the account’s current subscription expires.","GIVEN User is on Customer management page of Admin portal 
+WHEN User views details of an Owner account
+AND User uses Auto-Renew plan feature","THEN for official accounts, the Auto-Renew Plan does not change the plan immediately, but only when the account’s current subscription expires.",
+76,,High,"Verify that after renewal, all accounts using the Auto-Renew Plan function are renewed according to the predefined benefits and pricing setup.","GIVEN User is on Customer management page of Admin portal 
+WHEN User views details of an Owner account
+AND User uses Auto-Renew plan feature","THEN after renewal, all accounts using the Auto-Renew Plan function are renewed according to the predefined benefits and pricing setup.",
+77,,High,Verify that the Auto-Renew Plan only works when the payment method is valid at the time of renewal.,"GIVEN User is on Customer management page of Admin portal 
+WHEN User views details of an Owner account
+AND User uses Auto-Renew plan feature",THEN the Auto-Renew Plan only works when the payment method is valid at the time of renewal.,
+78,,Medium,Verify that the admin can cancel a scheduled renewal before the plan renewal is executed.,"GIVEN User is on Customer management page of Admin portal 
+WHEN User views details of an Owner account
+AND User uses Auto-Renew plan feature",THEN the admin can cancel a scheduled renewal before the plan renewal is executed.,
+79,,High,Verify that the Upgrade Plan function allows the admin to upgrade an account to a higher plan than its current one.,"GIVEN User is on Customer management page of Admin portal 
+WHEN User views details of an Owner account
+AND User uses Upgrade plan feature",THEN the Upgrade Plan function allows the admin to upgrade an account to a higher plan than its current one.,
+80,,Medium,Verify that using the Upgrade Plan function allows toggling the Bank Transfer option.,"GIVEN User is on Customer management page of Admin portal 
+WHEN User views details of an Owner account
+AND User uses Upgrade plan feature",THEN using the Upgrade Plan function allows toggling the Bank Transfer option.,
+81,,High,"When Bank Transfer = ON, the user does not need to make a payment through Stripe, and the plan upgrade is applied immediately.","GIVEN User is on Customer management page of Admin portal 
+WHEN User views details of an Owner account
+AND User uses Upgrade plan feature","THEN when Bank Transfer = ON, the user does not need to make a payment through Stripe, and the plan upgrade is applied immediately.",
+82,,High,"When Bank Transfer = OFF, the user receives an email to complete the payment through Stripe. Once the payment is completed, the plan is immediately upgraded.","GIVEN User is on Customer management page of Admin portal 
+WHEN User views details of an Owner account
+AND User uses Upgrade plan feature","THEN when Bank Transfer = OFF, the user receives an email to complete the payment through Stripe. Once the payment is completed, the plan is immediately upgraded.",
+83,,High,"For accounts not using the Auto-Renew Plan function, the plan will be renewed on the subscription’s expiration date with the same plan and current configuration at that time.","GIVEN User is on Customer management page of Admin portal 
+WHEN User views details of an Owner account","THEN for accounts not using the Auto-Renew Plan function, the plan will be renewed on the subscription’s expiration date with the same plan and current configuration at that time.",
+84,,Medium,"Verify that the Auto-Renew, Upgrade, and Renewal functions are only applicable to accounts that are not linked to any Partner/Consultant","GIVEN User is on Customer management page of Admin portal 
+WHEN User views details of an Owner account that linked to Partner/Consultant","THEN the Auto-Renew, Upgrade, and Renewal functions are only applicable to accounts that are not linked to any Partner/Consultant.",

@@ -51,4 +51,25 @@ export class OnboardingAdminPortalFlow {
   public upgradePlanForCustomer = async (customerInfo: CustomerInfo, planToUpgrade: string): Promise<void> => {
     await this.customerManagementPage.upgradePlan(customerInfo, planToUpgrade);
   };
+
+  public openCustomerDetails = async (customerInfo: CustomerInfo): Promise<void> => await this.customerManagementPage.openCustomerDetails(customerInfo);
+
+  public getSubscriptionPlanOfCustomer = async () => await this.customerManagementPage.getSubscriptionPlan();
+
+  /**
+   * Open the Details modal for any account listed in Customer Management (Owner, member, or Business owner).
+   *
+   * Reloads first for the same reason `assertSubscriptionPlanOfCustomer` does: a modal left open by a
+   * previous step (Details, Add New Customer, invite) overlays the page and its
+   * `b-modal__wrapper` intercepts the pointer events meant for the left-menu `Management` item.
+   */
+  public openDetailsInCustomerManagement = async (user: Partner | UserInfo | CustomerInfo): Promise<void> => {
+    await this.page.reload();
+
+    await this.partnerManagementPage.accessToManagementPage("Customer");
+
+    await this.partnerManagementPage.clickDetailButton(user);
+  };
+
+  public getUpgradePlanButton = (): Locator => this.customerManagementPage.getUpgradePlanButton();
 }

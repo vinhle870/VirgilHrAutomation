@@ -49,7 +49,7 @@ test.describe(
         let departmentID: string;
 
         await test.step(
-          "Pre-condition: Ensure customer exists with Platinum plan and resolve team",
+          "1 - Pre-condition: Ensure customer exists with Platinum plan and resolve team",
           async () => {
             const adminService = await AdminPortalService.create(
               apiClient,
@@ -105,7 +105,7 @@ test.describe(
           },
         );
 
-        await test.step("Admin Portal: Invite team members", async () => {
+        await test.step("2 - Admin Portal: Invite team members", async () => {
           expect(teamId).toBeDefined();
           const inviteResponse = await adminPortalService.inviteTeamMember(
             teamId as string,
@@ -116,7 +116,7 @@ test.describe(
         });
 
         await test.step(
-          "Onboarding: Accept invitation and verify GET Payment/subscription/me",
+          "3 - Onboarding: Accept invitation and verify GET Payment/subscription/me",
           async () => {
             for (let i = 0; i < memberData.length; i++) {
               const email = consumerData.members[i].email;
@@ -291,7 +291,7 @@ test.describe(
         let memberToken: string;
 
         await test.step(
-          "Pre-condition: Ensure 500+ customer exists and obtain owner token",
+          "1 - Pre-condition: Ensure 500+ customer exists and obtain owner token",
           async () => {
             const adminService = await AdminPortalService.create(
               apiClient,
@@ -349,7 +349,7 @@ test.describe(
         );
 
         await test.step(
-          "Member Portal: Invite team members from owner customer",
+          "2 - Member Portal: Invite team members from owner customer",
           async () => {
             const inviteResponse =
               await memberPortalService.inviteTeamMemberFromAnOwnerCustomer(
@@ -362,7 +362,7 @@ test.describe(
         );
 
         await test.step(
-          "Onboarding: Accept invitation and verify GET Payment/subscription/me",
+          "3 - Onboarding: Accept invitation and verify GET Payment/subscription/me",
           async () => {
             for (let i = 0; i < consumerData.members.length; i++) {
               const email = consumerData.members[i].email;
@@ -539,7 +539,7 @@ test.describe(
         let memberToken: string;
 
         await test.step(
-          "Pre-condition: Ensure customer exists, resolve consumer id, assign invite roles, obtain owner token",
+          "1 - Pre-condition: Ensure customer exists, resolve consumer id, assign invite roles, obtain owner token",
           async () => {
             const adminService = await AdminPortalService.create(
               apiClient,
@@ -609,7 +609,7 @@ test.describe(
         );
 
         await test.step(
-          "Member Portal: Invite team members with assigned roles",
+          "2 - Member Portal: Invite team members with assigned roles",
           async () => {
             const inviteResponse =
               await memberPortalService.inviteTeamMemberFromAnOwnerCustomer(
@@ -622,7 +622,7 @@ test.describe(
         );
 
         await test.step(
-          "Verify: Accept invitation and assert member roles via Admin Portal",
+          "3 - Verify: Accept invitation and assert member roles via Admin Portal",
           async () => {
             const customerInfo = await adminPortalService.getCustomer(consumerId);
 

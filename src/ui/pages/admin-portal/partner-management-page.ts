@@ -260,23 +260,23 @@ export class PartnerManagementPage extends BasePage {
   public moveToManagementCategory = async () => await (await this.getLocator(CommonAdminPortalLocator.managementCategory)).click();
 
   public accessToManagementPage = async (category = "Partner") => {
-    await this.moveToManagementCategory();
+    const submenuSelector = category === "Partner" ? CommonAdminPortalLocator.partnerManagement : CommonAdminPortalLocator.customerManagement;
 
-    if (category === "Partner") {
-      const partnerManagementCategory = this.page.locator(CommonAdminPortalLocator.partnerManagement);
+    const submenu = this.page.locator(submenuSelector);
 
+    // `Management` is a TOGGLE, so only click it while the submenu is hidden. Clicking it when the
+    // submenu is already open collapses the menu, leaving the item below attached but invisible —
+    // the click then fails with "element is not visible". The menu is already expanded whenever the
+    // current route sits under Management, which is the case after a page reload.
+    const alreadyExpanded = await submenu.first().isVisible().catch(() => false);
+
+    if (!alreadyExpanded) await this.moveToManagementCategory();
+
+    if (category === "Partner" || category === "Member" || category === "Customer") {
       try {
-        await partnerManagementCategory.first().click({ timeout: 5000 });
+        await submenu.first().click({ timeout: 5000 });
       } catch (error) {
-        await partnerManagementCategory.last().click({ timeout: 5000 });
-      }
-    } else if (category === "Member" || category === "Customer") {
-      const customerManagementCategory = this.page.locator(CommonAdminPortalLocator.customerManagement);
-
-      try {
-        await customerManagementCategory.first().click({ timeout: 5000 });
-      } catch (error) {
-        await customerManagementCategory.last().click({ timeout: 5000 });
+        await submenu.last().click({ timeout: 5000 });
       }
     }
   };

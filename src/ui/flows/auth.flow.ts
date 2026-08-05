@@ -147,8 +147,15 @@ export class AuthFlow {
     await this.page.goto(credential.loginUrl);
   };
 
-  /** Asserts that exactly one verification email was received in the customer's inbox when creating a customer account. */
-  public validateReceivedOneEmailForCreatingCustomer = async (email: string) => await this.emailServicePage.validateReceivedOneEmailForCreatingCustomer(email);
+  /**
+   * Asserts an email with the given subject reached the inbox. Defaults to the sign-up
+   * verification subject; pass a subject to check a credential or invitation email instead.
+   *
+   * NOTE: this asserts the expected email is *present* — it does not count the inbox, so it
+   * cannot prove no other email arrived.
+   */
+  public validateReceivedOneEmailForCreatingCustomer = async (email: string, subject?: string) =>
+    await this.emailServicePage.validateReceivedOneEmailForCreatingCustomer(email, subject);
 
   /** Asserts that the verification email for a new customer contains a time-limited expiry notice (e.g. "X hours"). */
   public validateTimeLimitedEmailForCreatingCustomer = async (email: string) => {

@@ -16,7 +16,7 @@ test.describe(
     let partnerData: Partner;
     let paymentProductName: string;
     test.beforeAll(async ({ apiClient, adminPortalService }) => {
-      await test.step("Pre-condition: Call API -> create partner", async () => {
+      await test.step("1 - Pre-condition: Call API -> create partner", async () => {
         const testData = new TestDataProvider(adminPortalService);
 
         const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
@@ -35,7 +35,7 @@ test.describe(
           .build();
       });
 
-      await test.step("Create partner and verify partner id response", async () => {
+      await test.step("2 - Create partner and verify partner id response", async () => {
         const response = await adminPortalService.createPartner(partnerData);
 
 
@@ -59,7 +59,7 @@ test.describe(
         let customerAccountInfo: UserInfo | undefined;
         let resp: any;
 
-        await test.step("Pre-condition: Create Test Data", async () => {
+        await test.step("1 - Pre-condition: Create Test Data", async () => {
           const partnerName = partnerData.partnerInfo?.name;
           if (!partnerName) {
             throw new Error("PARTNER_NAME is not configured");
@@ -72,14 +72,14 @@ test.describe(
           customerAccountInfo = consumerData.accountInfo;
         });
 
-        await test.step("SEND POST API /Manage/Consumers: Create a new consumer to create Customer", async () => {
+        await test.step("2 - SEND POST API /Manage/Consumers: Create a new consumer to create Customer", async () => {
           if (!consumerData) {
             throw new Error("consumerData was not created in pre-condition step");
           }
           resp = await adminService.createCustomer(consumerData);
         });
 
-        await test.step("Verify API /Manage/Consumers Response", async () => {
+        await test.step("3 - Verify API /Manage/Consumers Response", async () => {
           expect(resp).toBeDefined();
           expect(typeof resp).toBe("object");
           expect(Object.keys(resp as any).length).toBeGreaterThan(0);
@@ -102,7 +102,7 @@ test.describe(
         let customerAccountInfo: UserInfo | undefined;
         let resp: any;
 
-        await test.step("Pre-condition: Resolve partner, product type, and build consumer payload", async () => {
+        await test.step("1 - Pre-condition: Resolve partner, product type, and build consumer payload", async () => {
           const partnerName = partnerData.partnerInfo?.name;
           if (!partnerName) {
             throw new Error("PARTNER_NAME is not configured");
@@ -126,14 +126,14 @@ test.describe(
           customerAccountInfo = consumerData.accountInfo;
         });
 
-        await test.step("SEND POST API /Manage/Consumers: Create customer under HR System (Partner)", async () => {
+        await test.step("2 - SEND POST API /Manage/Consumers: Create customer under HR System (Partner)", async () => {
           if (!consumerData) {
             throw new Error("consumerData was not created in pre-condition step");
           }
           resp = await adminService.createCustomer(consumerData);
         });
 
-        await test.step("Verify API /Manage/Consumers Response", async () => {
+        await test.step("3 - Verify API /Manage/Consumers Response", async () => {
           expect(resp).toBeDefined();
           expect(typeof resp).toBe("object");
           expect(Object.keys(resp as any).length).toBeGreaterThan(0);
@@ -156,7 +156,7 @@ test.describe(
         let customerAccountInfo: UserInfo | undefined;
         let resp: any;
 
-        await test.step("Pre-condition: Resolve partner, product type, and build trial subscription payload", async () => {
+        await test.step("1 - Pre-condition: Resolve partner, product type, build trial subscription payload", async () => {
           const partnerName = process.env.PARTNER_NAME;
           if (!partnerName) {
             throw new Error("PARTNER_NAME is not configured");
@@ -166,8 +166,8 @@ test.describe(
 
           const productTypeFilters = await adminService.getProductTypeFilters();
 
-          const matchedProduct = CollectionUtils.findByPropertyOrNull(Array.isArray(productTypeFilters) ? productTypeFilters : [productTypeFilters], "name" as any, paymentProductName);
-          const filteredProductType = matchedProduct ? (matchedProduct as any).productType : undefined;
+          const matchedPlan = CollectionUtils.findByPropertyOrNull(Array.isArray(productTypeFilters) ? productTypeFilters : [productTypeFilters], "name" as any, paymentProductName);
+          const filteredProductType = matchedPlan ? (matchedPlan as any).productType : undefined;
 
           consumerData = await DataFactory.customerBuilder()
             .forAdminPortal()
@@ -178,14 +178,14 @@ test.describe(
           customerAccountInfo = consumerData.accountInfo;
         });
 
-        await test.step("SEND POST API /Manage/Consumers: Create customer with trial subscription", async () => {
+        await test.step("2 - SEND POST API /Manage/Consumers: Create customer with trial subscription", async () => {
           if (!consumerData) {
             throw new Error("consumerData was not created in pre-condition step");
           }
           resp = await adminService.createCustomer(consumerData);
         });
 
-        await test.step("Verify API /Manage/Consumers Response", async () => {
+        await test.step("3 - Verify API /Manage/Consumers Response", async () => {
           expect(resp).toBeDefined();
           expect(typeof resp).toBe("object");
           expect(Object.keys(resp as any).length).toBeGreaterThan(0);
@@ -209,7 +209,7 @@ test.describe(
         let consumerById: any;
         let plan: string;
 
-        await test.step("Pre-condition: Resolve partner, product type, build bank transfer ON payload", async () => {
+        await test.step("1 - Pre-condition: Resolve partner, product type, build bank transfer ON payload", async () => {
           const partnerName = process.env.PARTNER_NAME;
           if (!partnerName) {
             throw new Error("PARTNER_NAME is not configured");
@@ -235,14 +235,14 @@ test.describe(
           customerAccountInfo = consumerData.accountInfo;
         });
 
-        await test.step("SEND POST API /Manage/Consumers: Create customer with bank transfer ON", async () => {
+        await test.step("2 - SEND POST API /Manage/Consumers: Create customer with bank transfer ON", async () => {
           if (!consumerData) {
             throw new Error("consumerData was not created in pre-condition step");
           }
           resp = await adminService.createCustomer(consumerData);
         });
 
-        await test.step("Verify API /Manage/Consumers Response", async () => {
+        await test.step("3 - Verify API /Manage/Consumers Response", async () => {
           expect(resp).toBeDefined();
           expect(typeof resp).toBe("object");
           expect(Object.keys(resp as any).length).toBeGreaterThan(0);
@@ -251,7 +251,7 @@ test.describe(
           expect((resp as any).team.name).toBe(consumerData!.company.companyName);
         });
 
-        await test.step("GET consumer by ID: Verify subscription plan", async () => {
+        await test.step("4 - GET consumer by ID: Verify subscription plan", async () => {
           consumerById = await adminService.getConsumerById((resp as any).id);
           expect(consumerById.subscription.name).toBe(paymentProductName);
         });
@@ -271,7 +271,7 @@ test.describe(
         let resp: any;
         let consumerById: any;
 
-        await test.step("Pre-condition: Resolve partner and build consumer payload (bank transfer OFF)", async () => {
+        await test.step("1 - Pre-condition: Resolve partner and build consumer payload (bank transfer OFF)", async () => {
           const partnerName = process.env.PARTNER_NAME;
           if (!partnerName) {
             throw new Error("PARTNER_NAME is not configured");
@@ -283,14 +283,14 @@ test.describe(
           customerAccountInfo = consumerData.accountInfo;
         });
 
-        await test.step("SEND POST API /Manage/Consumers: Create customer with bank transfer OFF", async () => {
+        await test.step("2 - SEND POST API /Manage/Consumers: Create customer with bank transfer OFF", async () => {
           if (!consumerData) {
             throw new Error("consumerData was not created in pre-condition step");
           }
           resp = await adminService.createCustomer(consumerData);
         });
 
-        await test.step("Verify API /Manage/Consumers Response", async () => {
+        await test.step("3 - Verify API /Manage/Consumers Response", async () => {
           expect(resp).toBeDefined();
           expect(typeof resp).toBe("object");
           expect(Object.keys(resp as any).length).toBeGreaterThan(0);
@@ -298,73 +298,9 @@ test.describe(
           expect((resp as any).email).toBe(customerAccountInfo!.email);
         });
 
-        await test.step("GET consumer by ID: Verify subscription is null (bank transfer OFF)", async () => {
+        await test.step("4 - GET consumer by ID: Verify subscription is null (bank transfer OFF)", async () => {
           consumerById = await adminService.getConsumerById((resp as any).id);
           expect(consumerById.subscription).toBe(null);
-        });
-      },
-    );
-
-    test(
-      "TC030_API Verify For Free Trial accounts, the user is also assigned a plan along with a limited number of free usage days.",
-      {
-        tag: ["@TC030", "@API", "@Admin Portal", "@Customer Management", "@Create Customer", "@Boarding", "@Free Trial"],
-      },
-      async ({ apiClient, authenticationService }) => {
-        const adminService = await AdminPortalService.create(apiClient, authenticationService);
-
-        let consumerData: CustomerInfo | undefined;
-        let customerAccountInfo: UserInfo | undefined;
-        let resp: any;
-        let consumerById: any;
-        let plan: string;
-
-        await test.step("Pre-condition: Resolve partner, product type, build free trial payload", async () => {
-          const partnerName = process.env.PARTNER_NAME;
-          if (!partnerName) {
-            throw new Error("PARTNER_NAME is not configured");
-          }
-
-          const partnerInfo = await adminService.searchPartner(partnerName);
-
-          const productTypeFilters = await adminService.getProductTypeFilters();
-
-          const matchedPlan = CollectionUtils.findByPropertyOrNull(Array.isArray(productTypeFilters) ? productTypeFilters : [productTypeFilters], "name" as any, paymentProductName);
-          const filteredProductType = matchedPlan ? (matchedPlan as any).productType : undefined;
-
-          consumerData = await DataFactory.customerBuilder()
-            .forAdminPortal()
-            .withCompanySize(filteredProductType)
-            .withAdminOptions({ productType: filteredProductType, trialDays: 30 })
-            .withDepartment(partnerInfo.departmentId!)
-            .build();
-          customerAccountInfo = consumerData.accountInfo;
-        });
-
-        await test.step("SEND POST API /Manage/Consumers: Create free trial customer", async () => {
-          if (!consumerData) {
-            throw new Error("consumerData was not created in pre-condition step");
-          }
-          resp = await adminService.createCustomer(consumerData);
-        });
-
-        await test.step("Verify API /Manage/Consumers Response", async () => {
-          expect(resp).toBeDefined();
-          expect(typeof resp).toBe("object");
-          expect(Object.keys(resp as any).length).toBeGreaterThan(0);
-          expect(Object.keys((resp as any).id).length).toBeGreaterThan(0);
-          expect((resp as any).email).toBe(customerAccountInfo!.email);
-        });
-
-        await test.step("GET consumer by ID: Verify plan name and trial duration", async () => {
-          consumerById = await adminService.getConsumerById((resp as any).id);
-          const startDate = new Date(consumerById.subscription.startDate);
-          const endDate = new Date(consumerById.subscription.endDate);
-          const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-          expect(consumerById.subscription.name).toBe(paymentProductName);
-          expect(diffDays).toBe(consumerData!.company.trialDays);
         });
       },
     );

@@ -26,7 +26,7 @@ test.describe(
         const testData = new TestDataProvider(adminPortalService);
         //Choose a plan = "50 - 100 Employees"
         const paymentProductName: string = plans[1];
-        await test.step("Pre-condition: Prepare data for the test: DepartmentID,masterPlan from ProductName = 50 - 100 Employees", async () => {
+        await test.step("1 - Pre-condition: Prepare data for the test: DepartmentID,masterPlan from ProductName = 50 - 100 Employees", async () => {
           //Create department id to send
           departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
 
@@ -40,7 +40,7 @@ test.describe(
         });
 
         //Create partner info using PartnerBuilder
-        const partnerInfo = await test.step("Pre-condition: Create partner info using PartnerBuilder", async () => {
+        const partnerInfo = await test.step("2 - Pre-condition: Create partner info using PartnerBuilder", async () => {
           return await DataFactory.partnerBuilder()
             .withIsPublic(true)
             .withWhoPay(0)
@@ -51,15 +51,15 @@ test.describe(
             .build();
         });
 
-        let customerWithMember = await test.step("Pre-condition: Generate member data for invite payload", async () => {
+        let customerWithMember = await test.step("3 - Pre-condition: Generate member data for invite payload", async () => {
           return await new CustomerBuilder().forMemberPortal().build();
         });
 
-        const partnerId = await test.step("Steps: Create partner", async () => {
+        const partnerId = await test.step("4 - Steps: Create partner", async () => {
           return await adminService.createPartner(partnerInfo);
         });
 
-        const partnerToken = await test.step("Steps: Get auth token from Partner", async () => {
+        const partnerToken = await test.step("5 - Steps: Get auth token from Partner", async () => {
           const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
 
           const email = partnerInfo.accountInfo?.email!;
@@ -81,7 +81,7 @@ test.describe(
         });
 
         //*************End of Pre-condition **************** //
-        await test.step("Steps: Create business", async () => {
+        await test.step("6 - Steps: Create business", async () => {
           //API Step: Get partner payment products list
           const partnerPlansList = await partnerPortalService.getPartnerPlansList(partnerToken);
 
@@ -95,7 +95,7 @@ test.describe(
           expect(business).toBe(true);
         });
         //API Step: Get business list
-        await test.step("Steps: Get business list", async () => {
+        await test.step("7 - Steps: Get business list", async () => {
           const businessList = await partnerPortalService.getBusinessList(partnerToken);
 
           expect(businessList).toBeDefined();
@@ -121,7 +121,7 @@ test.describe(
         //Choose a plan = "50 - 100 Employees"
         const paymentProductName: string = plans[1];
 
-        let preConditionData = await test.step("Pre-condition: Prepare data for the test", async () => {
+        let preConditionData = await test.step("1 - Pre-condition: Prepare data for the test", async () => {
           //Create department id to send
           let departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
 
@@ -140,7 +140,7 @@ test.describe(
           };
         });
         //Create partner info using PartnerBuilder
-        const partnerInfo = await test.step("Pre-condition: Create partner info using PartnerBuilder", async () => {
+        const partnerInfo = await test.step("2 - Pre-condition: Create partner info using PartnerBuilder", async () => {
           return await DataFactory.partnerBuilder()
             .withIsPublic(true)
             .withWhoPay(0)
@@ -151,7 +151,7 @@ test.describe(
             .build();
         });
 
-        let customerWithMember = await test.step("Pre-condition: Generate member data for invite payload", async () => {
+        let customerWithMember = await test.step("3 - Pre-condition: Generate member data for invite payload", async () => {
           // Generate member data for invite payload
           return await new CustomerBuilder()
             .forMemberPortal()
@@ -161,12 +161,12 @@ test.describe(
 
         //*************Pre-condition ****************  //
         //*********API Step: Create partner
-        const partnerId = await test.step("CALL API -> create partner", async () => {
+        const partnerId = await test.step("4 - CALL API -> create partner", async () => {
           return await adminService.createPartner(partnerInfo);
 
         });
 
-        const partnerToken = await test.step("CALL API -> get auth token from Partner", async () => {
+        const partnerToken = await test.step("5 - CALL API -> get auth token from Partner", async () => {
           const tempPassword = "Password@123";
 
           const email = partnerInfo.accountInfo?.email!;
@@ -192,7 +192,7 @@ test.describe(
         const invitedEmail = customerWithMember.members[0].email;
 
         //await onboardingFlow.acceptInvitation(invitedEmail);
-        const { partnerPlansList, planItem } = await test.step("Pre-condition: Get partner plans list and resolve plan item", async () => {
+        const { partnerPlansList, planItem } = await test.step("6 - Pre-condition: Get partner plans list and resolve plan item", async () => {
           const partnerPlansList = await partnerPortalService.getPartnerPlansList(partnerToken);
 
           const planItem = await testData.filterPartnerPlanBasedName(partnerPlansList, paymentProductName);
@@ -203,18 +203,18 @@ test.describe(
         //*************End of Pre-condition **************** //
 
         //*************API Step: Create business
-        await test.step("Verified CALL API -> create business is successful", async () => {
+        await test.step("7 - Verified CALL API -> create business is successful", async () => {
           const business = await partnerPortalService.createBusiness(partnerId, customerWithMember.company.companyName!, planItem.id, undefined, customerWithMember.members, partnerToken);
           expect(business).toBeDefined();
           expect(typeof business).toBe("boolean");
           expect(business).toBe(true);
         });
 
-        const businessList = await test.step("Verified CALL API -> get business list is successful", async () => {
+        const businessList = await test.step("8 - Verified CALL API -> get business list is successful", async () => {
           return await partnerPortalService.getBusinessList(partnerToken);
         });
 
-        await test.step("Verified business list is correct", async () => {
+        await test.step("9 - Verified business list is correct", async () => {
           //Verify businessList
           expect(businessList).toBeDefined();
           expect(typeof businessList).toBe("object");
@@ -225,7 +225,7 @@ test.describe(
           expect(typeof businessList.entities[0].id).toBe("string");
         });
 
-        await test.step("Verified CALL API -> get team members list reflects invited members", async () => {
+        await test.step("10 - Verified CALL API -> get team members list reflects invited members", async () => {
           const teamMembersList = await partnerPortalService.getTeamMembersList(businessList.entities[0].id, partnerToken);
           expect(teamMembersList).toBeDefined();
           expect(typeof teamMembersList).toBe("object");
@@ -254,7 +254,7 @@ test.describe(
 
         const paymentProductName: string = plans[1];
 
-        const preConditionData = await test.step("Pre-condition: Prepare department, products, and master plan", async () => {
+        const preConditionData = await test.step("1 - Pre-condition: Prepare department, products, and master plan", async () => {
           const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
 
           const productTypesAndNamesToSend: ProductInfo[] = await testData.getProductTypesBasedDepartmentId(departmentID);
@@ -268,7 +268,7 @@ test.describe(
           };
         });
 
-        const partnerInfo = await test.step("Pre-condition: Create partner info using PartnerBuilder", async () => {
+        const partnerInfo = await test.step("2 - Pre-condition: Create partner info using PartnerBuilder", async () => {
           return await DataFactory.partnerBuilder()
             .withIsPublic(true)
             .withWhoPay(0)
@@ -279,18 +279,18 @@ test.describe(
             .build();
         });
 
-        const customerWithMember = await test.step("Pre-condition: Generate member data for invite payload", async () => {
+        const customerWithMember = await test.step("3 - Pre-condition: Generate member data for invite payload", async () => {
           return await new CustomerBuilder()
             .forMemberPortal()
             .withMember({ role: 3 }) // User role
             .build();
         });
 
-        const partnerResponse = await test.step("Steps: Create partner", async () => {
+        const partnerResponse = await test.step("4 - Steps: Create partner", async () => {
           return await adminService.createPartner(partnerInfo);
         });
 
-        const partnerToken = await test.step("Steps: Activate partner account and get auth token", async () => {
+        const partnerToken = await test.step("5 - Steps: Activate partner account and get auth token", async () => {
 
           const tempPassword = "Password@123";
           const email = partnerInfo.accountInfo?.email!;
@@ -310,30 +310,30 @@ test.describe(
           );
         });
 
-        const { planItem } = await test.step("Pre-condition: Get partner plans list and resolve plan item", async () => {
+        const { planItem } = await test.step("6 - Pre-condition: Get partner plans list and resolve plan item", async () => {
           const partnerPlansList = await partnerPortalService.getPartnerPlansList(partnerToken);
           const planItem = await testData.filterPartnerPlanBasedName(partnerPlansList, paymentProductName);
           return { planItem };
         });
 
-        await test.step("Steps: Create business", async () => {
+        await test.step("7 - Steps: Create business", async () => {
           await partnerPortalService.createBusiness(partnerResponse, customerWithMember.company.companyName!, planItem.id, undefined, undefined, partnerToken);
         });
 
-        const businessList = await test.step("Steps: Get business list", async () => {
+        const businessList = await test.step("8 - Steps: Get business list", async () => {
           return await partnerPortalService.getBusinessList(partnerToken);
         });
 
         const businessId = businessList.entities[0].id;
 
-        await test.step("Steps: Invite members to business", async () => {
+        await test.step("9 - Steps: Invite members to business", async () => {
           const inviteMemberResponse = await partnerPortalService.inviteMember(businessId, customerWithMember.members, partnerToken);
           expect(inviteMemberResponse).toBeDefined();
           expect(typeof inviteMemberResponse).toBe("boolean");
           expect(inviteMemberResponse).toBe(true);
         });
 
-        await test.step("Verified CALL API -> get team members list reflects invited members", async () => {
+        await test.step("10 - Verified CALL API -> get team members list reflects invited members", async () => {
           const teamMembersList = await partnerPortalService.getTeamMembersList(businessList.entities[0].id, partnerToken);
           expect(teamMembersList).toBeDefined();
           expect(typeof teamMembersList).toBe("object");
@@ -363,7 +363,7 @@ test.describe(
 
         const paymentProductName: string = plans[1];
 
-        const preConditionData = await test.step("Pre-condition: Prepare department, products, and master plan", async () => {
+        const preConditionData = await test.step("1 - Pre-condition: Prepare department, products, and master plan", async () => {
           const departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
 
           const productTypesAndNamesToSend: ProductInfo[] = await testData.getProductTypesBasedDepartmentId(departmentID);
@@ -377,7 +377,7 @@ test.describe(
           };
         });
 
-        const partnerInfo = await test.step("Pre-condition: Create partner info using PartnerBuilder (WhoPay=Customer)", async () => {
+        const partnerInfo = await test.step("2 - Pre-condition: Create partner info using PartnerBuilder (WhoPay=Customer)", async () => {
           return await DataFactory.partnerBuilder()
             .withIsPublic(true)
             .withWhoPay(1) // Customer
@@ -388,20 +388,20 @@ test.describe(
             .build();
         });
 
-        const customerWithMember = await test.step("Pre-condition: Generate member data for invite payload", async () => {
+        const customerWithMember = await test.step("3 - Pre-condition: Generate member data for invite payload", async () => {
           return await DataFactory.customerBuilder()
             .forMemberPortal()
             .withMember({ role: 3 }) // User role
             .build();
         });
 
-        const partnerResponse = await test.step("Steps: Create partner", async () => {
+        const partnerResponse = await test.step("4 - Steps: Create partner", async () => {
           return await adminService.createPartner(partnerInfo);
         });
 
 
         if (partnerResponse) {
-          const partnerToken = await test.step("Steps: Activate partner account and get auth token", async () => {
+          const partnerToken = await test.step("5 - Steps: Activate partner account and get auth token", async () => {
             const tempPassword = "TempPass@" + Date.now().toString().slice(-4);
             const email = partnerInfo.accountInfo?.email!;
 
@@ -425,24 +425,24 @@ test.describe(
             );
           });
 
-          const { planItem } = await test.step("Pre-condition: Get partner plans list and resolve plan item", async () => {
+          const { planItem } = await test.step("6 - Pre-condition: Get partner plans list and resolve plan item", async () => {
             const partnerPlansList = await partnerPortalService.getPartnerPlansList(partnerToken);
             const planItem = await testData.filterPartnerPlanBasedName(partnerPlansList, paymentProductName);
             return { planItem };
           });
 
-          await test.step("Steps: Create business with invited members", async () => {
+          await test.step("7 - Steps: Create business with invited members", async () => {
             const business = await partnerPortalService.createBusiness(partnerResponse, customerWithMember.company.companyName!, planItem.id, undefined, customerWithMember.members, partnerToken);
             expect(business).toBeDefined();
             expect(typeof business).toBe("boolean");
             expect(business).toBe(true);
           });
 
-          const businessList = await test.step("Steps: Get business list", async () => {
+          const businessList = await test.step("8 - Steps: Get business list", async () => {
             return await partnerPortalService.getBusinessList(partnerToken);
           });
 
-          await test.step("Verified business list response", async () => {
+          await test.step("9 - Verified business list response", async () => {
             expect(businessList).toBeDefined();
             expect(typeof businessList).toBe("object");
             expect(businessList.entities).toBeDefined();
@@ -452,7 +452,7 @@ test.describe(
             expect(typeof businessList.entities[0].id).toBe("string");
           });
 
-          await test.step("Verified team members list (first invited member is owner)", async () => {
+          await test.step("10 - Verified team members list (first invited member is owner)", async () => {
             const teamMembersList = await partnerPortalService.getTeamMembersList(businessList.entities[0].id, partnerToken);
             expect(teamMembersList).toBeDefined();
             expect(typeof teamMembersList).toBe("object");

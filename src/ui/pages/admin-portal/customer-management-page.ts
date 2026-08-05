@@ -112,18 +112,22 @@ export class CustomerManagementPage extends BasePage {
     await numberOfEmployee.fill(numberOfEmployeesPerState.toString());
   };
 
-  public upgradePlan = async (customer: CustomerInfo, planToUpgrade: string) => {
-    if (customer.company.companySize?.includes("500+")) throw new Error("The current plan is maximun so it is impossible to upgrade");
-
+  /**
+   * Navigate to Customer Management and open the customer's Details view (Customer Details modal).
+   */
+  public openCustomerDetails = async (customer: CustomerInfo) => {
     const phoneNumber = customer.accountInfo.phoneNumber;
 
-    const managementCategory = await this.getLocator(CommonAdminPortalLocator.managementCategory);
+    //The Management submenu stays expanded once opened — only click it when Customer Management is not reachable yet
+    const customerManagementCategory = this.page.locator(CommonAdminPortalLocator.customerManagement);
 
-    await managementCategory.click();
+    if (!(await customerManagementCategory.first().isVisible())) {
+      const managementCategory = await this.getLocator(CommonAdminPortalLocator.managementCategory);
 
-    const customerManagementCategory = await this.getLocator(CommonAdminPortalLocator.customerManagement);
+      await managementCategory.click();
+    }
 
-    await customerManagementCategory.click();
+    await (await this.getLocator(CommonAdminPortalLocator.customerManagement)).click();
 
     const rawPhoneNumber = CommonCustomerLocator.detailButton;
 
@@ -133,6 +137,25 @@ export class CustomerManagementPage extends BasePage {
     const detailButtonEl = await this.getLocator(detailButtonLocator);
 
     await detailButtonEl.nth(2).click();
+  };
+
+  /**
+   * Current plan shown in the Customer Details modal -> Subscription section (Billing Info -> Subscription plan).
+   */
+  public getSubscriptionPlan = async (): Promise<Locator> => await this.getLocator(CustomerDetailModalLocator.subscriptionPlan);
+
+  /**
+   * The `Upgrade Plan` button in the Customer Details modal.
+   *
+   * Returned straight from `page.locator` rather than via `getLocator` on purpose: `getLocator`
+   * waits for the element to be attached and would throw before a caller could assert its absence.
+   */
+  public getUpgradePlanButton = (): Locator => this.page.locator(CustomerDetailModalLocator.customerDetailButton);
+
+  public upgradePlan = async (customer: CustomerInfo, planToUpgrade: string) => {
+    if (customer.company.companySize?.includes("500+")) throw new Error("The current plan is maximun so it is impossible to upgrade");
+
+    await this.openCustomerDetails(customer);
     //click upgrade plan
     await (await this.getLocator(CustomerDetailModalLocator.customerDetailButton)).click();
     //Choose the plan to upgrade

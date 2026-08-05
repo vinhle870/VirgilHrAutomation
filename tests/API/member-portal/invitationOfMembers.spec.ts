@@ -31,7 +31,7 @@ test.describe(
         let customerWithMember: Awaited<ReturnType<CustomerBuilder["build"]>>;
         let invitePayload: InviteMemberPayload;
 
-        await test.step("Pre-condition: Department, plan, partner payload, and invite payload", async () => {
+        await test.step("1 - Pre-condition: Department, plan, partner payload, and invite payload", async () => {
           const testData = new TestDataProvider(adminPortalService);
 
           departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
@@ -77,7 +77,7 @@ test.describe(
         let partnerToken: string;
         let token: string;
 
-        await test.step("Create partner, business, and obtain Member Portal token", async () => {
+        await test.step("2 - Create partner, business, and obtain Member Portal token", async () => {
           partnerResponse = await adminService.createPartner(partnerInfo);
 
 
@@ -94,14 +94,14 @@ test.describe(
           token = await authenticationService.getAuthToken(email, tempPassword, "4");
         });
 
-        await test.step("Member Portal: Invite member (Organization tab)", async () => {
+        await test.step("3 - Member Portal: Invite member (Organization tab)", async () => {
           const partnerName = partnerInfo.partnerInfo?.name;
           expect(partnerName).toBeDefined();
 
           await memberPortalService.inviteMember(token, invitePayload);
         });
 
-        await test.step("Onboarding: Accept invitation and verify GET Payment/subscription/me", async () => {
+        await test.step("4 - Onboarding: Accept invitation and verify GET Payment/subscription/me", async () => {
           const invitedEmail = invitePayload.recipients[0].email;
 
           await authFlow.activateCustomerAccount(invitedEmail, tempPassword);
@@ -198,7 +198,7 @@ test.describe(
           }>;
         };
 
-        await test.step("Pre-condition: Partner, business, and admin invite payload", async () => {
+        await test.step("1 - Pre-condition: Partner, business, and admin invite payload", async () => {
           const testData = new TestDataProvider(adminPortalService);
 
           departmentID = await testData.getDepartmentId(process.env.DEPARTMENT_NAME);
@@ -249,7 +249,7 @@ test.describe(
           };
         });
 
-        await test.step("Owner invites Admin: accept invitation and verify subscription", async () => {
+        await test.step("2 - Owner invites Admin: accept invitation and verify subscription", async () => {
           const tokenOwner = await authenticationService.getAuthToken(email, tempPassword);
 
           const inviteAdminResponse = await memberPortalService.inviteMember(tokenOwner, adminPayload);
@@ -319,7 +319,7 @@ test.describe(
           expect((paymentSubscriptionResp as any).lms).toHaveProperty("currentPlan");
         });
 
-        await test.step("Admin invites User: accept invitation and verify subscription", async () => {
+        await test.step("3 - Admin invites User: accept invitation and verify subscription", async () => {
           // Invite members payload
           const userEmail = "vinhle@yopmail.com";
 
