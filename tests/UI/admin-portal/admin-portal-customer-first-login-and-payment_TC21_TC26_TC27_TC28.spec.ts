@@ -5,6 +5,48 @@ import { plans } from "src/constant/static-data";
 
 test.describe("E2E -> Admin Portal -> Customer Management", { tag: ["@regression_UI", "@customer_management"] }, () => {
   test(
+    "TC21 When Bank Transfer = ON, the user is assigned a plan and does not need to make a payment through Stripe.",
+    {
+      tag: "@TC21",
+    },
+    async ({ loginPage, onboardingFlow, authFlow }) => {
+      await test.step("1 - Login to Admin portal", async () => {
+        await loginPage.login();
+      });
+
+      const customerInfo = await DataFactory.customerBuilder()
+        .withDepartmentName(process.env.DEPARTMENT_NAME!)
+        .withBankStranfer(true)
+        .withCompanySize(plans[0])
+        .build();
+
+      await test.step("2 - Create a customer with Bank Transfer = ON", async () => {
+        await onboardingFlow.createCustomerFromCustomerManagementPage(customerInfo);
+      });
+
+      await test.step("3 - Verify the customer is created successfully", async () => {
+        await onboardingFlow.verifyCustomerVisible(customerInfo);
+      });
+
+      // The plan is assigned by the admin at creation time — asserted here, while still on the
+      // Admin Portal, so the user-side check below needs no second admin login.
+      await test.step("4 - Verify a plan was assigned without any payment being taken", async () => {
+        await onboardingFlow.verifySubscriptionPlanOfCustomer(customerInfo, plans[0]);
+      });
+
+      await test.step("5 - Activate the account and change the password on first login", async () => {
+        await authFlow.activateAndChangePassIndividualCustomer(customerInfo.accountInfo.email, "Member", "Password@123");
+      });
+
+      // Reaching Home is the proof that no payment was demanded: with Bank Transfer OFF the same
+      // journey stops on the Select Plan screen and then Stripe (see TC22 / TC28).
+      await test.step("6 - Verify the user reaches the Homepage without a Select Plan or Stripe step", async () => {
+        await onboardingFlow.redirectToHomePage();
+      });
+    },
+  );
+
+  test(
     "TC26 For accounts that use a system-generated password for the first login, the system will require the user to change it to a personal password.",
     {
       tag: "@TC26",
